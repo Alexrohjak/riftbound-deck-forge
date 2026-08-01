@@ -48,10 +48,10 @@ the full card set locally so the tool keeps working if the API goes away.
 
 ---
 
-## D-003 — Collection ingestion: rent the scanner, build the importer
+## D-003 — Collection ingestion: rent the scanner, build the importer ⚠️ REVERSED
 
 **Date:** 2026-08-02
-**Status:** Accepted
+**Status:** Superseded by D-013 — *the reasoning below contained an arithmetic error*
 
 **Decided:** Seed the collection using an existing free OCR scanner app
 (RiftScan / Rift TCG Scanner / TCG Stacked / OpenRift) → export CSV → import into
@@ -73,6 +73,67 @@ means rescanning one box rather than starting over.
 
 **Unverified:** The CSV-export capability comes from app-store listings, not
 first-hand testing. **Verify on one trial box before committing.**
+
+> ❌ **Reversed.** Rift TCG Scanner turned out to be **paid, with scan limits**. More
+> importantly, the rejection of manual entry rested on a miscalculation — entry
+> effort scales with **unique card names**, not physical card count. See D-013.
+
+---
+
+## D-013 — Collection ingestion: purpose-built fast entry, no scanner ✅
+
+**Date:** 2026-08-02
+**Status:** Accepted — supersedes D-003
+
+**Decided:** Build a **keyboard-driven collection entry mode** into the tool.
+No third-party scanner app, no CSV import dependency.
+
+**Primary input is the collector number, not the card name.** Every Riftbound card
+has its collector number printed on it, so entry is 2–3 keystrokes with zero
+ambiguity about which printing was entered:
+
+```
+[30] → Jinx, Demolitionist  ⚡3 💪4 🔥1   →  [1][2][3] quantity
+```
+
+Name typeahead (RiftScribe `/api/cards/search`) remains as a fallback.
+Preconstructed products are added as **known bundles** — zero entry effort.
+
+**Why D-003 was wrong.** It costed manual entry against ~1,000 *physical* cards.
+But entry is per **unique name + quantity**, and the card universe is small:
+
+| Measure | Count |
+|---|---|
+| Total printings, all sets | 950 |
+| **Distinct card names** (what the 3-copy rule counts) | **767** |
+| Origins (OGN) printings → distinct names | 352 → **298** |
+
+From ~64 packs the realistic holding is **200–300 unique names**, not 1,000 rows.
+At 3–4 seconds each that is **15–20 minutes, once** — a paid third-party dependency
+was being adopted to avoid twenty minutes of typing.
+
+**Trigger for reversal:** the user reported the scanner app is paid and likely
+scan-limited.
+
+**Why this is strictly better:**
+
+1. No cost, no scan limits, no paywall
+2. No dependency on another company's app, pricing, or export format remaining stable
+3. **Needed regardless** — every future pack requires an entry path forever; a
+   scanner only ever solved day one
+4. Eliminates the entire OCR error class: no misreads, no variant confusion, no
+   silent drops
+5. Under our control, so it can do Riftbound-specific things a generic scanner
+   cannot — warn at the 3-copy ceiling, show what a card unlocks, suggest the next
+   collector number in sequence
+
+**Cost accepted:** ~20 minutes of one-time typing.
+
+**Consequences:** removes the CSV-importer work item; removes the unverified
+export-format risk; makes entry UX a **first-class Phase A feature** rather than a
+one-off migration step.
+
+---
 
 ---
 

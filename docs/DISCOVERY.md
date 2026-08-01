@@ -95,7 +95,9 @@ Implications:
 Agreed priority. The generator's output is only valuable if there is somewhere good
 to receive, inspect, edit and push back on it — and that place is the workbench.
 
-- Collection ingestion and management
+- **Collection entry mode** — keyboard-driven, keyed on collector number, with
+  preconstructed products added as known bundles. A first-class feature, not a
+  one-off migration step (see [D-013](DECISIONS.md#d-013))
 - Card gallery with full filtering
 - Manual deck construction with live legality validation
 - Deck statistics (curve, domain split, rune math, type ratios)
@@ -146,7 +148,7 @@ that feedback is an input to the next iteration — not a dead end.
 
 | Concern | Position | Confidence |
 |---|---|---|
-| **Scale** | 1 user · ~250–400 unique cards · ~1,000 physical cards · dozens of decks | Assumption |
+| **Scale** | 1 user · **200–300 unique names owned** (of 767 in existence) · ~1,000 physical cards · dozens of decks. Entire card pool is 950 printings — cacheable in full. | **Measured** |
 | **Performance** | Filtering and validation feel instant (<100 ms). Generation responsive (<2 s). Trivial at this data size. | Assumption |
 | **Privacy** | No PII, no credentials, nothing sensitive. Worst case: someone sees a card list. | Assumption |
 | **Reliability** | No uptime requirement. A day of downtime causes no harm. | Assumption |

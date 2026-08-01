@@ -156,6 +156,32 @@ Self-described as an independent fan project.
 **Notable:** `keywords` arrives **pre-parsed**, `is_banned` is provided, and
 `stats` separates energy/might/power. This is close to ideal for a constraint solver.
 
+### Pagination
+
+`limit` is capped at **200** (`limit=500` returns a 422 with `"Input should be less
+than or equal to 200"`). Use `offset` to page. The `set` query parameter did **not**
+filter in testing — all sets returned the full pool — so **filter client-side on
+`set_id`** until the correct parameter name is confirmed.
+
+### ⚠️ The card universe is small — measured 2026-08-02
+
+Full enumeration via paginated `GET /api/cards`:
+
+| Measure | Count |
+|---|---|
+| Total card entries (printings) | **950** |
+| **Distinct card names** — what the 3-copy limit counts | **767** |
+| OGN (Origins) | 352 printings → **298 distinct names** |
+| SFD | 288 |
+| UNL | 286 |
+| OGS | 24 |
+
+OGN by type: Unit 166 · Spell 84 · Gear 30 · Legend 36 · Battlefield 24 · Rune 12
+
+**This measurement directly caused the D-003 → D-013 reversal.** The whole card pool
+fits comfortably in memory and can be cached locally in full, which also mitigates
+the risk of RiftScribe disappearing (D-002).
+
 ### ⚠️ Variant collapsing
 
 `ogn-202-298` and `ogn-202a-298` are **both "Jinx, Rebel"** — different printings of
@@ -230,17 +256,21 @@ Both agree the 3-copy limit spans main deck **+** sideboard.
 
 ---
 
-## 5. Collection Scanner Apps
+## 5. Collection Scanner Apps — ❌ NOT USED
 
-Candidates for D-003 ingestion. **CSV export is claimed by store listings but has
-not been verified first-hand** — test on one box before committing.
+Investigated for D-003, then **abandoned** in D-013. Recorded so the ground is not
+re-covered.
 
-| App | Platform | Notes |
+| App | Platform | Outcome |
 |---|---|---|
-| **Rift TCG Scanner** | iOS + Android | Named collections, quantities, variants (Base/Foil/Promo), export to text or CSV |
-| **RiftScan** | Android | OCR; auto-identifies card ID/number and assigns to the correct set; file export |
-| **TCG Stacked** | Web + mobile | CSV upload **and** scanning |
-| **OpenRift** | Web | Open source and free; imports from various platforms, exports CSV |
+| **Rift TCG Scanner** | iOS + Android | ❌ **Paid**, with scan limits. Trigger for the D-013 reversal. |
+| **RiftScan** | Android only | Not viable — user is on iPhone 13 |
+| **TCG Stacked** | Web + mobile | Not pursued |
+| **OpenRift** | Web | Not pursued for ingestion, but **open source, free, and uses Piltover-compatible deck codes** — worth revisiting as an interop/export reference |
+
+**Conclusion:** collection entry is built in-house (D-013), keyed on **collector
+number**. Every Riftbound card prints its collector number, making numeric entry
+faster and less ambiguous than either OCR or name typing.
 
 ---
 
