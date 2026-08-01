@@ -1,4 +1,4 @@
-# Riftbound Deck Forge
+# Forge
 
 A personal deckbuilding workbench for [Riftbound](https://riftbound.leagueoflegends.com/en-us/),
 Riot Games' League of Legends trading card game.
@@ -13,7 +13,7 @@ Riftbound cards come from random pack openings. Every published guide and netdec
 assumes a card pool you don't have, which makes them aspirational rather than
 actionable.
 
-This project inverts the question:
+Forge inverts the question:
 
 > **Given the cards I actually own, what can I legally and effectively build?**
 
@@ -22,32 +22,59 @@ This project inverts the question:
 ## What It Will Be
 
 **Phase A — The Workbench**
-Catalogue the cards you physically own, then browse, filter and assemble decks by
-hand with live rules validation and real deck statistics. Read-only deck access on
-your phone while playing.
+Catalogue the cards you physically own, then browse, filter and assemble decks by hand
+with live rules validation and honest deck statistics. Cards sleeved into a built deck
+stop being available — and always show which deck holds them. Same app on desktop and
+phone, fully editable on both.
 
-**Phase B — The Generator**
-Give it an anchor (a Legend, a Champion, or a card you want to build around), a
-playstyle, and any constraints on what you *don't* want. It proposes complete,
-legal, effective decks built only from cards you own — and when you disagree with a
-suggestion, you say so and it iterates.
-
-Design north star: [Piltover Archive](https://piltoverarchive.com/deckbuilder),
-plus an owned-cards layer, plus a genuinely smart generator.
+**Phase B — The Generator** *(hypothesis, not a commitment)*
+Give it an anchor, a playstyle, and constraints on what you *don't* want; it proposes
+legal decks built only from cards you own, and iterates when you disagree.
+Deliberately downgraded to a research spike — see below.
 
 ---
 
-## Planning Documentation
-
-This repository currently holds planning artefacts only. Read them in this order:
+## Documentation
 
 | Document | Contents |
 |---|---|
-| [**`docs/PLAN.md`**](docs/PLAN.md) | **The full delivery plan — every stage from here to a finished tool, with gates, milestones and risks. Start here.** |
-| [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, constraints, non-goals, open questions |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, its alternatives, and why — including three deliberate reversals |
-| [`docs/RESEARCH.md`](docs/RESEARCH.md) | Riftbound rules (rulebook-cited), the card-data API, the meta-data landscape |
-| [`docs/DECK-STATS.md`](docs/DECK-STATS.md) | What the tool reports about a deck, and how honest it is about its own uncertainty |
+| [**`docs/PLAN.md`**](docs/PLAN.md) | **The delivery plan — every stage, gate, milestone and risk. Start here.** |
+| [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals, open questions |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision with alternatives and rationale — including four reversals |
+| [`docs/AUDIT.md`](docs/AUDIT.md) | First-principles audit of the project's own assumptions |
+
+### Specification — what we're building
+
+| Document | Contents |
+|---|---|
+| [`docs/spec/DATA-MODEL.md`](docs/spec/DATA-MODEL.md) | Entities, the commitment model, lifecycle questions answered |
+| [`docs/spec/LEGALITY.md`](docs/spec/LEGALITY.md) | 27 validation checks, 10 rulebook-derived tests |
+| [`docs/spec/DECK-STATS.md`](docs/spec/DECK-STATS.md) | What Forge reports, and how honest it is about its own uncertainty |
+| [`docs/spec/GENERATOR.md`](docs/spec/GENERATOR.md) | The generator as a research spike, with kill conditions |
+
+### Reference — external facts we don't control
+
+| Document | Contents |
+|---|---|
+| [`docs/reference/GAME-RULES.md`](docs/reference/GAME-RULES.md) | How Riftbound works, cited to the official rulebooks |
+| [`docs/reference/DATA-SOURCES.md`](docs/reference/DATA-SOURCES.md) | Card APIs, the meta-data landscape, and what's off-limits |
+
+---
+
+## Three things worth knowing
+
+**An audit found the project's most fragile assumption.** Forge assumes the bottleneck
+is *information*, not *cards*. If the collection can't actually produce complete legal
+decks, no software fixes that. **Stage 0.5 tests this by hand, in two hours, before any
+code is written.**
+
+**The generator may not be wanted.** The stated goal is to enjoy hours of tinkering; a
+generator automates tinkering. That contradiction is unresolved and the feature is now
+a spike with kill conditions, not a plan.
+
+**Statistics never composite into a grade.** Deck strength is an estimate, not a fact,
+so Forge shows a panel of independent statistics in three confidence tiers — and omits
+the uncertain tier entirely rather than faking it.
 
 ---
 
@@ -59,15 +86,6 @@ Built under 4-Phase Spec-Driven Development:
 2. **Visualization** — prototype for early UX validation
 3. **Development** — every change maps to a task
 4. **Human QA** — the final gate
-
----
-
-## Data Sources
-
-- **Card data:** [RiftScribe API](https://riftscribe.gg/api-docs) — free, public, no auth
-- **Collection ingestion:** existing OCR scanner apps → CSV → import
-- **Meta data:** pluggable adapter. **No scraping** of sources that prohibit it
-  (see [`D-010`](docs/DECISIONS.md#d-010--we-will-not-scrape-sources-that-prohibit-it))
 
 ---
 

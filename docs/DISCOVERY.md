@@ -1,4 +1,4 @@
-# Discovery — Riftbound Deck Forge
+# Discovery — Forge
 
 > **Status:** Discovery in progress. Not yet a locked BLUEPRINT.
 > **Phase:** 1 (Discovery) of the 4-Phase SOP
@@ -26,8 +26,10 @@ A personal, single-user deckbuilding **workbench** for Riftbound, consisting of:
 1. **A collection layer** — catalogue of physically owned cards with quantities.
 2. **A deckbuilding workbench** — browse, filter, and assemble decks by hand with
    live rules validation and deck statistics.
-3. **A deck generator** *(phase 2)* — given an anchor and intent, propose complete
-   deck candidates constrained to the owned collection.
+3. **A deck generator** *(hypothesis, not commitment)* — given an anchor and intent,
+   propose complete deck candidates constrained to the owned collection.
+   ⚠️ **Downgraded to a research spike** by the [assumption audit](AUDIT.md) —
+   see [spec/GENERATOR.md](spec/GENERATOR.md).
 
 ### Design north star
 
@@ -107,15 +109,18 @@ to receive, inspect, edit and push back on it — and that place is the workbenc
 - Card gallery with full filtering
 - Manual deck construction with live legality validation
 - Deck statistics (curve, domain split, rune math, type ratios)
-- Save / edit / iterate on decks
-- Read-only phone view of saved decks
+- Save / edit / iterate on decks, with the DRAFT/BUILT commitment model
+- **Full phone parity** — the same app, fully editable ([D-018](DECISIONS.md#d-018))
 
-### Phase B — The Generator *(v2)*
+### Phase B — The Generator *(research spike, not a commitment)*
 
-- Anchor-seeded deck generation (Legend / Champion / specific card)
-- Positive intent (playstyle, archetype) and **negative constraints** ("not this")
-- Multi-factor effectiveness scoring
-- **Interactive refinement** — reject a suggestion, explain why, regenerate
+⚠️ **Downgraded** following the [assumption audit](AUDIT.md), finding A9. The stated
+goal is to *enjoy hours of tinkering*; a generator automates tinkering. What is
+actually wanted may be a workbench that makes tinkering fast and well-informed —
+which is Phase A. **Unanswerable until Phase A exists.**
+
+Full specification, including kill conditions and the unresolved
+objective-function contradiction: [spec/GENERATOR.md](spec/GENERATOR.md).
 
 ---
 
@@ -169,8 +174,9 @@ that feedback is an input to the next iteration — not a dead end.
 | ~~Q1~~ | Does phone access need to work away from home? | ✅ **Yes** — [D-012](DECISIONS.md#d-012), superseded by [D-018](DECISIONS.md#d-018) |
 | ~~Q2~~ | Sideboard size: 0-or-8, or 0–10? | ✅ **0–10** (TR 601.1.c.1). Community guides were stale — [D-020](DECISIONS.md#d-020) |
 | ~~Q3~~ | Are cards locked inside physically built decks? | ✅ **Yes — cards in decks are committed** — [D-017](DECISIONS.md#d-017) |
-| Q4 | Can legitimate access to tournament/meta data be obtained? | 🟡 Open — mitigated by the adapter in [D-009](DECISIONS.md#d-009) |
-| Q5 | Is "playstyle" a fixed tag list, free text, or inferred from the anchor? | 🔴 **Open** — Phase B blocker |
+| Q4 | Can legitimate access to tournament/meta data be obtained? | 🟡 Open — mitigated by [D-009](DECISIONS.md#d-009). ⚠️ **Reframed:** also a *relevance* problem, not only access — see [AUDIT.md](AUDIT.md) A8 |
+| **DM1** | ⚠️ **Does any source expose champion tags and the Signature supertype?** Five legality checks are unimplementable without them | 🔴 **Blocker** — [spec/LEGALITY.md](spec/LEGALITY.md#4-open-risks) |
+| ~~Q5~~ | Is "playstyle" a fixed tag list, free text, or inferred from the anchor? | ✅ **Resolved in principle** — defined **mechanically** rather than by name, sidestepping the missing archetype data. [spec/GENERATOR.md §5](spec/GENERATOR.md) |
 | ~~Q6~~ | Should the system help physically *locate* cards? | ⏸️ **Deferred** until the new organising box — [D-021](DECISIONS.md#d-021) |
 | Q7 | Is best-of-three / sideboard play in scope? | 🟡 Open — rules now fully captured either way (RESEARCH §4.8) |
 
@@ -179,7 +185,7 @@ that feedback is an input to the next iteration — not a dead end.
 | # | Question | Status |
 |---|---|---|
 | Q8 | Casual (≥40) or competition (=40) as the default legality mode? Both must be supported. | 🔴 Open |
-| ~~Q9~~ | Which statistics belong in the deck stats panel? | ✅ **Resolved** — three-tier confidence framework, [DECK-STATS.md](DECK-STATS.md) · [D-022](DECISIONS.md#d-022) |
+| ~~Q9~~ | Which statistics belong in the deck stats panel? | ✅ **Resolved** — three-tier confidence framework, [spec/DECK-STATS.md](spec/DECK-STATS.md) · [D-022](DECISIONS.md#d-022) |
 | Q10 | How are per-set errata and the official ban list ingested and kept current? | 🟡 Open |
 | Q11 | How does deck editing work well under touch, given full phone parity ([D-018](DECISIONS.md#d-018))? | 🔴 Open |
 

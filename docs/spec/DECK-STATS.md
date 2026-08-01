@@ -1,7 +1,7 @@
 # Deck Statistics Framework
 
 > **Resolves Q9.** Establishes what the workbench and generator report about a deck,
-> now that [D-016](DECISIONS.md#d-016) has ruled out a composite effectiveness grade.
+> now that [D-016](../DECISIONS.md#d-016) has ruled out a composite effectiveness grade.
 >
 > **Status:** Design accepted 2026-08-02. Not yet specified to implementation detail.
 
@@ -93,8 +93,8 @@ Deterministic. Computed directly from the decklist. Always exactly right.
 | **Might distribution** | Combat is Might-vs-Might in Showdowns |
 | **Keyword counts** | Tank, Assault, Accelerate, Deflect, Hidden, Legion, Hunt |
 | **Rune split** | Per domain, out of 12 |
-| **Signature card count** | Hard cap of 3 total (CR 103.2.d.1) — see [D-020](DECISIONS.md#d-020) |
-| **Collection reality** | How many slots are **committed to other decks** ([D-017](DECISIONS.md#d-017)) |
+| **Signature card count** | Hard cap of 3 total (CR 103.2.d.1) — see [D-020](../DECISIONS.md#d-020) |
+| **Collection reality** | How many slots are **committed to other decks** ([D-017](../DECISIONS.md#d-017)) |
 
 ---
 
@@ -122,7 +122,7 @@ External data. Genuinely uncertain. Visually distinct and explicitly labelled.
 - Performance of comparable tournament decks
 
 > **Currently blocked on Q4** (legitimate access to tournament data). Under
-> [D-009](DECISIONS.md#d-009) the panel **omits this tier entirely rather than
+> [D-009](../DECISIONS.md#d-009) the panel **omits this tier entirely rather than
 > fabricating it.** An absent Tier 3 is an honest panel; an invented one is not.
 
 ---
@@ -155,4 +155,4 @@ A deck with 14 castable options on turn 3 is meaningfully more flexible than one
 | S2 | Which statistics surface by default vs. on demand — the panel must not become a wall |
 | S3 | Whether Tier 2 assumptions are always visible or revealed on interaction |
 | S4 | Monte Carlo iteration count vs. responsiveness (target <2 s, per DISCOVERY §9) |
-| S5 | Whether the generator ranks candidates using these statistics without ever compositing them into a score — **it must not**, per [D-016](DECISIONS.md#d-016) |
+| S5 | Whether the generator ranks candidates using these statistics without ever compositing them into a score — **it must not**, per [D-016](../DECISIONS.md#d-016) |

@@ -1,4 +1,4 @@
-# Decision Log — Riftbound Deck Forge
+# Decision Log — Forge
 
 Every significant decision, the alternatives considered, and why. Append-only:
 if a decision is reversed, add a new entry rather than editing the old one.
@@ -473,7 +473,7 @@ notes had surfaced.
 > **CR 103.2.d.3** — Signature cards are **not** Champion units and cannot occupy the
 > Champion Zone.
 
-See RESEARCH.md §4 for the full authoritative rule set.
+See [reference/GAME-RULES.md](reference/GAME-RULES.md) for the full authoritative rule set.
 
 ---
 
@@ -497,7 +497,7 @@ at a *deck*, not a physical location, and is in scope now.
 ## D-022 — Deck statistics use a three-tier confidence framework ✅ Q9 RESOLVED
 
 **Date:** 2026-08-02
-**Status:** Accepted — full specification in [DECK-STATS.md](DECK-STATS.md)
+**Status:** Accepted — full specification in [spec/DECK-STATS.md](spec/DECK-STATS.md)
 
 **Decided:** Statistics are organised by **epistemic confidence**, and the tier is
 encoded in the visual language rather than footnoted.
@@ -556,3 +556,147 @@ undefined it would have become decoration; this version is computable from data
 already held.
 
 Both were proposed as pushback and explicitly accepted by the user.
+
+---
+
+## D-025 — The project is called **Forge**; documentation restructured
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+**Decided:** "Forge" is the project name in all documentation. The repository keeps
+its existing slug (`riftbound-deck-forge`) — renaming it would break the remote for
+no benefit.
+
+Documentation is reorganised by **purpose**, because a flat `docs/` folder had begun
+mixing process, specification and external reference:
+
+```
+docs/
+  PLAN.md         delivery plan — the entry point
+  DISCOVERY.md    problem, scope, non-goals, open questions
+  DECISIONS.md    this log
+  AUDIT.md        assumption audit
+  spec/           what we are building
+    DATA-MODEL.md · LEGALITY.md · DECK-STATS.md · GENERATOR.md
+  reference/      external facts we do not control
+    GAME-RULES.md · DATA-SOURCES.md
+```
+
+`RESEARCH.md` is retired, split into `reference/GAME-RULES.md` (how the game works)
+and `reference/DATA-SOURCES.md` (what data exists and what is off-limits). The split
+matters because the two change for entirely different reasons and at different rates.
+
+---
+
+## D-026 — Only `BUILT` decks commit cards — refines D-017
+
+**Date:** 2026-08-02
+**Status:** Accepted — refines, does not reverse, D-017
+
+**Decided:** Decks have a state. **`DRAFT` commits nothing; `BUILT` commits its cards.**
+
+**Why the refinement was needed:** D-017 established that cards in decks are taken,
+but did not distinguish planning from physical reality. Without the distinction, every
+speculative deck would lock cards, the collection would appear exhausted after three
+ideas, and the tool would become unusable for exactly the exploratory tinkering it
+exists to support.
+
+**Only sleeved cardboard is genuinely unavailable.** Full model in
+[spec/DATA-MODEL.md §3](spec/DATA-MODEL.md#3-commitment).
+
+Corollary: a DRAFT deck **may** exceed availability, producing a *conflict* — surfaced
+as information showing which deck holds the cards, never as a wall. Promotion to BUILT
+requires zero conflicts, or an explicit choice to dismantle the holder.
+
+---
+
+## D-027 — A walking skeleton precedes layered construction
+
+**Date:** 2026-08-02
+**Status:** Accepted — from [AUDIT.md](AUDIT.md) finding A12 (risk 20)
+
+**Decided:** Insert **Stage 3.5** — an end-to-end, deliberately crude vertical slice —
+before the layered stages.
+
+**Problem it solves:** the original plan built horizontally (card data → legality →
+collection → workbench → statistics), meaning **nothing worked end-to-end until Stage
+7**. For a project whose entire purpose is enjoyment, and whose dominant risk is
+enthusiasm decaying before value arrives, that sequencing was backwards.
+
+**Alternatives considered:** keeping the layered build and relying on the "Phase A
+stands alone" hedge — rejected, because Phase A *is* the large part.
+
+**Consequence:** every later stage becomes *"replace the crude part with the real
+one"* rather than *"build a layer and hope it fits."* Design mistakes surface in week
+three rather than month four.
+
+---
+
+## D-028 — Premise verification precedes all construction
+
+**Date:** 2026-08-02
+**Status:** Accepted — from [AUDIT.md](AUDIT.md) finding A13 (risk 20)
+
+**Decided:** Add **Stage 0.5** — a manual, no-code check of whether the collection can
+actually produce complete legal decks for two different Legends.
+
+**Why:** the project rests on the assumption that the bottleneck is *information*, not
+*cards*. But the collection holds ~250–300 of 767 names, and Domain Identity restricts
+any deck to 2 of 6 domains — so the usable pool per Legend may be only 80–100 names.
+**If a legal deck cannot be assembled, Forge is a tool that mostly says "no."**
+
+**Cost:** about two hours of counting. **Value:** either de-risks or redirects the
+entire project before a line of code exists.
+
+---
+
+## D-029 — The generator is downgraded to a research spike
+
+**Date:** 2026-08-02
+**Status:** Accepted — from [AUDIT.md](AUDIT.md) finding A9 (risk 16)
+
+**Decided:** The generator ceases to be a planned stage. It becomes a **hypothesis
+with explicit kill conditions** — [spec/GENERATOR.md](spec/GENERATOR.md).
+
+**Why:** the audit surfaced a direct contradiction between the stated goal and the
+feature. The goal is *"to enjoy sitting for hours creating, putting together, sleeving
+and testing decks."* A generator produces a finished deck, removing the activity the
+user says they want to spend hours doing. It was reached for because *"the computer
+figures it out"* is the obvious shape for software — a **convention**, not an
+established requirement.
+
+**Second, independent reason:** it carries an unresolved design contradiction. **A
+generator requires an objective function; [D-016](#d-016) forbids a composite score.**
+Leading resolution is multi-objective Pareto selection — return only candidates not
+strictly worse on every axis, so the tool never says which is *best*. Unvalidated.
+
+**Nothing in Phase A depends on this.** Cancellation costs nothing already built.
+
+**Note:** this does **not** reverse D-008. The requirements captured there remain
+accurate descriptions of what the generator would do *if built*.
+
+---
+
+## D-030 — "Playstyle" is defined mechanically, not by archetype name ✅ Q5
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+**Decided:** Express generator intent as **mechanical axes computable from data we
+already hold**, rather than as named archetypes:
+
+| Intent | Mechanical expression |
+|---|---|
+| Aggressive | High share of ≤2-energy Units; Assault; high early Might |
+| Defensive | Tank; high Might-per-energy at 3+; late Might curve |
+| Board-wide | Unit count and token generation |
+| Reactive | Spell share; Deflect; Hidden |
+| Resource-hungry | High Power demand relative to rune split |
+
+**Problem solved:** archetype→card mapping exists in **no API**. The previous answer —
+"must be sourced or derived" — restated the problem rather than solving it.
+
+**Why this is better:** requires no external data; is honest about being a mechanical
+proxy rather than a claim about strategy; and composes with the existing statistics
+framework instead of inventing a parallel vocabulary.
