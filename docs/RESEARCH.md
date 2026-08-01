@@ -62,17 +62,10 @@ of a Battlefield not already yours = a **conquest** = 1 point.
 `fury` · `chaos` · `mind` · `body` · `order` · `calm` — plus `colorless`.
 A Legend defines a **two-domain identity** gating the entire deck.
 
-### Deck construction (confirmed)
+### Deck construction
 
-| Zone | Requirement |
-|---|---|
-| Legend | exactly 1 — defines domain identity |
-| Chosen Champion | exactly 1 — champion tag must match the Legend |
-| Main Deck | minimum 40 |
-| Rune Deck | exactly 12 |
-| Battlefields | exactly 3, distinct |
-| Copy limit | **max 3** per unique card name, Chosen Champion included |
-| Sideboard | ⚠️ **conflicting sources — see §4** |
+> **See §4 for the authoritative, citation-backed rules.** The summary below is
+> orientation only; §4 governs.
 
 Rune split heuristic: start at **6/6**, skew (e.g. 8/4) toward whichever domain
 carries the heavier Power costs. Add Seals for recycle-heavy or high-Power decks.
@@ -242,17 +235,104 @@ without it.
 
 ---
 
-## 4. ⚠️ Unresolved Rules Conflict — Sideboard Size
+## 4. ✅ AUTHORITATIVE RULES — from the official rulebooks
 
-| Source | Claim |
-|---|---|
-| Piltover Archive (official) | `Sideboard 0/10 (opt)` — "Optional: 0-10 cards" |
-| Community guides | **Exactly 0 or 8** — no intermediate value |
+**Sources — the only legality authority (D-020):**
 
-Both agree the 3-copy limit spans main deck **+** sideboard.
+| Document | Version | URL |
+|---|---|---|
+| **Core Rules** (CR) | 16 July 2026 | [PDF](https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/e9ac8e3d33e0f78cef296f5945aba7bc1313b086.pdf) |
+| **Tournament Rules** (TR) | 16 July 2026 | [PDF](https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/503da65669ced10598d62925a6f6bc15111af726.pdf) |
+| Rules Hub | — | https://playriftbound.com/en-us/rules-hub/ |
 
-**Action:** resolve against the official rulebook before encoding legality.
-**Standing rule:** legality rules come from official documents, never from blogs.
+Errata and patch notes exist per set (Origins, Spiritforged, Unleashed, Vendetta —
+Vendetta errata 23 July 2026) and **must** be folded in before the legality engine
+is considered complete.
+
+### 4.1 Deck composition — CR 103
+
+| Component | Rule | Citation |
+|---|---|---|
+| Champion Legend | Exactly 1. Placed in the Legend Zone. **Dictates Domain Identity.** | CR 103.1 |
+| Main Deck | **At least 40** (casual) · **exactly 40** (competition) | CR 103.2 / TR 601.1.b |
+| Chosen Champion | 1 Champion Unit, counted **within** the 40 | CR 103.2.a |
+| Rune Deck | Exactly **12**, shuffled, kept separate from the Main Deck | CR 103.3 |
+| Battlefields | Count **dictated by Mode of Play** (3 in 1v1). Names must be unique | CR 103.4 |
+| Sideboard | **10 or fewer cards** — *not* 0-or-8 | TR 601.1.c.1 |
+
+> ⚠️ **Main deck size is mode-dependent.** The legality engine needs a
+> **casual / competition** switch. Casual permits >40; competition demands exactly 40.
+
+### 4.2 Domain Identity — CR 103.1.b
+
+- Domain Identity is dictated by the **domains of the Champion Legend** (CR 103.1.b.2)
+- A **single-domain** card is permitted in a Domain Identity containing that domain (103.1.b.3)
+- A **multi-domain** card is permitted **only** in a Domain Identity containing
+  **all** of that card's domains (103.1.b.4)
+- Rune Deck cards must also match Domain Identity (CR 103.3.a.1)
+- Some Game Effects allow cards in irrespective of domain; those cards then **count
+  as** part of the deck's Domain Identity (103.1.b.5)
+
+### 4.3 Copy limits — CR 103.2.b
+
+- **Up to 3 copies** of the same **named** card
+- **Includes the Chosen Champion** — e.g. Volibear, Furious as Chosen Champion **plus
+  2 more copies** in the Main Deck is legal (103.2.b.1)
+- ⚠️ **"Cards have different names even if they represent the same character"**
+  (103.2.b.2). A deck may run **3× Yasuo, Remorseful *and* 3× Yasuo, Windrider.**
+- Copy limits apply to **Main Deck + sideboard combined** (TR 601.1.c.3)
+
+> **Implementation:** the limit keys on the **card name string**, not the character,
+> and not the printing. Variants of one name (`ogn-202-298` / `ogn-202a-298`,
+> both "Jinx, Rebel") **collapse together**; different names of the same character
+> **do not**.
+
+### 4.4 Chosen Champion — CR 103.2.a
+
+- Must be a **champion unit** whose **champion tag matches** the Champion Legend's tag
+- *Example (103.2.a.2):* Loose Cannon has tag `Jinx`, so Jinx, Rebel or
+  Jinx, Demolitionist may be the Chosen Champion
+- ⚠️ **Signature units cannot be the Chosen Champion.** Tibbers has tag `Annie` but
+  is a *signature* unit, not a champion unit — ineligible even under an Annie Legend
+- During play, **any Champion Unit sharing the name** of the selected card also counts
+  as the Chosen Champion (103.2.a.3)
+
+### 4.5 ⚠️ Signature cards — CR 103.2.d — *previously unknown constraint*
+
+- A deck may contain **a sum total of 3 Signature cards, regardless of name** (103.2.d.1)
+- All Signature cards must carry the **Champion tag matching the Champion Legend** (103.2.d.2)
+- Signature cards are **not** Champion units and **cannot** occupy the Champion Zone (103.2.d.3)
+
+> This is a **separate, additional** limit from the 3-copies-per-name rule. Three
+> *different* Signature cards already exhausts the allowance. Missing this would
+> have produced illegal decks with no warning.
+
+### 4.6 Card legality — TR 601.2
+
+- A card is legal if it is from a format-legal set **or shares a name** with a card
+  from a format-legal set (601.2.a)
+- Reprints with collector numbers outside a set's normal numbering (e.g. `300/250`)
+  are **not** automatically format-legal (601.2.c)
+- **Banned cards** may not be included (601.2.d)
+- Exception: at low OPL, an **exact** preconstructed deck configuration may use its
+  banned cards — but **any** change or added sideboard voids the exemption (601.2.d.2)
+
+> The RiftScribe API exposes `is_banned`, but format-specific banning must be
+> verified against the official ban list.
+
+### 4.7 Standard format — TR 601.3
+
+Most recent 5–8 sets; current year plus previous year. **Current Standard:**
+`OGS` · `OGN` · `SFD` · `UNL` · `VEN` (Vendetta released 31 July 2026).
+
+### 4.8 Sideboarding procedure — TR 403 / 601.1.c
+
+- Sideboard cards exchange **1-for-1** with Main Deck cards (403.4)
+- Main Deck must still satisfy deck-size rules after sideboarding (403.4.c)
+- A sideboard may contain **only valid Main Deck cards** (601.1.c.2)
+- ⚠️ The **Chosen Champion may be swapped** for one from the sideboard or main deck
+  matching the Legend, whenever sideboarding is allowed (601.1.c.4)
+- No sideboarding before game 1 (403.5); none after a draw (403.10)
 
 ---
 

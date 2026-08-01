@@ -293,3 +293,201 @@ sync-conflict or merge logic is required in any of these options.
 
 Private GitHub repository under `Alexrohjak`. Nothing here needs to be public today,
 and private → public is a trivial change later, whereas the reverse is not.
+
+---
+
+## D-014 — Piltover Archive is inspiration, not a template
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+**User:** *"The workbench of Piltover Archive is beautiful, clean and interactive and
+pleasant to look at. However, we can't just copy that but can for sure take
+inspiration from it."*
+
+**Decided:** Adopt the *qualities* — clean, interactive, pleasant, information-dense
+without clutter — and the *concepts* that earn their place (notably The Bench).
+Do **not** clone its layout. The interface is designed for our purpose, whose centre
+of gravity is ownership, and Piltover Archive has no ownership concept at all.
+
+---
+
+## D-015 — Gallery shows owned cards by default ✅
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+**Decided:** The main gallery displays **only cards the user owns** by default.
+Ownership is a **filter dimension**, so unowned cards remain reachable deliberately
+rather than being hidden permanently.
+
+Filter set (initial): set · collector number · domain · type · rarity · variant ·
+energy · power · might · **owned / unowned** · and further dimensions as they prove
+useful.
+
+**Why:** it is the premise of the entire tool. Every other Riftbound tool shows the
+whole card pool; this one starts from reality and treats the full pool as the
+exception view.
+
+---
+
+## D-016 — No single effectiveness grade — show a panel of stats ✅
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+**User:** *"Effectiveness of a deck will be decided through so many factors. It will
+also be an estimate, it can't be a for-sure grade given to a deck. Maybe we don't
+have an effectiveness grade but just a bunch of different stats."*
+
+**Decided:** The generator and workbench present **multiple independent statistics**.
+There is **no composite score, grade, letter, or percentage.**
+
+**Alternatives considered:** a single 0–100 effectiveness rating; a letter grade;
+a star rating.
+
+**Why:** a composite number implies a precision that does not exist. Deck strength
+depends on meta, matchup, piloting and draw — none of which a static score can
+capture. A single number invites trust in place of thought; a panel of honest stats
+preserves the user as the strategist, consistent with the whole project's framing.
+
+**Consequence:** the hard problem shifts from "compute a score" to "choose which
+statistics genuinely inform a decision, and present them legibly." Better problem.
+
+---
+
+## D-017 — Cards in decks are committed and leave the available pool ✅ Q3 RESOLVED
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+**User:** *"Cards that are in decks shouldn't 'exist' anymore as they are technically
+taken. We can have an indicator for this so we know where to find them if I want to
+use them in another deck."*
+
+**Decided:** Building a deck **commits** its cards. Committed copies are removed from
+the pool available to other decks, modelling physical reality: a sleeved card is in
+exactly one deck.
+
+**Data model consequence** — supersedes the simple `card_id → quantity` of D-004:
+
+```
+card_id → { owned: n, committed: [{deck_id, qty}, ...], free: n - Σcommitted }
+```
+
+**Required UX:** when a card is unavailable, show **where it is** — which deck holds
+it — so the user can decide whether to dismantle. Unavailability must never be a
+dead end; it is always "this is in *Jinx Aggro v2*."
+
+**Why this matters:** without it the tool would generate decks the user cannot
+physically build, which would break trust immediately.
+
+---
+
+## D-018 — Phone gets FULL parity with desktop, including editing ⚠️ REVERSES D-005
+
+**Date:** 2026-08-02
+**Status:** Accepted — supersedes D-005 and reshapes D-012
+
+**User:** *"I want the phone app or system to be the same as the desktop, should be
+able to edit decks on there as well to be fair as I learn new things while playing."*
+
+**Decided:** The phone is **not** a read-only viewer. It is the same application,
+with full editing. Insight gained mid-game is captured immediately, at the table.
+
+**What this invalidates:**
+
+- ❌ D-005's read-only phone premise
+- ❌ D-012 option 4 (export to static artefacts) — cannot be edited
+- ❌ D-012 option 3 as originally framed (offline read-only cache)
+- ❌ Any "local workbench, published deck view" split — two surfaces would diverge
+
+**What it forces:**
+
+1. **A single source of truth** reachable from anywhere — which points strongly at a
+   **hosted web application** rather than a local-only one
+2. **Responsive design as a hard requirement** across the *entire* workbench, not
+   just a deck list
+3. The collection itself must live server-side, not solely on the desktop machine
+
+**Ironically simplifying:** it collapses D-012's four options to roughly one, and
+because there is one app rather than two synchronised surfaces, **no sync-conflict
+or merge logic is needed** — the reason read-only was attractive in the first place.
+
+**Open:** touch-first interaction for deck editing is a genuine design problem.
+Collection *entry* remains desktop-oriented (keyboard, collector numbers, cards in
+hand); deck *editing* must work well on a phone.
+
+---
+
+## D-019 — Architecture is deliberately deferred
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+**User:** *"Architecture can come later once the full idea is planned and designed
+properly."*
+
+**Decided:** Complete the product design first. No stack, framework, hosting or
+storage decisions until the design is settled.
+
+**Why:** premature stack choices constrain the design to fit the tool. The design
+should constrain the stack. Note that D-018 has already narrowed the space
+considerably without a single technology being named.
+
+---
+
+## D-020 — Official rulebook is the sole legality authority ✅ Q2 RESOLVED
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+**Decided:** Legality rules are sourced **exclusively** from Riot's official
+documents — Core Rules and Tournament Rules, both dated **16 July 2026** — obtained
+from the [official Rules Hub](https://playriftbound.com/en-us/rules-hub/). Community
+guides are not a source of truth.
+
+**Q2 resolved — sideboard is 0–10, not 0-or-8.**
+
+> **TR 601.1.c.1** — *"A player's sideboard can include 10 or fewer cards."*
+
+Piltover Archive's `Sideboard 0/10` was correct; the community guides were **stale**,
+describing rules superseded by the July 2026 update. This vindicates the standing
+rule and demonstrates why it exists.
+
+**Also corrected — main deck size is mode-dependent:**
+
+> **CR 103.2** — *"A Main Deck of **at least 40** cards"*
+> **TR 601.1.b** — *"In competitions, a player's Main Deck must be **exactly 40** cards"*
+
+Both are true in their own context. **The legality engine therefore needs a
+casual/competition mode switch**, which neither the community guides nor my earlier
+notes had surfaced.
+
+**New constraint discovered — Signature cards.** A rule we had no knowledge of:
+
+> **CR 103.2.d.1** — *"Regardless of name, a deck may only contain a sum total of 3
+> Signature cards."*
+> **CR 103.2.d.2** — Signature cards must carry the Champion tag matching the deck's
+> Champion Legend.
+> **CR 103.2.d.3** — Signature cards are **not** Champion units and cannot occupy the
+> Champion Zone.
+
+See RESEARCH.md §4 for the full authoritative rule set.
+
+---
+
+## D-021 — Physical card-location system deferred until re-organisation
+
+**Date:** 2026-08-02
+**Status:** Deferred — Q6
+
+**User:** *"We can put the system for finding the cards to the side. Once I have my new
+organising box we can implement this system as it'll be better organised."*
+
+Physical location tracking is postponed until the collection is re-housed. Designing
+a location model against a storage scheme that is about to change would be wasted
+work. Revisit once the new box exists.
+
+Note this is **distinct** from D-017's "where is this card" indicator, which points
+at a *deck*, not a physical location, and is in scope now.

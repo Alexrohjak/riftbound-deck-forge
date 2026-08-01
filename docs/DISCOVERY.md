@@ -63,8 +63,14 @@ Alexander, alone.
 
 | Mode | Context | Requirements |
 |---|---|---|
-| **Desktop (primary)** | At home with the full collection available. Long sessions researching, testing, planning and physically assembling decks. | Full workbench: browse, filter, build, generate, tune, save |
-| **Phone (secondary)** | While playing — likely away from home. | **Read-only** access to saved decks |
+| **Desktop (primary)** | At home with the full collection available. Long sessions researching, testing, planning and physically assembling decks. | Full workbench: browse, filter, build, generate, tune, save. Collection **entry** is desktop-oriented — keyboard, collector numbers, cards in hand |
+| **Phone (full parity)** | While playing, away from home. Insight arrives mid-game and must be captured immediately. | **The same application, fully editable.** Not a viewer. See [D-018](DECISIONS.md#d-018) |
+
+> ⚠️ **Changed 2026-08-02.** The phone was originally specified read-only; the user
+> reversed this — *"should be able to edit decks on there as well, as I learn new
+> things while playing."* This forces a **single source of truth reachable from
+> anywhere** and makes responsive design a hard requirement across the entire
+> workbench. See [D-018](DECISIONS.md#d-018).
 
 > ✅ **Confirmed 2026-08-02:** "While playing" means **away from the home network**,
 > so phone access cannot depend on LAN reachability. A local-only application is
@@ -158,18 +164,24 @@ that feedback is an input to the next iteration — not a dead end.
 
 ## 10. Open Questions
 
-| # | Question | Blocks |
+| # | Question | Status |
 |---|---|---|
-| ~~Q1~~ | ~~Does phone access need to work away from the home network?~~ **RESOLVED: yes.** See [D-012](DECISIONS.md#d-012). | ~~Architecture~~ |
-| Q2 | **Sideboard size: 0-or-8, or 0–10?** Sources conflict (see RESEARCH.md). Must resolve against the official rulebook. | Legality engine |
-| Q3 | Are decks kept physically built between sessions? If so, cards are "committed" and unavailable to other decks. Changes the data model from `card → qty` to `card → qty owned / committed / free`. | Data model |
-| Q4 | Can legitimate access to tournament/meta data be obtained? | Generator scoring |
-| Q5 | Is "playstyle" a fixed tag list, free text, or inferred from the anchor? | Generator interface |
-| Q6 | Does the system need to help physically *locate* cards in the boxes? | Collection UX |
-| Q7 | Is best-of-three / sideboard play in scope? | Legality engine |
+| ~~Q1~~ | Does phone access need to work away from home? | ✅ **Yes** — [D-012](DECISIONS.md#d-012), superseded by [D-018](DECISIONS.md#d-018) |
+| ~~Q2~~ | Sideboard size: 0-or-8, or 0–10? | ✅ **0–10** (TR 601.1.c.1). Community guides were stale — [D-020](DECISIONS.md#d-020) |
+| ~~Q3~~ | Are cards locked inside physically built decks? | ✅ **Yes — cards in decks are committed** — [D-017](DECISIONS.md#d-017) |
+| Q4 | Can legitimate access to tournament/meta data be obtained? | 🟡 Open — mitigated by the adapter in [D-009](DECISIONS.md#d-009) |
+| Q5 | Is "playstyle" a fixed tag list, free text, or inferred from the anchor? | 🔴 **Open** — Phase B blocker |
+| ~~Q6~~ | Should the system help physically *locate* cards? | ⏸️ **Deferred** until the new organising box — [D-021](DECISIONS.md#d-021) |
+| Q7 | Is best-of-three / sideboard play in scope? | 🟡 Open — rules now fully captured either way (RESEARCH §4.8) |
 
-Q3 was raised and deliberately deferred by the user as "very loose for now —
-we can introduce this later."
+**New questions raised by the rulebook research:**
+
+| # | Question | Status |
+|---|---|---|
+| Q8 | Casual (≥40) or competition (=40) as the default legality mode? Both must be supported. | 🔴 Open |
+| Q9 | Which statistics belong in the deck stats panel, now that there is no composite grade ([D-016](DECISIONS.md#d-016))? | 🔴 **Open — the central Phase B design problem** |
+| Q10 | How are per-set errata and the official ban list ingested and kept current? | 🟡 Open |
+| Q11 | How does deck editing work well under touch, given full phone parity ([D-018](DECISIONS.md#d-018))? | 🔴 Open |
 
 ---
 
@@ -177,11 +189,16 @@ we can introduce this later."
 
 Raised during discovery, acknowledged, not yet designed:
 
-1. **Physical exclusivity** — cards locked inside already-built decks (Q3)
-2. **Coherence heuristics** — the actual numbers behind "a sensible deck"
+1. ~~**Physical exclusivity**~~ — ✅ resolved, [D-017](DECISIONS.md#d-017)
+2. **Coherence heuristics** — the actual numbers behind "a sensible deck" (Q9)
 3. **Archetype→card mapping** — not present in any API; must be sourced or derived
 4. **Anchor semantics** — arbitrary-card anchors require reverse-solving for a legal Legend
-5. **Variant collapsing** — `ogn-202-298` and `ogn-202a-298` are both "Jinx, Rebel"
+5. ~~**Variant collapsing**~~ — ✅ rule confirmed: the limit keys on the **name
+   string**. Variants of one name collapse; different names of the same character
+   do not (CR 103.2.b.2)
 6. **Failure modes** — "you have 34/40, here are the 6 gaps" beats "no results"
 7. **Deck lifecycle** — compare versions, mark as physically built
-8. **Physical retrieval** — optional box/location tagging
+8. ~~**Physical retrieval**~~ — ⏸️ deferred, [D-021](DECISIONS.md#d-021)
+9. **Signature card constraint** — newly discovered (CR 103.2.d); max 3 total
+   Signature cards regardless of name, matching the Legend's Champion tag
+10. **Touch-first deck editing** — new, from full phone parity (Q11)
