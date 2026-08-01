@@ -88,19 +88,31 @@ a Legend tagged `Jinx`. RiftScribe returns it with `tags: []`.
 - ⚠️ The **`set` query parameter did not filter** in testing — every set returned the
   full pool. **Filter client-side on `set_id`** until the correct parameter is found
 
-### The card universe is small — measured 2026-08-02
+---
+
+## 1b. The card universe — authoritative counts
+
+Measured from the **official gallery**, 2026-08-02.
 
 | Measure | Count |
 |---|---|
-| Total printings | **950** |
-| **Distinct names** — what copy limits count | **767** |
-| OGN | 352 printings → **298 names** |
-| SFD · UNL · OGS | 288 · 286 · 24 |
+| Total printings | **1,180** |
+| **Distinct names** — what copy limits count | **935** |
 
-OGN by type: Unit 166 · Spell 84 · Gear 30 · Legend 36 · Battlefield 24 · Rune 12
+| Set | Printings | Distinct names |
+|---|---|---|
+| OGN Origins | 352 | 298 |
+| SFD Spiritforged | 288 | 235 |
+| UNL Unleashed | 288 | 233 |
+| VEN Vendetta | 228 | 189 |
+| OGS Origins supplemental | 24 | 24 |
 
-> This measurement caused the D-003 → D-013 reversal. **The entire pool caches
-> trivially**, which also mitigates RiftScribe disappearing.
+**By type:** Unit 629 · Spell 233 · Gear 114 · Legend 118 · Battlefield 66 · Rune 18
+
+> ⚠️ Earlier documents cite **950 printings / 767 names**. Those figures came from
+> **RiftScribe, which is missing the Vendetta set**. The counts above supersede them.
+> The smallness of the pool is what drove the D-003 → D-013 reversal, and it still
+> holds: **the entire universe caches trivially.**
 
 ### Variant collapsing
 

@@ -122,6 +122,9 @@ possible defence against misreading the rules.
 
 ---
 
+<a id="open-risks"></a>
+<a id="4-open-risks"></a>
+
 ## 4. Open risks
 
 | # | Risk | Severity |

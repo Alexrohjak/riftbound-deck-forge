@@ -11,29 +11,40 @@
 
 ### `Card` — a printing
 
-Cached wholesale from RiftScribe (D-002). Read-only; we never author card data.
+Cached wholesale from **Riot's official card gallery** ([D-034](../DECISIONS.md#d-034)).
+Read-only; we never author card data.
+
+**1,180 printings · 935 distinct names · 5 sets** (verified 2026-08-02).
 
 ```
 Card
-  id                "ogn-030-298"        unique printing identifier
-  name              "Jinx, Demolitionist" ← THE LEGALITY UNIT (see §2)
-  set_id            "OGN"
-  collector_number  30                    ← primary key for collection entry (D-013)
-  variant           ""                    "" | "a" | …
-  rarity            "rare"
-  faction           "fury"                domain
-  type              "Unit"                Unit|Spell|Gear|Legend|Rune|Battlefield
-  stats             { energy, might, power }
-  keywords          ["accelerate", "assault 2"]
-  tags              []                    ← champion tags live here; VERIFY
-  is_banned         false
-  images            { … }
+  id                "ven-150-166"          unique printing identifier
+  name              "Acceleration Gate"    ← THE LEGALITY UNIT (see §2)
+  collectorNumber   150                    ← primary key for entry (D-013)
+  publicCode        "VEN-150/166"
+  set.value         { id: "VEN", label: "Vendetta" }
+  rarity.value      { id: "epic", label: "Epic" }
+
+  domain.values[]   [{id:"calm"}, {id:"mind"}]   ← ARRAY. Legends always have 2
+  cardType.type[]   [{id:"spell", label:"Spell"}]
+  cardType.superType[]  [{id:"signature", label:"Signature"}]   ← 51 cards
+  tags.tags[]       ["Lillia"]             ← champion tags; 826 / 1,180 cards
+
+  text.richText.body   HTML with :rb_might: symbol tokens
+  cardImage.url        Sanity CDN, with dimensions and extracted colours
+  orientation          "portrait" | "landscape"
 ```
 
-⚠️ **Unverified:** the `tags` array was empty on the sample card inspected. Champion
-tags (`Jinx`, `Annie`) and the Signature supertype are **required** for legality
-(CR 103.2.a, 103.2.d) and it is **not yet confirmed** that RiftScribe exposes them.
-**This is a Stage 4 blocker** — see [LEGALITY.md](LEGALITY.md#open-risks).
+**Type distribution:** Unit 629 · Spell 233 · Gear 114 · Legend 118 · Battlefield 66 ·
+Rune 18
+
+> ⚠️ **`buildId` changes on every site deploy.** Resolve it from the gallery page at
+> fetch time; never hard-code it. See
+> [DATA-SOURCES.md §1](../reference/DATA-SOURCES.md).
+
+**Optional secondary enrichment** from RiftScribe: pre-parsed `keywords` arrays,
+convenient `stats {energy, might, power}`, `is_banned`, and multiple thumbnail sizes.
+Not required — and it is missing the Vendetta set entirely.
 
 ### `CardName` — derived, not stored
 
@@ -70,7 +81,7 @@ Deck
   chosen_champion_card_id                 exactly 1, must match Legend tag
   slots             DeckSlot[]
   bench             BenchEntry[]
-  legality_mode     CASUAL | COMPETITION  ← CR 103.2 vs TR 601.1.b
+                    (no legality_mode — COMPETITION only, D-032)
   created_at / updated_at
 ```
 
@@ -100,6 +111,8 @@ BenchEntry
 
 ---
 
+<a id="2-the-legality-unit-vs-the-ownership-unit"></a>
+
 ## 2. The legality unit vs the ownership unit
 
 The single most error-prone relationship in the system:
@@ -114,6 +127,8 @@ The single most error-prone relationship in the system:
 > because the deck looks legal and is not.
 
 ---
+
+<a id="3-commitment"></a>
 
 ## 3. Commitment — how "cards in decks stop existing"
 
@@ -191,6 +206,8 @@ correctness beats caching.
 
 ---
 
+<a id="6-backup-and-portability"></a>
+
 ## 6. Backup and portability
 
 The collection represents real hours of manual entry and lives on a hosted service
@@ -209,11 +226,13 @@ most irreplaceable data in the system.
 
 ---
 
+<a id="7-open-items"></a>
+
 ## 7. Open items
 
 | # | Item | Blocks |
 |---|---|---|
-| DM1 | Does RiftScribe expose **champion tags** and the **Signature** supertype? | Stage 4 — **hard blocker** |
+| ~~DM1~~ | ✅ **RESOLVED** — Riot's official gallery supplies champion tags, domain arrays and Signature supertypes ([D-034](../DECISIONS.md#d-034)) | — |
 | DM2 | Snapshot granularity — full copy, or a diff chain? | Stage 7 |
 | DM3 | Is `finish` (foil) worth tracking at all, given legality ignores it? | Stage 6 |
 | DM4 | How the new-set refresh reconciles a cached card whose errata has changed | Stage 4 |

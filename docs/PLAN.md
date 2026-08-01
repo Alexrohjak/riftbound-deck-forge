@@ -218,7 +218,7 @@ justified. **Re-examine before accepting.**
 - Stack and framework
 - Hosting — and what it costs to run **indefinitely**
 - Storage for collection, decks, commitments
-- Card cache strategy (950 cards — cacheable whole)
+- Card cache strategy (1,180 printings, ~3.2 MB — cacheable whole in one request)
 - Access control: one user, public internet
 - **Backup and export** — see [spec/DATA-MODEL.md §6](spec/DATA-MODEL.md#6-backup-and-portability)
 
@@ -276,9 +276,9 @@ rather than month four.
 
 **Size:** S–M · **Gate:** Stage 3.5
 
-- Ingest the full pool from RiftScribe (D-002) — 950 printings, 767 names
+- Ingest the full pool from **Riot's official gallery** ([D-034](DECISIONS.md#d-034)) — **1,180 printings / 935 distinct names** across 5 sets
 - **Cache locally in full** — mitigates the dependency disappearing
-- Pagination: `limit` caps at 200; the `set` filter does not work — filter client-side
+- Single request, no pagination — the whole gallery arrives as one ~3.2 MB payload
 - **Variant collapsing** by name ([spec/DATA-MODEL.md §2](spec/DATA-MODEL.md))
 - **Primary source: Riot's official card gallery** ([D-034](DECISIONS.md#d-034)) —
   1,180 cards with domains, champion tags and Signature supertypes

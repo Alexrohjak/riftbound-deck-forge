@@ -5,6 +5,52 @@ if a decision is reversed, add a new entry rather than editing the old one.
 
 ---
 
+## Index
+
+| # | Decision | Status |
+|---|---|---|
+| [D-001](#d-001) | Success criteria: "legal + coherent" → "competitively tuned" | ⚠️ reversed |
+| [D-002](#d-002) | Card data comes from the RiftScribe public API | ⚠️ superseded |
+| [D-003](#d-003) | Collection ingestion: rent the scanner, build the importer | ⚠️ reversed |
+| [D-004](#d-004) | Collection size established |  |
+| [D-005](#d-005) | Local-first, desktop-primary, phone read-only | ⚠️ reversed |
+| [D-006](#d-006) | Confirmed rules constraints | ✅ |
+| [D-007](#d-007) | Build order: workbench first, generator second |  |
+| [D-008](#d-008) | Generator must be multi-factor and conversational |  |
+| [D-009](#d-009) | Meta data is a pluggable adapter, not a hard dependency |  |
+| [D-010](#d-010) | We will not scrape sources that prohibit it |  |
+| [D-011](#d-011) | Repository: private, `riftbound-deck-forge` |  |
+| [D-012](#d-012) | Phone access must work away from the home network | ✅ |
+| [D-013](#d-013) | Collection ingestion: purpose-built fast entry, no scanner | ✅ |
+| [D-014](#d-014) | Piltover Archive is inspiration, not a template |  |
+| [D-015](#d-015) | Gallery shows owned cards by default | ✅ |
+| [D-016](#d-016) | No single effectiveness grade — show a panel of stats | ✅ |
+| [D-017](#d-017) | Cards in decks are committed and leave the available pool | ✅ |
+| [D-018](#d-018) | Phone gets FULL parity with desktop, including editing | ↩️ reverses |
+| [D-019](#d-019) | Architecture is deliberately deferred |  |
+| [D-020](#d-020) | Official rulebook is the sole legality authority | ✅ |
+| [D-021](#d-021) | Physical card-location system deferred until re-organisation |  |
+| [D-022](#d-022) | Deck statistics use a three-tier confidence framework | ✅ |
+| [D-023](#d-023) | Rune feasibility is the flagship statistic |  |
+| [D-024](#d-024) | Two departures from the originally requested statistics |  |
+| [D-025](#d-025) | The project is called **Forge**; documentation restructured |  |
+| [D-026](#d-026) | Only `BUILT` decks commit cards — refines D-017 |  |
+| [D-027](#d-027) | A walking skeleton precedes layered construction |  |
+| [D-028](#d-028) | Premise verification precedes all construction |  |
+| [D-029](#d-029) | The generator is downgraded to a research spike |  |
+| [D-030](#d-030) | "Playstyle" is defined mechanically, not by archetype name | ✅ |
+| [D-031](#d-031) | RiftScribe is insufficient for legality | ⚠️ partial |
+| [D-032](#d-032) | Forge follows tournament rules and best-of-three | ✅ |
+| [D-033](#d-033) | The project premise is confirmed | ✅ |
+| [D-034](#d-034) | Riot's official card gallery is the primary data source | ✅ |
+| [D-035](#d-035) | Official Riot sources govern, for rules *and* card data |  |
+
+> **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
+
+---
+
+<a id="d-001"></a>
+
 ## D-001 — Success criteria: "legal + coherent" → "competitively tuned" ⚠️ REVERSED
 
 **Date:** 2026-08-02
@@ -24,12 +70,15 @@ no meta scraping, no ML — and keeps the user as the strategist.
 raised the ambition. Recorded as a reversal rather than silently absorbed, because
 it changes the project's size and risk profile.
 
+
 ---
 
-## D-002 — Card data comes from the RiftScribe public API
+<a id="d-002"></a>
+
+## D-002 — Card data comes from the RiftScribe public API ⚠️ SUPERSEDED
 
 **Date:** 2026-08-02
-**Status:** Accepted
+**Status:** Superseded by [D-034](#d-034) — RiftScribe demoted to secondary
 
 **Decided:** Consume [RiftScribe](https://riftscribe.gg/api-docs) as the card data
 source. We never build or maintain card data ourselves.
@@ -46,7 +95,16 @@ number, variant, and image URLs. Fuzzy typeahead search is available. All five s
 **Risk:** It is an independent fan project and could disappear. Mitigation: cache
 the full card set locally so the tool keeps working if the API goes away.
 
+> ❌ **Superseded by [D-034](#d-034).** Two claims above proved false on verification:
+> RiftScribe does **not** contain all five sets — **Vendetta is entirely absent** — and
+> it does **not** carry everything a constraint solver needs. It lacks champion tags,
+> the Signature supertype, and any way to express a two-domain card. Riot's own card
+> gallery supplies all of them. RiftScribe remains useful as a **secondary** source.
+
+
 ---
+
+<a id="d-003"></a>
 
 ## D-003 — Collection ingestion: rent the scanner, build the importer ⚠️ REVERSED
 
@@ -78,64 +136,10 @@ first-hand testing. **Verify on one trial box before committing.**
 > importantly, the rejection of manual entry rested on a miscalculation — entry
 > effort scales with **unique card names**, not physical card count. See D-013.
 
----
-
-## D-013 — Collection ingestion: purpose-built fast entry, no scanner ✅
-
-**Date:** 2026-08-02
-**Status:** Accepted — supersedes D-003
-
-**Decided:** Build a **keyboard-driven collection entry mode** into the tool.
-No third-party scanner app, no CSV import dependency.
-
-**Primary input is the collector number, not the card name.** Every Riftbound card
-has its collector number printed on it, so entry is 2–3 keystrokes with zero
-ambiguity about which printing was entered:
-
-```
-[30] → Jinx, Demolitionist  ⚡3 💪4 🔥1   →  [1][2][3] quantity
-```
-
-Name typeahead (RiftScribe `/api/cards/search`) remains as a fallback.
-Preconstructed products are added as **known bundles** — zero entry effort.
-
-**Why D-003 was wrong.** It costed manual entry against ~1,000 *physical* cards.
-But entry is per **unique name + quantity**, and the card universe is small:
-
-| Measure | Count |
-|---|---|
-| Total printings, all sets | 950 |
-| **Distinct card names** (what the 3-copy rule counts) | **767** |
-| Origins (OGN) printings → distinct names | 352 → **298** |
-
-From ~64 packs the realistic holding is **200–300 unique names**, not 1,000 rows.
-At 3–4 seconds each that is **15–20 minutes, once** — a paid third-party dependency
-was being adopted to avoid twenty minutes of typing.
-
-**Trigger for reversal:** the user reported the scanner app is paid and likely
-scan-limited.
-
-**Why this is strictly better:**
-
-1. No cost, no scan limits, no paywall
-2. No dependency on another company's app, pricing, or export format remaining stable
-3. **Needed regardless** — every future pack requires an entry path forever; a
-   scanner only ever solved day one
-4. Eliminates the entire OCR error class: no misreads, no variant confusion, no
-   silent drops
-5. Under our control, so it can do Riftbound-specific things a generic scanner
-   cannot — warn at the 3-copy ceiling, show what a card unlocks, suggest the next
-   collector number in sequence
-
-**Cost accepted:** ~20 minutes of one-time typing.
-
-**Consequences:** removes the CSV-importer work item; removes the unverified
-export-format risk; makes entry UX a **first-class Phase A feature** rather than a
-one-off migration step.
 
 ---
 
----
+<a id="d-004"></a>
 
 ## D-004 — Collection size established
 
@@ -149,12 +153,15 @@ roughly 250–400 — because 64 packs produce heavy duplication.
 **Implication:** The data model is `card_id → quantity`, not a thousand rows.
 Quantity is what drives legality (3-copy limit) and consistency.
 
+
 ---
 
-## D-005 — Local-first, desktop-primary, phone read-only
+<a id="d-005"></a>
+
+## D-005 — Local-first, desktop-primary, phone read-only ⚠️ REVERSED
 
 **Date:** 2026-08-02
-**Status:** Accepted (architecture pending Q1)
+**Status:** Superseded by [D-018](#d-018) — the phone gained full editing parity
 
 Desktop is the workbench for long planning sessions; phone is a **read-only**
 view of saved decks during play. The user never builds decks on a phone.
@@ -162,12 +169,20 @@ view of saved decks during play. The user never builds decks on a phone.
 **Why it matters:** Read-only mobile is dramatically cheaper than full mobile
 editing, and it removes any need for conflict resolution or sync-merge logic.
 
+> ❌ **Reversed by [D-018](#d-018).** The user requires full editing on the phone —
+> *"I learn new things while playing."* Note the stated benefit survived anyway: with
+> **one** app rather than two synchronised surfaces, no sync-merge logic is needed
+> either.
+
+
 ---
 
-## D-006 — Confirmed rules constraints
+<a id="d-006"></a>
+
+## D-006 — Confirmed rules constraints ✅ CONFLICT RESOLVED
 
 **Date:** 2026-08-02
-**Status:** Accepted, with one open conflict
+**Status:** Accepted; the sideboard conflict was resolved by [D-020](#d-020)
 
 - Deck = **1 Legend + 1 Chosen Champion + 40+ main + exactly 12 runes + 3 Battlefields**
 - **Maximum 3 copies** of any unique card name; the Chosen Champion counts within this
@@ -177,13 +192,18 @@ editing, and it removes any need for conflict resolution or sync-merge logic.
 - Win condition: **8 points**; the 8th must come from *holding* a Battlefield or
   conquering all Battlefields in one turn
 
-⚠️ **Unresolved conflict — sideboard size.** Official Piltover Archive displays
-`Sideboard 0/10 (opt)`. Community guides state *exactly 0 or 8*. These are
-incompatible. **Resolve against the official rulebook before encoding.**
+✅ **Resolved by [D-020](#d-020) — the sideboard is ≤10** (TR 601.1.c.1). Piltover
+Archive's `0/10` was correct; the community guides were stale. Two further corrections
+arrived with it: main deck size is **exactly 40** in competition (TR 601.1.b), and
+**Signature cards** are a separate constraint no community source mentioned
+(CR 103.2.d).
 
 **Standing rule:** source legality rules from official documents, never from blogs.
 
+
 ---
+
+<a id="d-007"></a>
 
 ## D-007 — Build order: workbench first, generator second
 
@@ -199,7 +219,10 @@ incompatible. **Resolve against the official rulebook before encoding.**
 loop the user wants **is a workbench feature**. Building the generator first would
 produce deck lists with nowhere to land.
 
+
 ---
+
+<a id="d-008"></a>
 
 ## D-008 — Generator must be multi-factor and conversational
 
@@ -218,7 +241,10 @@ use rather than minutes.
 **Cost:** Substantially larger and riskier than D-001. Accepted knowingly, and
 mitigated by D-007 (phasing) and D-009 (pluggable meta source).
 
+
 ---
+
+<a id="d-009"></a>
 
 ## D-009 — Meta data is a pluggable adapter, not a hard dependency
 
@@ -238,7 +264,10 @@ grounds**, see D-010.
 project hostage to data we do not control. If the answer is "no", the project is
 unharmed because nothing was built on top of it.
 
+
 ---
+
+<a id="d-010"></a>
 
 ## D-010 — We will not scrape sources that prohibit it
 
@@ -254,7 +283,23 @@ competing service." Piltover Archive's `robots.txt` disallows `/api/`.
 **Why:** It is their data and the request is unambiguous. Legitimate routes exist —
 ask for access — and D-009 ensures the project functions without it.
 
+
 ---
+
+<a id="d-011"></a>
+
+## D-011 — Repository: private, `riftbound-deck-forge`
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+Private GitHub repository under `Alexrohjak`. Nothing here needs to be public today,
+and private → public is a trivial change later, whereas the reverse is not.
+
+
+---
+
+<a id="d-012"></a>
 
 ## D-012 — Phone access must work away from the home network ✅ Q1 RESOLVED
 
@@ -284,17 +329,75 @@ the mobile requirement, and both keep the collection off any server. Not yet dec
 **Note:** this does *not* reopen D-005 — phone remains strictly read-only, so no
 sync-conflict or merge logic is required in any of these options.
 
+
 ---
 
-## D-011 — Repository: private, `riftbound-deck-forge`
+<a id="d-013"></a>
+
+## D-013 — Collection ingestion: purpose-built fast entry, no scanner ✅
 
 **Date:** 2026-08-02
-**Status:** Accepted
+**Status:** Accepted — supersedes D-003
 
-Private GitHub repository under `Alexrohjak`. Nothing here needs to be public today,
-and private → public is a trivial change later, whereas the reverse is not.
+**Decided:** Build a **keyboard-driven collection entry mode** into the tool.
+No third-party scanner app, no CSV import dependency.
+
+**Primary input is the collector number, not the card name.** Every Riftbound card
+has its collector number printed on it, so entry is 2–3 keystrokes with zero
+ambiguity about which printing was entered:
+
+```
+[30] → Jinx, Demolitionist  ⚡3 💪4 🔥1   →  [1][2][3] quantity
+```
+
+Name typeahead (RiftScribe `/api/cards/search`) remains as a fallback.
+Preconstructed products are added as **known bundles** — zero entry effort.
+
+**Why D-003 was wrong.** It costed manual entry against ~1,000 *physical* cards.
+But entry is per **unique name + quantity**, and the card universe is small:
+
+| Measure | Count |
+|---|---|
+| Total printings, all sets | 950 |
+| **Distinct card names** (what the 3-copy rule counts) | **767** |
+| Origins (OGN) printings → distinct names | 352 → **298** |
+
+> 📌 **Counts corrected 2026-08-02 by [D-034](#d-034).** These figures came from
+> RiftScribe, which is missing the Vendetta set. Authoritative totals are **1,180
+> printings / 935 distinct names**. The reasoning and conclusion are unaffected —
+> entry still scales with unique names, and the pool is still small.
+
+From ~64 packs the realistic holding is **200–300 unique names**, not 1,000 rows.
+At 3–4 seconds each that is **15–20 minutes, once** — a paid third-party dependency
+was being adopted to avoid twenty minutes of typing.
+
+**Trigger for reversal:** the user reported the scanner app is paid and likely
+scan-limited.
+
+**Why this is strictly better:**
+
+1. No cost, no scan limits, no paywall
+2. No dependency on another company's app, pricing, or export format remaining stable
+3. **Needed regardless** — every future pack requires an entry path forever; a
+   scanner only ever solved day one
+4. Eliminates the entire OCR error class: no misreads, no variant confusion, no
+   silent drops
+5. Under our control, so it can do Riftbound-specific things a generic scanner
+   cannot — warn at the 3-copy ceiling, show what a card unlocks, suggest the next
+   collector number in sequence
+
+**Cost accepted:** ~20 minutes of one-time typing.
+
+**Consequences:** removes the CSV-importer work item; removes the unverified
+export-format risk; makes entry UX a **first-class Phase A feature** rather than a
+one-off migration step.
 
 ---
+
+
+---
+
+<a id="d-014"></a>
 
 ## D-014 — Piltover Archive is inspiration, not a template
 
@@ -310,7 +413,10 @@ without clutter — and the *concepts* that earn their place (notably The Bench)
 Do **not** clone its layout. The interface is designed for our purpose, whose centre
 of gravity is ownership, and Piltover Archive has no ownership concept at all.
 
+
 ---
+
+<a id="d-015"></a>
 
 ## D-015 — Gallery shows owned cards by default ✅
 
@@ -329,7 +435,10 @@ useful.
 whole card pool; this one starts from reality and treats the full pool as the
 exception view.
 
+
 ---
+
+<a id="d-016"></a>
 
 ## D-016 — No single effectiveness grade — show a panel of stats ✅
 
@@ -354,7 +463,10 @@ preserves the user as the strategist, consistent with the whole project's framin
 **Consequence:** the hard problem shifts from "compute a score" to "choose which
 statistics genuinely inform a decision, and present them legibly." Better problem.
 
+
 ---
+
+<a id="d-017"></a>
 
 ## D-017 — Cards in decks are committed and leave the available pool ✅ Q3 RESOLVED
 
@@ -382,7 +494,10 @@ dead end; it is always "this is in *Jinx Aggro v2*."
 **Why this matters:** without it the tool would generate decks the user cannot
 physically build, which would break trust immediately.
 
+
 ---
+
+<a id="d-018"></a>
 
 ## D-018 — Phone gets FULL parity with desktop, including editing ⚠️ REVERSES D-005
 
@@ -418,7 +533,10 @@ or merge logic is needed** — the reason read-only was attractive in the first 
 Collection *entry* remains desktop-oriented (keyboard, collector numbers, cards in
 hand); deck *editing* must work well on a phone.
 
+
 ---
+
+<a id="d-019"></a>
 
 ## D-019 — Architecture is deliberately deferred
 
@@ -435,7 +553,10 @@ storage decisions until the design is settled.
 should constrain the stack. Note that D-018 has already narrowed the space
 considerably without a single technology being named.
 
+
 ---
+
+<a id="d-020"></a>
 
 ## D-020 — Official rulebook is the sole legality authority ✅ Q2 RESOLVED
 
@@ -475,7 +596,10 @@ notes had surfaced.
 
 See [reference/GAME-RULES.md](reference/GAME-RULES.md) for the full authoritative rule set.
 
+
 ---
+
+<a id="d-021"></a>
 
 ## D-021 — Physical card-location system deferred until re-organisation
 
@@ -492,7 +616,10 @@ work. Revisit once the new box exists.
 Note this is **distinct** from D-017's "where is this card" indicator, which points
 at a *deck*, not a physical location, and is in scope now.
 
+
 ---
+
+<a id="d-022"></a>
 
 ## D-022 — Deck statistics use a three-tier confidence framework ✅ Q9 RESOLVED
 
@@ -514,7 +641,10 @@ to discredit themselves. Tiering makes the tool's own uncertainty legible.
 
 **Non-negotiable:** a Tier 3 estimate must never be able to pass for a Tier 1 fact.
 
+
 ---
+
+<a id="d-023"></a>
 
 ## D-023 — Rune feasibility is the flagship statistic
 
@@ -539,7 +669,10 @@ this project existing.
 **Method:** closed-form hypergeometric for the pre-recycling case; Monte Carlo for
 the general case.
 
+
 ---
+
+<a id="d-024"></a>
 
 ## D-024 — Two departures from the originally requested statistics
 
@@ -557,7 +690,10 @@ already held.
 
 Both were proposed as pushback and explicitly accepted by the user.
 
+
 ---
+
+<a id="d-025"></a>
 
 ## D-025 — The project is called **Forge**; documentation restructured
 
@@ -587,7 +723,10 @@ docs/
 and `reference/DATA-SOURCES.md` (what data exists and what is off-limits). The split
 matters because the two change for entirely different reasons and at different rates.
 
+
 ---
+
+<a id="d-026"></a>
 
 ## D-026 — Only `BUILT` decks commit cards — refines D-017
 
@@ -609,7 +748,10 @@ Corollary: a DRAFT deck **may** exceed availability, producing a *conflict* — 
 as information showing which deck holds the cards, never as a wall. Promotion to BUILT
 requires zero conflicts, or an explicit choice to dismantle the holder.
 
+
 ---
+
+<a id="d-027"></a>
 
 ## D-027 — A walking skeleton precedes layered construction
 
@@ -631,7 +773,10 @@ stands alone" hedge — rejected, because Phase A *is* the large part.
 one"* rather than *"build a layer and hope it fits."* Design mistakes surface in week
 three rather than month four.
 
+
 ---
+
+<a id="d-028"></a>
 
 ## D-028 — Premise verification precedes all construction
 
@@ -649,7 +794,10 @@ any deck to 2 of 6 domains — so the usable pool per Legend may be only 80–10
 **Cost:** about two hours of counting. **Value:** either de-risks or redirects the
 entire project before a line of code exists.
 
+
 ---
+
+<a id="d-029"></a>
 
 ## D-029 — The generator is downgraded to a research spike
 
@@ -676,7 +824,10 @@ strictly worse on every axis, so the tool never says which is *best*. Unvalidate
 **Note:** this does **not** reverse D-008. The requirements captured there remain
 accurate descriptions of what the generator would do *if built*.
 
+
 ---
+
+<a id="d-030"></a>
 
 ## D-030 — "Playstyle" is defined mechanically, not by archetype name ✅ Q5
 
@@ -701,7 +852,10 @@ already hold**, rather than as named archetypes:
 proxy rather than a claim about strategy; and composes with the existing statistics
 framework instead of inventing a parallel vocabulary.
 
+
 ---
+
+<a id="d-031"></a>
 
 ## D-031 — RiftScribe is insufficient for legality ⚠️ PARTIALLY INVALIDATES D-002
 
@@ -748,7 +902,10 @@ physical cards** during Stage 0.6.
 same as verifying its *sufficiency*. D-002 confirmed the API worked; it never
 confirmed the API carried every field the rules require.
 
+
 ---
+
+<a id="d-032"></a>
 
 ## D-032 — Forge follows tournament rules and best-of-three ✅ Q7 + Q8 RESOLVED
 
@@ -781,7 +938,10 @@ tournament-valid, and the rule is simpler to reason about.
 Phase A. Deck zones become: Legend · Champion · Main (40) · Runes (12) ·
 Battlefields (3) · Sideboard (0–10).
 
+
 ---
+
+<a id="d-033"></a>
 
 ## D-033 — The project premise is confirmed ✅ A13 CLOSED
 
@@ -810,7 +970,10 @@ answer was available by **asking the user about their own experience**, not by h
 them count cardboard. Direct testimony from someone who has done the thing beats a
 designed experiment to prove the thing is possible.
 
+
 ---
+
+<a id="d-034"></a>
 
 ## D-034 — Riot's official card gallery is the primary data source ✅ SUPERSEDES D-002
 
@@ -867,7 +1030,10 @@ standing rule that official sources govern — see [D-020](#d-020) and [D-035](#
 **Risk:** the `buildId` changes on every site deploy, so it must be re-read rather than
 hard-coded. Mitigated by caching the full payload locally (~3.2 MB).
 
+
 ---
+
+<a id="d-035"></a>
 
 ## D-035 — Official Riot sources govern, for rules *and* card data
 

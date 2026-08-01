@@ -159,7 +159,7 @@ that feedback is an input to the next iteration — not a dead end.
 
 | Concern | Position | Confidence |
 |---|---|---|
-| **Scale** | 1 user · **200–300 unique names owned** (of 767 in existence) · ~1,000 physical cards · dozens of decks. Entire card pool is 950 printings — cacheable in full. | **Measured** |
+| **Scale** | 1 user · **200–300 unique names owned** of **935 in existence** · ~1,000 physical cards · dozens of decks. Full pool is **1,180 printings / ~3.2 MB** — cacheable whole in one request. | **Measured** |
 | **Performance** | Filtering and validation feel instant (<100 ms). Generation responsive (<2 s). Trivial at this data size. | Assumption |
 | **Privacy** | No PII, no credentials, nothing sensitive. Worst case: someone sees a card list. | Assumption |
 | **Reliability** | No uptime requirement. A day of downtime causes no harm. | Assumption |
