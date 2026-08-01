@@ -66,9 +66,9 @@ Alexander, alone.
 | **Desktop (primary)** | At home with the full collection available. Long sessions researching, testing, planning and physically assembling decks. | Full workbench: browse, filter, build, generate, tune, save |
 | **Phone (secondary)** | While playing — likely away from home. | **Read-only** access to saved decks |
 
-> **Assumption (unconfirmed):** "While playing" means away from the home network,
-> so phone access cannot depend on LAN reachability. This assumption materially
-> affects architecture and must be confirmed.
+> ✅ **Confirmed 2026-08-02:** "While playing" means **away from the home network**,
+> so phone access cannot depend on LAN reachability. A local-only application is
+> therefore ruled out as a complete solution. See [D-012](DECISIONS.md#d-012).
 
 ---
 
@@ -158,7 +158,7 @@ that feedback is an input to the next iteration — not a dead end.
 
 | # | Question | Blocks |
 |---|---|---|
-| Q1 | Does phone access need to work away from the home network? | Architecture |
+| ~~Q1~~ | ~~Does phone access need to work away from the home network?~~ **RESOLVED: yes.** See [D-012](DECISIONS.md#d-012). | ~~Architecture~~ |
 | Q2 | **Sideboard size: 0-or-8, or 0–10?** Sources conflict (see RESEARCH.md). Must resolve against the official rulebook. | Legality engine |
 | Q3 | Are decks kept physically built between sessions? If so, cards are "committed" and unavailable to other decks. Changes the data model from `card → qty` to `card → qty owned / committed / free`. | Data model |
 | Q4 | Can legitimate access to tournament/meta data be obtained? | Generator scoring |

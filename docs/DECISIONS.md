@@ -195,6 +195,36 @@ ask for access — and D-009 ensures the project functions without it.
 
 ---
 
+## D-012 — Phone access must work away from the home network ✅ Q1 RESOLVED
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+**Confirmed by the user:** read-only deck access on a phone must work **away from
+home** — at a shop or a friend's place — not merely on the home LAN.
+
+**Consequence:** a purely local-only application is **ruled out** as a complete
+solution. Deck data must reach the phone by some route that survives leaving the
+house. Candidate approaches, to be evaluated in the design phase:
+
+1. **Fully hosted web app** — simplest mental model, but drags in hosting, a real
+   database, and some access control for every part of the system
+2. **Local workbench + hosted read-only deck view** — the heavy workbench stays
+   local; only saved decks are published to a small static/hosted surface. Keeps
+   the collection local and the hosted surface tiny
+3. **PWA with offline caching** — install once, decks cached on-device, works with
+   no signal at all. Attractive because deck data is small and read-only
+4. **Export to phone-native artefacts** — deck codes, images, or PDFs pushed to the
+   phone. Cheapest, but the least like "open the app and look"
+
+**Leaning:** (2) or (3). Both preserve the local-first workbench while satisfying
+the mobile requirement, and both keep the collection off any server. Not yet decided.
+
+**Note:** this does *not* reopen D-005 — phone remains strictly read-only, so no
+sync-conflict or merge logic is required in any of these options.
+
+---
+
 ## D-011 — Repository: private, `riftbound-deck-forge`
 
 **Date:** 2026-08-02
