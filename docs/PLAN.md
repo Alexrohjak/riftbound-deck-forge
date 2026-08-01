@@ -10,21 +10,22 @@
 
 ## ▶️ Next session — start here
 
-**Two checks, under six minutes of your time. Nothing to install, nothing to build.**
+**One question, and it takes seconds — you already know the answer from playing.**
 
-| | What you do | Time |
-|---|---|---|
-| **1** | Pick up any **Legend** card. Count the domain symbols in its **upper-left corner** — one or two? Report the name and the number | 30 sec |
-| **2** | Sort your **rune** cards into piles by domain and report the counts | 5 min |
+| | What you do |
+|---|---|
+| **1** | When you build a deck around a Legend, do you get **one domain or two** to build with? Check a Legend's upper-left corner if unsure |
 
-Full explanation of both, and why they matter, in
-[Stage 0.5](#-start-here-next-session--in-plain-language) below.
+That is the last genuinely unknown rule in the project. Community sites say two, the
+RiftScribe API reports one, and the rulebook states no count.
 
 **Meanwhile Claude does [Stage 0.6](#stage-06--card-data-source-verification--no-code)** —
-hunting for a card data source that carries champion tags and domains, since
-RiftScribe has been verified as unable to support 7 of the 27 legality checks.
+finding a card data source carrying champion tags and domains, since RiftScribe cannot
+support 7 of the 27 legality checks.
 
-Between them these close the two things currently blocking everything else.
+> ✅ **Stage 0.5 is closed.** The premise — that the collection can produce complete
+> legal decks — is confirmed by direct evidence: numerous decks already built from it.
+> See [D-033](DECISIONS.md#d-033).
 
 ---
 
@@ -55,8 +56,8 @@ within weeks rather than after four stages of infrastructure.
 
 ```
 STAGE 0    Discovery ........................ ▓▓▓▓▓▓▓▓▓▓ ~95%
-STAGE 0.5  Premise verification — NO CODE ... ░░░░░░░░░░  ← do this first
-STAGE 0.6  Card data source verification ... ░░░░░░░░░░  🛑 blocker found
+STAGE 0.5  Premise verification ............. ▓▓▓▓▓▓▓▓▓▓ ✅ CLOSED — premise confirmed
+STAGE 0.6  Card data source verification ... ░░░░░░░░░░  🛑 ← the real blocker
 STAGE 1    Visualization / interface design . ░░░░░░░░░░
 STAGE 2    Architecture .................... ░░░░░░░░░░
 ────────────────────────── BLUEPRINT LOCK ──────────────────────────
@@ -96,8 +97,8 @@ proposal in [spec/GENERATOR.md §5](spec/GENERATOR.md).
 
 | # | Item | Blocks |
 |---|---|---|
-| Q7 | Is best-of-three / sideboard play in scope | Stage 5 scope only |
-| Q8 | Default legality mode — casual or competition. **Both are supported regardless** | Stage 5 default only |
+| ~~Q7~~ | Best-of-three / sideboard scope | ✅ **In scope** — [D-032](DECISIONS.md#d-032) |
+| ~~Q8~~ | Default legality mode | ✅ **Competition only**; casual mode not built — [D-032](DECISIONS.md#d-032) |
 | Q10 | How errata and the ban list are ingested and kept current | Stage 4 |
 | **DM1 / LR1** | 🛑 **RESOLVED AND NEGATIVE — RiftScribe cannot support legality.** Now **Stage 0.6** | **Stages 4, 5, 7** |
 
@@ -108,80 +109,39 @@ checks are unimplementable** from the chosen data source, and
 
 ---
 
-## STAGE 0.5 — Premise verification ⭐ **NO CODE**
+## STAGE 0.5 — Premise verification ✅ **CLOSED**
 
-**Size:** S — about two hours · **Gate:** none · **Do this before anything else**
+**Status:** Resolved 2026-08-02 by direct evidence — see [D-033](DECISIONS.md#d-033)
 
-The [audit](AUDIT.md) identified the project's most fragile foundational assumption
-(A13, risk 20): **that the bottleneck is information, not cards.**
+The [audit](AUDIT.md) identified this as the project's highest-risk assumption
+(A13, fragility 4 × impact 5 = **20**): *that the bottleneck is information, not
+cards.* If the collection could not produce complete legal decks, Forge would have
+been a tool that mostly says *"no."*
 
-The collection holds perhaps 250–300 of 767 names, and Domain Identity restricts any
-deck to 2 of 6 domains — so the usable pool for any one Legend may be only 80–100
-names. If a complete legal deck cannot be assembled, Forge becomes a tool that mostly
-says *"no."*
+### ✅ Confirmed
 
-### 🎯 START HERE NEXT SESSION — in plain language
+> *"I have over a thousand cards … and I have made numerous decks already."*
 
-**The point:** Forge exists to answer *"given the cards I own, what can I build?"* —
-but **nobody has checked that the collection can build anything at all.** These checks
-settle that in minutes. Do them in order and stop early if one fails.
+**The experiment had already been run** — in the physical world, repeatedly, with a
+positive result. The collection demonstrably supports complete legal decks. Counting
+runes, battlefields and main deck cards was unnecessary.
 
----
+**Lesson recorded:** the audit was right to demand verification and wrong about the
+cost. The answer was available by **asking the user about their own experience**, not
+by designing an experiment to prove a thing they had already done.
 
-#### Check 1 — Look at one Legend card · ⏱️ 30 seconds
+### One question survived
 
-Find any **Legend** card — each preconstructed deck (Jinx, Viktor, Lee Sin) has one.
-Look at the **upper-left corner**, where the coloured domain symbols are.
+Embedded in the original Check 1 was a question that is **not** about the collection
+at all, but about the rules:
 
-> **Count them. One symbol, or two?** Report the card name and the number.
+> **Does a Champion Legend carry one domain, or two?**
 
-**Why:** the Legend decides which cards may go in the deck. Two domains means cards
-from both may be mixed; one means locked to one. Community sites say two, the
-RiftScribe API reports one, and **the rulebook states no count** (CR 103.1.b.2 says
-only "the domains of your Champion Legend"). This is the most fundamental rule in the
-tool and it is currently **unknown**. A physical card settles it instantly.
+Community sites say two. The RiftScribe API reports one. **The rulebook states no
+count** — CR 103.1.b.2 says only *"the domains of your Champion Legend."* This gates
+Domain Identity, which gates every card in every deck.
 
----
-
-#### Check 2 — Count the runes · ⏱️ 5 minutes
-
-**Runes are a separate card type.** They are not main deck cards — they live in their
-own 12-card pile, and 2 are channelled per turn to pay costs.
-
-Every deck needs **exactly 12 runes**, all matching the Legend's domain(s).
-
-> Sort the rune cards into piles by domain and report the counts —
-> e.g. *"Fury 9, Calm 7, Mind 4, Order 2."*
-
-**Why:** the tightest constraint in the game and the cheapest to check. **With fewer
-than 12 runes in a domain pair, that deck is impossible** — regardless of how strong
-the units are. Each set contains only 12 rune cards, so this is where a collection is
-most likely to fall short.
-
-**Fails if:** no domain pair reaches 12 between them.
-
----
-
-#### Check 3 — Battlefields and main deck · ⏱️ ~30 minutes · *only if 1 and 2 pass*
-
-3 distinct Battlefields (OGN has 24 and they are colourless — almost certainly fine),
-then 40 main deck cards within the Legend's domains. Repeat for a **second Legend in
-different domains**.
-
----
-
-### Outcomes
-
-| Result | Meaning |
-|---|---|
-| Two Legends both work | ✅ Premise holds. Build Forge as planned |
-| Only one works | ⚠️ Forge is a **gap-analysis tool**, not a deckbuilder. Different product — revisit scope |
-| Neither works | 🛑 The bottleneck is **cards**, not information. **No software fixes that** |
-
-> **Why tiered:** the original version specified two hours of counting as the project's
-> opening move. That reintroduced audit finding A12 — enthusiasm decaying before value
-> arrives — into the plan's own first step. Checks 1 and 2 take **under six minutes
-> together** and carry most of the signal.
+**You do:** answer from experience, or glance at a Legend's upper-left corner.
 
 ---
 
@@ -220,7 +180,7 @@ This blocks **7 of 27 legality checks** (L8, L10, L17–L21) and partially inval
 
 ## STAGE 1 — Visualization / interface design
 
-**Size:** L · **Gate:** Stage 0.5 passed · **Phase 2 of the SOP**
+**Size:** L · **Gate:** none — Stage 0.5 closed · **Phase 2 of the SOP**
 
 The largest remaining unknown. Genuinely novel rather than a routine UI pass, because:
 
@@ -440,7 +400,6 @@ Pareto selection. **Unvalidated.**
 | **Physical card location** (Q6, D-021) | The new organising box |
 | Pack-opening entry mode | Base entry already covers it |
 | Deck version comparison | Emerges from real use |
-| Sideboard support | Q7 — rules already captured |
 | Tier 3 / meta adapter | Q4 — **and its relevance problem**, see below |
 
 ---

@@ -747,3 +747,65 @@ physical cards** during Stage 0.6.
 **Lesson, consistent with D-020:** verifying a dependency's *availability* is not the
 same as verifying its *sufficiency*. D-002 confirmed the API worked; it never
 confirmed the API carried every field the rules require.
+
+---
+
+## D-032 — Forge follows tournament rules and best-of-three ✅ Q7 + Q8 RESOLVED
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+**User:** *"I play just casually with friends, but for the sake of this app we are
+making, we will follow tournament rules and bo3 game structure."*
+
+**Decided:**
+
+| Rule | Value | Citation |
+|---|---|---|
+| Main deck | **exactly 40** | TR 601.1.b |
+| Sideboard | **0–10 cards**, in scope for Phase A | TR 601.1.c.1 |
+| Copy limits | span main deck **+ sideboard** | TR 601.1.c.3 |
+| Chosen Champion swapping | permitted whenever sideboarding is | TR 601.1.c.4 |
+
+**This simplifies rather than complicates.** [spec/LEGALITY.md](spec/LEGALITY.md)
+previously required a **casual / competition mode switch** — two code paths, two sets
+of tests, and a mode-selection UI. **Only `COMPETITION` is now implemented.** The
+casual rule (CR 103.2, "at least 40") stays *documented* so it can be added cheaply if
+ever wanted, but it is not built. YAGNI.
+
+**Cost accepted:** a 43-card kitchen-table deck will be reported illegal. The user
+chose this deliberately — building to the stricter standard means decks are always
+tournament-valid, and the rule is simpler to reason about.
+
+**Consequence:** sideboard support moves **out of** deferred features and **into**
+Phase A. Deck zones become: Legend · Champion · Main (40) · Runes (12) ·
+Battlefields (3) · Sideboard (0–10).
+
+---
+
+## D-033 — The project premise is confirmed ✅ A13 CLOSED
+
+**Date:** 2026-08-02
+**Status:** Accepted — **resolved by direct evidence, not by testing**
+
+**User:** *"See if I actually can make any legal decks — yes I can. I have over a
+thousand cards … and I have made numerous decks already."*
+
+**What this closes.** [AUDIT.md](AUDIT.md) finding **A13** was the project's highest-risk
+assumption (fragility 4 × impact 5 = **20**): *that the bottleneck is information, not
+cards.* If the collection could not produce complete legal decks, Forge would have been
+a tool that mostly says "no."
+
+**It is settled empirically.** The user has already built multiple real decks from this
+collection. The experiment the audit proposed had, in effect, already been run — in
+the physical world, repeatedly, with a positive result.
+
+**Consequence:** Stage 0.5's counting checks (runes, battlefields, main deck) are
+**cancelled as unnecessary.** Only the unrelated question embedded in Check 1 survives
+— how many domains a Champion Legend carries — which is a *rules* question, not a
+collection question.
+
+**Lesson:** the audit was right to demand verification and wrong about the cost. The
+answer was available by **asking the user about their own experience**, not by having
+them count cardboard. Direct testimony from someone who has done the thing beats a
+designed experiment to prove the thing is possible.

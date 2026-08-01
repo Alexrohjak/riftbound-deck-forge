@@ -178,13 +178,13 @@ that feedback is an input to the next iteration — not a dead end.
 | **DM1** | ⚠️ **Does any source expose champion tags and the Signature supertype?** Five legality checks are unimplementable without them | 🔴 **Blocker** — [spec/LEGALITY.md](spec/LEGALITY.md#4-open-risks) |
 | ~~Q5~~ | Is "playstyle" a fixed tag list, free text, or inferred from the anchor? | ✅ **Resolved in principle** — defined **mechanically** rather than by name, sidestepping the missing archetype data. [spec/GENERATOR.md §5](spec/GENERATOR.md) |
 | ~~Q6~~ | Should the system help physically *locate* cards? | ⏸️ **Deferred** until the new organising box — [D-021](DECISIONS.md#d-021) |
-| Q7 | Is best-of-three / sideboard play in scope? | 🟡 Open — rules now fully captured either way (RESEARCH §4.8) |
+| ~~Q7~~ | Is best-of-three / sideboard play in scope? | ✅ **Yes** — [D-032](DECISIONS.md#d-032) |
 
 **New questions raised by the rulebook research:**
 
 | # | Question | Status |
 |---|---|---|
-| Q8 | Casual (≥40) or competition (=40) as the default legality mode? Both must be supported. | 🔴 Open |
+| ~~Q8~~ | Casual or competition legality mode? | ✅ **Competition only**; casual not built — [D-032](DECISIONS.md#d-032) |
 | ~~Q9~~ | Which statistics belong in the deck stats panel? | ✅ **Resolved** — three-tier confidence framework, [spec/DECK-STATS.md](spec/DECK-STATS.md) · [D-022](DECISIONS.md#d-022) |
 | Q10 | How are per-set errata and the official ban list ingested and kept current? | 🟡 Open |
 | Q11 | How does deck editing work well under touch, given full phone parity ([D-018](DECISIONS.md#d-018))? | 🔴 Open |

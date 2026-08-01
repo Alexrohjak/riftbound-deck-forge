@@ -9,15 +9,25 @@
 
 ---
 
-## 1. Modes
+## 1. Mode — competition only
 
-Every validation runs in a mode. **Both must be supported** (Q8 decides only the
-*default*).
+**Forge validates against tournament rules exclusively** ([D-032](../DECISIONS.md#d-032)).
+The user plays casually but chose to build to the stricter standard, so decks are
+always tournament-valid.
 
-| Mode | Main Deck | Source |
-|---|---|---|
-| `CASUAL` | **≥ 40** | CR 103.2 |
-| `COMPETITION` | **exactly 40** | TR 601.1.b |
+| Mode | Main Deck | Sideboard | Status |
+|---|---|---|---|
+| `COMPETITION` | **exactly 40** (TR 601.1.b) | 0–10 (TR 601.1.c.1) | ✅ **implemented** |
+| ~~`CASUAL`~~ | ≥40 (CR 103.2) | n/a | ❌ **not built** — documented only |
+
+**This removes a mode switch, a second code path, a second test matrix, and a
+mode-selection UI.** The casual rule stays recorded so it can be added cheaply if ever
+wanted. YAGNI.
+
+**Accepted cost:** a 43-card kitchen-table deck is reported illegal.
+
+**Best-of-three is in scope**, so sideboards are a Phase A feature rather than a
+deferred one.
 
 ---
 
@@ -32,11 +42,11 @@ when **all** pass.
 |---|---|---|
 | L1 | Exactly 1 Champion Legend | CR 103.1 |
 | L2 | Exactly 1 Chosen Champion | CR 103.2.a |
-| L3 | Main Deck ≥40 (casual) / =40 (competition), **Chosen Champion counted within** | CR 103.2 / TR 601.1.b |
+| L3 | Main Deck **exactly 40**, **Chosen Champion counted within** | TR 601.1.b |
 | L4 | Rune Deck exactly 12 | CR 103.3.a |
 | L5 | Battlefields = count for Mode of Play (3 in 1v1) | CR 103.4.a |
 | L6 | Battlefield names unique | CR 103.4.c |
-| L7 | Sideboard ≤10, or absent | TR 601.1.c.1 |
+| L7 | Sideboard ≤10, or absent. **In scope — bo3 is played** | TR 601.1.c.1 |
 
 ### Domain Identity
 
@@ -103,7 +113,7 @@ possible defence against misreading the rules.
 | T5 | 4 copies of one name across Main Deck + sideboard | ❌ illegal | TR 601.1.c.3 |
 | T6 | 3 **different** Signature cards + 1 more | ❌ illegal — cap is 3 total | 103.2.d.1 |
 | T7 | Multi-domain card needing Fury+Mind, under a Fury/Calm Legend | ❌ illegal | 103.1.b.4 |
-| T8 | 43-card Main Deck | ✅ casual · ❌ competition | CR 103.2 / TR 601.1.b |
+| T8 | 43-card Main Deck | ❌ illegal — competition only | TR 601.1.b |
 | T9 | Two Battlefields sharing a name | ❌ illegal | 103.4.c |
 | T10 | `ogn-202-298` + `ogn-202a-298` + one more "Jinx, Rebel" printing | 3 copies — ✅ legal; a 4th ❌ | 103.2.b |
 

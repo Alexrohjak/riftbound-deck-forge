@@ -112,7 +112,12 @@ compared against alternatives.
 | A4 — RiftScribe availability | 3 | 3 | 9 |
 | A2 — ~20 minutes | 4 | 2 | 8 |
 
-### 🥇 A13 — "The bottleneck is information, not cards" — risk 20
+### 🥇 A13 — "The bottleneck is information, not cards" — risk 20 · ✅ **RESOLVED**
+
+> ✅ **Closed 2026-08-02 by direct evidence.** *"I have over a thousand cards … and I
+> have made numerous decks already."* The experiment had already been run in the
+> physical world, repeatedly, with a positive result. See [D-033](DECISIONS.md#d-033).
+> **The analysis below is retained for the record.**
 
 The whole project assumes the user *can* build good decks and merely lacks the means
 to find them. But the collection holds perhaps 250–300 of 767 distinct names, and
@@ -217,7 +222,7 @@ also be a **relevance** problem.
 
 | Finding | Response |
 |---|---|
-| A13 | **Stage 0.5 added** to PLAN.md — manual premise verification before any build |
+| A13 | **Stage 0.5 added**, then ✅ **closed by direct evidence** — [D-033](DECISIONS.md#d-033). Lesson: ask about lived experience before designing an experiment |
 | A12 | **Vertical slice inserted as Stage 3.5**; time-to-first-value added to the risk register |
 | A9 | Generator **downgraded** from planned stage to research spike with an explicit kill condition — see [GENERATOR.md](spec/GENERATOR.md) |
 | A8 | Q4 reframed as relevance *and* access; recorded in DECISIONS |
