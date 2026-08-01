@@ -8,6 +8,26 @@
 
 ---
 
+## ▶️ Next session — start here
+
+**Two checks, under six minutes of your time. Nothing to install, nothing to build.**
+
+| | What you do | Time |
+|---|---|---|
+| **1** | Pick up any **Legend** card. Count the domain symbols in its **upper-left corner** — one or two? Report the name and the number | 30 sec |
+| **2** | Sort your **rune** cards into piles by domain and report the counts | 5 min |
+
+Full explanation of both, and why they matter, in
+[Stage 0.5](#-start-here-next-session--in-plain-language) below.
+
+**Meanwhile Claude does [Stage 0.6](#stage-06--card-data-source-verification--no-code)** —
+hunting for a card data source that carries champion tags and domains, since
+RiftScribe has been verified as unable to support 7 of the 27 legality checks.
+
+Between them these close the two things currently blocking everything else.
+
+---
+
 ## How to read this
 
 Work is expressed in **stages**, not dates. This is an evenings-and-weekends personal
@@ -100,23 +120,68 @@ deck to 2 of 6 domains — so the usable pool for any one Legend may be only 80�
 names. If a complete legal deck cannot be assembled, Forge becomes a tool that mostly
 says *"no."*
 
-### The test
+### 🎯 START HERE NEXT SESSION — in plain language
 
-1. Pick one owned Champion Legend
-2. By hand, count whether the collection contains **40 legal main deck cards + 12
-   matching runes + 3 battlefields + an eligible Chosen Champion**
-3. Repeat for a **second Legend in different domains**
+**The point:** Forge exists to answer *"given the cards I own, what can I build?"* —
+but **nobody has checked that the collection can build anything at all.** These checks
+settle that in minutes. Do them in order and stop early if one fails.
+
+---
+
+#### Check 1 — Look at one Legend card · ⏱️ 30 seconds
+
+Find any **Legend** card — each preconstructed deck (Jinx, Viktor, Lee Sin) has one.
+Look at the **upper-left corner**, where the coloured domain symbols are.
+
+> **Count them. One symbol, or two?** Report the card name and the number.
+
+**Why:** the Legend decides which cards may go in the deck. Two domains means cards
+from both may be mixed; one means locked to one. Community sites say two, the
+RiftScribe API reports one, and **the rulebook states no count** (CR 103.1.b.2 says
+only "the domains of your Champion Legend"). This is the most fundamental rule in the
+tool and it is currently **unknown**. A physical card settles it instantly.
+
+---
+
+#### Check 2 — Count the runes · ⏱️ 5 minutes
+
+**Runes are a separate card type.** They are not main deck cards — they live in their
+own 12-card pile, and 2 are channelled per turn to pay costs.
+
+Every deck needs **exactly 12 runes**, all matching the Legend's domain(s).
+
+> Sort the rune cards into piles by domain and report the counts —
+> e.g. *"Fury 9, Calm 7, Mind 4, Order 2."*
+
+**Why:** the tightest constraint in the game and the cheapest to check. **With fewer
+than 12 runes in a domain pair, that deck is impossible** — regardless of how strong
+the units are. Each set contains only 12 rune cards, so this is where a collection is
+most likely to fall short.
+
+**Fails if:** no domain pair reaches 12 between them.
+
+---
+
+#### Check 3 — Battlefields and main deck · ⏱️ ~30 minutes · *only if 1 and 2 pass*
+
+3 distinct Battlefields (OGN has 24 and they are colourless — almost certainly fine),
+then 40 main deck cards within the Legend's domains. Repeat for a **second Legend in
+different domains**.
+
+---
 
 ### Outcomes
 
 | Result | Meaning |
 |---|---|
-| Both succeed | ✅ Premise holds. Build Forge as planned |
-| One succeeds | ⚠️ Forge is a **gap-analysis tool**, not a deckbuilder. Different product — revisit scope |
-| Neither succeeds | 🛑 The bottleneck is **cards**, not information. **No software fixes that** |
+| Two Legends both work | ✅ Premise holds. Build Forge as planned |
+| Only one works | ⚠️ Forge is a **gap-analysis tool**, not a deckbuilder. Different product — revisit scope |
+| Neither works | 🛑 The bottleneck is **cards**, not information. **No software fixes that** |
 
-**You do:** the counting. Two hours, no code, and it either de-risks or redirects the
-entire project.
+> **Why tiered:** the original version specified two hours of counting as the project's
+> opening move. That reintroduced audit finding A12 — enthusiasm decaying before value
+> arrives — into the plan's own first step. Checks 1 and 2 take **under six minutes
+> together** and carry most of the signal.
 
 ---
 
