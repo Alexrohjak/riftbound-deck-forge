@@ -43,6 +43,7 @@ This repository currently holds planning artefacts only. Read them in this order
 
 | Document | Contents |
 |---|---|
+| [**`docs/PLAN.md`**](docs/PLAN.md) | **The full delivery plan — every stage from here to a finished tool, with gates, milestones and risks. Start here.** |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, constraints, non-goals, open questions |
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, its alternatives, and why — including three deliberate reversals |
 | [`docs/RESEARCH.md`](docs/RESEARCH.md) | Riftbound rules (rulebook-cited), the card-data API, the meta-data landscape |
