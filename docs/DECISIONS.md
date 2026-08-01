@@ -491,3 +491,68 @@ work. Revisit once the new box exists.
 
 Note this is **distinct** from D-017's "where is this card" indicator, which points
 at a *deck*, not a physical location, and is in scope now.
+
+---
+
+## D-022 — Deck statistics use a three-tier confidence framework ✅ Q9 RESOLVED
+
+**Date:** 2026-08-02
+**Status:** Accepted — full specification in [DECK-STATS.md](DECK-STATS.md)
+
+**Decided:** Statistics are organised by **epistemic confidence**, and the tier is
+encoded in the visual language rather than footnoted.
+
+| Tier | Nature | Guarantee |
+|---|---|---|
+| 🟢 1 — Facts | Deterministic, from the decklist | Exactly correct |
+| 🟡 2 — Probabilities | Computed or simulated | Correct given stated assumptions |
+| 🔴 3 — Estimates | Requires external data | Uncertain; **omitted rather than faked** |
+
+**Why:** D-016 removed the composite grade but relocated the problem — three
+misleading statistics are worse than one misleading grade, because they take longer
+to discredit themselves. Tiering makes the tool's own uncertainty legible.
+
+**Non-negotiable:** a Tier 3 estimate must never be able to pass for a Tier 1 fact.
+
+---
+
+## D-023 — Rune feasibility is the flagship statistic
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+**Decided:** The headline statistic is **P(can pay a given cost, by turn, by domain)** —
+not the energy curve.
+
+**Rationale, from the Core Rules:** the Rune Deck is exactly 12 (CR 161.2.a) and
+channels 2 per turn (CR 315.3.b.1). Paying a domain Power cost requires **recycling a
+rune of that domain currently on the board** (CR 164.2.b), which simultaneously
+removes it from the board and returns it to the Rune Deck (CR 161.2.b). Whether such
+a rune is available on turn *N* is a hypergeometric problem over 12 cards,
+complicated by recycling.
+
+**Why it is the flagship:** it is genuinely impossible to compute by hand at the
+table, and **no other Riftbound tool can produce it**, because none holds the rune
+split and the deck's Power demands together. It is the strongest single argument for
+this project existing.
+
+**Method:** closed-form hypergeometric for the pre-recycling case; Monte Carlo for
+the general case.
+
+---
+
+## D-024 — Two departures from the originally requested statistics
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+**❌ "Average card cost" — dropped.** A mean is actively misleading: an all-3-drops
+deck and a 1-drop/6-drop split deck share a mean of 3 and play nothing alike. The
+histogram conveys everything the mean does, honestly.
+
+**✅ "Flexibility" — defined as *playable options per turn*.** Given expected
+resources on turn *N*, how many **distinct** cards could actually be cast. Left
+undefined it would have become decoration; this version is computable from data
+already held.
+
+Both were proposed as pushback and explicitly accepted by the user.

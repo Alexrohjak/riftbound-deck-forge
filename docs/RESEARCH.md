@@ -29,18 +29,41 @@ It is a **territory game, not a life-total game**.
   Battlefields in a single turn — not merely from a conquest
 - No player life total in the Magic/Pokémon sense
 
-### Resource system — two axes
+### Resource system — two axes *(rulebook-verified)*
 
-Runes live in a **separate 12-card Rune Deck**.
+Runes live in a **separate 12-card Rune Deck** (CR 161.2.a). A Rune is **not** a Main
+Deck card and is **not** a Permanent (CR 161.1).
 
-- **Exhaust** a rune (turn sideways) → generic **Energy**
-- **Recycle** a rune (to the bottom of the Rune Deck) → coloured **Power**
-- The *same rune* can be exhausted *and* recycled in one payment sequence
-- Runes refresh at the start of your turn
-- **Unspent pool empties each turn** — Energy and Power do not carry over
+**Every Basic Rune has exactly two abilities** (CR 164.2):
 
-This two-axis cost model is why the API exposes `stats.energy` and `stats.power`
-as separate fields, and why rune-deck composition is a real optimisation problem.
+| Ability | Produces | Side effect |
+|---|---|---|
+| `[E]` **Exhaust** | **1 Energy** — generic, no domain (CR 163.1.a/b) | Rune stays on board, exhausted |
+| `Recycle this` | **1 Power** of that rune's domain (CR 164.2.b.1) | **Rune returns to the Rune Deck** (CR 161.2.b) |
+
+- **2 runes are channelled per turn** in the Channel Phase (CR 315.3.b.1); fewer if
+  the Rune Deck is short (315.3.b.1)
+- Channelled runes **remain on the board** (CR 161.1.a)
+- **Energy** pays numeric costs and has no domain; **Power** pays domain-associated
+  costs and carries a domain (CR 163.1–163.2)
+- Some Power is **Universal** and pays costs of any domain (CR 163.2.b)
+- The **Rune Pool empties** at the start of each Main Phase and at end of turn —
+  **unspent Energy and Power are lost** (CR 167, 316.3)
+
+**Resulting resource ceiling** (cumulative, assuming no recycling):
+
+| Turn | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|
+| Runes on board | 2 | 4 | 6 | 8 | 10 | **12 — deck empty** |
+
+> ⚠️ **The central tension:** paying Power **costs board presence**. Recycling for
+> coloured Power removes the rune from the board — forfeiting that Energy source —
+> while refilling the Rune Deck for future channelling. Power-heavy and Energy-heavy
+> decks therefore have structurally different curves from the same 12 runes.
+
+This is why the API separates `stats.energy` and `stats.power`, and it is the basis
+of the flagship statistic in [DECK-STATS.md](DECK-STATS.md) — see
+[D-023](DECISIONS.md#d-023).
 
 ### Turn structure (A-B-C-D-A)
 

@@ -179,7 +179,7 @@ that feedback is an input to the next iteration — not a dead end.
 | # | Question | Status |
 |---|---|---|
 | Q8 | Casual (≥40) or competition (=40) as the default legality mode? Both must be supported. | 🔴 Open |
-| Q9 | Which statistics belong in the deck stats panel, now that there is no composite grade ([D-016](DECISIONS.md#d-016))? | 🔴 **Open — the central Phase B design problem** |
+| ~~Q9~~ | Which statistics belong in the deck stats panel? | ✅ **Resolved** — three-tier confidence framework, [DECK-STATS.md](DECK-STATS.md) · [D-022](DECISIONS.md#d-022) |
 | Q10 | How are per-set errata and the official ban list ingested and kept current? | 🟡 Open |
 | Q11 | How does deck editing work well under touch, given full phone parity ([D-018](DECISIONS.md#d-018))? | 🔴 Open |
 

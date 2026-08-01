@@ -44,8 +44,9 @@ This repository currently holds planning artefacts only. Read them in this order
 | Document | Contents |
 |---|---|
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, constraints, non-goals, open questions |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, its alternatives, and why — including one deliberate reversal |
-| [`docs/RESEARCH.md`](docs/RESEARCH.md) | Riftbound rules, the card-data API, the meta-data landscape |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, its alternatives, and why — including three deliberate reversals |
+| [`docs/RESEARCH.md`](docs/RESEARCH.md) | Riftbound rules (rulebook-cited), the card-data API, the meta-data landscape |
+| [`docs/DECK-STATS.md`](docs/DECK-STATS.md) | What the tool reports about a deck, and how honest it is about its own uncertainty |
 
 ---
 
