@@ -700,3 +700,50 @@ already hold**, rather than as named archetypes:
 **Why this is better:** requires no external data; is honest about being a mechanical
 proxy rather than a claim about strategy; and composes with the existing statistics
 framework instead of inventing a parallel vocabulary.
+
+---
+
+## D-031 — RiftScribe is insufficient for legality ⚠️ PARTIALLY INVALIDATES D-002
+
+**Date:** 2026-08-02
+**Status:** Accepted — verified, not speculative
+
+**Finding.** Full enumeration of all 950 cards plus detail-endpoint inspection
+confirms RiftScribe **cannot support the legality engine**:
+
+| Gap | Evidence | Breaks |
+|---|---|---|
+| No champion tags | `tags` empty on **0 / 950** cards | L17 · L18 · L19 · L20 · L21 |
+| Domains single-valued | `faction` has 7 values, **none compound** — multi-domain cards, which CR 103.1.b.4 explicitly anticipates, cannot be represented | L8 · L10 |
+| No Signature supertype | No field distinguishes Signature cards | L19 · L20 · L21 |
+
+**The decisive example:** CR 103.2.a.2 uses **Loose Cannon** to illustrate a Legend
+carrying the tag `Jinx`. RiftScribe returns Loose Cannon with `tags: []`.
+
+**Workaround investigated and rejected:** domains are not recoverable from
+`description` text. Of six Legends sampled, one contained a rune symbol, and it was
+`:rb_rune_rainbow:`.
+
+**What survives of D-002.** RiftScribe remains the right source for the **gallery,
+browsing, collection entry and statistics** — it has stats, parsed keywords, images,
+collector numbers, ban flags, and typeahead. **7 of 27 legality checks** require data
+it does not carry.
+
+**Decided:** add **Stage 0.6** — evaluate Scrydex, API TCG and RiftboundCardDatabase;
+if none suffice, hand-author the supplement. The scope is **bounded**: ~100 Legends
+with their champion tags and domains, plus Signature card identification. Tedious,
+not hard.
+
+**Why this is pre-work rather than part of Stage 4:** if hand-authoring is required it
+materially changes Stage 4's size and shape, and that is better known **before** the
+architecture is chosen.
+
+**Secondary finding — an unresolved factual question.** Community sources state every
+Champion Legend has **two** domains. RiftScribe reports **one**. The rulebook states
+neither — CR 103.1.b.2 says only "the domains of your Champion Legend." Those same
+community sources were already wrong once, about the sideboard. **Verify against
+physical cards** during Stage 0.6.
+
+**Lesson, consistent with D-020:** verifying a dependency's *availability* is not the
+same as verifying its *sufficiency*. D-002 confirmed the API worked; it never
+confirmed the API carried every field the rules require.

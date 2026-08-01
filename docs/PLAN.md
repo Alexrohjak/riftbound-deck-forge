@@ -36,6 +36,7 @@ within weeks rather than after four stages of infrastructure.
 ```
 STAGE 0    Discovery ........................ ▓▓▓▓▓▓▓▓▓▓ ~95%
 STAGE 0.5  Premise verification — NO CODE ... ░░░░░░░░░░  ← do this first
+STAGE 0.6  Card data source verification ... ░░░░░░░░░░  🛑 blocker found
 STAGE 1    Visualization / interface design . ░░░░░░░░░░
 STAGE 2    Architecture .................... ░░░░░░░░░░
 ────────────────────────── BLUEPRINT LOCK ──────────────────────────
@@ -78,10 +79,12 @@ proposal in [spec/GENERATOR.md §5](spec/GENERATOR.md).
 | Q7 | Is best-of-three / sideboard play in scope | Stage 5 scope only |
 | Q8 | Default legality mode — casual or competition. **Both are supported regardless** | Stage 5 default only |
 | Q10 | How errata and the ban list are ingested and kept current | Stage 4 |
-| **DM1 / LR1** | ⚠️ **Does any source expose champion tags and the Signature supertype?** | **Stage 5 hard blocker** |
+| **DM1 / LR1** | 🛑 **RESOLVED AND NEGATIVE — RiftScribe cannot support legality.** Now **Stage 0.6** | **Stages 4, 5, 7** |
 
-**DM1 is now the most urgent open item** — five legality checks (L17–L21) are
-unimplementable without it, and it was discovered only while writing the data model.
+**Stage 0.6 is now the most urgent open item.** Verified across all 950 cards:
+no champion tags, single-valued domains, no Signature supertype. **7 of 27 legality
+checks are unimplementable** from the chosen data source, and
+[D-002](DECISIONS.md#d-002) is partially invalidated.
 
 ---
 
@@ -114,6 +117,39 @@ says *"no."*
 
 **You do:** the counting. Two hours, no code, and it either de-risks or redirects the
 entire project.
+
+---
+
+## STAGE 0.6 — Card data source verification 🛑 **NO CODE**
+
+**Size:** S · **Gate:** none — parallel with 0.5 · **Blocks Stages 4, 5, 7**
+
+**RiftScribe has been verified insufficient for legality.** Measured across all 950
+cards on 2026-08-02:
+
+| Gap | Evidence |
+|---|---|
+| No champion tags | `tags` empty on **0 / 950** cards |
+| Domains single-valued | `faction` has 7 values, none compound — multi-domain cards unrepresentable |
+| No Signature supertype | No field distinguishes Signature cards |
+
+This blocks **7 of 27 legality checks** (L8, L10, L17–L21) and partially invalidates
+[D-002](DECISIONS.md#d-002).
+
+### Work
+
+1. Evaluate **Scrydex**, **API TCG**, and **RiftboundCardDatabase** for champion tags,
+   multi-domain representation, and the Signature supertype
+2. If none suffice: scope **hand-authoring the supplement**. It is bounded — 100
+   Legends and their tags, plus Signature card identification. Tedious, not hard
+3. **Verify against physical cards** whether Champion Legends carry one domain or two.
+   Community sources say two; RiftScribe says one; the rulebook does not state a count
+
+**Done when:** a source (or combination) is identified that can support all 27 checks.
+
+> **Why this is pre-work, not Stage 4:** if no source exists and hand-authoring is
+> required, that changes the size and shape of Stage 4 substantially — and it is
+> better known before the architecture is chosen.
 
 ---
 
@@ -224,19 +260,19 @@ rather than month four.
 - **Cache locally in full** — mitigates the dependency disappearing
 - Pagination: `limit` caps at 200; the `set` filter does not work — filter client-side
 - **Variant collapsing** by name ([spec/DATA-MODEL.md §2](spec/DATA-MODEL.md))
-- ⚠️ **Resolve DM1** — champion tags and Signature supertype. Fall back to Scrydex,
-  API TCG, or hand-authored data if RiftScribe lacks them
+- Integrate whichever source Stage 0.6 identified for champion tags, multi-domain
+  representation and the Signature supertype — **RiftScribe alone is insufficient**
 - Errata and ban list ingestion (Q10)
 - New-set refresh strategy
 
-**Done when:** the full pool is queryable offline with variants correctly collapsed,
-and DM1 is resolved.
+**Done when:** the full pool is queryable offline, variants correctly collapsed, and
+champion tags / domains / Signature status available for every card.
 
 ---
 
 ## STAGE 5 — Legality engine ⚠️ **highest correctness risk**
 
-**Size:** M–L · **Gate:** Stage 4 (DM1 resolved) · **Parallel with Stage 6**
+**Size:** M–L · **Gate:** Stage 4 **and Stage 0.6 resolved** · **Parallel with Stage 6**
 
 Specification: [spec/LEGALITY.md](spec/LEGALITY.md) — 27 checks, 10 rulebook-derived
 tests.
@@ -375,7 +411,7 @@ Not a phase — an **ongoing obligation** that begins at Stage 4.
 |---|---|---|
 | ⭐ **Time-to-first-value** — enthusiasm decays before the tool is useful (audit A12) | 🔴 High | **Stage 3.5 walking skeleton** — usable in weeks, not months |
 | **Premise may not hold** — collection may not support multiple decks (A13) | 🔴 High | **Stage 0.5**, two hours, before any code |
-| **DM1 / LR1** — champion tags & Signature supertype may be unavailable | 🔴 High | Resolve in Stage 4; fallback sources identified |
+| 🛑 **Card data cannot support legality** — verified, not speculative | 🛑 **Blocking** | **Stage 0.6** — evaluate alternative sources; hand-authored supplement is bounded (100 Legends) if none suffice |
 | **Undiscovered rules** (LR2) | 🔴 High | Rulebook line by line; every example a test |
 | **Collection entry never happens** (A3) | 🟡 Medium | Explicit milestone with a spot-check |
 | RiftScribe disappears | 🟡 Medium | Full local cache from Stage 4 |

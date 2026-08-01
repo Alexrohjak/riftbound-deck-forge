@@ -49,10 +49,33 @@ Self-described as an independent fan project.
 **Strengths:** `keywords` arrives **pre-parsed**; `is_banned` provided; `stats`
 separates energy/might/power. Close to ideal for a constraint engine.
 
-> ⚠️ **Critical gap.** `tags` was **empty** on the inspected card. Champion tags
-> (`Jinx`, `Annie`) and the **Signature** supertype are *required* for legality
-> (CR 103.2.a, 103.2.d) and it is **unconfirmed** that RiftScribe exposes them.
-> **Stage 4 hard blocker** — see [DATA-MODEL.md DM1](../spec/DATA-MODEL.md#7-open-items).
+### 🛑 VERIFIED INSUFFICIENT FOR LEGALITY — measured 2026-08-02
+
+Full enumeration of all 950 cards plus detail-endpoint inspection confirms **three
+gaps that block the legality engine**:
+
+| # | Gap | Evidence | Breaks |
+|---|---|---|---|
+| **G1** | **No champion tags** | `tags` is empty on **0 / 950** cards | L17 · L18 · L19 · L20 · L21 |
+| **G2** | **Domains are single-valued** | `faction` has exactly 7 values — `body` `calm` `chaos` `colorless` `fury` `mind` `order` — **none compound**. Multi-domain cards, which CR 103.1.b.4 explicitly anticipates, cannot be represented | L8 · L10 |
+| **G3** | **No Signature supertype** | No field distinguishes Signature cards from champion units | L19 · L20 · L21 |
+
+**The decisive example:** CR 103.2.a.2 uses **"Loose Cannon"** as its illustration of a
+Legend carrying the tag `Jinx`. RiftScribe returns Loose Cannon with `tags: []`.
+
+**Workaround investigated and rejected.** Domains are *not* recoverable from
+`description` text — of six Legends sampled, only one contained any rune symbol, and
+it was `:rb_rune_rainbow:`.
+
+**Consequence:** [D-002](../DECISIONS.md#d-002) is **partially invalidated**.
+RiftScribe remains excellent for gallery, browsing, entry and statistics — it has
+stats, keywords, images, collector numbers — but it **cannot support legality
+validation alone**. A second source or a hand-authored supplement is required.
+
+> **Open question this raises:** community sources claimed every Champion Legend has
+> **two** domains. RiftScribe reports one. Those sources were already wrong once about
+> the sideboard. **The rulebook is silent on the count** — CR 103.1.b.2 says only
+> "the domains of your Champion Legend." **Verify against physical cards.**
 
 ### Pagination quirks
 

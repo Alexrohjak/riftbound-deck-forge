@@ -113,7 +113,7 @@ possible defence against misreading the rules.
 
 | # | Risk | Severity |
 |---|---|---|
-| **LR1** | **Champion tags and the Signature supertype may not be exposed by RiftScribe.** L17–L21 are unimplementable without them. `tags` was empty on the inspected card | 🔴 **Blocker** |
+| **LR1** | 🛑 **CONFIRMED BLOCKER — RiftScribe cannot support legality.** Verified across all 950 cards: `tags` is empty on every one (no champion tags), `faction` is single-valued so multi-domain cards are unrepresentable, and no Signature supertype exists. **L8, L10, L17–L21 are unimplementable from this source.** See [DATA-SOURCES.md §1](../reference/DATA-SOURCES.md) | 🛑 **Blocking** |
 | **LR2** | **There are probably more rules like Signature cards.** It was found only by reading the PDF directly, after community sources had already been wrong about the sideboard | 🔴 High |
 | LR3 | Errata may alter individual cards; the ban list is external and changes over time | 🟡 Medium |
 | LR4 | `colorless` handling under Domain Identity is inferred, not explicitly confirmed (L12) | 🟡 Medium |
