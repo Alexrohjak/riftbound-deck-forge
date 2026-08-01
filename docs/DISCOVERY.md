@@ -175,7 +175,7 @@ that feedback is an input to the next iteration — not a dead end.
 | ~~Q2~~ | Sideboard size: 0-or-8, or 0–10? | ✅ **0–10** (TR 601.1.c.1). Community guides were stale — [D-020](DECISIONS.md#d-020) |
 | ~~Q3~~ | Are cards locked inside physically built decks? | ✅ **Yes — cards in decks are committed** — [D-017](DECISIONS.md#d-017) |
 | Q4 | Can legitimate access to tournament/meta data be obtained? | 🟡 Open — mitigated by [D-009](DECISIONS.md#d-009). ⚠️ **Reframed:** also a *relevance* problem, not only access — see [AUDIT.md](AUDIT.md) A8 |
-| **DM1** | ⚠️ **Does any source expose champion tags and the Signature supertype?** Five legality checks are unimplementable without them | 🔴 **Blocker** — [spec/LEGALITY.md](spec/LEGALITY.md#4-open-risks) |
+| ~~DM1~~ | Does any source expose champion tags and the Signature supertype? | ✅ **Yes — Riot's official card gallery.** 1,180 cards, `domain.values[]`, `tags.tags[]`, `cardType.superType[]` — [D-034](DECISIONS.md#d-034) |
 | ~~Q5~~ | Is "playstyle" a fixed tag list, free text, or inferred from the anchor? | ✅ **Resolved in principle** — defined **mechanically** rather than by name, sidestepping the missing archetype data. [spec/GENERATOR.md §5](spec/GENERATOR.md) |
 | ~~Q6~~ | Should the system help physically *locate* cards? | ⏸️ **Deferred** until the new organising box — [D-021](DECISIONS.md#d-021) |
 | ~~Q7~~ | Is best-of-three / sideboard play in scope? | ✅ **Yes** — [D-032](DECISIONS.md#d-032) |

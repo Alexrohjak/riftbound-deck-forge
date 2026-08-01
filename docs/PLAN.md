@@ -10,22 +10,22 @@
 
 ## ▶️ Next session — start here
 
-**One question, and it takes seconds — you already know the answer from playing.**
+### 🎨 Stage 1 — design the interface
 
-| | What you do |
+**All blockers are cleared.** Discovery is complete, and the next work is the biggest
+remaining unknown and the most enjoyable part: deciding what Forge actually looks and
+feels like.
+
+> Nothing to prepare. Bring opinions about what you want it to feel like.
+
+**Resolved since the plan was written:**
+
+| | |
 |---|---|
-| **1** | When you build a deck around a Legend, do you get **one domain or two** to build with? Check a Legend's upper-left corner if unsure |
-
-That is the last genuinely unknown rule in the project. Community sites say two, the
-RiftScribe API reports one, and the rulebook states no count.
-
-**Meanwhile Claude does [Stage 0.6](#stage-06--card-data-source-verification--no-code)** —
-finding a card data source carrying champion tags and domains, since RiftScribe cannot
-support 7 of the 27 legality checks.
-
-> ✅ **Stage 0.5 is closed.** The premise — that the collection can produce complete
-> legal decks — is confirmed by direct evidence: numerous decks already built from it.
-> See [D-033](DECISIONS.md#d-033).
+| ✅ Premise | Confirmed — decks already built from this collection ([D-033](DECISIONS.md#d-033)) |
+| ✅ Legend domains | **Exactly 2**, verified across all 118 Legends ([D-034](DECISIONS.md#d-034)) |
+| ✅ Card data | **Riot's official gallery** — 1,180 cards with domains, champion tags and Signature supertypes ([D-034](DECISIONS.md#d-034)) |
+| ✅ Rules scope | Tournament rules, bo3, competition-only ([D-032](DECISIONS.md#d-032)) |
 
 ---
 
@@ -57,7 +57,7 @@ within weeks rather than after four stages of infrastructure.
 ```
 STAGE 0    Discovery ........................ ▓▓▓▓▓▓▓▓▓▓ ~95%
 STAGE 0.5  Premise verification ............. ▓▓▓▓▓▓▓▓▓▓ ✅ CLOSED — premise confirmed
-STAGE 0.6  Card data source verification ... ░░░░░░░░░░  🛑 ← the real blocker
+STAGE 0.6  Card data source verification ... ▓▓▓▓▓▓▓▓▓▓ ✅ CLOSED — official source found
 STAGE 1    Visualization / interface design . ░░░░░░░░░░
 STAGE 2    Architecture .................... ░░░░░░░░░░
 ────────────────────────── BLUEPRINT LOCK ──────────────────────────
@@ -100,12 +100,10 @@ proposal in [spec/GENERATOR.md §5](spec/GENERATOR.md).
 | ~~Q7~~ | Best-of-three / sideboard scope | ✅ **In scope** — [D-032](DECISIONS.md#d-032) |
 | ~~Q8~~ | Default legality mode | ✅ **Competition only**; casual mode not built — [D-032](DECISIONS.md#d-032) |
 | Q10 | How errata and the ban list are ingested and kept current | Stage 4 |
-| **DM1 / LR1** | 🛑 **RESOLVED AND NEGATIVE — RiftScribe cannot support legality.** Now **Stage 0.6** | **Stages 4, 5, 7** |
+| ~~DM1 / LR1~~ | ✅ **RESOLVED** — Riot's official gallery supplies domains, champion tags and Signature supertypes | — |
 
-**Stage 0.6 is now the most urgent open item.** Verified across all 950 cards:
-no champion tags, single-valued domains, no Signature supertype. **7 of 27 legality
-checks are unimplementable** from the chosen data source, and
-[D-002](DECISIONS.md#d-002) is partially invalidated.
+**Discovery is effectively complete.** Only Q10 remains, and it affects one stage's
+implementation detail rather than any decision.
 
 ---
 
@@ -145,42 +143,39 @@ Domain Identity, which gates every card in every deck.
 
 ---
 
-## STAGE 0.6 — Card data source verification 🛑 **NO CODE**
+## STAGE 0.6 — Card data source verification ✅ **CLOSED**
 
-**Size:** S · **Gate:** none — parallel with 0.5 · **Blocks Stages 4, 5, 7**
+**Status:** Resolved 2026-08-02 — see [D-034](DECISIONS.md#d-034)
 
-**RiftScribe has been verified insufficient for legality.** Measured across all 950
-cards on 2026-08-02:
+RiftScribe was found to lack champion tags, multi-domain representation and the
+Signature supertype, blocking 7 of 27 legality checks. **Riot's own card gallery
+supplies all of them.**
 
-| Gap | Evidence |
+```
+GET https://playriftbound.com/en-us/card-gallery/          → read buildId
+GET https://playriftbound.com/_next/data/{buildId}/en-us/card-gallery.json
+```
+
+`robots.txt` is `Allow: /` with no exclusions. One request, ~3.2 MB, **1,180 cards**.
+
+| Verified | Result |
 |---|---|
-| No champion tags | `tags` empty on **0 / 950** cards |
-| Domains single-valued | `faction` has 7 values, none compound — multi-domain cards unrepresentable |
-| No Signature supertype | No field distinguishes Signature cards |
+| Cards | **1,180** — vs RiftScribe's 950, which is **missing Vendetta entirely** |
+| `domain.values[]` | Array. **All 118 Legends carry exactly 2 domains**; 169 cards total have 2 |
+| `tags.tags[]` | Champion tags on **826 / 1,180** cards |
+| `cardType.superType[]` | **51 Signature cards** identified |
 
-This blocks **7 of 27 legality checks** (L8, L10, L17–L21) and partially invalidates
-[D-002](DECISIONS.md#d-002).
+**Unblocks L8, L10, L17–L21.** [spec/LEGALITY.md](spec/LEGALITY.md) is now fully
+implementable.
 
-### Work
-
-1. Evaluate **Scrydex**, **API TCG**, and **RiftboundCardDatabase** for champion tags,
-   multi-domain representation, and the Signature supertype
-2. If none suffice: scope **hand-authoring the supplement**. It is bounded — 100
-   Legends and their tags, plus Signature card identification. Tedious, not hard
-3. **Verify against physical cards** whether Champion Legends carry one domain or two.
-   Community sources say two; RiftScribe says one; the rulebook does not state a count
-
-**Done when:** a source (or combination) is identified that can support all 27 checks.
-
-> **Why this is pre-work, not Stage 4:** if no source exists and hand-authoring is
-> required, that changes the size and shape of Stage 4 substantially — and it is
-> better known before the architecture is chosen.
+> ⚠️ **`buildId` changes on every deploy** — read it from the gallery page, never
+> hard-code it.
 
 ---
 
 ## STAGE 1 — Visualization / interface design
 
-**Size:** L · **Gate:** none — Stage 0.5 closed · **Phase 2 of the SOP**
+**Size:** L · **Gate:** ✅ none — all blockers cleared · **Phase 2 of the SOP** · **← NEXT**
 
 The largest remaining unknown. Genuinely novel rather than a routine UI pass, because:
 
@@ -285,8 +280,10 @@ rather than month four.
 - **Cache locally in full** — mitigates the dependency disappearing
 - Pagination: `limit` caps at 200; the `set` filter does not work — filter client-side
 - **Variant collapsing** by name ([spec/DATA-MODEL.md §2](spec/DATA-MODEL.md))
-- Integrate whichever source Stage 0.6 identified for champion tags, multi-domain
-  representation and the Signature supertype — **RiftScribe alone is insufficient**
+- **Primary source: Riot's official card gallery** ([D-034](DECISIONS.md#d-034)) —
+  1,180 cards with domains, champion tags and Signature supertypes
+- Resolve `buildId` at fetch time; never hard-code it
+- RiftScribe optionally as a **secondary** source for pre-parsed keywords and typeahead
 - Errata and ban list ingestion (Q10)
 - New-set refresh strategy
 
@@ -297,7 +294,7 @@ champion tags / domains / Signature status available for every card.
 
 ## STAGE 5 — Legality engine ⚠️ **highest correctness risk**
 
-**Size:** M–L · **Gate:** Stage 4 **and Stage 0.6 resolved** · **Parallel with Stage 6**
+**Size:** M–L · **Gate:** Stage 4 · **Parallel with Stage 6**
 
 Specification: [spec/LEGALITY.md](spec/LEGALITY.md) — 27 checks, 10 rulebook-derived
 tests.
@@ -435,7 +432,7 @@ Not a phase — an **ongoing obligation** that begins at Stage 4.
 |---|---|---|
 | ⭐ **Time-to-first-value** — enthusiasm decays before the tool is useful (audit A12) | 🔴 High | **Stage 3.5 walking skeleton** — usable in weeks, not months |
 | **Premise may not hold** — collection may not support multiple decks (A13) | 🔴 High | **Stage 0.5**, two hours, before any code |
-| 🛑 **Card data cannot support legality** — verified, not speculative | 🛑 **Blocking** | **Stage 0.6** — evaluate alternative sources; hand-authored supplement is bounded (100 Legends) if none suffice |
+| ~~Card data cannot support legality~~ | ✅ **Resolved** | Riot's official gallery supplies every required field — [D-034](DECISIONS.md#d-034) |
 | **Undiscovered rules** (LR2) | 🔴 High | Rulebook line by line; every example a test |
 | **Collection entry never happens** (A3) | 🟡 Medium | Explicit milestone with a spot-check |
 | RiftScribe disappears | 🟡 Medium | Full local cache from Stage 4 |

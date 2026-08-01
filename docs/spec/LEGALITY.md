@@ -58,6 +58,9 @@ when **all** pass.
 | L11 | Rune Deck cards comply with identity | CR 103.3.a.1 |
 | L12 | `colorless` is permitted under any identity | — verify |
 
+> ✅ **Confirmed:** every Champion Legend carries **exactly 2 domains** (all 118, per
+> the official gallery). Domain Identity is therefore always a **pair**.
+
 ### Copy limits
 
 | # | Check | Citation |
@@ -123,7 +126,7 @@ possible defence against misreading the rules.
 
 | # | Risk | Severity |
 |---|---|---|
-| **LR1** | 🛑 **CONFIRMED BLOCKER — RiftScribe cannot support legality.** Verified across all 950 cards: `tags` is empty on every one (no champion tags), `faction` is single-valued so multi-domain cards are unrepresentable, and no Signature supertype exists. **L8, L10, L17–L21 are unimplementable from this source.** See [DATA-SOURCES.md §1](../reference/DATA-SOURCES.md) | 🛑 **Blocking** |
+| ~~LR1~~ | ✅ **RESOLVED.** Riot's official card gallery carries `domain.values[]` (arrays — all 118 Legends have 2), `tags.tags[]` (826 cards) and `cardType.superType` (51 Signature cards). **L8, L10, L17–L21 are now fully implementable.** See [D-034](../DECISIONS.md#d-034) | ✅ Closed |
 | **LR2** | **There are probably more rules like Signature cards.** It was found only by reading the PDF directly, after community sources had already been wrong about the sideboard | 🔴 High |
 | LR3 | Errata may alter individual cards; the ban list is external and changes over time | 🟡 Medium |
 | LR4 | `colorless` handling under Domain Identity is inferred, not explicitly confirmed (L12) | 🟡 Medium |
@@ -143,6 +146,6 @@ possible defence against misreading the rules.
 
 - All checks L1–L27 implemented
 - All tests T1–T10 passing
-- LR1 resolved — champion tags and Signature supertype available from some source
+- ✅ ~~LR1 resolved~~ — official gallery supplies tags, domains and supertypes
 - CR 103 and TR 601 read in full and this specification reconciled against them
 - Errata and ban list ingestion working (Q10)

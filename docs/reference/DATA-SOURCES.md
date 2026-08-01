@@ -5,77 +5,80 @@
 
 ---
 
-## 1. Card data — ✅ SOLVED
+## 1. Card data — ✅ SOLVED (official source)
 
-### RiftScribe API — chosen source ([D-002](../DECISIONS.md#d-002))
+### 🏆 Riot official card gallery — **primary source** ([D-034](../DECISIONS.md#d-034))
 
-`https://riftscribe.gg` · JSON · **no authentication** · free · public.
-Self-described as an independent fan project.
+```
+1. GET https://playriftbound.com/en-us/card-gallery/     → read "buildId" from page source
+2. GET https://playriftbound.com/_next/data/{buildId}/en-us/card-gallery.json
+```
+
+**~3.2 MB, one request, every card.** `robots.txt` is `Allow: /` with **no exclusions**.
+
+**Verified 2026-08-02 — 1,180 cards:**
+
+| Set | Cards |
+|---|---|
+| OGN Origins | 352 |
+| SFD Spiritforged | 288 |
+| UNL Unleashed | 288 |
+| VEN Vendetta | 228 |
+| OGS Origins supplemental | 24 |
+
+**Fields that make it authoritative for legality:**
+
+| Field | Shape | Enables |
+|---|---|---|
+| `domain.values[]` | **Array.** 169 cards carry 2 domains; **all 118 Legends carry exactly 2** | L8 · L10 |
+| `tags.tags[]` | Champion tags — **826 / 1,180** cards tagged | L18 · L21 |
+| `cardType.superType[]` | `{"id":"signature","label":"Signature"}` — **51 cards** | L19 · L20 · L21 |
+| `cardType.type[]` | Unit · Spell · Gear · Legend · Rune · Battlefield | L17 |
+| `collectorNumber` · `publicCode` | e.g. `150`, `"VEN-150/166"` | Collection entry (D-013) |
+| `set.value` · `rarity.value` | — | Format legality, filters |
+| `text.richText.body` | HTML with `:rb_might:`-style symbol tokens | Card display |
+| `cardImage.url` | Sanity CDN, with dimensions and extracted colours | Gallery |
+| `orientation` | `portrait` / `landscape` | Layout |
+
+**Sample:**
+
+```
+Bashful Bloom     domains=['Calm','Mind']    tags=['Lillia']
+Battle Mistress   domains=['Body','Chaos']   tags=['Sivir']
+```
+
+> ⚠️ **`buildId` changes on every site deploy.** Read it from the gallery page each
+> time; never hard-code it. Mitigated by caching the full payload locally.
+
+---
+
+### RiftScribe — **secondary / convenience only**
+
+`https://riftscribe.gg` · JSON · no auth · free. An independent fan project.
+
+**Demoted from primary ([D-034](../DECISIONS.md#d-034)).** Three disqualifying gaps,
+measured across all 950 cards it serves:
+
+| Gap | Evidence | Would break |
+|---|---|---|
+| **Missing an entire set** | 950 cards; **Vendetta absent** | Format legality |
+| **No champion tags** | `tags` empty on **0 / 950** | L17–L21 |
+| **Domains single-valued** | `faction` has 7 values, none compound — **cannot express a two-domain Legend**, and every Legend has two | L8 · L10 |
+| **No Signature supertype** | no such field | L19–L21 |
+
+**The decisive example:** CR 103.2.a.2 illustrates champion tags using **Loose Cannon**,
+a Legend tagged `Jinx`. RiftScribe returns it with `tags: []`.
+
+**Still genuinely useful for:** pre-parsed `keywords` arrays, convenient
+`stats {energy, might, power}`, an `is_banned` flag, multiple thumbnail sizes, and
+`GET /api/cards/search?q=` fuzzy typeahead.
 
 | Endpoint | Purpose |
 |---|---|
-| `GET /api/cards` | List, with filters |
+| `GET /api/cards` | List |
 | `GET /api/cards/search?q=` | Fuzzy typeahead — min 2 chars, max 20 results |
 | `GET /api/cards/filters` | Distinct filter values |
 | `GET /api/cards/{card_id}` | Full card detail |
-
-**Verified live** — `GET /api/cards/filters`:
-
-```json
-{
-  "sets": ["OGN","OGS","SFD","UNL","VEN"],
-  "factions": ["body","calm","chaos","colorless","fury","mind","order"],
-  "rarities": ["common","epic","rare","showcase","uncommon"],
-  "types": ["Battlefield","Gear","Legend","Rune","Spell","Unit"]
-}
-```
-
-**Verified card object** — `ogn-030-298`:
-
-```json
-{
-  "id": "ogn-030-298",
-  "name": "Jinx, Demolitionist",
-  "set_id": "OGN", "collector_number": 30, "variant": "",
-  "rarity": "rare", "faction": "fury", "type": "Unit",
-  "stats": { "energy": 3, "might": 4, "power": 1 },
-  "is_banned": false,
-  "keywords": ["accelerate", "assault 2"],
-  "tags": [],
-  "description": "[Accelerate] … [Assault 2] … When you play me, discard 2."
-}
-```
-
-**Strengths:** `keywords` arrives **pre-parsed**; `is_banned` provided; `stats`
-separates energy/might/power. Close to ideal for a constraint engine.
-
-### 🛑 VERIFIED INSUFFICIENT FOR LEGALITY — measured 2026-08-02
-
-Full enumeration of all 950 cards plus detail-endpoint inspection confirms **three
-gaps that block the legality engine**:
-
-| # | Gap | Evidence | Breaks |
-|---|---|---|---|
-| **G1** | **No champion tags** | `tags` is empty on **0 / 950** cards | L17 · L18 · L19 · L20 · L21 |
-| **G2** | **Domains are single-valued** | `faction` has exactly 7 values — `body` `calm` `chaos` `colorless` `fury` `mind` `order` — **none compound**. Multi-domain cards, which CR 103.1.b.4 explicitly anticipates, cannot be represented | L8 · L10 |
-| **G3** | **No Signature supertype** | No field distinguishes Signature cards from champion units | L19 · L20 · L21 |
-
-**The decisive example:** CR 103.2.a.2 uses **"Loose Cannon"** as its illustration of a
-Legend carrying the tag `Jinx`. RiftScribe returns Loose Cannon with `tags: []`.
-
-**Workaround investigated and rejected.** Domains are *not* recoverable from
-`description` text — of six Legends sampled, only one contained any rune symbol, and
-it was `:rb_rune_rainbow:`.
-
-**Consequence:** [D-002](../DECISIONS.md#d-002) is **partially invalidated**.
-RiftScribe remains excellent for gallery, browsing, entry and statistics — it has
-stats, keywords, images, collector numbers — but it **cannot support legality
-validation alone**. A second source or a hand-authored supplement is required.
-
-> **Open question this raises:** community sources claimed every Champion Legend has
-> **two** domains. RiftScribe reports one. Those sources were already wrong once about
-> the sideboard. **The rulebook is silent on the count** — CR 103.1.b.2 says only
-> "the domains of your Champion Legend." **Verify against physical cards.**
 
 ### Pagination quirks
 

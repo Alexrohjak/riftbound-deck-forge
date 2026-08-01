@@ -809,3 +809,91 @@ collection question.
 answer was available by **asking the user about their own experience**, not by having
 them count cardboard. Direct testimony from someone who has done the thing beats a
 designed experiment to prove the thing is possible.
+
+---
+
+## D-034 — Riot's official card gallery is the primary data source ✅ SUPERSEDES D-002
+
+**Date:** 2026-08-02
+**Status:** Accepted — **resolves DM1 / LR1 and closes Stage 0.6**
+
+**Decided:** Card data comes from **Riot's official card gallery**, not RiftScribe.
+
+```
+https://playriftbound.com/_next/data/{buildId}/en-us/card-gallery.json
+```
+
+The `buildId` is read from the page source of
+`https://playriftbound.com/en-us/card-gallery/`. **`robots.txt` is `Allow: /` with no
+exclusions.**
+
+### Verified 2026-08-02 — it carries everything RiftScribe lacked
+
+| Requirement | Official gallery | RiftScribe |
+|---|---|---|
+| Total cards | **1,180** | 950 |
+| Vendetta (`VEN`) | ✅ 228 cards | ❌ **absent entirely** |
+| **Domains** | `domain.values[]` — **an array**. 169 cards have 2 | ❌ single string, multi-domain inexpressible |
+| **Champion tags** | ✅ **826 / 1,180** tagged | ❌ empty on **all 950** |
+| **Signature supertype** | ✅ `cardType.superType` — **51** identified | ❌ absent |
+| Set breakdown | OGN 352 · SFD 288 · UNL 288 · VEN 228 · OGS 24 | missing VEN |
+
+### It also settled a foundational rule
+
+**All 118 Legends carry exactly 2 domains** — confirming the user's answer
+independently, and refuting RiftScribe's single-valued representation. Sample:
+
+```
+Bashful Bloom     domains=['Calm', 'Mind']    tags=['Lillia']
+Battle Mistress   domains=['Body', 'Chaos']   tags=['Sivir']
+```
+
+### What this unblocks
+
+**All 7 previously-unimplementable legality checks** — L8, L10, L17, L18, L19, L20,
+L21. [spec/LEGALITY.md](spec/LEGALITY.md) is now fully implementable.
+
+### What survives of D-002
+
+RiftScribe remains useful as a **secondary** source — it offers pre-parsed `keywords`,
+convenient `stats {energy, might, power}`, an `is_banned` flag, thumbnail sizes, and a
+fuzzy typeahead endpoint. **But it is no longer the primary**, and it is **missing an
+entire set**, which alone disqualifies it from that role.
+
+**Why this is strictly better, beyond the fields:** it is **first-party**. It cannot
+drift from the physical cards, it gains new sets on release day, and it aligns with the
+standing rule that official sources govern — see [D-020](#d-020) and [D-035](#d-035).
+
+**Risk:** the `buildId` changes on every site deploy, so it must be re-read rather than
+hard-coded. Mitigated by caching the full payload locally (~3.2 MB).
+
+---
+
+## D-035 — Official Riot sources govern, for rules *and* card data
+
+**Date:** 2026-08-02
+**Status:** Accepted — **standing instruction**, extends [D-020](#d-020)
+
+**User:** *"You are to strictly refer to the official rulebook whenever considering,
+looking at or implementing game rules as this is official and what we will consider
+correct. What I have of cards will never deviate from the official cards or rulebook."*
+
+**Decided:** Official Riot publications are the **sole authority** for both game rules
+and card data. Community wikis, guides, aggregators and fan APIs may be used for
+convenience or cross-checking, but **never as the source of truth**, and never where
+they conflict.
+
+| Domain | Authority |
+|---|---|
+| Rules | Core Rules + Tournament Rules PDFs, [Rules Hub](https://playriftbound.com/en-us/rules-hub/) |
+| Card data | Official card gallery — [D-034](#d-034) |
+| Errata / bans | Official errata and ban list |
+
+**Track record justifying this:** community sources were wrong about the **sideboard**
+(claimed 0-or-8; actually ≤10), silent on **Signature cards** entirely, and the leading
+fan API was **missing a whole set** and could not represent **two-domain Legends** —
+despite every Legend having two.
+
+**Corollary:** the user's physical collection is guaranteed to match official data, so
+any mismatch between Forge and a physical card is **a Forge bug**, never a card
+variance.

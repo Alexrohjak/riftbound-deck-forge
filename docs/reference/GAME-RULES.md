@@ -92,7 +92,13 @@ a **conquest** — 1 point.
 ## 5. The six domains
 
 `fury` · `chaos` · `mind` · `body` · `order` · `calm`, plus `colorless`.
-A Champion Legend defines a **two-domain identity** gating the entire deck.
+
+✅ **Every Champion Legend carries exactly 2 domains** — verified across all 118
+Legends in the official card gallery, and confirmed by the user from physical cards.
+Domain Identity is therefore always a **pair**.
+
+**169 non-Legend cards also carry 2 domains**, and per CR 103.1.b.4 those are legal
+only where **both** appear in the identity.
 
 ---
 
