@@ -160,12 +160,37 @@ fills the 3-Signature allowance. It may **not** run 2 copies of any of them.
 - Signature cards **cannot occupy the Champion Zone** at all (103.2.d.3)
 - In play, **any Champion Unit sharing the name** also counts as Chosen Champion (103.2.a.3)
 
-✅ **Every legend tag has at least 2 distinct champion units available**, so a legal Chosen
-Champion always exists. Distribution: 40 tags have 2 options, 6 have 3, 2 have 4, and one
-(Yordle, via Kennen) has 13.
+✅ **Every legend champion tag has at least 2 distinct champion units available**, so a
+legal Chosen Champion always exists. Distribution: 47 tags have 2 options, 6 have 3, 2 have 4.
 
-⚠️ **A Legend can carry more than one tag.** `Heart of the Tempest` (Kennen) has tags
-`Yordle, Kennen`. Any check that assumes one tag per Legend is wrong.
+### ⚠️ Champion tags vs ordinary tags — a data trap
+
+CR 133.8.b: *"Tags used to link Legends, Champion Units, and Signature cards are known as
+**Champion Tags**."* CR 133.8.a: *"Tags have no innate rules meaning."*
+
+So a card's `tags` list mixes **champion tags** (Kennen, Ahri, Darius) with **species,
+region and functional tags** (Yordle, Ionia, Equipment). **Only the champion tag gates the
+Chosen Champion and Signature rules.** The gallery does **not** distinguish them — it
+serves one flat list.
+
+**One Legend in the entire game carries two tags:** `Heart of the Tempest` has
+`['Yordle', 'Kennen']`. 116 of 118 legend printings carry exactly one. Its champion tag is
+**Kennen**; Yordle is a species tag.
+
+> 🔴 **This is a live bug risk.** Matching the Chosen Champion against *any* Legend tag
+> would let Heart of the Tempest run **13** Yordle champion units — Teemo, Poppy, Vex,
+> Fizz, Rumble, Heimerdinger — as its Chosen Champion. The correct pool is **2**:
+> Kennen, Keeper of Balance and Kennen, Storm of Shuriken.
+
+**Reliable derivation.** CR 103.2.d.2 requires every Signature card to carry the champion
+tag of its Champion Legend. So:
+
+> **A Legend's champion tag is the tag its Signature cards carry.**
+
+Verified: this resolves **118 / 118** legend printings uniquely, with zero ambiguity.
+(Kennen's signature `Lightning Rush` is tagged `['Kennen']` only; no signature card
+anywhere carries `Yordle`.) Equivalently, the 76 tags that never appear on a Signature card
+— Yordle, Ionia, Poro, Equipment, Recruit … — are provably **not** champion tags.
 
 ## 6. ⚠️ Signature cards — CR 103.2.d
 
@@ -561,7 +586,7 @@ All 118 carry **exactly 2 domains**, and **all 15 possible pairs are represented
 | Grandmaster at Arms | body/calm | Jax |
 | Green Father | calm/order | Ivern |
 | Hand of Noxus | fury/order | Darius |
-| **Heart of the Tempest** | chaos/order | **Yordle, Kennen** ⚠️ two tags |
+| **Heart of the Tempest** | chaos/order | **Kennen** (card also carries the species tag `Yordle`) |
 | Herald of the Arcane | mind/order | Viktor |
 | Keeper of the Hammer | body/order | Poppy |
 | Lady of Luminosity – Starter | mind/order | Lux |
@@ -925,6 +950,7 @@ resolution; best-of-5 battlefield reuse permitted.
 | C6 | `DATA-SOURCES.md` | Riftools/RiftDecks volume discrepancy "unresolved" | **Resolved** — Riftools is current-set-scoped, RiftDecks is all-time |
 | C7 | `DATA-SOURCES.md` | `tags.tags[]` implied to be objects | It is a **plain list of strings** |
 | C8 | — | Opening hand size unrecorded | **4 cards**, mulligan up to 2 by bottom-and-replace |
+| C9 | this doc, v1 | *"A Legend can carry more than one champion tag"* | **Wrong.** Only one Legend carries two *tags*, and only one of them (`Kennen`) is a **champion tag**; `Yordle` is a species tag. Corrected in [§II.5](#5-chosen-champion--cr-1032a) — thanks to a physical-card check |
 
 ## New legality checks required
 
@@ -936,7 +962,7 @@ resolution; best-of-5 battlefield reuse permitted.
 | **L29** | **Unique + Signature interaction**: the 3-Signature allowance is unaffected by Unique, but each Unique name is still capped at 1 | CR 825.3.b |
 | **L30** | **Battlefield count is exactly 3 with 3 distinct names** — not "per Mode of Play" | TR 402.1 |
 | **L31** | **Banned battlefields** are a separate list from banned cards. 5 of each | Rules Hub |
-| **L32** | **Legend may carry multiple champion tags** — Chosen Champion and Signature checks must match against *any* of the Legend's tags, not the first | Data: Heart of the Tempest |
+| **L32** | **Match the champion tag, not any tag.** The gallery's `tags` list mixes champion tags with species/region tags and does not distinguish them. Derive the champion tag as *the tag carried by the Legend's Signature cards* (118/118 unique). Matching any tag would wrongly allow 13 Yordle champions under Heart of the Tempest instead of 2 Kennen ones | CR 133.8.b, 103.2.d.2 |
 | **L33** | Runes must be **Basic Runes of the Domain Identity**; only 6 distinct rune names exist | CR 103.3.a.1, 164.1 |
 
 ## Design implications
