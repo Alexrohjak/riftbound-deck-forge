@@ -167,6 +167,25 @@ access control · backup and export.
 per-query cost, or Claude Code against an exported deck state. This materially affects
 hosting and cost.
 
+🆕 **Also decide: where the docs are served from** (X5). The roadmap should have a real,
+always-current URL you can bookmark on your phone — the same thing you already have for
+Toparchy.
+
+> ⚠️ **GitHub Pages is ruled out.** Verified 2026-08-02 against the API, which replied
+> *"Your current plan does not support GitHub Pages for this repository."* Pages on a
+> **private** repo needs a paid plan, and the repo is private by
+> [D-011](DECISIONS.md#d-011).
+
+| Option | Cost | Note |
+|---|---|---|
+| **Cloudflare Pages / Netlify / Vercel** | Free | All deploy from **private** repos and auto-update on push. **Also plausible hosts for Forge itself**, so the choice isn't wasted — verify current free-tier terms |
+| GitHub Pro | ~$4/mo | Unblocks Pages directly; smallest change |
+| Make the repo public | Free | Works immediately, but reverses [D-011](DECISIONS.md#d-011) |
+| Status quo | Free | Keep the published page, refreshed on request rather than on push |
+
+**Decide this together with app hosting** — one host can serve both, and picking twice is
+waste.
+
 > ⚠️ The audit flagged "hosted, always-on" as convention rather than fact (A6). A
 > permanently-online service for exactly one user was never separately justified.
 > **Re-examine before accepting.**
@@ -195,9 +214,9 @@ truth removes the whole class of error.
 Two files carrying the same status is how `GAME-RULES.md` drifted from the rulebooks — the
 mitigation is that the check fails when they disagree, not that we keep only one.
 
-💡 **Consider GitHub Pages here.** Serving `docs/` would give the roadmap a real URL straight
-from the repo, viewable on your phone without downloading anything. Cheap to add at the same
-time as deployment. Deployment comes first deliberately — phone parity is a hard requirement and
+💡 **Serve `docs/` alongside the app** if the D3 host allows it (X5) — that gives the roadmap
+a real always-current URL for free. ⚠️ Not GitHub Pages: it requires a paid plan on a private
+repo (verified 2026-08-02). Deployment comes first deliberately — phone parity is a hard requirement and
 finding a hosting problem later would be expensive.
 
 **Done when:** a trivial page is live, reachable from the phone, deploying automatically.

@@ -158,3 +158,4 @@ Questions that don't belong to one spec.
 | **X2** | How much of the rules engine does F2 need before EE says anything useful? | PLAN sequencing |
 | **X3** | Do EE answers get cached per (deck, format version), or recomputed live? | Performance, <2 s target |
 | **X4** | Does the interface present EE as a panel, a chat, or both? | D2 |
+| **X5** | Where are the docs served from, so the roadmap has an always-current URL? GitHub Pages is ruled out — paid plan required on a private repo | D3 |
