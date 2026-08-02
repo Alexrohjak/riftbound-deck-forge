@@ -11,8 +11,7 @@
 > card data → community. Where these disagree, the higher one wins and the disagreement
 > is recorded rather than silently resolved.
 
-**Related:** [`GAME-RULES.md`](GAME-RULES.md) (orientation) ·
-[`DATA-SOURCES.md`](DATA-SOURCES.md) (where data comes from) ·
+**Related:** [`DATA-SOURCES.md`](DATA-SOURCES.md) (where data comes from) ·
 [`../spec/LEGALITY.md`](../spec/LEGALITY.md) (what the validator enforces)
 
 ⚠️ **This document corrects several errors in the existing reference docs.**
@@ -954,7 +953,8 @@ resolution; best-of-5 battlefield reuse permitted.
 
 ## New legality checks required
 
-`LEGALITY.md` currently specifies 27 checks. These are missing:
+✅ **All six were added to [`LEGALITY.md`](../spec/LEGALITY.md) on 2026-08-02**, taking it
+from 27 checks to 33. Recorded here as the derivation:
 
 | New | Check | Citation |
 |---|---|---|

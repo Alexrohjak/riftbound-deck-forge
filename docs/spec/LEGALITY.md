@@ -1,7 +1,7 @@
 # Legality Engine — Specification
 
 > What the validator must check, and how we prove it correct.
-> For *what the rules are*, see [reference/GAME-RULES.md](../reference/GAME-RULES.md).
+> For *what the rules are*, see [reference/COMPENDIUM.md](../reference/COMPENDIUM.md).
 >
 > ⚠️ **Highest correctness risk in the project.** Everything downstream trusts this.
 > A wrong legality engine produces decks that cannot be played, which destroys the
@@ -44,8 +44,8 @@ when **all** pass.
 | L2 | Exactly 1 Chosen Champion | CR 103.2.a |
 | L3 | Main Deck **exactly 40**, **Chosen Champion counted within** | TR 601.1.b |
 | L4 | Rune Deck exactly 12 | CR 103.3.a |
-| L5 | Battlefields = count for Mode of Play (3 in 1v1) | CR 103.4.a |
-| L6 | Battlefield names unique | CR 103.4.c |
+| L5 | **Exactly 3 Battlefields registered** — not "count for Mode of Play". Only 1 per player is used in play | **TR 402.1** |
+| L6 | Battlefield names unique | CR 103.4.c / TR 402.1 |
 | L7 | Sideboard ≤10, or absent. **In scope — bo3 is played** | TR 601.1.c.1 |
 
 ### Domain Identity
@@ -75,7 +75,7 @@ when **all** pass.
 | # | Check | Citation |
 |---|---|---|
 | L17 | Chosen Champion is a **champion unit** | CR 103.2.a.2 |
-| L18 | Its champion tag matches the Legend's tag | CR 103.2.a.2 |
+| L18 | Its champion tag matches the Legend's **champion tag** — see L32 | CR 103.2.a.2 |
 | L19 | ⚠️ **Signature units are ineligible** as Chosen Champion | CR 103.2.a.2 |
 | L20 | ⚠️ **≤3 Signature cards total, regardless of name** | CR 103.2.d.1 |
 | L21 | All Signature cards match the Legend's Champion tag | CR 103.2.d.2 |
@@ -88,6 +88,20 @@ when **all** pass.
 | L23 | No banned cards | TR 601.2.d |
 | L24 | Reprints numbered outside a set's range are not auto-legal | TR 601.2.c |
 | L25 | Exact-preconstructed exemption at low OPL; voided by **any** change | TR 601.2.d.2 |
+
+### ⚠️ Found by reading the PDF directly — added 2026-08-02
+
+These six were absent from the original 27. See
+[COMPENDIUM §VII](../reference/COMPENDIUM.md#part-vii--corrections-to-existing-forge-docs).
+
+| # | Check | Citation |
+|---|---|---|
+| **L28** | ⚠️ **`Unique`**: at most **1 copy** of any card whose text contains `[Unique]`, across Main Deck + sideboard. **Overrides the 3-copy limit.** Currently 3 cards — Forgefire Cape, Rabadon's Deathcrown, Shurelya's Requiem | CR 825.3.a |
+| **L29** | `Unique` + Signature: the 3-Signature allowance is unaffected, but each Unique **name** is still capped at 1. An Ornn deck may run all three Ornn equipment, one copy each | CR 825.3.b |
+| **L30** | Banned **Battlefields** are a **separate list** from banned cards — 5 of each | Rules Hub |
+| **L31** | Rune Deck contains only **Basic Runes** of the Domain Identity. Only 6 distinct rune names exist | CR 103.3.a.1, 164.1 |
+| **L32** | ⚠️ **Match the champion tag, not any tag.** The gallery's `tags` list mixes champion tags with species/region tags and does not distinguish them. **Derive the champion tag as the tag carried by the Legend's Signature cards** (resolves 118/118 uniquely). Matching *any* tag would wrongly allow 13 Yordle champions under Heart of the Tempest instead of 2 Kennen ones | CR 133.8.b, 103.2.d.2 |
+| **L33** | Format legality resolves **by card name, not by printing** (TR 601.2.a). This neutralises all 128 out-of-range collector numbers | TR 601.2.a, 601.2.c |
 
 ### Ownership *(Forge-specific, not a game rule)*
 
@@ -119,6 +133,9 @@ possible defence against misreading the rules.
 | T8 | 43-card Main Deck | ❌ illegal — competition only | TR 601.1.b |
 | T9 | Two Battlefields sharing a name | ❌ illegal | 103.4.c |
 | T10 | `ogn-202-298` + `ogn-202a-298` + one more "Jinx, Rebel" printing | 3 copies — ✅ legal; a 4th ❌ | 103.2.b |
+| **T11** | 2× Forgefire Cape (`[Unique]`) in one deck | ❌ illegal — Unique caps at 1 | 825.3.a |
+| **T12** | Forgefire Cape + Rabadon's Deathcrown + Shurelya's Requiem, one copy each, under an Ornn Legend | ✅ legal — 3 Signatures, each Unique satisfied | 825.3.b |
+| **T13** | Teemo, Scout (tag `Yordle`) as Chosen Champion under Heart of the Tempest (tags `Yordle`, `Kennen`) | ❌ illegal — `Yordle` is not the champion tag | 133.8.b |
 
 ---
 
@@ -130,7 +147,7 @@ possible defence against misreading the rules.
 | # | Risk | Severity |
 |---|---|---|
 | ~~LR1~~ | ✅ **RESOLVED.** Riot's official card gallery carries `domain.values[]` (arrays — all 118 Legends have 2), `tags.tags[]` (826 cards) and `cardType.superType` (51 Signature cards). **L8, L10, L17–L21 are now fully implementable.** See [D-034](../DECISIONS.md#d-034) | ✅ Closed |
-| **LR2** | **There are probably more rules like Signature cards.** It was found only by reading the PDF directly, after community sources had already been wrong about the sideboard | 🔴 High |
+| **LR2** | ⚠️ **CONFIRMED TWICE.** Both the Signature-card rule *and* the `Unique` keyword (L28) were found only by reading the PDF directly, after community sources had been wrong about the sideboard **and** the ban list. **There are probably more** | 🔴 High |
 | LR3 | Errata may alter individual cards; the ban list is external and changes over time | 🟡 Medium |
 | LR4 | `colorless` handling under Domain Identity is inferred, not explicitly confirmed (L12) | 🟡 Medium |
 | LR5 | "Mode of Play" varies battlefield count for team formats — 1v1 assumed throughout | 🟢 Low |
@@ -147,8 +164,10 @@ possible defence against misreading the rules.
 
 ## 5. Definition of done
 
-- All checks L1–L27 implemented
-- All tests T1–T10 passing
+- All checks **L1–L33** implemented
+- All tests **T1–T13** passing
 - ✅ ~~LR1 resolved~~ — official gallery supplies tags, domains and supertypes
-- CR 103 and TR 601 read in full and this specification reconciled against them
-- Errata and ban list ingestion working (Q10)
+- ✅ ~~CR 103 and TR 601 read in full~~ — **done 2026-08-02**; both rulebooks read cover to
+  cover, yielding L28–L33. See [COMPENDIUM](../reference/COMPENDIUM.md)
+- Errata and ban list overlay working — ✅ **Q10 answered**: prose, not APIs; a
+  hand-maintained overlay of ~10 banned names and ~8 errata per set

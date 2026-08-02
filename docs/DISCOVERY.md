@@ -112,19 +112,30 @@ to receive, inspect, edit and push back on it — and that place is the workbenc
 - Save / edit / iterate on decks, with the DRAFT/BUILT commitment model
 - **Full phone parity** — the same app, fully editable ([D-018](DECISIONS.md#d-018))
 
-### Phase B — The Generator *(research spike, not a commitment)*
+### Phase B — EE, the strategist
+
+**Promoted to Phase B on 2026-08-02** ([D-037](DECISIONS.md#d-037)) — *"probably the main
+part of the whole system except the actual card library."*
+
+Ask questions about your cards, decks and matchups; get answers grounded in a deterministic
+rules core. Not a report — a conversation. It **synthesises rather than enumerates**
+([D-039](DECISIONS.md#d-039)): three actionable statements, never sixty-six true ones.
+
+Full specification: [spec/EVALUATION.md](spec/EVALUATION.md).
+
+### Spike G — The Generator *(research spike, not a commitment)*
 
 ⚠️ **Downgraded** following the [assumption audit](AUDIT.md), finding A9. The stated
 goal is to *enjoy hours of tinkering*; a generator automates tinkering. What is
 actually wanted may be a workbench that makes tinkering fast and well-informed —
-which is Phase A. **Unanswerable until Phase A exists.**
+which is Phase A. **Unanswerable until Phase A exists**, and EE weakens the case further.
 
 Full specification, including kill conditions and the unresolved
 objective-function contradiction: [spec/GENERATOR.md](spec/GENERATOR.md).
 
 ---
 
-## 7. Generator Requirements *(Phase B — captured now, designed later)*
+## 7. Generator Requirements *(Spike G — captured now, designed later)*
 
 The generator must weigh **numerous factors**, not just legality:
 

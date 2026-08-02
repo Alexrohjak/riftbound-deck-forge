@@ -44,6 +44,11 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-033](#d-033) | The project premise is confirmed | ✅ |
 | [D-034](#d-034) | Riot's official card gallery is the primary data source | ✅ |
 | [D-035](#d-035) | Official Riot sources govern, for rules *and* card data |  |
+| [D-036](#d-036) | The rules and card universe live in one living **COMPENDIUM**; `GAME-RULES.md` retired | ✅ |
+| [D-037](#d-037) | **EE** is a first-class phase, not a feature of the workbench | ✅ |
+| [D-038](#d-038) | EE evaluates against the **whole legal format**, not modelled archetypes | ✅ |
+| [D-039](#d-039) | ⭐ **EE synthesises; it never enumerates** |  |
+| [D-040](#d-040) | EE's rules engine is **rules-as-data**, because cards rewrite rules |  |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -594,7 +599,8 @@ notes had surfaced.
 > **CR 103.2.d.3** — Signature cards are **not** Champion units and cannot occupy the
 > Champion Zone.
 
-See [reference/GAME-RULES.md](reference/GAME-RULES.md) for the full authoritative rule set.
+See [reference/COMPENDIUM.md](reference/COMPENDIUM.md) for the full authoritative rule set
+(`GAME-RULES.md` was retired by [D-036](#d-036)).
 
 
 ---
@@ -1063,3 +1069,149 @@ despite every Legend having two.
 **Corollary:** the user's physical collection is guaranteed to match official data, so
 any mismatch between Forge and a physical card is **a Forge bug**, never a card
 variance.
+
+---
+
+<a id="d-036"></a>
+
+## D-036 — One living reference: the COMPENDIUM ✅
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+**Context:** both official rulebooks were read cover to cover (Core Rules 120pp,
+Tournament Rules 50pp) and all 1,180 card printings analysed as data. This produced
+findings that contradicted `reference/GAME-RULES.md` in eight places, including a keyword
+list that was 8 entries where the glossary has **25**, and one entry (`conquer`) that is
+not a keyword at all.
+
+**Decided:** [`reference/COMPENDIUM.md`](reference/COMPENDIUM.md) is the **single living
+reference** for rules and the card universe. `reference/GAME-RULES.md` is **retired** —
+its content is superseded, and keeping a second rules document with known errors is
+exactly the drift this project cannot afford.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Keep both, fix GAME-RULES | Two rules documents diverge. That is how the errors arose |
+| Keep GAME-RULES as a summary | A summary of a rulebook is what community sources are, and they have been wrong twice |
+| Delete without replacement | The orientation value was real; COMPENDIUM Part I absorbs it |
+
+**Consequence:** git history preserves the retired file. All inbound links updated.
+
+---
+
+<a id="d-037"></a>
+
+## D-037 — EE is a phase, not a feature ✅
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+**User:** *"This aspect of the forge will be probably the main part of the whole system
+except the actual card library of the player."*
+
+**Decided:** the Evaluation Engine (**EE**) is **Phase B**, a first-class delivery track
+running parallel to the workbench — not a panel inside Stage 8.
+
+**Rationale:** EE's rules core needs only the cached card pool (Stage 4). It needs no UI,
+no collection and no workbench, so it can be built and tested **headlessly in parallel**.
+Burying it inside a statistics stage would have mis-sequenced the project's most valuable
+component behind its least-coupled dependency.
+
+**Consequence:** `PLAN.md` restructured into two tracks after Stage 4. Stage 1 grows —
+it must now design how EE *speaks*, not just how the workbench looks.
+
+---
+
+<a id="d-038"></a>
+
+## D-038 — EE evaluates against the whole legal format ✅
+
+**Date:** 2026-08-02
+**Status:** Accepted — answers *"good against what?"*
+
+**Decided:** EE's opponent model is the **threat space** — every card the format can
+legally field, bucketed by Domain Identity, cost, speed and role.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Modelled archetype decks per Legend | Constructing a "typical" list requires assumptions — the guessing EE exists to avoid |
+| Tournament meta data | Inaccessible (403) *and* statistically empty — n = 1–3 for the current set |
+| The user's own decks only | Says nothing about the wider field |
+
+**What this buys:** matchup analysis needs **no external data**, so it is Tier 1/2 rather
+than the omitted Tier 3. It answers *"what could I face"* — a weaker claim than *"what
+will I face"*, but a **true** one.
+
+**Layerable later:** entering specific rival decks is a refinement of this model, not a
+replacement.
+
+---
+
+<a id="d-039"></a>
+
+## D-039 — ⭐ EE synthesises; it never enumerates
+
+**Date:** 2026-08-02
+**Status:** Accepted — **the prime directive of EE**
+
+**User:** *"I don't want to create a deck using this forge, then be told 'this works
+unless your opponent has one of these 10000000 cards' — this is not the kind of
+interaction and feedback one enjoys listening to and understands."*
+
+**Context:** the v2 EE design computed *refutation sets* — every card that could flip a
+given line — and proposed reporting them. Measured against the real pool, a single combat
+had **66** refuting cards. Correct, and useless.
+
+**Decided:** refutation sets, coverage percentages and card lists are **internal
+computation**. EE's output is **at most a handful of named, actionable statements**, with
+volume available only behind an explicit "show me the cards" affordance.
+
+| ❌ Never | ✅ Always |
+|---|---|
+| "66 cards refute this attack" | "Fragile to cheap Mind interaction — attack when they're tapped out, or hold `Cleave`" |
+| "Answer coverage 42% at cost 3–4" | "Your removal tops out at 4 damage; roughly a third of what you'll meet outclasses it" |
+
+**Enforcement:** a **statement budget**, asserted by test (`EVALUATION.md` §10). This is
+not a stylistic preference — an answer a human cannot hold in their head has failed,
+regardless of correctness.
+
+**Consequence:** a dedicated **synthesis layer** (Stage 11) sits between analysis and
+conversation. Without it, EE is technically correct and practically worthless.
+
+---
+
+<a id="d-040"></a>
+
+## D-040 — EE's rules engine is rules-as-data
+
+**Date:** 2026-08-02
+**Status:** Accepted
+
+**Context:** a naive evaluator hardcodes the rules — `lethal = damage >= might`,
+`Tank is assigned first`, `the board has 2 battlefields`. Analysis of the card pool found
+**21 cards that rewrite exactly those rules**:
+
+| Card | Overrides |
+|---|---|
+| **Elder Dragon** | *"Any amount of your damage is enough to kill enemy units"* — voids the lethal-damage threshold (CR 142.4.c) |
+| **Dune Surfer** | *"You ignore `[Tank]` while assigning combat damage here"* |
+| **Baron Nashor** | Adds a battlefield token to the board mid-game |
+| **Endless Riches** | *"Skip your Draw Phase"* — turn structure is mutable |
+| **Time Warp** | *"Take a turn after this one"* — turn order is mutable |
+
+**Decided:** every rule EE applies — lethal threshold, assignment order, targeting
+legality, phase sequence, board composition — is a **modifiable parameter of game state**,
+overridable by an active effect.
+
+**Rationale:** CR 002's Golden Rule — *"Card text supersedes rules text"* — is not a
+footnote, it is an architectural requirement. An engine with the rules compiled in is
+wrong the moment Elder Dragon resolves.
+
+**Consequence:** Stage 9 is an **XL** stage and the largest single component in the
+project. Mitigated by building vertically (one battlefield, 1v1, full fidelity) and by
+using the rulebook's own worked examples as the test suite.

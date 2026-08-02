@@ -27,10 +27,15 @@ with live rules validation and honest statistics. Cards sleeved into a built dec
 being available — and always show which deck holds them. The same app on desktop and
 phone, fully editable on both.
 
-**Phase B — The Generator** *(hypothesis, not a commitment)*
-Give it an anchor, a playstyle and constraints on what you *don't* want; it proposes
-legal decks built only from cards you own, and iterates when you disagree.
-Deliberately downgraded to a research spike — see [why](#three-things-worth-knowing).
+**Phase B — EE, the strategist**
+Ask questions about your cards, decks and matchups; get answers grounded in a
+deterministic rules core. *"What's this card good at? How do I pilot this deck? What
+should I fear? What do I sideboard against Diana?"* Not a report — a conversation, where
+every answer traces back to the rulebook and the real card pool.
+
+***Spike G — The Generator*** *(hypothesis, not a commitment)*
+Auto-propose legal decks from cards you own. Deliberately downgraded to a research spike
+with kill conditions — see [why](#four-things-worth-knowing).
 
 ---
 
@@ -44,21 +49,26 @@ Full detail: [`docs/PLAN.md`](docs/PLAN.md)
 
 ## Documentation
 
+**Two documents orient you.** [`spec/OVERVIEW.md`](docs/spec/OVERVIEW.md) is the system
+map — how the pieces fit and **where to put a new idea**. [`PLAN.md`](docs/PLAN.md) is the
+delivery plan.
+
 | Document | Contents |
 |---|---|
-| [**`docs/PLAN.md`**](docs/PLAN.md) | **The delivery plan — every stage, gate, milestone and risk. Start here.** |
-| [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals, open questions |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 35 decisions with alternatives and rationale — including four reversals |
+| [**`docs/spec/OVERVIEW.md`**](docs/spec/OVERVIEW.md) | **System map — how everything relates, and where new ideas go. Read before adding a feature.** |
+| [**`docs/PLAN.md`**](docs/PLAN.md) | **The delivery plan — every stage, gate, milestone and risk.** |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 40 decisions with alternatives and rationale — including four reversals |
+| [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
 | [`docs/AUDIT.md`](docs/AUDIT.md) | First-principles audit of the project's own assumptions |
 
 ### Specification — what we're building
 
 | Document | Contents |
 |---|---|
+| [**`docs/spec/EVALUATION.md`**](docs/spec/EVALUATION.md) | **EE — the strategist. The questions it answers, and why it synthesises rather than enumerates.** |
 | [`docs/spec/DATA-MODEL.md`](docs/spec/DATA-MODEL.md) | Entities, the DRAFT/BUILT commitment model, lifecycle answers |
-| [`docs/spec/LEGALITY.md`](docs/spec/LEGALITY.md) | 27 validation checks, 10 tests drawn from the rulebook's own examples |
-| [**`docs/spec/EVALUATION.md`**](docs/spec/EVALUATION.md) | **The evaluation engine — what a deck does well, what it's good against, and where it comes up short. Derived from the rules, never guessed.** |
-| [`docs/spec/DECK-STATS.md`](docs/spec/DECK-STATS.md) | What Forge reports, and how honest it is about its own uncertainty |
+| [`docs/spec/LEGALITY.md`](docs/spec/LEGALITY.md) | 33 validation checks, 13 tests drawn from the rulebook's own examples |
+| [`docs/spec/DECK-STATS.md`](docs/spec/DECK-STATS.md) | What Forge measures, and how honest it is about its own uncertainty |
 | [`docs/spec/GENERATOR.md`](docs/spec/GENERATOR.md) | The generator as a research spike, with kill conditions |
 
 ### Reference — external facts we don't control
@@ -66,7 +76,6 @@ Full detail: [`docs/PLAN.md`](docs/PLAN.md)
 | Document | Contents |
 |---|---|
 | [**`docs/reference/COMPENDIUM.md`**](docs/reference/COMPENDIUM.md) | **The deep reference — complete rules, all 25 keywords, the card universe as data, strategy, ban list. Start here for anything Riftbound.** |
-| [`docs/reference/GAME-RULES.md`](docs/reference/GAME-RULES.md) | How Riftbound works, cited to the official rulebooks |
 | [`docs/reference/DATA-SOURCES.md`](docs/reference/DATA-SOURCES.md) | Card data, the meta-data landscape, and what's off-limits |
 
 ---
@@ -78,31 +87,35 @@ Full detail: [`docs/PLAN.md`](docs/PLAN.md)
 | **Card data** | Riot's **official** card gallery — 1,180 printings · 935 distinct names · 5 sets · one ~3.2 MB request |
 | **Rules authority** | Official Core Rules + Tournament Rules PDFs **only** ([D-035](docs/DECISIONS.md#d-035)) |
 | **Rules scope** | Tournament rules, best-of-three — main deck exactly 40, sideboard ≤10 |
-| **Domain Identity** | Every Champion Legend carries **exactly 2 domains** (verified, all 118) |
+| **Domain Identity** | Every Champion Legend carries **exactly 2 domains** — 118 printings, **49 distinct Legends**, all 15 possible pairs |
 | **Collection** | ~1,000 physical cards · 200–300 unique names · entered by collector number |
 | **Delivery** | Hosted, desktop + phone, fully editable on both |
 
 ---
 
-## Three things worth knowing
+## Four things worth knowing
 
-**An audit prosecuted the project's own assumptions.** The highest-risk one — that the
-bottleneck is *information* rather than *cards* — is now confirmed: decks have already
-been built from this collection. Two findings changed the plan permanently: a walking
-skeleton was inserted so something is usable in weeks rather than months, and the
-generator was downgraded.
+**Both rulebooks were read cover to cover, and it paid.** 170 pages of primary source
+yielded rules no community guide mentions — most importantly **`Unique`**, a keyword that
+overrides the 3-copy limit. It is the *second* rule found only by reading the PDF directly.
+The project's "rulebook is the only authority" principle has now been vindicated twice.
+
+**EE synthesises; it never enumerates.** A single combat can be flipped by 66 different
+cards. Saying so is true and useless. EE says *"fragile to cheap Mind interaction — attack
+when they're tapped out"*, and keeps the 66 behind a "show me" affordance. An answer you
+can't hold in your head has failed, however correct it is ([D-039](docs/DECISIONS.md#d-039)).
+
+**Nothing composites into a grade.** No scores, no ratings, no stars. Statistics come in
+three confidence tiers — facts, probabilities, estimates — and the uncertain tier is
+**omitted entirely rather than faked**. The flagship is rune feasibility: *"with a 7 Fury /
+5 Calm split you have a 74% chance of paying 2 Fury Power on turn 3"* — a calculation no
+other Riftbound tool can perform, because none knows your rune split and your deck's Power
+demands together.
 
 **The generator may not be wanted.** The stated goal is to enjoy hours of tinkering; a
-generator automates tinkering. It also carries an unresolved contradiction — a
-generator needs an objective function, and Forge refuses to composite one. It is now a
-spike with kill conditions, not a plan.
-
-**Statistics never composite into a grade.** Deck strength is an estimate, not a fact,
-so Forge shows independent statistics in three confidence tiers — facts, probabilities,
-estimates — and **omits the uncertain tier entirely rather than faking it**. The
-flagship is rune feasibility: *"with a 7 Fury / 5 Calm split you have a 74% chance of
-paying 2 Fury Power on turn 3"* — a calculation no other Riftbound tool can perform,
-because none knows your rune split and your deck's Power demands together.
+generator automates tinkering. EE weakens the case further — if Forge can *explain* a
+deck's strengths and gaps, the reason to auto-build shrinks. It is a spike with kill
+conditions, not a plan.
 
 ---
 

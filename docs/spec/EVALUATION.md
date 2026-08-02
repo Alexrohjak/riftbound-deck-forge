@@ -1,407 +1,341 @@
-# Evaluation Engine — Forge
+# EE — The Evaluation Engine
 
-> How Forge answers *"what does this deck do well, what is it good against, where does it
-> come up short, and what should I fear?"* — as an **interactive strategist**, grounded in
-> a deterministic rules core.
+> Forge's strategist. You ask it questions about your cards, your decks and your
+> matchups; it answers in plain language, grounded in a deterministic rules core.
 >
-> **Created:** 2026-08-02 · **Revised:** 2026-08-02 (v2 — interaction model) ·
-> **Status:** specification, no code · **Phase:** Discovery
+> **Created:** 2026-08-02 · **Revised:** 2026-08-02 (v3 — question-driven) ·
+> **Status:** specification, no code
 
-**Related:** [`../reference/COMPENDIUM.md`](../reference/COMPENDIUM.md) (rules + card data) ·
-[`LEGALITY.md`](LEGALITY.md) · [`DECK-STATS.md`](DECK-STATS.md) (honesty tiers) ·
-[`DATA-MODEL.md`](DATA-MODEL.md) · [`GENERATOR.md`](GENERATOR.md)
-
----
-
-## 0. What changed in v2, and why
-
-**v1 of this document was wrong in a way worth recording.**
-
-It modelled a combat as arithmetic over a static board: sum Might, apply `Assault`/`Shield`,
-compare. It then labelled the result a **FACT**.
-
-It is not a fact. A Showdown is an **alternating sequence of priority windows** in which
-both players may play cards, with chains resolving LIFO on top (CR 341–348, 464). The Might
-figures are the *opening position*, not the outcome.
-
-Concretely — v1's worked example claimed *"Blue Sentinel (4+2=6) beats Immortal Phoenix
-(3+2=5) in both orientations, FACT."* Measured against the actual card pool:
-
-> **66 cards in the format can flip or void that combat.** The cheapest is **`Stupefy`** —
-> 1 Energy, Mind, `[Reaction]`, *"give a unit -1 Might"*. Sentinel drops 6 → 5, Phoenix's 5
-> damage becomes lethal, and the "fact" inverts for one Energy.
-
-The v1 claim was true only under an unstated assumption — *neither player holds a trick* —
-and stating it as a FACT without that qualifier is the same class of error as conflating
-tags with champion tags. **This document exists to make that assumption explicit and
-computable, not to hide it.**
-
-**The reframe:** the engine does not answer *"who wins?"*. It answers
-
-> *"who wins, **unless** the opponent holds one of these N cards — costing this much, at
-> this speed, available in these domains."*
-
-That refutation set **is** the answer to *"where does this deck come up short?"*
+**Related:** [`OVERVIEW.md`](OVERVIEW.md) (system map) ·
+[`../reference/COMPENDIUM.md`](../reference/COMPENDIUM.md) (rules + cards) ·
+[`DECK-STATS.md`](DECK-STATS.md) (measurement) · [`LEGALITY.md`](LEGALITY.md) ·
+[`DATA-MODEL.md`](DATA-MODEL.md)
 
 ---
 
-## 1. The game is deeper than a damage calculation
+## 1. What EE is
 
-Three structural facts the engine must model. All were documented in
-[COMPENDIUM §III](../reference/COMPENDIUM.md#part-iii--how-the-game-is-played); v1 failed
-to use them.
+**EE answers questions about Riftbound.** Not "submit deck, receive report" — a
+conversation, where every answer traces back to the rules and the real card pool.
 
-### 1.1 Showdowns — both players act inside a combat
+> *"What's this card actually good at?"* · *"How do I play this deck?"* ·
+> *"What should I fear?"* · *"What do I sideboard against Diana?"* ·
+> *"Should I attack here?"* · *"What cards suit this Legend?"*
 
-| Step | Rule | Consequence |
+## 2. 🔴 Prime directive — synthesis, not enumeration
+
+**EE must never say *"this works unless your opponent has one of these 10,000 cards."***
+
+That is a true statement and a useless one. It is what the *analysis layer* computes
+internally; it is **not** what a person reads.
+
+| ❌ Never output | ✅ Always output |
+|---|---|
+| "66 cards refute this attack" | "Fragile to cheap Mind interaction — a 1-cost Might swing beats it. Attack when they're tapped out, or hold `Cleave` to force through." |
+| "Answer coverage 42% at cost 3–4" | "Your removal tops out at 4 damage. Roughly a third of the units you'll meet outclass it — you need to win those fights with combat, not spells." |
+| A list of 200 legal cards | "Your Legend pays off on gear. You're running 4." |
+
+**The rule:** every EE output is *at most* a handful of named, actionable statements.
+Volume lives behind a "show me the cards" affordance, never in the answer itself.
+
+**Why this is a hard requirement, not polish:** the value of this tool is *understanding*.
+An answer a human can't hold in their head has failed, regardless of its correctness.
+
+---
+
+## 3. The questions EE answers
+
+This taxonomy structures the whole engine. Adding a new question type is the primary
+way EE grows — see [`OVERVIEW.md`](OVERVIEW.md) for the extension procedure.
+
+| ID | Question | §  |
 |---|---|---|
-| Combat opens as a Showdown | CR 464.1 | Attacker gains **Focus** |
-| Player with Focus may play a card or pass | CR 347 | Only `[Action]` / `[Reaction]` |
-| Playing a card opens a **Chain** → Closed state | CR 328, 309.1 | Now **only `[Reaction]`** may be added |
-| Chain resolves **LIFO** | CR 340.1 | Last played resolves first |
-| Chain empties → Focus **passes** | CR 346 | The other player now acts |
-| Both pass consecutively | CR 347.2.a | Showdown closes → damage step |
+| **Q-CARD** | What is this card good at? Bad at? When do I play it? | [6.1](#61-q-card--what-is-this-card-good-at) |
+| **Q-COMPARE** | How do these two cards compare? Which wins a fight? | [6.2](#62-q-compare--card-vs-card) |
+| **Q-LEGEND** | What kind of cards suit this Legend's playstyle? | [6.3](#63-q-legend--what-suits-this-legend) |
+| **Q-DECK** | What does this deck do? How should I pilot it? | [6.4](#64-q-deck--how-does-this-deck-want-to-be-played) |
+| **Q-THREAT** | What should I look out for, and how do I handle it? | [6.5](#65-q-threat--what-should-i-fear) |
+| **Q-SIDEBOARD** | What do I swap, against what, and for what? | [6.6](#66-q-sideboard--what-do-i-swap) |
+| **Q-LINE** | Should I attack / hold / commit here? | [6.7](#67-q-line--should-i-attack-here) |
+| **Q-BUILD** | What should I add or cut? | [6.8](#68-q-build--what-should-i-change) |
 
-So a combat is a **turn-taking game with a stack**, not a comparison. Either player may
-invest resources to change the outcome, and each investment can itself be answered.
+---
 
-**Measured interaction surface:**
+## 4. Architecture — four layers
 
-| Class | Cards | Meaning |
+```
+┌──────────────────────────────────────────────────────────┐
+│ 4. CONVERSATION   the voice. Open questions, follow-ups, │
+│                   "why?", memory of what you asked       │
+├──────────────────────────────────────────────────────────┤
+│ 3. SYNTHESIS      turns computation into a few named,    │
+│                   actionable statements  ← §2, §5        │
+├──────────────────────────────────────────────────────────┤
+│ 2. ANALYSIS       refutation search, coverage, pressure, │
+│                   robustness, Legend fit  (deterministic)│
+├──────────────────────────────────────────────────────────┤
+│ 1. RULES CORE     state, legal actions, chain, showdown, │
+│                   combat, rules-as-data  (deterministic) │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Layer 3 is the one that makes EE usable, and the one v2 was missing.**
+
+**Discipline:** layers 1–2 are the only source of truth. Layer 4 never does arithmetic and
+never adjudicates a rules interaction — it asks layer 2. Any statement layer 4 cannot
+ground, it does not make.
+
+---
+
+## 5. The synthesis layer
+
+### 5.1 Pattern vocabulary
+
+Raw computation is clustered into a **curated vocabulary of named strategic patterns**.
+Each has a computable definition, so the name is earned rather than asserted.
+
+| Pattern | Computable definition |
+|---|---|
+| **Cheap Might swing** | `[Action]`/`[Reaction]`, total cost ≤2, alters Might by ≥1 |
+| **Bounce** | Returns a unit from a battlefield to hand |
+| **Hard counter** | Counters a spell or ability |
+| **Sweep** | Damages or kills *all* units, or all at a location |
+| **Spot removal** | Kills or deals lethal-capable damage to one unit |
+| **Tempo denial** | Stun, exhaust, skip, or movement prevention |
+| **Evasion** | Untargetability, `Deflect`, conditional protection |
+| **Recursion** | Replays from trash — `Flow`, Deathknell value, trash-play |
+| **Bomb** | Total cost ≥8 **and** board-dominant (§6.5) |
+| **Ambush threat** | `Hidden` / `Ambush` — appears without warning at a battlefield |
+| **Ramp** | Adds resources beyond the 2-rune baseline |
+| **Go-wide** | Produces ≥2 bodies from one card |
+
+Patterns are **the unit of communication.** EE says *"fragile to cheap Might swing"* and
+offers 2–3 representative cards. It does not list 66.
+
+### 5.2 Salience — what gets said
+
+Computation produces many true statements. Synthesis must choose **few**. Ranking:
+
+| Factor | Meaning |
+|---|---|
+| **Severity** | Does this lose the game, or cost a card? |
+| **Likelihood of relevance** | How many reachable identities have access? |
+| **Actionability** | Can the user *do* something about it? Prefer statements with a lever |
+| **Non-obviousness** | Don't tell someone their 12-cost card is expensive |
+
+**Default budget: 3–5 statements per answer.** Everything else is available on request.
+
+### 5.3 Voice
+
+Answers read as a knowledgeable teammate: direct, specific, and willing to say *"I don't
+know"* or *"that depends on information I don't have."* Never breathless, never a wall of
+numbers, never a grade.
+
+---
+
+## 6. Question specifications
+
+### 6.1 Q-CARD — "what is this card good at?"
+
+**Computed:** role classification · cost efficiency vs format median at that cost ·
+combat profile in both orientations · timing class · activation conditions ·
+anti-synergies · the line where it shines.
+
+**Synthesised into:** what it beats, what beats it, when to play it, what makes it dead.
+
+> **Immortal Phoenix** — 3E/1P, Might 3, `[Assault 2]`, Fury.
+>
+> A *proactive attacker*: 5 Might attacking, only 3 defending, so it wants to be the one
+> initiating. It trades up against the format's 4-Might midrange when it attacks and loses
+> to almost everything when it defends — don't leave it holding a battlefield.
+>
+> Its recursion (replay from trash when you kill with a spell) means it's cheap to lose,
+> so it's a *good aggressive commitment* into open mana. **Dead when:** you have no
+> spell-based removal to trigger the recursion.
+
+### 6.2 Q-COMPARE — card vs card
+
+Runs the rules core in **both orientations** (role-conditional Might — `Assault` applies
+only attacking, `Shield` only defending), then reports the *conditions*, not a winner.
+
+> **Immortal Phoenix vs Blue Sentinel.** Sentinel wins both ways — 6 defending beats your
+> 5 attacking, and 4 attacking beats your 3 defending. You don't beat it in combat alone.
+>
+> **You need a Might swing.** `Cleave` (1E, `Action`, `Assault 3`) gets you to 8 and
+> through. But this is a *fragile* line: Mind and Calm both have 1-cost answers, so expect
+> it to be contested if they have runes up.
+
+Note what is **not** said: no list of 66, no percentage, no verdict.
+
+### 6.3 Q-LEGEND — "what suits this Legend?"
+
+Each Legend's ability declares what it **rewards**. EE builds the producer/consumer link
+and reports fit. This is pure derivation and one of EE's strongest features.
+
+| Legend | Ability rewards | Therefore wants |
 |---|---|---|
-| `[Action]` | 87 | Playable in showdowns, on any player's turn |
-| `[Reaction]` | 98 | Playable in **closed** states — on top of a chain |
-| `[Hidden]` | 43 | Facedown at a battlefield, later played **ignoring base cost** |
-| **Union** | **211 of 814 (26%)** | Over a quarter of the pool is combat interaction |
+| **Fire Below the Mountain** (Ornn) | *"Add `[A]`. Use only to play gear or gear abilities"* | **Gear density** |
+| **Daughter of the Void** (Kai'Sa) | *"Add `[A]`. Use only to play spells"* | **Spell density** |
+| **Curator of the Sands** (Nasus) | Triggers on cost **≥7** | **Expensive top-end** |
+| **Glorious Executioner** (Draven) | *"When you win a combat, draw 1"* | **Combat-winning units** |
+| **Emperor of the Sands** (Azir) | Sand Soldiers gain `Weaponmaster` | **Equipment + tokens** |
+| **Heart of the Tempest** (Kennen) | Triggers on playing from **non-hand zones** | **`Hidden` and `Flow`** |
 
-Of the Reaction spells, **49 cost ≤3 total** — `Stupefy`, `Gust`, `Retreat`, `En Garde`,
-`Combat Experience`, `Abandon`, `Crumbling Sands`… Cheap interaction is abundant, which
-means *no* combat evaluation is unconditional.
+> **Your Ornn deck runs 4 gear in 40.** The Legend's ability only pays off on gear, so
+> it's idle most turns. Calm/Mind has 31 gear available — a gear-forward build turns the
+> Legend from a rune into an engine.
 
-### 1.2 Hidden information is on the board, not just in hand
+⚠️ Requires hand-annotating **49 Legend abilities** — an afternoon, and stable.
 
-`Hidden` (CR 811) lets a player pay `[A]` to place a card **facedown at a battlefield they
-control**, then play it from there on a later turn **ignoring its base cost**, with
-`[Reaction]` timing.
+### 6.4 Q-DECK — "how does this deck want to be played?"
 
-43 cards can do this. So the board carries **known-unknowns**: a visible facedown card whose
-identity is private (CR 128.4). The engine must model *"there is a facedown card here"* as a
-first-class state with a probability distribution over its contents — not ignore it.
+**Computed:** curve vs rune ceiling · unit density at 2–4 · interaction count ·
+speed-to-first-score vs speed-to-8 · contest capacity by turn · Legend fit · dead cards.
 
-### 1.3 ⚠️ Cards rewrite the rules the engine would hardcode
+**Classified** by derived shape, not by borrowed archetype names:
 
-**21 cards alter rules a naive engine would treat as constants.** Examples:
-
-| Card | Rule it overrides |
+| Shape | Signature |
 |---|---|
-| **Elder Dragon** | *"Any amount of your damage is enough to kill enemy units"* — **voids the lethal-damage threshold** (CR 142.4.c) |
-| **Dune Surfer** | *"You ignore `[Tank]` while assigning combat damage here"* — voids assignment ordering (CR 815) |
-| **Decree of Insight** | *"Ignore `[Deflect]`"* — voids the additional-cost tax (CR 809) |
-| **Baron Nashor** | Adds a **battlefield token** to the board mid-game — the board is not fixed |
-| **Endless Riches** | *"Skip your Draw Phase"* — turn structure is mutable (CR 443) |
-| **Corrupted Dragon** | *"If your score is not within 3 of the Victory Score, I enter ready"* — score-conditional entry |
-| **Time Warp** | *"Take a turn after this one"* — turn order is mutable (CR 734) |
-| **Akali, Silent** | *"I can't be chosen unless I'm in combat"* — conditional untargetability (CR 756) |
+| **Racer** | Contests by turn 2; speed-to-8 short; low interaction |
+| **Grinder** | Slow first contest; high interaction; wants Hold points |
+| **Setup** | Back-loaded curve; needs a specific assembly to function |
+| **Flexible** | No dominant signature — plays to the matchup |
 
-> 🔑 **Architectural consequence: rules must be data, not code.** CR 002's Golden Rule —
-> *"Card text supersedes rules text"* — is not a footnote; it is a design requirement. Every
-> rule the engine applies (lethal threshold, assignment order, targeting legality, phase
-> sequence) must be a **modifiable parameter of game state**, overridable by an active
-> effect. An engine with `if damage >= might: die` hardcoded is wrong the moment Elder
-> Dragon resolves.
+> **This is a Racer.** You contest by turn 2 and can reach 8 by turn 6 unopposed. You run
+> **4 interactive spells** — Riot's own primer suggests 6+ — so you lose long showdowns.
+> **Pilot it as the aggressor:** take battlefields early and force them to answer.
+> Remember a stalled attack recalls your units, so only commit when you can actually clear.
+
+### 6.5 Q-THREAT — "what should I fear?"
+
+Threats are grouped into patterns and ranked by severity × reachability, **not listed.**
+
+**Threat pressure classes:**
+
+| Class | Test |
+|---|---|
+| **Must-answer** | Wins or compounds if unanswered |
+| **Board-dominant** | Beats the format's median unit in both orientations |
+| **Answer-asymmetric** | Costs more to remove than it cost to play |
+| **Rule-warping** | Voids a rule your deck relies on (e.g. Elder Dragon voiding lethal thresholds) |
+
+> **Three things beat this deck.**
+> 1. **Sweeps.** 14 of your 40 cards are Might ≤3; a single `Deal 3`-to-all wipes your
+>    board. Play around it by not over-committing once you're ahead on points.
+> 2. **Big defenders.** Your removal caps at 4 damage, and Body/Order fields several
+>    `Shield`+`Tank` units above that. You can't remove them — you have to go around them
+>    to another battlefield.
+> 3. **Cheap Might swing.** Most of your attacks win by exactly 1 Might, so a 1-cost trick
+>    flips them. Attack when they're tapped out.
+
+### 6.6 Q-SIDEBOARD — "what do I swap?"
+
+Constrained by **TR 403.4**: 1-for-1 exchanges, deck stays exactly 40, and **runes, Legend
+and Battlefields may never change after registration** (TR 403.4.b). The Chosen Champion
+*may* be swapped (TR 601.1.c.4).
+
+**Computed:** for a named threat pattern — which sideboard cards answer it, what they cost
+you to bring in, and which main-deck cards are *least* useful in that matchup (dead cards,
+redundant effects, cards whose targets don't exist).
+
+> **Against a Body/Order grinder:** bring in both `Rebuke` for their `Shield`+`Tank` units.
+> Cut 2× `Flurry of Blades` — their board is Might 4+, so 1 damage to all does nothing.
+> Consider swapping your Chosen Champion to the defensive Kennen; you're not racing this
+> matchup.
+
+### 6.7 Q-LINE — "should I attack here?"
+
+Runs the showdown model: alternating Focus, chains LIFO, `[Reaction]` only in closed
+states. Reports the **decision**, its cost, and its fragility.
+
+> **Yes, but only this turn.** You clear their board and take the battlefield. They have 3
+> runes up and Calm has cheap counters, so there's real risk — but if you wait, their
+> 6-drop lands next turn and you can't attack profitably again.
+> **If it goes wrong** you lose two units and they keep the point.
+
+### 6.8 Q-BUILD — "what should I change?"
+
+**Computed:** dead cards (unmet dependencies) · Legend fit gaps · curve holes against the
+rune ceiling · coverage gaps · deviation from Riot's published floors · rune-split
+feasibility.
+
+> - **3 cards have `[Level 6]` abilities; your deck produces 2 XP maximum.** Those
+>   abilities can never activate. *(This one is a hard fact.)*
+> - You have **no play on turn 1** in 60% of opening hands.
+> - Your rune split is 6-6 but your Power demand is 9 Fury / 2 Calm. **8-4 fits better.**
 
 ---
 
-## 2. Output contract — conditional claims with refutations
+## 7. What EE never does
 
-v1's contract stands, with one addition that changes everything: **a claim must carry its
-refutation set.**
-
-```
-Claim {
-  statement    : "Your Phoenix attack kills Blue Sentinel"
-  baseline     : REPELLED           # with neither player investing
-  derivation   : "3+2 Assault = 5 vs 4+2 Shield = 6; 5 < 6, not lethal"
-  citations    : [CR 807, 814, 465.2, 142.4.b]
-  assumptions  : ["no cards played during the showdown", "neutral battlefield",
-                  "no legend abilities active"]
-  refutations  : [ {card: "Stupefy",  cost: "1E", speed: Reaction, domains: [mind],
-                    effect: "defender -1 Might → 5, your 5 becomes lethal"}, … ]
-  robustness   : { refuting_cards: 66, cheapest: 1, domains_with_answer: 5 }
-  tier         : CONDITIONAL
-}
-```
-
-**Revised tiers:**
-
-| Tier | Meaning |
+| Never | Why |
 |---|---|
-| **FACT** | True regardless of any legal play. Rare and precious. *"Your deck contains 0 cards that produce XP, so `[Level 6]` abilities can never activate."* |
-| **CONDITIONAL** | True unless refuted; ships **with** its refutation set. Most combat claims |
-| **PROBABILITY** | Computed with stated uncertainty. *"72% to hold a Fury source by turn 3"* |
-| ~~ESTIMATE~~ | **Not produced**, per [D-022](../DECISIONS.md#d-022) |
+| Enumerate large card lists in an answer | §2 — the prime directive |
+| Emit a deck grade, rating or score | [D-016](../DECISIONS.md#d-016) |
+| Predict what the opponent *will* play | Only what they *can*. No meta data exists — [COMPENDIUM §VI.6](../reference/COMPENDIUM.md#6-the-meta--and-why-it-may-not-matter-for-forge) |
+| State a win percentage | Would require piloted-game data. Would be an ESTIMATE — [D-022](../DECISIONS.md#d-022) |
+| Let the conversation layer invent a number | Layer 4 asks layer 2, always |
+| Model pilot skill | Not a property of a deck |
 
-**Still forbidden:** any grade, rating, score, or star count ([D-016](../DECISIONS.md#d-016)).
-
-### 2.1 🔑 Robustness — the metric that actually matters
-
-For any line of play, **robustness** = how hard it is to refute:
-
-| Dimension | Question |
-|---|---|
-| **Breadth** | How many format cards refute it? |
-| **Cost** | What's the cheapest refutation? |
-| **Speed** | Does refuting need `[Action]`, `[Reaction]`, or a whole turn? |
-| **Reach** | How many Domain Identities have access to a refutation? |
-| **Frequency** | Is the refutation a common playable or a niche card? |
-
-A line refuted only by one 6-cost card in one domain is **robust**. A line refuted by
-1-Energy commons across five domains is **fragile** — and that is precisely the "where does
-this deck come up short" answer the user wants, stated without guessing.
+**"I don't know" is a valid, and sometimes correct, answer.**
 
 ---
 
-## 3. Opponent model — the whole legal format
+## 8. Grounding the depth — what the rules core must handle
 
-**Decided 2026-08-02.** Evaluate against the **threat space**: every card the format can
-legally field, bucketed by Domain Identity, cost, speed and role.
+EE is only as honest as its core. Non-negotiable (all cited in
+[COMPENDIUM §III](../reference/COMPENDIUM.md#part-iii--how-the-game-is-played)):
 
-Rejected: modelled archetype decks (requires assuming typical lists), tournament meta data
-(403-blocked and n=1–3), user's own decks only (says nothing about the field).
-
-**Refutation search runs over this space.** For a given line, enumerate every legal opposing
-card that could change the outcome, filtered by what that identity can actually run. No
-assumptions about what they *will* play — only what they *can*.
+| Requirement | Why |
+|---|---|
+| **Showdowns as alternating priority windows** | Both players act inside a combat (CR 341–348). **211 of 814 cards (26%)** are combat-speed |
+| **Chains resolving LIFO, `[Reaction]`-only once closed** | CR 327–340 |
+| **Role-conditional Might** | `Assault` attacking only, `Shield` defending only (CR 807, 814) |
+| **Four outcomes with the stall asymmetry** | `STALL` **recalls the attacker** (CR 466.1.a.2) — attacking and defending are different questions |
+| **Hidden information on the board** | **43 `[Hidden]` cards** sit facedown and play later ignoring base cost (CR 811) |
+| ⚠️ **Rules as data, not code** | **21 cards rewrite rules an engine would hardcode.** Elder Dragon voids the lethal-damage threshold; Dune Surfer voids `Tank`; Baron Nashor adds a battlefield mid-game. CR 002 — *card text supersedes rules text* — is a design requirement |
 
 ---
 
-## 4. The rules core — a real engine, not a calculator
+## 9. Implementation
 
-### 4.1 Game state
-
-```
-GameState {
-  battlefields : [ {id, abilities, units[], facedown[], controller, scored_this_turn} ]
-  bases        : { player: [permanents, runes(ready|exhausted)] }
-  players      : { points, xp, hand_size, hand(private), trash, banishment,
-                   rune_pool{energy, power_by_domain}, legend(+empowered) }
-  chain        : [ items… ]                # LIFO
-  turn         : { player, phase, state: Neutral|Showdown × Open|Closed,
-                   priority, focus, cards_played_this_turn }
-  rule_overrides : { lethal_threshold_fn, assignment_order_fn,
-                     targeting_fn, phase_sequence, … }   # ← §1.3
-}
-```
-
-### 4.2 What the core must do
-
-| Capability | Rules |
+| Component | Effort |
 |---|---|
-| Enumerate **legal actions** for a player in a given state | CR 307–313, 349, 398 |
-| Resolve the **chain** LIFO, with Reaction-only in closed states | CR 327–340 |
-| Run a **Showdown** to closure (alternating Focus, pass-pass termination) | CR 341–348 |
-| Assign combat damage under Tank/Backline/lethal-first/no-overkill | CR 465.2.c |
-| Apply **replacement effects** and **layers** in correct order | CR 367–375, 473–480 |
-| Execute **cleanups** including recall-attackers-on-stall | CR 318–324, 466 |
-| Apply **rule overrides** from active card effects | CR 002 |
+| Structured card fields | ✅ Trivial — typed JSON, 814 cards |
+| Keyword extraction | ✅ Proven — 498 cards (61%) machine-readable |
+| Effect annotation | ⚠️ **~153 cards (19%)** — hand-annotate, don't parse |
+| Legend ability annotation | ⚠️ **49 Legends** — hand-annotate |
+| Pattern vocabulary | 🟡 Curated definitions over the above |
+| Rules core with overrides | 🔴 **The bulk of the work** |
+| Synthesis layer | 🟡 Ranking + templating; the quality bar is editorial |
+| Conversation layer | 🟡 Depends on the Stage 2 architecture decision |
 
-> This is genuinely a rules engine. It is the largest single piece of work in the project
-> and should be scoped as such — see §7.
+**Corpus fits in context.** Measured: 814 main-deck cards with full text ≈ **38,700
+tokens**; +115 Legends/Battlefields ≈ **3,900**; both rulebooks ≈ **75,000**. The entire
+game is **~118k tokens** — a conversational layer can genuinely hold all of Riftbound.
 
-### 4.3 Combat outcomes — four, with the stall asymmetry
+> **Scale honesty:** the rules core is comparable to the rest of Phase A combined. Build it
+> **vertically** — one battlefield, 1v1, full fidelity — then widen.
 
-| Outcome | Consequence |
-|---|---|
-| `CONQUEST` | Defenders wiped, attacker survives → battlefield taken, **+1 point** if unscored (CR 466.5.d) |
-| `REPELLED` | Attackers wiped → material lost for nothing |
-| `TRADE` | Both wiped → battlefield **uncontrolled** (CR 466.5.b) |
-| `STALL` | Both have survivors → ⚠️ **attackers RECALLED** (CR 466.1.a.2), defender keeps it |
-
-`STALL` favouring the defender means *"can I attack profitably?"* and *"can I defend
-profitably?"* are separate questions with separate refutation sets.
-
----
-
-## 5. The analysis layer
-
-Runs the core repeatedly over enumerated opponent options.
-
-### 5.1 Refutation search
-
-```
-evaluate(line, my_state, opposing_identity):
-    baseline = core.resolve(line, opponent_invests=NOTHING)
-    refutations = []
-    for card in threat_space(opposing_identity):
-        if not playable_at(card, combat_timing): continue
-        if not affordable(card, plausible_opponent_resources): continue
-        if core.resolve(line, opponent_plays=card) != baseline:
-            refutations.append(card, cost, speed, domains)
-    return Claim(baseline, refutations, robustness(refutations))
-```
-
-**Bounded by construction:** only 211 cards are combat-speed, and affordability prunes
-further. This is a search over hundreds, not millions.
-
-### 5.2 Threat pressure — "units the opponent must respect"
-
-The user's *"heavy units that cause disruptions the other player needs to respect"* is
-derivable. A card exerts **pressure** if leaving it unanswered is losing.
-
-| Class | Test | Example |
-|---|---|---|
-| **Must-answer** | Generates points or compounding advantage each turn if unanswered | point-scoring triggers |
-| **Board-dominant** | Beats the format's median unit in both orientations, and few units beat it | Volibear, Imposing — M10, `Shield 3`, `Tank` |
-| **Answer-asymmetric** | Costs the opponent more to remove than it cost to play | high Might + `Deflect` |
-| **Rule-warping** | Changes a rule the opponent's deck depends on | Elder Dragon voiding lethal thresholds |
-
-For each, compute the **answer set** — who in the format can deal with it, at what cost.
-"Respect" becomes: *how many of my cards can answer this, and what do they cost me?*
-
-### 5.3 Deck-level outputs
-
-| Output | Derivation |
-|---|---|
-| **Contest capacity by turn N** | Rune ceiling (2/turn, +1 on the draw) vs curve |
-| **Speed to first score / to 8** | Shortest legal point path |
-| **Answer coverage** | % of threat space answerable, per cost bucket *(see COMPENDIUM §V — Deal 2 = 19%, Deal 3 = 42%, Deal 4 = 64% of 472 units)* |
-| **Refutation exposure** | Which of *your* key lines are cheaply refuted, and by which domains |
-| **Interaction density** | Your `[Action]`/`[Reaction]` count vs format norms — can you contest a showdown at all? |
-| **Rune feasibility** | Existing flagship (PROBABILITY) |
-| **Dead-card detection** | Unmet dependent-keyword requirements — e.g. `[Level 6]` with 2 max XP (**FACT**) |
-| **Sweep fragility** | Fraction of your board lost to Deal-2/3 sweeps, and to `The Ruination` |
-
-### 5.4 Official baselines
-
-From Riot's Deckbuilding Primer (COMPENDIUM §VI.2) — report deviation as attributed fact,
-never as verdict: **9+ small units (2–4 cost)**, **6+ interactive spells**, units prioritised
-over spells/gear.
-
----
-
-## 6. The interactive strategist
-
-The user's ask: *"another Oracle, specifically catered to be a Riftbound know-it-all, super
-strategist, who I can ask questions to about my deck."*
-
-### 6.1 🔑 Feasibility — the whole game fits in context
-
-Measured over the real corpus:
-
-| Content | Size |
-|---|---|
-| 814 distinct main-deck cards (name, cost, Might, domains, tags, **full rules text**) | 139,373 chars ≈ **38,700 tokens** |
-| 115 Legends + Battlefields with text | 14,060 chars ≈ **3,900 tokens** |
-| **Total card corpus** | **≈ 42,600 tokens** |
-| Core Rules + Tournament Rules (full text) | ≈ 75,000 tokens |
-
-> **The entire game — every card and both rulebooks — is ~118k tokens.** That fits
-> comfortably in a modern context window. A strategist agent can *genuinely* hold all of
-> Riftbound in working memory. This is not aspirational; it is measured.
-
-### 6.2 Proposed architecture — grounded agent
-
-```
-┌─────────────────────────────────────────────────────┐
-│  STRATEGIST  (LLM, conversational)                  │
-│  • holds the full card corpus + rules               │
-│  • answers open questions, explains, suggests lines │
-│  • NEVER adjudicates rules or computes arithmetic   │
-└───────────────┬─────────────────────────────────────┘
-                │ tool calls only
-┌───────────────▼─────────────────────────────────────┐
-│  ANALYSIS LAYER  (deterministic)                    │
-│  refutation search · robustness · coverage ·        │
-│  threat pressure · deck stats                       │
-└───────────────┬─────────────────────────────────────┘
-┌───────────────▼─────────────────────────────────────┐
-│  RULES CORE  (deterministic, rules-as-data)         │
-│  state · legal actions · chain · showdown · combat  │
-└─────────────────────────────────────────────────────┘
-```
-
-### 6.3 The discipline that keeps it honest
-
-| Rule | Why |
-|---|---|
-| **The LLM never does arithmetic.** All numbers come from tool calls | LLMs miscount; this project's whole ethos is honesty |
-| **The LLM never adjudicates rules.** Interactions resolve in the core | 120 pages of rules with card-level overrides is not a vibes problem |
-| **Every claim carries provenance** — engine output or quoted card text | Ungrounded claims are the failure mode |
-| **"I don't know" is a valid answer** | Better than a confident wrong line, per D-022 |
-
-**Why an LLM at all, rather than pure UI?** Because *"what should I fear in this matchup and
-how do I play around it?"* is open-ended reasoning over facts — exactly what the deterministic
-layer cannot express and a human wants in prose. The engine supplies truth; the strategist
-supplies explanation.
-
-**Why not LLM-only?** Because it would be confidently wrong about combat maths and rules
-interactions, which is the one thing this project refuses to be.
-
-### 6.4 Example interaction
-
-> **You:** Should I attack into their board with Phoenix?
->
-> **Strategist:** Not profitably as it stands. Phoenix attacks at 5 (3 + `Assault 2`);
-> Blue Sentinel defends at 6 (4 + `Shield 2`), so you're `REPELLED` — Phoenix dies, they
-> keep the battlefield. *(core: CR 807/814/465.2)*
->
-> You need +1 Might or −1 on theirs. You run 2 `Cleave` (1E, `[Action]`, `Assault 3`) —
-> that puts you at 8 and kills through. **But** they're Mind/Calm with 3 runes untapped,
-> and that identity has 11 refutations at ≤2 cost, including `Stupefy` and `Retreat`.
-> Cheapest counter-refutation you hold is… *(analysis: refutation search)*
->
-> Attacking costs you Phoenix if they hold any of 11 cards. Holding it costs you tempo.
-> Robustness of this line: **fragile** — 11 refuters, cheapest 1E, in 4 identities.
-
----
-
-## 7. What is NOT computed
-
-| Not computed | Why |
-|---|---|
-| **Win probability / matchup winrate** | Needs piloted-game data — 403-blocked, n=1–3. Would be an ESTIMATE (D-022) |
-| **What the opponent *will* play** | Only what they *can*. Refutation sets, never predictions |
-| **Deck grade / power rating** | D-016. Never |
-| **Pilot skill** | Not a property of a deck |
-| **Bluffing and `Hidden` mind-games** | Modelled as a distribution over facedown contents, not as psychology |
-
----
-
-## 8. Implementation risk
-
-| Component | Difficulty |
-|---|---|
-| Structured fields (cost, Might, domain, type, tags) | ✅ Trivial — typed JSON, 814 cards |
-| Keyword extraction (`Assault N`, `Shield N`, `Level N`…) | ✅ Proven working — 498 cards (61%) |
-| Free-text effect annotation | ⚠️ **~153 cards (19%)** — hand-annotate, don't parse |
-| **Rules-as-data core with override support** | 🔴 **The real work.** 21 cards actively rewrite rules |
-| Chain / showdown sequencing | 🔴 Genuinely intricate — CR 327–348 |
-| Refutation search | 🟡 Bounded (211 combat-speed cards) but needs the core to be right |
-
-> **Honest scale note.** v1 implied this was mostly arithmetic. It is not. The rules core is
-> comparable in size to the rest of Phase A combined. It should be built **incrementally,
-> vertically** — full fidelity for 1v1 single-battlefield combat first, then widen —
-> mirroring the walking-skeleton logic that already reshaped the plan.
-
-## 9. Test strategy
+## 10. Testing
 
 | Layer | Approach |
 |---|---|
-| **Rules core** | Every worked example in CR 465.2.c, 355–359, 370–375 encoded as a fixture — the rulebook is a test suite |
-| **Chain/showdown** | Property tests: LIFO ordering, Reaction-only in closed states, pass-pass termination |
-| **Rule overrides** | Each of the 21 rule-warping cards gets a named regression test |
-| **Refutation search** | Golden files per identity; drift in the card pool surfaces as failure |
-| **Claims** | Structurally enforced: no claim ships without derivation, citations **and** either a refutation set or a proof of unconditionality |
-| **Strategist** | Adversarial: assert it never emits a number absent from tool output |
+| Rules core | Every worked example in CR 355–359, 370–375, 465.2 as a fixture. The rulebook is a test suite |
+| Chain / showdown | Property tests: LIFO, Reaction-only when closed, pass-pass termination |
+| Rule overrides | A named regression test per rule-warping card |
+| Analysis | Golden files per Domain Identity; card-pool drift fails the build |
+| **Synthesis** | ⭐ **Budget tests** — assert no answer exceeds its statement budget or names more than 3 example cards. *This is how §2 stays true under pressure* |
+| Conversation | Adversarial: assert no number appears that didn't come from a tool call |
 
-## 10. Open questions
+## 11. Open questions
 
 | # | Question | Blocks |
 |---|---|---|
-| **E1** | Does the strategist run locally, via API, or is it a non-goal for v1 (engine + UI only)? | §6 |
-| **E2** | Battlefield abilities modify combat. In v1, or evaluate neutral and flag? | §4 |
-| **E3** | Legend abilities are always-on and shape every combat — v1 or later? | §4 |
-| **E4** | How deep does refutation search go — single card, or chains of card-answers-card? | §5.1 |
-| **E5** | How are facedown `Hidden` cards modelled — ignored, worst-case, or distribution? | §1.2 |
-| **E6** | Multi-unit boards: full n-vs-m enumeration, or bounded heuristics? | §4 |
-| **E7** | Does the engine model **multi-battlefield** turns (move + combat sequencing), or one combat at a time? | §4 |
+| **E1** | Where does the conversation layer run — in-app, or Claude Code against an exported deck state? | Stage 2 architecture |
+| **E2** | Battlefield abilities modify combat. v1, or evaluate neutral and flag the simplification? | Rules core |
+| **E3** | Legend abilities are always-on. v1 or later? | Rules core |
+| **E4** | Refutation search depth — single card, or card-answers-card chains? | Analysis |
+| **E5** | How are facedown `Hidden` cards modelled — ignored, worst-case, or a distribution? | Rules core |
+| **E6** | Multi-unit boards: full enumeration or bounded heuristics? | Rules core |
+| **E7** | Does EE model multi-battlefield turns, or one combat at a time? | Rules core |
