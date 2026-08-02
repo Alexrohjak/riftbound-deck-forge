@@ -22,10 +22,10 @@
 |---|---|
 | **Track** | **D — Design** |
 | **Progress** | **1 of 16** milestones · `D1` complete |
-| **🎯 Next** | **`D2` — Interface design.** No blockers, nothing to prepare. Bring opinions about how it should feel |
-| **Active** | None — awaiting `D2` |
+| **🎯 Next** | **Decide the three EE proposals below**, then continue `D2` from real use of the collection tool |
+| **Active** | **`D2`** — [prototype built](design/D2-workbench-prototype.html), awaiting your verdict on the ownership pips and EE answer length |
 | **Blocked** | Nothing |
-| **Code** | **None yet.** By design — `DESIGN LOCKED` gates all logic until `D3` completes |
+| **Code** | **[The collection tool](../tools/collection/) is live and in use.** Carved out ahead of `D3` because the collection is the durable asset and every later milestone needs it. `DESIGN LOCKED` still gates the rules engine |
 
 ```
 D ─ Design         ▓▓▓▓░░░░░░░░  1/3   ← you are here
@@ -41,6 +41,7 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 
 | ID | Milestone | What it produced | Date |
 |---|---|---|---|
+| — | **Collection tool** | Keyboard entry over 1,180 printings, live matches with images, JSON export. 21 parser tests | 2026-08-02 |
 | `D1` | **Discovery** | 19 documents · 42 decisions · both rulebooks read in full · all 935 cards read, 814 main-deck cards classified · 1.3 MB cached card data · 33 legality checks · EE and generation specified | 2026-08-02 |
 
 ---
@@ -82,6 +83,7 @@ new work appends the next free number and **nothing ever renumbers**.
 
 | ID | Milestone | Done when | Status | Depends on |
 |---|---|---|---|---|
+| — | **Collection tool** | Keyboard entry over 1,180 printings, live matches with images, JSON export. 21 parser tests | 2026-08-02 |
 | `D1` | **Discovery** | Scope, rules, card data, specs and decisions all locked | ✅ | — |
 | `D2` | **Interface design** | A clickable prototype exists that you have used and approved | 🎯 **NEXT** | — |
 | `D3` | **Architecture** | Stack chosen and justified, with indefinite running cost understood — **including where the docs are served from** (X5) | ⬜ | `D2` |
@@ -205,6 +207,16 @@ Carried deliberately, not forgotten.
 | **G1–G4** | Generation: how many candidates? How is a no-identity seed handled? Does it propose battlefields? | `S5` |
 | **E2–E7** | EE modelling depth — battlefield abilities, Legend abilities, refutation search depth, hidden cards, multi-unit boards | `S1` |
 | **Q10** | ✅ **Answered** — errata and ban list are prose, so a small hand-maintained overlay | — |
+
+### ⏳ Proposed 2026-08-02, awaiting your decision
+
+Discussed at length but **not recorded as decisions** — none of these is settled.
+
+| # | Proposal | Consequence if accepted |
+|---|---|---|
+| **P1** | **EE is a rules engine with a swappable mouth**, and the mouth is Claude Code against exported state rather than an in-app chat | Deletes `S3`/`S4` as build work; X1 resolves without `D3` |
+| **P2** | **Split `S1`** into `S1a` (combat + legality, no chains) and `S1b` (chains, deferred until `Q-LINE` is missed) | The strategist track starts delivering without waiting on the largest component |
+| **P3** | **Tier by answer-part**, not by answer — grounding restricted to Tier 1/2, lever explicitly opinion | Fixes the contradiction where [D-022](DECISIONS.md#d-022) forbids the advice EE promises. The `D2` prototype currently violates it |
 
 ---
 
