@@ -60,7 +60,7 @@ system map and **where to put a new idea**.
 | [**`docs/ROADMAP.md`**](docs/ROADMAP.md) | **📍 The map — status board, all 16 milestones, dependencies. Start here.** |
 | [**`docs/spec/OVERVIEW.md`**](docs/spec/OVERVIEW.md) | **System map — how everything relates, and where new ideas go. Read before adding a feature.** |
 | [`docs/PLAN.md`](docs/PLAN.md) | The detail layer — gates, "done when", validation and risks |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 40 decisions with alternatives and rationale — including four reversals |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 42 decisions with alternatives and rationale — including five reversals |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
 | [`docs/AUDIT.md`](docs/AUDIT.md) | First-principles audit of the project's own assumptions |
 

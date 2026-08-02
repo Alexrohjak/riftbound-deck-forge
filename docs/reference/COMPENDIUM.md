@@ -542,8 +542,8 @@ From a beginner walkthrough, matching the rules:
 
 # Part IV — The complete keyword glossary
 
-**There are 25 keywords** (CR 804–829). The existing `GAME-RULES.md` lists 8, one of which
-(`conquer`) is not a keyword at all.
+**There are 25 keywords** (CR 804–829). The now-retired `GAME-RULES.md` listed 8, one of which
+(`conquer`) is not a keyword at all — see [D-036](../DECISIONS.md#d-036).
 
 | # | Keyword | CR | Kind | Meaning |
 |---|---|---|---|---|
@@ -882,7 +882,7 @@ From Riot's **Deckbuilding Primer** — this is official, not community folklore
 ## 2. 🔑 Official deckbuilding ratios
 
 Also from the Primer — **this supersedes the "community, unverified" heuristic** currently
-recorded in `GAME-RULES.md §8`:
+recorded in the now-retired `GAME-RULES.md §8`:
 
 > - **"Play 9+ small units"** in the 2–4 cost range, for reliable early battlefield presence
 > - **"Play 6+ interactive spells"** for combat support and disruption
@@ -1058,7 +1058,7 @@ resolution; best-of-5 battlefield reuse permitted.
 
 ## Corrections required
 
-| # | Doc | Current text | Correct position |
+| # | Doc *(as it read then)* | Text at the time | Correct position |
 |---|---|---|---|
 | C1 | `GAME-RULES.md §7` | 8 keywords, including "conquer" | **25 keywords**; `conquer` is a scoring action, not a keyword. See [Part IV](#part-iv--the-complete-keyword-glossary) |
 | C2 | `GAME-RULES.md §8` | 6-6 rune split is *"community, unverified"* | It is **official Riot guidance** in the Deckbuilding Primer |

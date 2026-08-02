@@ -37,7 +37,7 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 
 | ID | Milestone | What it produced | Date |
 |---|---|---|---|
-| `D1` | **Discovery** | 18 documents · 42 decisions · both rulebooks read in full · all 935 cards read and classified · 1.3 MB cached card data · 33 legality checks · EE specified | 2026-08-02 |
+| `D1` | **Discovery** | 19 documents · 42 decisions · both rulebooks read in full · all 935 cards read, 814 main-deck cards classified · 1.3 MB cached card data · 33 legality checks · EE and generation specified | 2026-08-02 |
 
 ---
 
