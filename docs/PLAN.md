@@ -189,7 +189,15 @@ your phone.**
 ⚠️ **CI must include a docs-consistency check.** Counts stated in prose (decisions, documents,
 legality checks, card totals) have drifted from reality **twice** already and had to be
 corrected by hand. A ten-line check that greps the claims and compares them to the source of
-truth removes the whole class of error. Deployment comes first deliberately — phone parity is a hard requirement and
+truth removes the whole class of error.
+
+**It should also cover `docs/roadmap.html`**, which is a *generated view* of `ROADMAP.md`.
+Two files carrying the same status is how `GAME-RULES.md` drifted from the rulebooks — the
+mitigation is that the check fails when they disagree, not that we keep only one.
+
+💡 **Consider GitHub Pages here.** Serving `docs/` would give the roadmap a real URL straight
+from the repo, viewable on your phone without downloading anything. Cheap to add at the same
+time as deployment. Deployment comes first deliberately — phone parity is a hard requirement and
 finding a hosting problem later would be expensive.
 
 **Done when:** a trivial page is live, reachable from the phone, deploying automatically.

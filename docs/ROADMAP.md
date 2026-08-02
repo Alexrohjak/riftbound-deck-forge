@@ -2,6 +2,9 @@
 
 > **Version:** 1.0 · **Updated:** 2026-08-02
 >
+> 🖥️ **Visual version: [`roadmap.html`](roadmap.html)** — same content, rendered. Download and
+> open it in a browser (GitHub shows HTML as source, not as a page).
+>
 > The map of where we're going. Five tracks, each a set of milestones with **stable IDs**.
 > *Why* it's built this way lives in [`DISCOVERY.md`](DISCOVERY.md) and
 > [`DECISIONS.md`](DECISIONS.md); *what "done" means* per milestone lives in
@@ -202,6 +205,9 @@ Carried deliberately, not forgotten.
 | **Q10** | ✅ **Answered** — errata and ban list are prose, so a small hand-maintained overlay | — |
 
 ---
+
+⚠️ **[`roadmap.html`](roadmap.html) is a generated view of this file.** This markdown is the
+source of truth — if the two disagree, this one is right and the page needs regenerating.
 
 *Where are we? → the Status Board, top of this file. What does "done" mean? →
 [`PLAN.md`](PLAN.md). Why this way? → [`DECISIONS.md`](DECISIONS.md).*
