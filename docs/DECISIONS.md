@@ -50,6 +50,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-039](#d-039) | ⭐ **EE synthesises; it never enumerates** |  |
 | [D-040](#d-040) | EE's rules engine is **rules-as-data**, because cards rewrite rules |  |
 | [D-041](#d-041) | ⭐ **The generator is reinstated and fused with EE** — reverses D-029 | ↩️ reverses |
+| [D-042](#d-042) | **Advice is pull, never push** — Forge never volunteers suggestions | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -1290,3 +1291,53 @@ rather than ignored.
   here are the 6 gaps"*
 - [D-007](#d-007) ("workbench first, generator second") still holds in **sequence** — W1/W2
   gate S5 — but no longer in **commitment**
+
+---
+
+<a id="d-042"></a>
+
+## D-042 — Advice is pull, never push ✅
+
+**Date:** 2026-08-02
+**Status:** Accepted — resolves **G5**, extends [D-017](#d-017)
+
+**User:** *"G5 shouldn't be live, only give feedback when requested."*
+
+**Decided:** **Forge never volunteers advice.** Suggestions, recommendations, warnings about
+deck quality and generation ideas appear **only when asked for**.
+
+### The distinction that makes this workable
+
+Not everything on screen is advice. The line is between **state** and **opinion**:
+
+| Always visible — *state* | On request only — *advice* |
+|---|---|
+| Legality: is this deck legal, and which rule fails | *"Consider swapping X for Y"* |
+| Ownership: do you own this, is it in another deck | *"Your curve is top-heavy"* |
+| Statistics: curve, rune feasibility, coverage | *"This loses to Body/Fury"* |
+| Counts: 38/40, 11/12 runes | Generated candidates |
+
+**State is a fact about what you have built** and belongs on screen continuously — you
+cannot build without it. **Advice is EE's opinion**, and it waits to be asked.
+
+**Why:** the stated goal is *"to enjoy sitting for hours creating, putting together, sleeving
+and testing decks."* A tool that interrupts with suggestions turns building into
+**responding to a critic**. [D-017](#d-017) already flagged the same instinct for commitment
+warnings — *"how does 'this card is in Jinx Aggro v2' appear **without nagging**"* — so this
+generalises an existing principle rather than inventing one.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Live suggestions as you add cards | Turns a creative session into a critique. Directly attacks the stated goal |
+| Live, but dismissible | Still interrupts; dismissal is itself friction, repeated dozens of times per session |
+| Live only for "serious" problems | Requires Forge to judge severity — and *"serious"* is exactly the composite judgement [D-016](#d-016) forbids |
+
+**Consequences:**
+
+- EE needs an **explicit invocation** in the interface — a question box, an "ask" affordance,
+  or a panel you open. **This is a D2 design requirement**, not an implementation detail
+- Generation is always user-initiated
+- ⚠️ **Legality and ownership remain live**, because they are state. A silently illegal deck
+  would be a worse failure than a nagging one

@@ -291,6 +291,10 @@ feasibility.
 
 **"I don't know" is a valid, and sometimes correct, answer.**
 
+> ⚠️ **EE is never unsolicited.** Advice appears only when asked for
+> ([D-042](../DECISIONS.md#d-042)). Legality and statistics are *state* and stay live;
+> suggestions are *opinion* and wait to be invited.
+
 ---
 
 ## 8. Grounding the depth — what the rules core must handle
