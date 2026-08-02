@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Forge — Collection</title>
+<style>
+:root{
+  --ground:#f3f4f7;--panel:#fff;--sunk:#e9ebf0;--line:#d8dbe3;--line-2:#c3c7d2;
+  --ink:#191b21;--ink-2:#4a4f5c;--dim:#787e8d;--faint:#a3a8b5;
+  --fury:#c8452f;--calm:#2f7fc0;--mind:#7a5bc4;--body:#3f8f52;--chaos:#bf4a90;--order:#b98722;--none:#9aa0ad;
+  --alert:#b3261e;--good:#2f7d4f;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --ground:#101116;--panel:#191b21;--sunk:#15161c;--line:#282b34;--line-2:#3a3e49;
+  --ink:#e8e9ed;--ink-2:#b0b5c1;--dim:#858b99;--faint:#5d636f;
+  --fury:#e2664f;--calm:#5aa6e0;--mind:#a086e0;--body:#5fb073;--chaos:#dd6fac;--order:#d6a445;--none:#767c89;
+  --alert:#e5705f;--good:#5fb073;
+}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:15px;
+     line-height:1.5;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;
+     overscroll-behavior-y:none}
+.m,code{font-family:var(--mono);font-variant-numeric:tabular-nums}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* ── header ─────────────────────────────────────────── */
+header{background:var(--panel);border-bottom:1px solid var(--line);padding:env(safe-area-inset-top) 0 0;flex-shrink:0}
+.hrow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 14px 0}
+.brand{font-family:var(--mono);font-size:13px;font-weight:600}
+.brand span{color:var(--faint);font-weight:400}
+.tot{font-family:var(--mono);font-size:11px;color:var(--dim)}
+.tot b{color:var(--ink);font-weight:600}
+.tabs{display:flex;gap:4px;padding:9px 14px 0}
+.tab{font-family:var(--mono);font-size:12px;letter-spacing:.03em;padding:6px 13px;border:1px solid transparent;
+     border-bottom:0;border-radius:5px 5px 0 0;background:none;color:var(--dim);position:relative;top:1px}
+.tab[aria-selected="true"]{background:var(--ground);border-color:var(--line);color:var(--ink);font-weight:600}
+main{flex:1;min-height:0;display:flex;flex-direction:column}
+.pane{display:none;flex:1;min-height:0;flex-direction:column}
+.pane.on{display:flex}
+
+/* ── entry ──────────────────────────────────────────── */
+.setbar{display:flex;gap:5px;overflow-x:auto;padding:12px 14px 10px;scrollbar-width:none;flex-shrink:0}
+.setbar::-webkit-scrollbar{display:none}
+.set{flex-shrink:0;font-family:var(--mono);font-size:11.5px;padding:5px 11px;border-radius:20px;
+     border:1px solid var(--line-2);background:var(--panel);color:var(--dim)}
+.set[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink);font-weight:600}
+.entry{padding:0 14px;flex-shrink:0}
+.field{display:flex;gap:8px}
+#num{flex:1;font-family:var(--mono);font-size:23px;font-weight:600;padding:13px 15px;border-radius:8px;
+     border:1.5px solid var(--line-2);background:var(--panel);color:var(--ink);min-width:0;
+     font-variant-numeric:tabular-nums}
+#num:focus{border-color:var(--ink);outline:none}
+#num::placeholder{color:var(--faint);font-weight:400;font-size:17px}
+.hint{font-family:var(--mono);font-size:10.5px;color:var(--faint);padding:8px 2px 0;line-height:1.6}
+.hint b{color:var(--dim);font-weight:600}
+
+.echo{margin:12px 14px 0;border-radius:8px;border:1px solid var(--line);background:var(--panel);
+      padding:12px 14px;min-height:74px;display:flex;flex-direction:column;justify-content:center}
+.echo.miss{border-color:var(--alert)}
+.echo.hit{border-color:var(--good)}
+.e-name{font-size:16px;font-weight:600;line-height:1.3;display:flex;align-items:center;gap:8px}
+.e-bar{width:3px;height:17px;border-radius:2px;background:var(--dc,var(--none));flex-shrink:0}
+.e-meta{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:4px}
+.e-count{font-family:var(--mono);font-size:12.5px;font-weight:600;margin-top:6px}
+.e-idle{color:var(--faint);font-size:13.5px}
+.e-alt{margin-top:7px;display:flex;gap:5px;flex-wrap:wrap}
+.e-alt button{font-family:var(--mono);font-size:10.5px;padding:2px 7px;border-radius:4px;
+              border:1px solid var(--line-2);background:var(--sunk);color:var(--dim)}
+.e-alt button:hover{border-color:var(--ink);color:var(--ink)}
+
+.log{flex:1;min-height:0;overflow-y:auto;padding:12px 14px 20px;-webkit-overflow-scrolling:touch}
+.log-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;
+       color:var(--faint);display:flex;justify-content:space-between;align-items:center;
+       padding-bottom:6px;border-bottom:1px solid var(--line)}
+.log-h button{font-family:var(--mono);font-size:10px;letter-spacing:.06em;background:none;border:0;
+              color:var(--dim);text-decoration:underline;padding:2px}
+.log-r{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+.log-r .d{font-family:var(--mono);font-size:11px;font-weight:600;width:26px;flex-shrink:0}
+.log-r .d.up{color:var(--good)}.log-r .d.dn{color:var(--alert)}
+.log-r .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log-r .cd{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+
+/* ── browse ─────────────────────────────────────────── */
+.filters{display:flex;gap:5px;overflow-x:auto;padding:10px 14px;scrollbar-width:none;flex-shrink:0;
+         border-bottom:1px solid var(--line);background:var(--panel)}
+.filters::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:20px;
+      border:1px solid var(--line-2);background:transparent;color:var(--dim);white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:1px;background:currentColor}
+#find{width:100%;font-size:14px;padding:9px 12px;border-radius:7px;border:1px solid var(--line-2);
+      background:var(--panel);color:var(--ink)}
+.findwrap{padding:10px 14px 0;flex-shrink:0}
+.bhead{display:flex;justify-content:space-between;padding:10px 14px 6px;font-family:var(--mono);
+       font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.grid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+      gap:7px;padding:0 14px 24px;align-content:start;-webkit-overflow-scrolling:touch}
+.card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:7px;
+      padding:8px 9px 7px 12px;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:76px}
+.card::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:2.5px;border-radius:0 2px 2px 0;
+              background:var(--dc,var(--none))}
+.card.dual::before{background:linear-gradient(var(--dc) 0 50%,var(--dc2) 50% 100%)}
+.card .nm{font-size:12px;font-weight:600;line-height:1.28}
+.card .mt{font-family:var(--mono);font-size:10px;color:var(--dim);display:flex;gap:6px}
+.card .ft{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.pips{display:flex;gap:2.5px}
+.pip{width:7px;height:7px;border-radius:50%;background:var(--ink)}
+.qty{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--ink)}
+.adj{display:flex;gap:3px}
+.adj button{font-family:var(--mono);font-size:13px;line-height:1;width:22px;height:22px;border-radius:4px;
+            border:1px solid var(--line-2);background:var(--sunk);color:var(--dim);padding:0}
+.adj button:hover{border-color:var(--ink);color:var(--ink)}
+.empty{padding:44px 20px;text-align:center;color:var(--faint);font-size:14px;grid-column:1/-1}
+
+/* ── data pane ──────────────────────────────────────── */
+.data{padding:16px 14px 30px;overflow-y:auto;flex:1;min-height:0}
+.data h2{font-family:var(--mono);font-size:13px;font-weight:600;margin:22px 0 7px}
+.data h2:first-child{margin-top:0}
+.data p{font-size:13.5px;color:var(--ink-2);margin:0 0 12px;max-width:60ch}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.btn{font-family:var(--mono);font-size:12px;padding:9px 15px;border-radius:6px;border:1px solid var(--line-2);
+     background:var(--panel);color:var(--ink-2)}
+.btn:hover{border-color:var(--ink);color:var(--ink)}
+.btn.pri{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.btn.danger:hover{border-color:var(--alert);color:var(--alert)}
+.stat{border:1px solid var(--line);border-radius:7px;overflow:hidden;margin-bottom:14px}
+.stat div{display:flex;justify-content:space-between;padding:8px 12px;font-size:13px}
+.stat div+div{border-top:1px solid var(--line)}
+.stat b{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.note{font-family:var(--mono);font-size:10.5px;color:var(--faint);line-height:1.6;margin-top:14px;
+      border-top:1px solid var(--line);padding-top:12px}
+#file{display:none}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,80px);background:var(--ink);
+       color:var(--ground);font-family:var(--mono);font-size:12px;padding:9px 16px;border-radius:20px;
+       opacity:0;transition:.22s;pointer-events:none;z-index:20}
+.toast.on{transform:translate(-50%,0);opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hrow">
+    <div class="brand">Forge <span>/ collection</span></div>
+    <div class="tot"><b id="tNames">0</b> names · <b id="tCopies">0</b> copies</div>
+  </div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true"  data-p="enter">Enter</button>
+    <button class="tab" role="tab" aria-selected="false" data-p="browse">Browse</button>
+    <button class="tab" role="tab" aria-selected="false" data-p="data">Data</button>
+  </div>
+</header>
+
+<main>
+  <!-- ENTER ─────────────────────────────────────────── -->
+  <section class="pane on" id="p-enter">
+    <div class="setbar" id="setbar"></div>
+    <div class="entry">
+      <div class="field">
+        <input id="num" type="text" inputmode="text" autocomplete="off" autocapitalize="off"
+               spellcheck="false" placeholder="collector number, or name…" aria-label="Collector number or card name">
+      </div>
+      <div class="hint">
+        <b>142</b> add one · <b>142*3</b> add three · <b>142-</b> remove one · <b>142a</b> variant ·
+        <b>ogn 142</b> other set · or type any part of a name
+      </div>
+    </div>
+    <div class="echo" id="echo"><div class="e-idle">Pick a set, then type numbers. The field stays focused.</div></div>
+    <div class="log">
+      <div class="log-h"><span>This session</span><button id="undo">Undo last</button></div>
+      <div id="loglist"></div>
+    </div>
+  </section>
+
+  <!-- BROWSE ────────────────────────────────────────── -->
+  <section class="pane" id="p-browse">
+    <div class="filters" id="doms"></div>
+    <div class="findwrap"><input id="find" type="search" placeholder="Filter by name…" autocomplete="off"></div>
+    <div class="bhead"><span id="bLabel">Owned</span><span id="bCount">0</span></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- DATA ──────────────────────────────────────────── -->
+  <section class="pane data" id="p-data">
+    <h2>Your collection</h2>
+    <div class="stat" id="stats"></div>
+
+    <h2>Export</h2>
+    <p>This file is the durable asset. Everything else here is disposable — keep this and the
+       collection survives any rebuild.</p>
+    <div class="row">
+      <button class="btn pri" id="exp">Download collection.json</button>
+      <button class="btn" id="copy">Copy to clipboard</button>
+    </div>
+
+    <h2>Import</h2>
+    <p>Restores from an exported file. Replaces what's currently stored.</p>
+    <div class="row">
+      <button class="btn" id="imp">Choose file…</button>
+      <input type="file" id="file" accept="application/json,.json">
+    </div>
+
+    <h2>Reset</h2>
+    <div class="row"><button class="btn danger" id="wipe">Erase collection</button></div>
+
+    <p class="note">
+      Saved in this browser's local storage, on this device only — nothing is uploaded anywhere.
+      Card data comes from the cached Riot gallery (1,180 printings); regenerate it with
+      <code>build-index.py</code>. Counts are stored per printing and shown per name, because
+      deck legality works by name.
+    </p>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+<script id="cards" type="application/json"></script>
+<script>
+"use strict";
+const DC={fury:"--fury",calm:"--calm",mind:"--mind",body:"--body",chaos:"--chaos",order:"--order",colorless:"--none"};
+const KEY="forge.collection.v1";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+let CARDS=[], byCode=new Map(), bySetNum=new Map(), byName=new Map();
+let own=Object.create(null);         // publicCode -> count
+let session=[];                      // {code, delta} newest first
+let curSet="OGN", curDom="all", find="";
+
+/* ── boot ───────────────────────────────────────────── */
+(async function boot(){
+  const inline=$("#cards").textContent.trim();
+  try{
+    CARDS = inline ? JSON.parse(inline) : await (await fetch("cards-index.json")).json();
+  }catch(err){
+    document.body.innerHTML='<div style="padding:40px;font-family:var(--sans);max-width:34em;margin:auto">'+
+      '<h2 style="font-family:var(--mono)">Card data didn\'t load</h2>'+
+      '<p>This page reads <code>cards-index.json</code> from the same folder, which browsers block '+
+      'over <code>file://</code>. Serve the folder instead:</p>'+
+      '<pre style="background:#8881;padding:12px;border-radius:6px;overflow-x:auto">cd tools/collection\npython3 -m http.server 8000</pre>'+
+      '<p>then open <a href="http://localhost:8000">localhost:8000</a>. For a file that works offline with '+
+      'no server, run <code>python3 tools/collection/build-index.py --standalone</code>.</p></div>';
+    return;
+  }
+  for(const c of CARDS){
+    byCode.set(c.c,c);
+    const base=/^[A-Z]+-\d+\//.test(c.c);            // no variant suffix
+    if(base) bySetNum.set(c.s+"-"+c.cn,c);
+    if(!byName.has(c.n)) byName.set(c.n,[]);
+    byName.get(c.n).push(c);
+  }
+  load(); buildSets(); buildDoms(); renderAll();
+  $("#num").focus();
+})();
+
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(raw){ const d=JSON.parse(raw); own=d.counts||Object.create(null); }
+  }catch(e){ own=Object.create(null); }
+}
+function save(){
+  try{ localStorage.setItem(KEY,JSON.stringify({schema:"forge.collection/1",counts:own})); }
+  catch(e){ toast("Couldn't save — storage full or blocked"); }
+}
+
+/* ── entry ──────────────────────────────────────────── */
+const SETS=[["OGN","Origins"],["OGS","Origins Starter"],["SFD","Spiritforged"],["UNL","Unleashed"],["VEN","Vendetta"]];
+function buildSets(){
+  $("#setbar").innerHTML=SETS.map(([k,l])=>
+    `<button class="set" data-s="${k}" aria-pressed="${k===curSet}">${k} <span style="opacity:.6">${l}</span></button>`).join("");
+  $$("#setbar .set").forEach(b=>b.onclick=()=>{
+    curSet=b.dataset.s;
+    $$("#setbar .set").forEach(o=>o.setAttribute("aria-pressed",o===b));
+    $("#num").focus();
+  });
+}
+
+// "142" · "142*3" · "142-" · "142a" · "ogn 142" · "ogn-142" · free text
+function parse(raw){
+  const s=raw.trim();
+  if(!s) return null;
+  let set=curSet, rest=s, mult=1, sign=1;
+  const setm=rest.match(/^([A-Za-z]{3})[\s-]+(.*)$/);
+  if(setm && SETS.some(([k])=>k===setm[1].toUpperCase())){ set=setm[1].toUpperCase(); rest=setm[2].trim(); }
+  // trailing minus first, so "142*2-" (remove two) parses as well as "142-"
+  if(/-$/.test(rest)){ sign=-1; rest=rest.slice(0,-1).trim(); }
+  const mm=rest.match(/^(.*?)\s*[*x]\s*(\d+)$/i);
+  if(mm){ rest=mm[1].trim(); mult=Math.max(1,Math.min(99,+mm[2])); }
+  if(/-$/.test(rest)){ sign=-1; rest=rest.slice(0,-1).trim(); }
+  const nm=rest.match(/^(\d{1,3})([A-Za-z*]?)$/);
+  if(nm){
+    const n=+nm[1], sfx=nm[2]||"";
+    if(!sfx){ const c=bySetNum.get(set+"-"+n); return c?{card:c,mult,sign}:{miss:`${set} ${n}`}; }
+    const pad=String(n).padStart(3,"0");
+    const hit=CARDS.find(c=>c.s===set && c.cn===n && c.c.startsWith(`${set}-${pad}${sfx}/`));
+    return hit?{card:hit,mult,sign}:{miss:`${set} ${n}${sfx}`};
+  }
+  const q=rest.toLowerCase();
+  if(q.length<2) return {miss:rest};
+  const hits=CARDS.filter(c=>c.n.toLowerCase().includes(q) && /^[A-Z]+-\d+\//.test(c.c));
+  if(!hits.length) return {miss:rest};
+  const exact=hits.find(c=>c.n.toLowerCase()===q);
+  return {card:exact||hits[0],mult,sign,more:hits.slice(0,6)};
+}
+
+function apply(card,delta){
+  const n=(own[card.c]||0)+delta;
+  if(n<=0) delete own[card.c]; else own[card.c]=n;
+  save();
+}
+function submit(){
+  const raw=$("#num").value;
+  const r=parse(raw);
+  if(!r) return;
+  if(r.miss){ echoMiss(r.miss); $("#num").select(); return; }
+  const delta=r.sign*r.mult;
+  apply(r.card,delta);
+  session.unshift({code:r.card.c,delta}); session=session.slice(0,60);
+  echoHit(r.card,delta,r.more);
+  $("#num").value=""; renderAll();
+}
+function echoHit(c,delta,more){
+  const e=$("#echo"); e.className="echo hit";
+  const d1=DC[c.d[0]]||"--none";
+  e.innerHTML=`<div class="e-name"><span class="e-bar" style="background:var(${d1})"></span>${esc(c.n)}</div>
+    <div class="e-meta">${c.c} · ${c.r}${c.e!==null?` · {${c.e}}`:""}${c.m!==null?` · Might ${c.m}`:""} · ${c.d.join("/")}</div>
+    <div class="e-count">${delta>0?"+":""}${delta} → you own ${own[c.c]||0}</div>
+    ${more&&more.length>1?`<div class="e-alt">${more.filter(x=>x.c!==c.c).map(x=>
+      `<button data-c="${x.c}">${esc(x.n)} ${x.c.split("/")[0]}</button>`).join("")}</div>`:""}`;
+  e.querySelectorAll(".e-alt button").forEach(b=>b.onclick=()=>{
+    const t=byCode.get(b.dataset.c); apply(t,1);
+    session.unshift({code:t.c,delta:1}); echoHit(t,1); renderAll(); $("#num").focus();
+  });
+}
+function echoMiss(what){
+  $("#echo").className="echo miss";
+  $("#echo").innerHTML=`<div class="e-name">No match</div>
+    <div class="e-meta">Nothing found for “${esc(what)}”. Check the set, or type part of the card's name.</div>`;
+}
+$("#num").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){ e.preventDefault(); submit(); }
+  if(e.key==="Escape"){ $("#num").value=""; }
+});
+$("#undo").onclick=()=>{
+  const last=session.shift();
+  if(!last){ toast("Nothing to undo"); return; }
+  apply(byCode.get(last.code),-last.delta);
+  renderAll(); $("#num").focus();
+};
+
+function renderLog(){
+  $("#loglist").innerHTML = session.length
+    ? session.slice(0,40).map(r=>{
+        const c=byCode.get(r.code);
+        return `<div class="log-r"><span class="d ${r.delta>0?"up":"dn"}">${r.delta>0?"+":""}${r.delta}</span>
+          <span class="nm">${esc(c.n)}</span><span class="cd">${c.c.split("/")[0]}</span></div>`;
+      }).join("")
+    : `<div style="padding:16px 0;color:var(--faint);font-size:13px">Nothing entered yet.</div>`;
+}
+
+/* ── browse ─────────────────────────────────────────── */
+const DOMS=[["all","All"],["fury","Fury"],["calm","Calm"],["mind","Mind"],["body","Body"],["chaos","Chaos"],["order","Order"],["colorless","Colourless"]];
+function buildDoms(){
+  $("#doms").innerHTML=DOMS.map(([k,l])=>
+    `<button class="chip" data-d="${k}" aria-pressed="${k===curDom}">${k==="all"?"":`<span class="dot" style="color:var(${DC[k]})"></span>`}${l}</button>`).join("");
+  $$("#doms .chip").forEach(b=>b.onclick=()=>{
+    curDom=b.dataset.d; $$("#doms .chip").forEach(o=>o.setAttribute("aria-pressed",o===b)); renderGrid();
+  });
+}
+$("#find").addEventListener("input",e=>{find=e.target.value.toLowerCase().trim();renderGrid()});
+
+// owned counts aggregated by name — legality works by name, not printing
+function ownedByName(){
+  const agg=new Map();
+  for(const code in own){
+    const c=byCode.get(code); if(!c) continue;
+    const e=agg.get(c.n)||{card:c,n:0,codes:[]};
+    e.n+=own[code]; e.codes.push(code);
+    if(/^[A-Z]+-\d+\//.test(code)) e.card=c;      // prefer the base printing for display
+    agg.set(c.n,e);
+  }
+  return agg;
+}
+function renderGrid(){
+  const agg=ownedByName();
+  let list=[...agg.values()].filter(e=>
+    (curDom==="all"||e.card.d.includes(curDom)) && (!find||e.card.n.toLowerCase().includes(find)));
+  list.sort((a,b)=>a.card.s.localeCompare(b.card.s)||a.card.cn-b.card.cn);
+  $("#bCount").textContent=`${list.length} names`;
+  $("#grid").innerHTML = list.length ? list.map(e=>{
+    const c=e.card, d1=DC[c.d[0]]||"--none", d2=c.d[1]?DC[c.d[1]]:null;
+    return `<div class="card${d2?" dual":""}" style="--dc:var(${d1})${d2?`;--dc2:var(${d2})`:""}">
+      <span class="nm">${esc(c.n)}</span>
+      <span class="mt">${c.e!==null?`{${c.e}}`:""}${c.p?` ⚡${c.p}`:""}${c.m!==null?` M${c.m}`:""}</span>
+      <span class="ft">
+        <span class="pips">${Array.from({length:Math.min(e.n,6)},()=>'<i class="pip"></i>').join("")}${e.n>6?`<span class="qty">+${e.n-6}</span>`:""}</span>
+        <span class="adj"><button data-c="${e.codes[0]}" data-v="-1">−</button><span class="qty">${e.n}</span><button data-c="${e.codes[0]}" data-v="1">+</button></span>
+      </span></div>`;
+  }).join("") : `<div class="empty">${Object.keys(own).length?"Nothing matches those filters.":"No cards yet — add some on the Enter tab."}</div>`;
+  $("#grid").querySelectorAll(".adj button").forEach(b=>b.onclick=()=>{
+    apply(byCode.get(b.dataset.c),+b.dataset.v); renderAll();
+  });
+}
+
+/* ── data ───────────────────────────────────────────── */
+function renderStats(){
+  const agg=ownedByName();
+  const copies=Object.values(own).reduce((a,b)=>a+b,0);
+  const perSet={};
+  for(const code in own){ const c=byCode.get(code); if(c) perSet[c.s]=(perSet[c.s]||0)+own[code]; }
+  $("#tNames").textContent=agg.size;
+  $("#tCopies").textContent=copies;
+  $("#stats").innerHTML=
+    `<div><span>Distinct names</span><b>${agg.size} <span style="color:var(--faint)">/ 935</span></b></div>`+
+    `<div><span>Total copies</span><b>${copies}</b></div>`+
+    SETS.filter(([k])=>perSet[k]).map(([k,l])=>`<div><span>${l}</span><b>${perSet[k]}</b></div>`).join("");
+}
+function exportObj(){
+  const agg=ownedByName(), names={};
+  for(const [n,e] of agg) names[n]=e.n;
+  return {schema:"forge.collection/1", exported:new Date().toISOString(),
+          totals:{names:agg.size, copies:Object.values(own).reduce((a,b)=>a+b,0)},
+          counts:own, byName:names};
+}
+$("#exp").onclick=()=>{
+  const blob=new Blob([JSON.stringify(exportObj(),null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`collection-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(a.href); toast("Downloaded");
+};
+$("#copy").onclick=async()=>{
+  try{ await navigator.clipboard.writeText(JSON.stringify(exportObj(),null,2)); toast("Copied"); }
+  catch(e){ toast("Clipboard blocked — use Download"); }
+};
+$("#imp").onclick=()=>$("#file").click();
+$("#file").onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const fr=new FileReader();
+  fr.onload=()=>{
+    try{
+      const d=JSON.parse(fr.result);
+      if(!d.counts||typeof d.counts!=="object") throw new Error("no counts");
+      const kept={}; let dropped=0;
+      for(const k in d.counts){ if(byCode.has(k)) kept[k]=d.counts[k]; else dropped++; }
+      own=kept; session=[]; save(); renderAll();
+      toast(dropped?`Imported — ${dropped} unknown code(s) skipped`:"Imported");
+    }catch(err){ toast("Not a valid collection file"); }
+    e.target.value="";
+  };
+  fr.readAsText(f);
+};
+$("#wipe").onclick=()=>{
+  if(!confirm("Erase the whole collection stored in this browser? Export first if you want a copy.")) return;
+  own=Object.create(null); session=[]; save(); renderAll(); toast("Erased");
+};
+
+/* ── shell ──────────────────────────────────────────── */
+$$(".tab").forEach(t=>t.onclick=()=>{
+  $$(".tab").forEach(o=>o.setAttribute("aria-selected",o===t));
+  $$(".pane").forEach(p=>p.classList.toggle("on",p.id==="p-"+t.dataset.p));
+  if(t.dataset.p==="enter") $("#num").focus();
+  if(t.dataset.p==="browse") renderGrid();
+  if(t.dataset.p==="data") renderStats();
+});
+function renderAll(){ renderLog(); renderStats(); if($("#p-browse").classList.contains("on")) renderGrid(); }
+let tt;
+function toast(msg){ const el=$("#toast"); el.textContent=msg; el.classList.add("on");
+  clearTimeout(tt); tt=setTimeout(()=>el.classList.remove("on"),1900); }
+function esc(s){ return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
+</script>
+</body>
+</html>
