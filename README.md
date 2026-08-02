@@ -64,6 +64,7 @@ Full detail: [`docs/PLAN.md`](docs/PLAN.md)
 
 | Document | Contents |
 |---|---|
+| [**`docs/reference/COMPENDIUM.md`**](docs/reference/COMPENDIUM.md) | **The deep reference — complete rules, all 25 keywords, the card universe as data, strategy, ban list. Start here for anything Riftbound.** |
 | [`docs/reference/GAME-RULES.md`](docs/reference/GAME-RULES.md) | How Riftbound works, cited to the official rulebooks |
 | [`docs/reference/DATA-SOURCES.md`](docs/reference/DATA-SOURCES.md) | Card data, the meta-data landscape, and what's off-limits |
 
