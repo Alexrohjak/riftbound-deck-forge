@@ -19,7 +19,7 @@
                                      │
                         ┌────────────▼─────────────┐
                         │        WORKBENCH         │   browse · filter · assemble
-                        │   (interface — Stage 1)  │   ownership is the organising idea
+                        │   (interface — D2)    │   ownership is the organising idea
                         └────────────┬─────────────┘
                                      │
               ┌──────────────────────┼──────────────────────┐
@@ -141,8 +141,8 @@ These are decided and load-bearing. Changing one means writing a `D-***`.
 | Deck legality validation | `LEGALITY.md` | ✅ specified — 33 checks |
 | Deck statistics + rune feasibility | `DECK-STATS.md` | ✅ specified |
 | **EE — the strategist** | `EVALUATION.md` | 🟡 specified; rules core is the open work |
-| Interface / interaction design | — | 🔴 **Stage 1 — next, not yet started** |
-| Architecture + hosting | — | 🔴 Stage 2 — not started |
+| Interface / interaction design | — | 🔴 **D2 — next, not yet started** |
+| Architecture + hosting | — | 🔴 D3 — not started |
 | Deck generator | `GENERATOR.md` | ⏸️ deferred spike, kill conditions set |
 
 ---
@@ -153,7 +153,7 @@ Questions that don't belong to one spec.
 
 | # | Question | Affects |
 |---|---|---|
-| **X1** | Where does EE's conversation layer run — in-app chat, or Claude Code against exported deck state? | Stage 2, EE §11 E1 |
-| **X2** | How much of the rules core does the walking skeleton need before EE says anything useful? | PLAN sequencing |
+| **X1** | Where does EE's conversation layer run — in-app chat, or Claude Code against exported deck state? | D3, EE §11 E1 |
+| **X2** | How much of the rules engine does F2 need before EE says anything useful? | PLAN sequencing |
 | **X3** | Do EE answers get cached per (deck, format version), or recomputed live? | Performance, <2 s target |
-| **X4** | Does the interface present EE as a panel, a chat, or both? | Stage 1 |
+| **X4** | Does the interface present EE as a panel, a chat, or both? | D2 |

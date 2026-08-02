@@ -26,7 +26,7 @@ wanted. YAGNI.
 
 **Accepted cost:** a 43-card kitchen-table deck is reported illegal.
 
-**Best-of-three is in scope**, so sideboards are a Phase A feature rather than a
+**Best-of-three is in scope**, so sideboards are a Workbench feature rather than a
 deferred one.
 
 ---

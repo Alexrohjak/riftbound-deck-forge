@@ -315,13 +315,13 @@ EE is only as honest as its core. Non-negotiable (all cited in
 | Pattern vocabulary | 🟡 Curated definitions over the above |
 | Rules core with overrides | 🔴 **The bulk of the work** |
 | Synthesis layer | 🟡 Ranking + templating; the quality bar is editorial |
-| Conversation layer | 🟡 Depends on the Stage 2 architecture decision |
+| Conversation layer | 🟡 Depends on the D3 architecture decision |
 
 **Corpus fits in context.** Measured: 814 main-deck cards with full text ≈ **38,700
 tokens**; +115 Legends/Battlefields ≈ **3,900**; both rulebooks ≈ **75,000**. The entire
 game is **~118k tokens** — a conversational layer can genuinely hold all of Riftbound.
 
-> **Scale honesty:** the rules core is comparable to the rest of Phase A combined. Build it
+> **Scale honesty:** the rules core is comparable to the rest of the Workbench combined. Build it
 > **vertically** — one battlefield, 1v1, full fidelity — then widen.
 
 ## 10. Testing
@@ -339,7 +339,7 @@ game is **~118k tokens** — a conversational layer can genuinely hold all of Ri
 
 | # | Question | Blocks |
 |---|---|---|
-| **E1** | Where does the conversation layer run — in-app, or Claude Code against an exported deck state? | Stage 2 architecture |
+| **E1** | Where does the conversation layer run — in-app, or Claude Code against an exported deck state? | D3 architecture |
 | **E2** | Battlefield abilities modify combat. v1, or evaluate neutral and flag the simplification? | Rules core |
 | **E3** | Legend abilities are always-on. v1 or later? | Rules core |
 | **E4** | Refutation search depth — single card, or card-answers-card chains? | Analysis |

@@ -233,6 +233,6 @@ most irreplaceable data in the system.
 | # | Item | Blocks |
 |---|---|---|
 | ~~DM1~~ | ✅ **RESOLVED** — Riot's official gallery supplies champion tags, domain arrays and Signature supertypes ([D-034](../DECISIONS.md#d-034)) | — |
-| DM2 | Snapshot granularity — full copy, or a diff chain? | Stage 7 |
-| DM3 | Is `finish` (foil) worth tracking at all, given legality ignores it? | Stage 6 |
-| DM4 | How the new-set refresh reconciles a cached card whose errata has changed | Stage 4 |
+| DM2 | Snapshot granularity — full copy, or a diff chain? | W3 |
+| DM3 | Is `finish` (foil) worth tracking at all, given legality ignores it? | W2 |
+| DM4 | How the new-set refresh reconciles a cached card whose errata has changed | F3 |
