@@ -1,388 +1,407 @@
 # Evaluation Engine — Forge
 
 > How Forge answers *"what does this deck do well, what is it good against, where does it
-> come up short, and what are its weaknesses?"* — **by derivation from the rules and the
-> card pool, never by guessing.**
+> come up short, and what should I fear?"* — as an **interactive strategist**, grounded in
+> a deterministic rules core.
 >
-> **Created:** 2026-08-02 · **Status:** specification, no code · **Phase:** Discovery
->
-> **Premise:** Riftbound combat is deterministic. Given two cards and the rulebook, who
-> wins is *computed*, not estimated. This document specifies what is computed, how, and —
-> equally importantly — what is deliberately **not** computed.
+> **Created:** 2026-08-02 · **Revised:** 2026-08-02 (v2 — interaction model) ·
+> **Status:** specification, no code · **Phase:** Discovery
 
 **Related:** [`../reference/COMPENDIUM.md`](../reference/COMPENDIUM.md) (rules + card data) ·
-[`LEGALITY.md`](LEGALITY.md) (is it legal) · [`DECK-STATS.md`](DECK-STATS.md) (honesty tiers) ·
-[`DATA-MODEL.md`](DATA-MODEL.md) (entities) · [`GENERATOR.md`](GENERATOR.md) (the deferred spike)
+[`LEGALITY.md`](LEGALITY.md) · [`DECK-STATS.md`](DECK-STATS.md) (honesty tiers) ·
+[`DATA-MODEL.md`](DATA-MODEL.md) · [`GENERATOR.md`](GENERATOR.md)
 
 ---
 
-## 1. Why this is tractable
+## 0. What changed in v2, and why
 
-Most TCGs make deck evaluation a matter of opinion. Riftbound makes an unusual amount of it
-arithmetic. Three properties do the work:
+**v1 of this document was wrong in a way worth recording.**
 
-| Property | Citation | Consequence |
+It modelled a combat as arithmetic over a static board: sum Might, apply `Assault`/`Shield`,
+compare. It then labelled the result a **FACT**.
+
+It is not a fact. A Showdown is an **alternating sequence of priority windows** in which
+both players may play cards, with chains resolving LIFO on top (CR 341–348, 464). The Might
+figures are the *opening position*, not the outcome.
+
+Concretely — v1's worked example claimed *"Blue Sentinel (4+2=6) beats Immortal Phoenix
+(3+2=5) in both orientations, FACT."* Measured against the actual card pool:
+
+> **66 cards in the format can flip or void that combat.** The cheapest is **`Stupefy`** —
+> 1 Energy, Mind, `[Reaction]`, *"give a unit -1 Might"*. Sentinel drops 6 → 5, Phoenix's 5
+> damage becomes lethal, and the "fact" inverts for one Energy.
+
+The v1 claim was true only under an unstated assumption — *neither player holds a trick* —
+and stating it as a FACT without that qualifier is the same class of error as conflating
+tags with champion tags. **This document exists to make that assumption explicit and
+computable, not to hide it.**
+
+**The reframe:** the engine does not answer *"who wins?"*. It answers
+
+> *"who wins, **unless** the opponent holds one of these N cards — costing this much, at
+> this speed, available in these domains."*
+
+That refutation set **is** the answer to *"where does this deck come up short?"*
+
+---
+
+## 1. The game is deeper than a damage calculation
+
+Three structural facts the engine must model. All were documented in
+[COMPENDIUM §III](../reference/COMPENDIUM.md#part-iii--how-the-game-is-played); v1 failed
+to use them.
+
+### 1.1 Showdowns — both players act inside a combat
+
+| Step | Rule | Consequence |
 |---|---|---|
-| **Combat resolution is fully deterministic** | CR 465 | No dice, no randomised resolution. Might sums; assignment order is rule-constrained; lethal is a threshold |
-| **All damage heals at combat cleanup and end of turn** | CR 466.1.a.1, 317.2.b | **There is no attrition across turns.** Every combat is an independent, self-contained evaluation — no need to simulate a whole game to evaluate a trade |
-| **The board is tiny** | CR 485.4 | 1v1 uses **2 battlefields**; victory at **8 points**. The state space is genuinely enumerable |
+| Combat opens as a Showdown | CR 464.1 | Attacker gains **Focus** |
+| Player with Focus may play a card or pass | CR 347 | Only `[Action]` / `[Reaction]` |
+| Playing a card opens a **Chain** → Closed state | CR 328, 309.1 | Now **only `[Reaction]`** may be added |
+| Chain resolves **LIFO** | CR 340.1 | Last played resolves first |
+| Chain empties → Focus **passes** | CR 346 | The other player now acts |
+| Both pass consecutively | CR 347.2.a | Showdown closes → damage step |
 
-> The healing rule is the load-bearing one. In a game where damage persisted, evaluating a
-> board would require simulating the whole game. Here, a combat is a pure function of the
-> units present. That is what makes this engine honest rather than hand-wavy.
+So a combat is a **turn-taking game with a stack**, not a comparison. Either player may
+invest resources to change the outcome, and each investment can itself be answered.
 
-## 2. The output contract — claims, never scores
+**Measured interaction surface:**
 
-**Every output is a claim carrying its own derivation.** This is not a softened version of
-[D-016](../DECISIONS.md#d-016) (*no composite score*) — it is the same principle applied to
-a new surface.
+| Class | Cards | Meaning |
+|---|---|---|
+| `[Action]` | 87 | Playable in showdowns, on any player's turn |
+| `[Reaction]` | 98 | Playable in **closed** states — on top of a chain |
+| `[Hidden]` | 43 | Facedown at a battlefield, later played **ignoring base cost** |
+| **Union** | **211 of 814 (26%)** | Over a quarter of the pool is combat interaction |
+
+Of the Reaction spells, **49 cost ≤3 total** — `Stupefy`, `Gust`, `Retreat`, `En Garde`,
+`Combat Experience`, `Abandon`, `Crumbling Sands`… Cheap interaction is abundant, which
+means *no* combat evaluation is unconditional.
+
+### 1.2 Hidden information is on the board, not just in hand
+
+`Hidden` (CR 811) lets a player pay `[A]` to place a card **facedown at a battlefield they
+control**, then play it from there on a later turn **ignoring its base cost**, with
+`[Reaction]` timing.
+
+43 cards can do this. So the board carries **known-unknowns**: a visible facedown card whose
+identity is private (CR 128.4). The engine must model *"there is a facedown card here"* as a
+first-class state with a probability distribution over its contents — not ignore it.
+
+### 1.3 ⚠️ Cards rewrite the rules the engine would hardcode
+
+**21 cards alter rules a naive engine would treat as constants.** Examples:
+
+| Card | Rule it overrides |
+|---|---|
+| **Elder Dragon** | *"Any amount of your damage is enough to kill enemy units"* — **voids the lethal-damage threshold** (CR 142.4.c) |
+| **Dune Surfer** | *"You ignore `[Tank]` while assigning combat damage here"* — voids assignment ordering (CR 815) |
+| **Decree of Insight** | *"Ignore `[Deflect]`"* — voids the additional-cost tax (CR 809) |
+| **Baron Nashor** | Adds a **battlefield token** to the board mid-game — the board is not fixed |
+| **Endless Riches** | *"Skip your Draw Phase"* — turn structure is mutable (CR 443) |
+| **Corrupted Dragon** | *"If your score is not within 3 of the Victory Score, I enter ready"* — score-conditional entry |
+| **Time Warp** | *"Take a turn after this one"* — turn order is mutable (CR 734) |
+| **Akali, Silent** | *"I can't be chosen unless I'm in combat"* — conditional untargetability (CR 756) |
+
+> 🔑 **Architectural consequence: rules must be data, not code.** CR 002's Golden Rule —
+> *"Card text supersedes rules text"* — is not a footnote; it is a design requirement. Every
+> rule the engine applies (lethal threshold, assignment order, targeting legality, phase
+> sequence) must be a **modifiable parameter of game state**, overridable by an active
+> effect. An engine with `if damage >= might: die` hardcoded is wrong the moment Elder
+> Dragon resolves.
+
+---
+
+## 2. Output contract — conditional claims with refutations
+
+v1's contract stands, with one addition that changes everything: **a claim must carry its
+refutation set.**
 
 ```
 Claim {
-  statement   : "Immortal Phoenix loses to Blue Sentinel in both orientations"
-  derivation  : "attacking 3+2=5 vs 4+2=6 → dies; defending 3+0=3 vs 4+0=4 → dies"
-  citations   : [CR 807, CR 814, CR 465.2]
-  tier        : FACT
-  scope       : "this card pair, no other units present"
+  statement    : "Your Phoenix attack kills Blue Sentinel"
+  baseline     : REPELLED           # with neither player investing
+  derivation   : "3+2 Assault = 5 vs 4+2 Shield = 6; 5 < 6, not lethal"
+  citations    : [CR 807, 814, 465.2, 142.4.b]
+  assumptions  : ["no cards played during the showdown", "neutral battlefield",
+                  "no legend abilities active"]
+  refutations  : [ {card: "Stupefy",  cost: "1E", speed: Reaction, domains: [mind],
+                    effect: "defender -1 Might → 5, your 5 becomes lethal"}, … ]
+  robustness   : { refuting_cards: 66, cheapest: 1, domains_with_answer: 5 }
+  tier         : CONDITIONAL
 }
 ```
 
-**Forbidden outputs:** a deck grade, a power rating, a 0–100 score, a star count, or any
-number that composites independent measurements. If a user wants "is this deck good", Forge
-answers with *the specific things it does and does not do*, and lets them judge.
+**Revised tiers:**
 
-**Tiers** map onto the existing three-tier scheme in [`DECK-STATS.md`](DECK-STATS.md):
+| Tier | Meaning |
+|---|---|
+| **FACT** | True regardless of any legal play. Rare and precious. *"Your deck contains 0 cards that produce XP, so `[Level 6]` abilities can never activate."* |
+| **CONDITIONAL** | True unless refuted; ships **with** its refutation set. Most combat claims |
+| **PROBABILITY** | Computed with stated uncertainty. *"72% to hold a Fury source by turn 3"* |
+| ~~ESTIMATE~~ | **Not produced**, per [D-022](../DECISIONS.md#d-022) |
 
-| Tier | Meaning | Example |
-|---|---|---|
-| **FACT** | Provable from rules + card data. Deterministic | "Deal 3 kills 42% of the format's units" |
-| **PROBABILITY** | Computed with stated uncertainty | "72% chance to hold a Fury source by turn 3" |
-| ~~ESTIMATE~~ | **Not produced.** Omitted entirely, per D-022 | — |
+**Still forbidden:** any grade, rating, score, or star count ([D-016](../DECISIONS.md#d-016)).
+
+### 2.1 🔑 Robustness — the metric that actually matters
+
+For any line of play, **robustness** = how hard it is to refute:
+
+| Dimension | Question |
+|---|---|
+| **Breadth** | How many format cards refute it? |
+| **Cost** | What's the cheapest refutation? |
+| **Speed** | Does refuting need `[Action]`, `[Reaction]`, or a whole turn? |
+| **Reach** | How many Domain Identities have access to a refutation? |
+| **Frequency** | Is the refutation a common playable or a niche card? |
+
+A line refuted only by one 6-cost card in one domain is **robust**. A line refuted by
+1-Energy commons across five domains is **fragile** — and that is precisely the "where does
+this deck come up short" answer the user wants, stated without guessing.
 
 ---
 
 ## 3. Opponent model — the whole legal format
 
-**Decided 2026-08-02.** Forge evaluates against the **threat space**: every card the format
-can legally field, bucketed by Domain Identity, cost and role.
+**Decided 2026-08-02.** Evaluate against the **threat space**: every card the format can
+legally field, bucketed by Domain Identity, cost, speed and role.
 
-**Why this and not the alternatives:**
+Rejected: modelled archetype decks (requires assuming typical lists), tournament meta data
+(403-blocked and n=1–3), user's own decks only (says nothing about the field).
 
-| Rejected | Why |
+**Refutation search runs over this space.** For a given line, enumerate every legal opposing
+card that could change the outcome, filtered by what that identity can actually run. No
+assumptions about what they *will* play — only what they *can*.
+
+---
+
+## 4. The rules core — a real engine, not a calculator
+
+### 4.1 Game state
+
+```
+GameState {
+  battlefields : [ {id, abilities, units[], facedown[], controller, scored_this_turn} ]
+  bases        : { player: [permanents, runes(ready|exhausted)] }
+  players      : { points, xp, hand_size, hand(private), trash, banishment,
+                   rune_pool{energy, power_by_domain}, legend(+empowered) }
+  chain        : [ items… ]                # LIFO
+  turn         : { player, phase, state: Neutral|Showdown × Open|Closed,
+                   priority, focus, cards_played_this_turn }
+  rule_overrides : { lethal_threshold_fn, assignment_order_fn,
+                     targeting_fn, phase_sequence, … }   # ← §1.3
+}
+```
+
+### 4.2 What the core must do
+
+| Capability | Rules |
 |---|---|
-| Modelled archetype decks per Legend | Requires assuming what a "typical" list looks like — that is the guessing this engine exists to avoid |
-| Tournament meta data | Inaccessible (403) and statistically empty (n=1–3 for the current set) — see COMPENDIUM §VI.6 |
-| Only the user's own decks | Says nothing about the wider field |
+| Enumerate **legal actions** for a player in a given state | CR 307–313, 349, 398 |
+| Resolve the **chain** LIFO, with Reaction-only in closed states | CR 327–340 |
+| Run a **Showdown** to closure (alternating Focus, pass-pass termination) | CR 341–348 |
+| Assign combat damage under Tank/Backline/lethal-first/no-overkill | CR 465.2.c |
+| Apply **replacement effects** and **layers** in correct order | CR 367–375, 473–480 |
+| Execute **cleanups** including recall-attackers-on-stall | CR 318–324, 466 |
+| Apply **rule overrides** from active card effects | CR 002 |
 
-The threat space needs **no meta data and no assumptions**. It answers *"what could I face"*
-rather than *"what will I face"* — a weaker claim, but a true one.
+> This is genuinely a rules engine. It is the largest single piece of work in the project
+> and should be scoped as such — see §7.
 
-> **Layerable later.** Entering specific rival decks (for a known playgroup) is a strict
-> refinement of this model, not a replacement. Build the threat space first; it makes the
-> rival-deck feature a filter rather than a new engine.
+### 4.3 Combat outcomes — four, with the stall asymmetry
 
----
-
-## 4. Primitive: the Duel Resolver
-
-The atom everything else is built from.
-
-### 4.1 Effective Might
-
-```
-effective_might(unit, role, context):
-    m  = printed_might
-    m += Assault(unit)  if role == ATTACKER      # CR 807
-    m += Shield(unit)   if role == DEFENDER      # CR 814
-    m += buff_count(unit)                        # CR 703, max 1 buff (CR 702.3)
-    m += static_modifiers_from(context)          # other units, battlefield, legend
-    return m
-```
-
-⚠️ `Assault` and `Shield` are **role-conditional**. The same two cards produce different
-outcomes depending on who initiated. Any evaluation that compares printed Might alone is
-wrong — see the worked example in §4.4.
-
-### 4.2 Combat resolution — CR 465
-
-```
-resolve(attackers, defenders):
-    A = Σ effective_might(u, ATTACKER)  for u in attackers
-    D = Σ effective_might(u, DEFENDER)  for u in defenders
-    attacker_casualties = assign(D, attackers)   # defenders' damage onto attackers
-    defender_casualties = assign(A, defenders)
-```
-
-`assign(pool, units)` obeys, in order:
-1. **Tank** units must receive lethal first (CR 815)
-2. **Backline** units must receive lethal last (CR 826)
-3. Lethal must be completed on one unit before starting the next (CR 465.2.c.3)
-4. **No overkill** — never more than lethal unless no units remain (CR 465.2.c.4)
-5. Lethal = damage ≥ effective Might, and non-zero (CR 142.4.b)
-
-### 4.3 Outcomes — four, not two
-
-| Outcome | Condition | Consequence |
-|---|---|---|
-| `CONQUEST` | all defenders die, ≥1 attacker lives | Attacker takes the battlefield; **+1 point** if not already scored there this turn (CR 466.5.d) |
-| `REPELLED` | all attackers die, ≥1 defender lives | Attacker loses material for nothing |
-| `TRADE` | both sides wiped | Battlefield becomes **uncontrolled** (CR 466.5.b) |
-| `STALL` | both sides have survivors | ⚠️ **Attackers are RECALLED** (CR 466.1.a.2); defender keeps the battlefield |
-
-> 🔑 **`STALL` favours the defender.** An attack that fails to clear the board is a wasted
-> tempo cycle — your units go home, theirs stay. This asymmetry means *"can I profitably
-> attack here?"* and *"can I profitably defend here?"* are different questions and must be
-> reported separately. Most naive evaluators collapse them.
-
-### 4.4 Worked example (verified against real cards)
-
-**Immortal Phoenix** `OGN-037` — 3E/1P, Might 3, `[Assault 2]`
-**Blue Sentinel** `UNL-087` — 4E/1P, Might 4, `[Shield 2]`
-
-| Orientation | Attacker | Defender | Outcome |
-|---|---|---|---|
-| Phoenix attacks | 3 + 2 = **5** | 4 + 2 = **6** | `REPELLED` — Phoenix dies |
-| Sentinel attacks | 4 + 0 = **4** | 3 + 0 = **3** | `CONQUEST` — Phoenix dies |
-
-**Blue Sentinel beats Immortal Phoenix in both orientations** despite a 1-point Might gap
-and Phoenix having the larger keyword. Printed Might (3 vs 4) does not reveal this;
-role-conditional evaluation does.
-
----
-
-## 5. Card-level evaluation
-
-For each card, derived against the threat space:
-
-### 5.1 Units
-
-| Measure | Derivation | Tier |
-|---|---|---|
-| **Offensive reach** | Set of format units this kills when attacking | FACT |
-| **Defensive hold** | Set of format units this survives when defending | FACT |
-| **Kill threshold** | Damage needed to remove it (Might, +Shield while defending) | FACT |
-| **Answerability** | Which format removal kills it | FACT |
-| **Cost efficiency** | Might ÷ (energy + power), vs format median at that cost | FACT |
-| **Tempo class** | Enters exhausted by default (CR 143.4); `Accelerate` enters ready | FACT |
-| **Reach class** | Base-only vs `Ganking` (battlefield→battlefield) vs `Ambush` | FACT |
-| **Mighty** | Might ≥ 5 (CR 708) — gates a real set of card effects | FACT |
-
-### 5.2 Removal and interaction
-
-| Measure | Derivation | Tier |
-|---|---|---|
-| **Answer coverage** | % of format units this kills, per cost bucket | FACT |
-| **Timing class** | neither / `Action` (showdowns) / `Reaction` (closed states) | FACT |
-| **Conditionality** | `Legion`, `Level N`, `Empowered` gates that must be live | FACT |
-
-### 5.3 🔑 The answer-coverage curve — a worked format fact
-
-Computed over all **472 distinct unit names**:
-
-| Removal | Kills | Coverage | Cards printed at this value |
-|---|---|---|---|
-| Deal 1 | 29 | **6%** | 7 |
-| Deal 2 | 90 | **19%** | 25 |
-| Deal 3 | 198 | **42%** | 14 |
-| Deal 4 | 300 | **64%** | 11 |
-| Deal 5 | 375 | **79%** | 5 |
-| Deal 6 | 431 | **91%** | 4 |
-| Deal 7+ | 447+ | **95%+** | 3 |
-
-> **Riftbound's removal is structurally shallow.** 39 of 56 damage cards deal only 2–3,
-> answering 19–42% of the unit pool, while the **median unit is Might 4** and **36% of units
-> are Mighty (≥5)**. A deck leaning on Deal-2 effects has a *provable* ceiling on what it can
-> remove. This single curve turns "my removal feels bad" into a number with a citation.
-
----
-
-## 6. Deck-level evaluation
-
-### 6.1 What this deck does well
-
-| Measure | Derivation | Tier |
-|---|---|---|
-| **Contest capacity by turn N** | Given the rune ceiling (2/turn, +1 if on the draw) and the curve, how many battlefields can be occupied by turn N | FACT |
-| **Speed to first score** | Earliest turn a `CONQUEST` is deployable | FACT |
-| **Speed to 8 points** | Shortest legal point path given contest capacity | FACT |
-| **Offensive reach profile** | Distribution of format units the deck's units beat *when attacking* | FACT |
-| **Defensive hold profile** | Same, *when defending* — reported separately (§4.3) | FACT |
-| **Interaction density** | Count of `Action` / `Reaction` cards — can you act on their turn at all? | FACT |
-| **Rune feasibility** | Existing flagship — P(paying cost C on turn T) given the split | PROBABILITY |
-| **Resilience** | `Deathknell` value, `Flow` recursion, trash-replay effects | FACT |
-
-**Official floors to check against** (from Riot's Deckbuilding Primer — see COMPENDIUM §VI.2):
-- **9+ small units** at 2–4 cost
-- **6+ interactive spells**
-- Units prioritised over spells/gear
-
-These are the only published baselines that exist. Forge should report deviation from them
-as a **fact with attribution** — *"6 small units; Riot's primer recommends 9+"* — not as a
-verdict.
-
-### 6.2 Where it comes up short — the weakness finder
-
-A weakness is a **coverage gap**: a threat class the deck provably cannot answer.
-
-```
-for each cost bucket c in threat_space:
-    threats  = units the format fields at cost c in reachable identities
-    answered = threats killable by (my removal) ∪ (my units, defending) ∪ (my units, attacking)
-    gap[c]   = threats \ answered
-```
-
-Reported as, e.g.:
-
-> ⚠️ **No answer to Might ≥ 6.** The format fields 41 such units across the identities you
-> can face. Your highest removal is Deal 4 (64% coverage) and your largest unit is Might 5,
-> which loses to all of them on defence. *(FACT — CR 465, answer-coverage curve.)*
-
-**Weakness classes Forge computes:**
-
-| Class | Question it answers |
+| Outcome | Consequence |
 |---|---|
-| **Removal ceiling** | What is too big for you to kill? |
-| **Board-wipe fragility** | What fraction of your units die to Deal-2 / Deal-3 sweeps? |
-| **Tempo gap** | Turns where you can deploy nothing (curve holes vs rune ceiling) |
-| **Interaction blindness** | Can you respond during a showdown at all, or only on your own turn? |
-| **Contest shortfall** | Can you physically occupy enough battlefields to reach 8 points? |
-| **Rune infeasibility** | Costs your split cannot reliably pay on curve |
-| **Recursion vulnerability** | Opponents' `Flow` / trash-replay you cannot interact with |
+| `CONQUEST` | Defenders wiped, attacker survives → battlefield taken, **+1 point** if unscored (CR 466.5.d) |
+| `REPELLED` | Attackers wiped → material lost for nothing |
+| `TRADE` | Both wiped → battlefield **uncontrolled** (CR 466.5.b) |
+| `STALL` | Both have survivors → ⚠️ **attackers RECALLED** (CR 466.1.a.2), defender keeps it |
 
-### 6.3 Matchup evaluation — "good against / short against"
-
-For each opposing Domain Identity (15 of them, all pools 258–268 names):
-
-```
-matchup(my_deck, opposing_identity):
-    their_threats = legal units in that identity, bucketed by cost
-    my_answers    = removal ∪ units(defending) ∪ units(attacking)
-    → answer coverage per bucket
-    → their answer coverage against MY units
-    → tempo comparison: speed-to-first-score, both directions
-```
-
-Output shape:
-
-> **vs Body/Fury** — you answer **78%** of their 3–4 cost threats but only **31%** of their
-> 5+ threats; they answer **64%** of yours. They reach first score on turn 3, you on turn 4.
-> *(FACT — derived from the legal pool, not from match results.)*
-
-⚠️ **This is a statement about the card pool, not a win prediction.** Forge must label it as
-such. It says what *can* be fielded and what *can* answer it — not what a piloted deck will
-do.
+`STALL` favouring the defender means *"can I attack profitably?"* and *"can I defend
+profitably?"* are separate questions with separate refutation sets.
 
 ---
 
-## 7. Synergy — a producer/consumer graph, not a vibe
+## 5. The analysis layer
 
-Mechanical synergy is derivable because Riftbound's dependent keywords declare their inputs.
+Runs the core repeatedly over enumerated opponent options.
 
-| Consumer | Requires | Produced by |
+### 5.1 Refutation search
+
+```
+evaluate(line, my_state, opposing_identity):
+    baseline = core.resolve(line, opponent_invests=NOTHING)
+    refutations = []
+    for card in threat_space(opposing_identity):
+        if not playable_at(card, combat_timing): continue
+        if not affordable(card, plausible_opponent_resources): continue
+        if core.resolve(line, opponent_plays=card) != baseline:
+            refutations.append(card, cost, speed, domains)
+    return Claim(baseline, refutations, robustness(refutations))
+```
+
+**Bounded by construction:** only 211 cards are combat-speed, and affordability prunes
+further. This is a search over hundreds, not millions.
+
+### 5.2 Threat pressure — "units the opponent must respect"
+
+The user's *"heavy units that cause disruptions the other player needs to respect"* is
+derivable. A card exerts **pressure** if leaving it unanswered is losing.
+
+| Class | Test | Example |
 |---|---|---|
-| `Legion` (CR 812) | another card played this turn | any cheap card; low curve |
-| `Level N` (CR 824) | N or more XP | `Hunt X` (CR 823) on conquer/hold |
-| `Empowered` (CR 828) | the Empowered status | `Empower [Cost]` (CR 827) |
-| `Weaponmaster` (CR 821) | an Equipment you control | cards with the `Equipment` tag |
-| `Flow` (CR 829) | the spell in your trash | discard, `Burn`, self-mill |
-| `Mighty` (CR 708) | Might ≥ 5 | buffs, `Assault`/`Shield` in role, Might-setting effects |
-| Attack-triggers | gaining the Attacker designation | moving into an occupied battlefield |
+| **Must-answer** | Generates points or compounding advantage each turn if unanswered | point-scoring triggers |
+| **Board-dominant** | Beats the format's median unit in both orientations, and few units beat it | Volibear, Imposing — M10, `Shield 3`, `Tank` |
+| **Answer-asymmetric** | Costs the opponent more to remove than it cost to play | high Might + `Deflect` |
+| **Rule-warping** | Changes a rule the opponent's deck depends on | Elder Dragon voiding lethal thresholds |
 
-Forge builds this graph from keyword extraction (**498 of 814 cards — 61% — carry at least
-one machine-readable keyword**) and reports **unmet dependencies** as facts:
+For each, compute the **answer set** — who in the format can deal with it, at what cost.
+"Respect" becomes: *how many of my cards can answer this, and what do they cost me?*
 
-> ⚠️ **3 cards have `[Level 6]` abilities; your deck produces 2 XP maximum.** Those abilities
-> are inactive in every reachable game state. *(FACT — CR 824.)*
+### 5.3 Deck-level outputs
 
-That is a real, provable deckbuilding bug — and exactly the kind of thing a human misses.
+| Output | Derivation |
+|---|---|
+| **Contest capacity by turn N** | Rune ceiling (2/turn, +1 on the draw) vs curve |
+| **Speed to first score / to 8** | Shortest legal point path |
+| **Answer coverage** | % of threat space answerable, per cost bucket *(see COMPENDIUM §V — Deal 2 = 19%, Deal 3 = 42%, Deal 4 = 64% of 472 units)* |
+| **Refutation exposure** | Which of *your* key lines are cheaply refuted, and by which domains |
+| **Interaction density** | Your `[Action]`/`[Reaction]` count vs format norms — can you contest a showdown at all? |
+| **Rune feasibility** | Existing flagship (PROBABILITY) |
+| **Dead-card detection** | Unmet dependent-keyword requirements — e.g. `[Level 6]` with 2 max XP (**FACT**) |
+| **Sweep fragility** | Fraction of your board lost to Deal-2/3 sweeps, and to `The Ruination` |
+
+### 5.4 Official baselines
+
+From Riot's Deckbuilding Primer (COMPENDIUM §VI.2) — report deviation as attributed fact,
+never as verdict: **9+ small units (2–4 cost)**, **6+ interactive spells**, units prioritised
+over spells/gear.
 
 ---
 
-## 8. What is NOT computed
+## 6. The interactive strategist
 
-Stated plainly, so nobody expects it later:
+The user's ask: *"another Oracle, specifically catered to be a Riftbound know-it-all, super
+strategist, who I can ask questions to about my deck."*
+
+### 6.1 🔑 Feasibility — the whole game fits in context
+
+Measured over the real corpus:
+
+| Content | Size |
+|---|---|
+| 814 distinct main-deck cards (name, cost, Might, domains, tags, **full rules text**) | 139,373 chars ≈ **38,700 tokens** |
+| 115 Legends + Battlefields with text | 14,060 chars ≈ **3,900 tokens** |
+| **Total card corpus** | **≈ 42,600 tokens** |
+| Core Rules + Tournament Rules (full text) | ≈ 75,000 tokens |
+
+> **The entire game — every card and both rulebooks — is ~118k tokens.** That fits
+> comfortably in a modern context window. A strategist agent can *genuinely* hold all of
+> Riftbound in working memory. This is not aspirational; it is measured.
+
+### 6.2 Proposed architecture — grounded agent
+
+```
+┌─────────────────────────────────────────────────────┐
+│  STRATEGIST  (LLM, conversational)                  │
+│  • holds the full card corpus + rules               │
+│  • answers open questions, explains, suggests lines │
+│  • NEVER adjudicates rules or computes arithmetic   │
+└───────────────┬─────────────────────────────────────┘
+                │ tool calls only
+┌───────────────▼─────────────────────────────────────┐
+│  ANALYSIS LAYER  (deterministic)                    │
+│  refutation search · robustness · coverage ·        │
+│  threat pressure · deck stats                       │
+└───────────────┬─────────────────────────────────────┘
+┌───────────────▼─────────────────────────────────────┐
+│  RULES CORE  (deterministic, rules-as-data)         │
+│  state · legal actions · chain · showdown · combat  │
+└─────────────────────────────────────────────────────┘
+```
+
+### 6.3 The discipline that keeps it honest
+
+| Rule | Why |
+|---|---|
+| **The LLM never does arithmetic.** All numbers come from tool calls | LLMs miscount; this project's whole ethos is honesty |
+| **The LLM never adjudicates rules.** Interactions resolve in the core | 120 pages of rules with card-level overrides is not a vibes problem |
+| **Every claim carries provenance** — engine output or quoted card text | Ungrounded claims are the failure mode |
+| **"I don't know" is a valid answer** | Better than a confident wrong line, per D-022 |
+
+**Why an LLM at all, rather than pure UI?** Because *"what should I fear in this matchup and
+how do I play around it?"* is open-ended reasoning over facts — exactly what the deterministic
+layer cannot express and a human wants in prose. The engine supplies truth; the strategist
+supplies explanation.
+
+**Why not LLM-only?** Because it would be confidently wrong about combat maths and rules
+interactions, which is the one thing this project refuses to be.
+
+### 6.4 Example interaction
+
+> **You:** Should I attack into their board with Phoenix?
+>
+> **Strategist:** Not profitably as it stands. Phoenix attacks at 5 (3 + `Assault 2`);
+> Blue Sentinel defends at 6 (4 + `Shield 2`), so you're `REPELLED` — Phoenix dies, they
+> keep the battlefield. *(core: CR 807/814/465.2)*
+>
+> You need +1 Might or −1 on theirs. You run 2 `Cleave` (1E, `[Action]`, `Assault 3`) —
+> that puts you at 8 and kills through. **But** they're Mind/Calm with 3 runes untapped,
+> and that identity has 11 refutations at ≤2 cost, including `Stupefy` and `Retreat`.
+> Cheapest counter-refutation you hold is… *(analysis: refutation search)*
+>
+> Attacking costs you Phoenix if they hold any of 11 cards. Holding it costs you tempo.
+> Robustness of this line: **fragile** — 11 refuters, cheapest 1E, in 4 identities.
+
+---
+
+## 7. What is NOT computed
 
 | Not computed | Why |
 |---|---|
-| **Win probability / matchup winrate** | Requires piloted-game data. Inaccessible (403) and statistically empty (n=1–3). Would be an ESTIMATE, which D-022 forbids |
-| **Pilot sequencing and decision quality** | Not a property of the deck |
-| **"Is this combo good"** | Mechanical *linkage* is derivable; *value* is judgment |
-| **Deck power rating / grade** | D-016. Never |
-| **Mulligan and draw-order decisions** | Belongs to play, not construction |
-| **Bluffing, `Hidden` mind-games** | Information-theoretic, not mechanical |
-
-> The engine's honesty rests on this list being enforced, not aspirational.
+| **Win probability / matchup winrate** | Needs piloted-game data — 403-blocked, n=1–3. Would be an ESTIMATE (D-022) |
+| **What the opponent *will* play** | Only what they *can*. Refutation sets, never predictions |
+| **Deck grade / power rating** | D-016. Never |
+| **Pilot skill** | Not a property of a deck |
+| **Bluffing and `Hidden` mind-games** | Modelled as a distribution over facedown contents, not as psychology |
 
 ---
 
-## 9. Implementation risk — the effect-parsing boundary
+## 8. Implementation risk
 
-The combat maths is trivial. The risk is understanding *card text*.
+| Component | Difficulty |
+|---|---|
+| Structured fields (cost, Might, domain, type, tags) | ✅ Trivial — typed JSON, 814 cards |
+| Keyword extraction (`Assault N`, `Shield N`, `Level N`…) | ✅ Proven working — 498 cards (61%) |
+| Free-text effect annotation | ⚠️ **~153 cards (19%)** — hand-annotate, don't parse |
+| **Rules-as-data core with override support** | 🔴 **The real work.** 21 cards actively rewrite rules |
+| Chain / showdown sequencing | 🔴 Genuinely intricate — CR 327–348 |
+| Refutation search | 🟡 Bounded (211 combat-speed cards) but needs the core to be right |
 
-**Measured over 814 distinct main-deck names:**
+> **Honest scale note.** v1 implied this was mostly arithmetic. It is not. The rules core is
+> comparable in size to the rest of Phase A combined. It should be built **incrementally,
+> vertically** — full fidelity for 1v1 single-battlefield combat first, then widen —
+> mirroring the walking-skeleton logic that already reshaped the plan.
 
-| Category | Count | Difficulty |
-|---|---|---|
-| Structured fields (might, energy, power, domain, type, tags) | 814 | ✅ Trivial — typed JSON |
-| Keywords with values (`Assault N`, `Shield N`, `Level N`…) | 498 (61%) | ✅ Regex on `richText` — **already proven working** |
-| No rules text at all | 8 | ✅ Free |
-| **Free-text effects needing interpretation** | **~153 (19%)** | ⚠️ **The real work** |
-
-The 153 breaks down as `Deal N` 56 · `Kill` 79 · `Stun` 25 (overlapping).
-
-> 🔑 **Recommendation: hand-annotate, don't build a parser.** 153 cards is an afternoon of
-> structured data entry, and it grows by roughly 30 per set. A general effect parser for a
-> game with a 120-page rulebook is a multi-month project that would be wrong at the edges
-> anyway. An annotation overlay keyed by card name is bounded, auditable, correctable, and
-> versioned alongside the errata overlay Q10 already requires.
-
-**Annotation schema (proposed):**
-
-```yaml
-- name: Void Seeker
-  effects:
-    - kind: damage        # damage | kill | stun | buff | move | draw | ...
-      amount: 4
-      target: unit
-      zone: battlefield
-      conditions: []
-```
-
-## 10. Test strategy
+## 9. Test strategy
 
 | Layer | Approach |
 |---|---|
-| **Duel resolver** | Exhaustive. Every combat outcome class (`CONQUEST`/`REPELLED`/`TRADE`/`STALL`) in both orientations; every damage-assignment constraint (Tank, Backline, no-overkill, lethal-first) as a named test |
-| **Rulebook examples as fixtures** | CR 465.2.c.3–c.9 contain worked damage-assignment examples. **Encode every one as a test**, as LEGALITY.md does for deck rules |
-| **Answer coverage** | Property tests: coverage must be monotonic in damage; bounded 0–100%; Deal N ≥ Deal N−1 |
-| **Threat space** | Golden-file test against the 15 identity pools (258–268 names) so card-pool drift surfaces as a failure |
-| **Effect annotations** | Schema validation + a completeness check that every card matching `Deal|Kill|Stun` has an annotation |
-| **Claims** | Every emitted claim must carry a non-empty derivation and ≥1 citation. Enforced structurally, not by review |
+| **Rules core** | Every worked example in CR 465.2.c, 355–359, 370–375 encoded as a fixture — the rulebook is a test suite |
+| **Chain/showdown** | Property tests: LIFO ordering, Reaction-only in closed states, pass-pass termination |
+| **Rule overrides** | Each of the 21 rule-warping cards gets a named regression test |
+| **Refutation search** | Golden files per identity; drift in the card pool surfaces as failure |
+| **Claims** | Structurally enforced: no claim ships without derivation, citations **and** either a refutation set or a proof of unconditionality |
+| **Strategist** | Adversarial: assert it never emits a number absent from tool output |
 
-## 11. Where this sits in the plan
-
-This subsystem is **larger than SPIKE G (the generator)** and, unlike it, is **wanted** —
-it is the stated reason the tool exists, second only to the collection itself.
-
-**Proposed sequencing changes:**
-
-1. **Stage 1 (interface) must now display claims**, not just statistics. A claim has a
-   statement, a derivation and a citation — that is a different UI component from a stat
-   tile, and it needs designing now rather than retrofitting.
-2. **The duel resolver can be built and tested with zero UI**, against the cached card pool.
-   It is pure logic with no dependencies — a natural, low-risk early Development task.
-3. **The effect-annotation overlay should start early** and grow incrementally; it gates
-   everything in §5.2 and §6.
-4. **SPIKE G is further weakened.** A generator needs an objective function; this engine
-   deliberately refuses to produce one. If the workbench can explain a deck's strengths and
-   gaps precisely, the case for auto-generation weakens further.
-
-## 12. Open questions
+## 10. Open questions
 
 | # | Question | Blocks |
 |---|---|---|
-| **E1** | Does evaluation consider only the user's **owned** cards as the opponent pool, or the whole format? (Default: whole format — the opponent's collection is not ours to constrain) | §6.3 |
-| **E2** | Battlefield abilities modify combat (e.g. *"units here have +1 Might"*). Does v1 model them, or evaluate on a neutral battlefield and flag the simplification? | §4.1 |
-| **E3** | How are multi-unit boards enumerated? Full n-vs-m is combinatorial; 1v1 and "my board vs their board" may be sufficient for v1 | §4.2 |
-| **E4** | Legend abilities are always-on and shape every combat. Do they enter the model in v1? | §4.1 |
-| **E5** | Should claims be cached per (deck, format-version) or recomputed live? Affects the <2s target in DECK-STATS | §2 |
+| **E1** | Does the strategist run locally, via API, or is it a non-goal for v1 (engine + UI only)? | §6 |
+| **E2** | Battlefield abilities modify combat. In v1, or evaluate neutral and flag? | §4 |
+| **E3** | Legend abilities are always-on and shape every combat — v1 or later? | §4 |
+| **E4** | How deep does refutation search go — single card, or chains of card-answers-card? | §5.1 |
+| **E5** | How are facedown `Hidden` cards modelled — ignored, worst-case, or distribution? | §1.2 |
+| **E6** | Multi-unit boards: full n-vs-m enumeration, or bounded heuristics? | §4 |
+| **E7** | Does the engine model **multi-battlefield** turns (move + combat sequencing), or one combat at a time? | §4 |
