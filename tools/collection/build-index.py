@@ -40,6 +40,18 @@ def clean(text):
     return t.replace("&quot;", '"').replace("&#39;", "'").replace("&amp;", "&").strip()
 
 
+# Every gallery image lives under this prefix; storing only the filename and
+# rebuilding the URL in the browser keeps ~75 KB out of the index.
+IMG_PREFIX = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/"
+
+
+def image_id(url):
+    """Filename part of a gallery image URL, or "" if it isn't the expected host."""
+    if not url or not url.startswith(IMG_PREFIX):
+        return ""
+    return url[len(IMG_PREFIX):].split("?")[0]
+
+
 def build():
     with open(SRC, encoding="utf-8") as fh:
         src = json.load(fh)
@@ -58,10 +70,15 @@ def build():
             "st": c["superTypes"],
             "r": c["rarity"],
             "x": clean(c["text"]),
+            "i": image_id(c.get("imageUrl")),
         }
         for c in src
     ]
     out.sort(key=lambda k: (k["s"], k["cn"], k["c"]))
+
+    noimg = [c["c"] for c in out if not c["i"]]
+    if noimg:
+        print(f"  note: {len(noimg)} printings have no usable image ({noimg[:3]})")
 
     # The entry flow types a bare collector number and expects one hit.
     # Verify that assumption still holds rather than trusting it.

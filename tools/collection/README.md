@@ -35,6 +35,9 @@ python3 tools/collection/build-index.py --standalone
 Pick a set, then type collector numbers. **The field keeps focus**, so it's number → Enter →
 number → Enter without touching the mouse.
 
+**Matches appear as you type, with card images** — so you confirm the right card *before*
+committing, not after.
+
 | Type | Does |
 |---|---|
 | `142` | Add one copy of #142 in the selected set |
@@ -43,13 +46,24 @@ number → Enter without touching the mouse.
 | `142*2-` | Remove two |
 | `142a` | The `a` variant (showcase / alt art) rather than the base printing |
 | `ven 12` | Reach into another set without switching tabs |
-| `hextech` | Search by name when the number is unreadable |
+| `hextech` | Search by name — shows up to 8 matches, ranked exact → prefix → current set |
+
+`↑` `↓` move through the matches, `Enter` adds the highlighted one, or tap a row directly.
+`Esc` clears the field. **Undo last** reverses the previous entry, and the session log shows
+everything you've added so you can catch a mistyped number.
 
 **A bare number is never ambiguous.** All 1,020 set+number pairs have exactly one base printing —
 `build-index.py` fails loudly if a future set breaks that assumption, rather than silently guessing.
 
-`Esc` clears the field. **Undo last** reverses the previous entry, and the session log shows
-everything you've added so you can catch a mistyped number.
+## Card images
+
+Images come from Riot's gallery CDN, resized on demand (`?w=120` gives a ~4 KB thumbnail). They are
+**referenced, never bundled** — the full-size assets are ~800 KB each and 1,180 of them would be
+about a gigabyte.
+
+The practical consequence: **images need a connection.** `Compact` in the Browse tab switches to a
+text-only view that works offline and scrolls faster, and the offline standalone build shows card
+data without art.
 
 ---
 
