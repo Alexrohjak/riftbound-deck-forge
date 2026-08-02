@@ -58,6 +58,16 @@ future channelling. A Power-heavy deck and an Energy-heavy deck therefore have
 structurally different resource curves, and the same 12 runes serve them very
 differently.
 
+> ⚠️ **Correction (2026-08-02): this is not an either/or.** A rune has **two abilities with
+> two costs**, and no rule forbids using both — **exhaust it for `1 Energy`, then recycle
+> the exhausted rune for `1 Power`** (CR 164.2, 414.1.b, 416; see
+> [COMPENDIUM §III.3](../reference/COMPENDIUM.md#3-resources--the-central-tension)).
+>
+> **The feasibility model must include the exhaust-then-recycle line**, or it will report
+> decks as unable to pay costs they can actually pay. The real trade-off is *"keep this rune
+> as a recurring Energy source"* vs *"cash it out now for Energy **and** Power"* — a
+> sequencing decision, not a binary one.
+
 ### Why this cannot be done by hand
 
 To pay a **Fury** Power cost you must recycle a **Fury rune currently on the board**.
