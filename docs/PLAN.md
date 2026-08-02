@@ -3,7 +3,7 @@
 > The **detail layer**: what gates each milestone, what "done" means, how you validate it, and
 > where the risk sits. For *status* — where we are right now — see [`ROADMAP.md`](ROADMAP.md).
 >
-> **Created:** 2026-08-02 · **Rewritten:** 2026-08-02 (v3 — clearer step naming) · **Status:** Discovery complete; D2 is next
+> **Created:** 2026-08-02 · **Rewritten:** 2026-08-02 (v3 — clearer step naming) · **Status:** Discovery complete; `D2` in progress — see the [README](../README.md#-start-here--how-to-pick-this-up)
 
 **Navigation:** [`ROADMAP.md`](ROADMAP.md) (**status — start here**) · [`spec/OVERVIEW.md`](spec/OVERVIEW.md) (system map) ·
 [`DECISIONS.md`](DECISIONS.md) · [`AUDIT.md`](AUDIT.md) ·
@@ -13,17 +13,12 @@
 
 ## ▶️ Next session
 
-### 🎨 D2 — design the interface
-
-**All blockers cleared.** Discovery is complete. The next work is the biggest remaining
-unknown and the most enjoyable part: deciding what Forge looks and feels like.
-
-> Nothing to prepare. Bring opinions about how it should feel.
-
-⚠️ **D2 has grown.** It must now design **two** things, not one:
-1. The **workbench** — gallery, deck zones, The Bench, ownership language
-2. **How EE speaks** — an answer with a statement, a lever and its grounding is not a stat
-   tile. Whether EE is a panel, a conversation, or both, is a D2 question (X4)
+> 📍 **The recipe for picking this up lives in the [README](../README.md#-start-here--how-to-pick-this-up).**
+>
+> It used to be restated here, and promptly drifted — this copy said `D2` designs *two*
+> things while [`ROADMAP.md`](ROADMAP.md) said three. Status now has exactly two homes:
+> the **README** (how to resume) and [`ROADMAP.md`](ROADMAP.md) (where we are).
+> **This document is the detail layer only.**
 
 ---
 
