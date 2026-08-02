@@ -184,7 +184,12 @@ hosting and cost.
 **Size:** S · **Gate:** design locked
 
 Scaffold, repo structure, test harness, CI, and **a deployed hello-world reachable from
-your phone.** Deployment comes first deliberately — phone parity is a hard requirement and
+your phone.**
+
+⚠️ **CI must include a docs-consistency check.** Counts stated in prose (decisions, documents,
+legality checks, card totals) have drifted from reality **twice** already and had to be
+corrected by hand. A ten-line check that greps the claims and compares them to the source of
+truth removes the whole class of error. Deployment comes first deliberately — phone parity is a hard requirement and
 finding a hosting problem later would be expensive.
 
 **Done when:** a trivial page is live, reachable from the phone, deploying automatically.
