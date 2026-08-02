@@ -43,22 +43,23 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here next session
 
-**D2 — design the interface.** All blockers are cleared. Nothing to prepare.
+**`D2` — design the interface.** All blockers are cleared. Nothing to prepare.
 
-Full detail: [`docs/PLAN.md`](docs/PLAN.md)
+Status: [`docs/ROADMAP.md`](docs/ROADMAP.md) · Detail: [`docs/PLAN.md`](docs/PLAN.md)
 
 ---
 
 ## Documentation
 
-**Two documents orient you.** [`spec/OVERVIEW.md`](docs/spec/OVERVIEW.md) is the system
-map — how the pieces fit and **where to put a new idea**. [`PLAN.md`](docs/PLAN.md) is the
-delivery plan.
+**Start with the roadmap.** [`ROADMAP.md`](docs/ROADMAP.md) answers *"where are we?"* —
+status board, milestones, dependencies. [`spec/OVERVIEW.md`](docs/spec/OVERVIEW.md) is the
+system map and **where to put a new idea**.
 
 | Document | Contents |
 |---|---|
+| [**`docs/ROADMAP.md`**](docs/ROADMAP.md) | **📍 The map — status board, all 16 milestones, dependencies. Start here.** |
 | [**`docs/spec/OVERVIEW.md`**](docs/spec/OVERVIEW.md) | **System map — how everything relates, and where new ideas go. Read before adding a feature.** |
-| [**`docs/PLAN.md`**](docs/PLAN.md) | **The delivery plan — every step, gate, milestone and risk.** |
+| [`docs/PLAN.md`](docs/PLAN.md) | The detail layer — gates, "done when", validation and risks |
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | 40 decisions with alternatives and rationale — including four reversals |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
 | [`docs/AUDIT.md`](docs/AUDIT.md) | First-principles audit of the project's own assumptions |

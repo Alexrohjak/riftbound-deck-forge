@@ -79,7 +79,8 @@
 
 | Document | Owns |
 |---|---|
-| [`../PLAN.md`](../PLAN.md) | Delivery plan — stages, gates, status, risks |
+| [`../ROADMAP.md`](../ROADMAP.md) | **The map** — status board, milestones, dependencies |
+| [`../PLAN.md`](../PLAN.md) | Delivery detail — gates, "done when", validation, risks |
 | [`../DECISIONS.md`](../DECISIONS.md) | Append-only decision log with rationale |
 | [`../DISCOVERY.md`](../DISCOVERY.md) | Problem, scope, users, non-goals |
 | [`../AUDIT.md`](../AUDIT.md) | First-principles audit of the project's assumptions |
