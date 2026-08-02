@@ -15,13 +15,17 @@
 
 ## Why classification rather than prose
 
-814 cards at the depth of the Legend Guide would be ~80,000 words of mostly-restated card
-text — the exact unusable dump that [D-039](../DECISIONS.md#d-039) exists to prevent. What
-EE actually needs per card is **structured**: what it makes, what it wants, when it can be
-played, and whether its stats or its text is the card.
+⚠️ **Not because completeness is bad.** [D-039](../DECISIONS.md#d-039) governs what **EE
+says to a human**, not what Forge stores — the data layer should be **as complete as
+possible**, and the full card corpus (every card, every field, full rules text) is cached at
+[`../../data/`](../../data/).
 
-**Prose is reserved for cards where the classification is insufficient** — the locks,
-engines and rule-benders, which live in [`CARD-KNOWLEDGE.md`](CARD-KNOWLEDGE.md).
+Classification is used here because **prose per card would carry less information than
+structure**, not less volume. What EE needs per card is machine-usable: what it makes, what
+it wants, when it can be played, and whether its stats or its text is the card.
+
+**Prose is reserved for cards where structure is insufficient** — the locks, engines and
+rule-benders, which live in [`CARD-KNOWLEDGE.md`](CARD-KNOWLEDGE.md).
 
 **Two axes do the work:**
 

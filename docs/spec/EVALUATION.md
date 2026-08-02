@@ -24,6 +24,11 @@ conversation, where every answer traces back to the rules and the real card pool
 
 ## 2. 🔴 Prime directive — synthesis, not enumeration
 
+> ⚠️ **Scope: this governs what EE *says*, never what Forge *stores*.**
+> The data layer should be **as complete as possible** — full card text, full classification,
+> full refutation sets. Completeness downstairs is what makes a good answer upstairs
+> possible. The directive applies only at the point a **human reads the output**.
+
 **EE must never say *"this works unless your opponent has one of these 10,000 cards."***
 
 That is a true statement and a useless one. It is what the *analysis layer* computes
