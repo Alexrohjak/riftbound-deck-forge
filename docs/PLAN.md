@@ -1,10 +1,9 @@
 # Delivery Plan — Forge
 
-> Every stage from here to a finished tool: what gates it, what "done" means, and where the
+> Every step from here to a finished tool: what gates it, what "done" means, and where the
 > risk sits.
 >
-> **Created:** 2026-08-02 · **Rewritten:** 2026-08-02 (v2 — EE promoted to a first-class
-> track) · **Status:** Discovery complete; Stage 1 is next
+> **Created:** 2026-08-02 · **Rewritten:** 2026-08-02 (v3 — clearer step naming) · **Status:** Discovery complete; D2 is next
 
 **Navigation:** [`spec/OVERVIEW.md`](spec/OVERVIEW.md) (system map) ·
 [`DECISIONS.md`](DECISIONS.md) · [`AUDIT.md`](AUDIT.md) ·
@@ -14,37 +13,37 @@
 
 ## ▶️ Next session
 
-### 🎨 Stage 1 — design the interface
+### 🎨 D2 — design the interface
 
 **All blockers cleared.** Discovery is complete. The next work is the biggest remaining
 unknown and the most enjoyable part: deciding what Forge looks and feels like.
 
 > Nothing to prepare. Bring opinions about how it should feel.
 
-⚠️ **Stage 1 has grown.** It must now design **two** things, not one:
+⚠️ **D2 has grown.** It must now design **two** things, not one:
 1. The **workbench** — gallery, deck zones, The Bench, ownership language
 2. **How EE speaks** — an answer with a statement, a lever and its grounding is not a stat
-   tile. Whether EE is a panel, a conversation, or both, is a Stage 1 question (X4)
+   tile. Whether EE is a panel, a conversation, or both, is a D2 question (X4)
 
 ---
 
 ## 1. What Forge is
 
-Two phases. **Each stands alone** — if the project stopped after Phase A it would still be
+Two phases. **Each stands alone** — if the project stopped after the Workbench it would still be
 worth having.
 
 | Phase | What | Status |
 |---|---|---|
-| **A — The Workbench** | Catalogue what you own; browse, filter and build decks by hand with live legality and honest statistics. Cards sleeved into a BUILT deck stop being available and always show which deck holds them | Specified |
-| **B — EE, the strategist** | Ask questions about your cards, decks and matchups; get answers grounded in a deterministic rules core. *"What's this card good at? How do I pilot this? What should I fear? What do I sideboard?"* | Specified — [`spec/EVALUATION.md`](spec/EVALUATION.md) |
-| ⏸️ *Spike G — Generator* | Auto-propose decks. **Deferred**, with kill conditions | [`spec/GENERATOR.md`](spec/GENERATOR.md) |
+| **The Workbench** | Catalogue what you own; browse, filter and build decks by hand with live legality and honest statistics. Cards sleeved into a BUILT deck stop being available and always show which deck holds them | Specified |
+| **The Strategist (EE)** | Ask questions about your cards, decks and matchups; get answers grounded in a deterministic rules core. *"What's this card good at? How do I pilot this? What should I fear? What do I sideboard?"* | Specified — [`spec/EVALUATION.md`](spec/EVALUATION.md) |
+| ⏸️ *L2 — Generator* | Auto-propose decks. **Deferred**, with kill conditions | [`spec/GENERATOR.md`](spec/GENERATOR.md) |
 
 ---
 
 ## 2. How to read this
 
-Work is in **stages**, not dates — this is an evenings-and-weekends project and calendar
-estimates would be fiction. Each stage carries:
+Work is in **steps**, not dates — this is an evenings-and-weekends project and calendar
+estimates would be fiction. Each step carries:
 
 - **Size** — S / M / L / XL, relative effort only
 - **Gate** — what must be true before it starts
@@ -53,49 +52,82 @@ estimates would be fiction. Each stage carries:
 
 ### Honest scale
 
-**Phase A is a season or two of evenings. Phase B is comparable again** — the EE rules core
+**The Workbench is a season or two of evenings. The Strategist is comparable again** — the EE rules core
 is the single largest component in the project, because Riftbound's showdown/chain system
 and card-level rule overrides make it a real rules engine, not a calculator.
 
-**The mitigation is Stage 3.5**, which puts something genuinely usable in your hands within
-weeks rather than after four stages of infrastructure.
+**The mitigation is F2**, which puts something genuinely usable in your hands within
+weeks rather than after four steps of infrastructure.
 
 ---
 
 ## 3. The arc
 
+**The naming key.** A letter says *which track*, the number says *which step within it*.
+Steps in different tracks are **not** ordered against each other.
+
+| Prefix | Track | Meaning |
+|---|---|---|
+| **D** | Design | Decide what we're building, before any logic |
+| **F** | Foundation | Get something live and fed with data |
+| **W** | Workbench | Build, validate and measure decks |
+| **S** | Strategist | EE — the part that answers questions |
+| **L** | Later | Deferred, and the generator spike |
+
 ```
+DESIGN
+  D1  Discovery ........................ ▓▓▓▓▓▓▓▓▓▓ ✅ COMPLETE
+  D2  Interface design ................. ░░░░░░░░░░  ← NEXT
+  D3  Architecture ..................... ░░░░░░░░░░
+  ═══════════════════ 🔒 DESIGN LOCKED ═══════════════════
+                      no significant logic before this line
+
 FOUNDATION
-  0    Discovery ......................... ▓▓▓▓▓▓▓▓▓▓ ✅ COMPLETE
-  1    Interface design .................. ░░░░░░░░░░  ← NEXT
-  2    Architecture ...................... ░░░░░░░░░░
-  ──────────────────── BLUEPRINT LOCK ────────────────────
-  3    Foundations & deployment spine .... ░░░░░░░░░░
-  3.5  Walking skeleton ⭐ ............... ░░░░░░░░░░  ← first real value
-  4    Card data layer ................... ░░░░░░░░░░
+  F1  Get it online .................... ░░░░░░░░░░
+  F2  First usable version ⭐ .......... ░░░░░░░░░░  ← first real value
+  F3  Card data ........................ ░░░░░░░░░░
 
-              ┌──────────────── then two parallel tracks ────────────────┐
+        ┌─────────── W and S run in parallel from here ───────────┐
 
-TRACK A — Workbench                     TRACK B — EE
-  5   Legality engine ⚠ ....... ░░░░      9   Rules core 🔴 ......... ░░░░
-  6   Collection .............. ░░░░     10   Analysis layer ........ ░░░░
-  7   Deck workbench .......... ░░░░     11   Synthesis layer ⭐ .... ░░░░
-  8   Statistics .............. ░░░░     12   Conversation layer .... ░░░░
-  ── MILESTONE: PHASE A ──                ── MILESTONE: PHASE B ──
+THE WORKBENCH                        THE STRATEGIST (EE)
+  W1  Legality checking ⚠ ... ░░░░       S1  Rules engine 🔴 ...... ░░░░
+  W2  Collection entry ...... ░░░░       S2  Analysis ............. ░░░░
+  W3  Deck builder .......... ░░░░       S3  Plain-English answers ░░░░ ⭐
+  W4  Deck statistics ....... ░░░░       S4  Conversation ......... ░░░░
+  🏁 THE WORKBENCH IS DONE               🏁 THE STRATEGIST IS DONE
 
-  13   Deferred features ................ ░░░░░░░░░░
-  G    Generator spike (kill conditions) ░░░░░░░░░░
+LATER
+  L1  Deferred features ................ ░░░░░░░░░░
+  L2  Generator spike (kill conditions)  ░░░░░░░░░░
 ```
 
-**Why two tracks:** the EE rules core is pure logic over cached card data. It needs Stage 4
-and nothing else — not the workbench, not the collection, not the UI. It can be built and
-tested headlessly, in parallel, which also makes it the most resumable work in the project.
+**Why W and S are parallel:** the EE rules engine is pure logic over cached card data. It
+needs **F3** and nothing else — not the workbench, not the collection, not the UI. It can be
+built and tested headlessly, which also makes it the most resumable work in the project.
+
+<details>
+<summary>Old names, for reading earlier commits</summary>
+
+| Old | New | | Old | New |
+|---|---|---|---|---|
+| Stage 0 | **D1** | | Stage 7 | **W3** |
+| Stage 1 | **D2** | | Stage 8 | **W4** |
+| Stage 2 | **D3** | | Stage 9 | **S1** |
+| Stage 3 | **F1** | | Stage 10 | **S2** |
+| Stage 3.5 | **F2** | | Stage 11 | **S3** |
+| Stage 4 | **F3** | | Stage 12 | **S4** |
+| Stage 5 | **W1** | | Stage 13 | **L1** |
+| Stage 6 | **W2** | | Spike G | **L2** |
+| Phase A | The Workbench | | BLUEPRINT LOCK | DESIGN LOCKED |
+| Phase B | The Strategist | | | |
+
+</details>
 
 ---
 
-## 4. Foundation stages
+## 4. Design and Foundation — D1 to F3
 
-### Stage 0 — Discovery ✅ **COMPLETE**
+### D1 — Discovery ✅ **COMPLETE**
 
 Problem and scope · 35+ decisions with rationale · the rules and card universe read from
 primary sources · data landscape · statistics framework · data model · legality spec ·
@@ -114,7 +146,7 @@ EE spec · assumption audit.
 
 ---
 
-### Stage 1 — Interface design 🎨 **← NEXT**
+### D2 — Interface design 🎨 **← NEXT**
 
 **Size:** L · **Gate:** ✅ none · **SOP Phase 2**
 
@@ -141,9 +173,9 @@ design down.
 
 ---
 
-### Stage 2 — Architecture
+### D3 — Architecture
 
-**Size:** M · **Gate:** Stage 1 approved ([D-019](DECISIONS.md#d-019) — design constrains the stack)
+**Size:** M · **Gate:** D2 approved ([D-019](DECISIONS.md#d-019) — design constrains the stack)
 
 Decisions: stack · hosting and its **indefinite** running cost · storage · card cache ·
 access control · backup and export.
@@ -158,15 +190,15 @@ hosting and cost.
 
 **Done when:** an architecture document exists with the stack chosen and justified.
 
-> ### 🔒 BLUEPRINT LOCK
-> Stages 0–2 complete. Per the SOP, **no significant logic precedes this point**;
+> ### 🔒 DESIGN LOCKED
+> D1–D3 complete. Per the SOP, **no significant logic precedes this point**;
 > afterwards every change maps to a task.
 
 ---
 
-### Stage 3 — Foundations & deployment spine
+### F1 — Get it online
 
-**Size:** S · **Gate:** BLUEPRINT locked
+**Size:** S · **Gate:** design locked
 
 Scaffold, repo structure, test harness, CI, and **a deployed hello-world reachable from
 your phone.** Deployment comes first deliberately — phone parity is a hard requirement and
@@ -176,9 +208,9 @@ finding a hosting problem later would be expensive.
 
 ---
 
-### Stage 3.5 — Walking skeleton ⭐
+### F2 — First usable version ⭐
 
-**Size:** M · **Gate:** Stage 3
+**Size:** M · **Gate:** F1
 
 **The most important sequencing decision in this plan.** The [audit](AUDIT.md) identified
 time-to-first-value as the dominant risk (A12): the original plan needed four stages of
@@ -195,9 +227,9 @@ Ugly, incomplete, and **genuinely usable.**
 
 ---
 
-### Stage 4 — Card data layer
+### F3 — Card data
 
-**Size:** S–M · **Gate:** Stage 3.5 · **Gates both tracks**
+**Size:** S–M · **Gate:** F2 · **Gates both tracks**
 
 Ingest the full pool from Riot's official gallery — **1,180 printings / 935 names**, one
 ~3.2 MB request. Cache locally in full. Resolve `buildId` at fetch time, never hard-code it.
@@ -209,11 +241,11 @@ tags, domains and Signature status available for every card.
 
 ---
 
-## 5. Track A — the Workbench
+## 5. The Workbench — W1 to W4
 
-### Stage 5 — Legality engine ⚠️ **highest correctness risk**
+### W1 — Legality checking ⚠️ **highest correctness risk**
 
-**Size:** M–L · **Gate:** Stage 4 · **Parallel with Stage 6**
+**Size:** M–L · **Gate:** F3 · **Parallel with W2**
 
 Specification: [`spec/LEGALITY.md`](spec/LEGALITY.md) — **33 checks**, 13 rulebook-derived tests.
 
@@ -227,9 +259,9 @@ rulebooks (both now read in full — see [COMPENDIUM](reference/COMPENDIUM.md)).
 > Mitigation: read the rulebook line by line, never summaries; encode every rulebook
 > example as a test.
 
-### Stage 6 — Collection
+### W2 — Collection entry
 
-**Size:** M · **Gate:** Stage 4 · **Parallel with Stage 5**
+**Size:** M · **Gate:** F3 · **Parallel with W1**
 
 Collector-number keyboard entry ([D-013](DECISIONS.md#d-013)) — must parse **all 17
 `publicCode` forms**, including `VEN-R01` runes and `UNL-T1` tokens. Name typeahead
@@ -243,9 +275,9 @@ DRAFT/BUILT commitment model.
 > **Audit finding A3:** this was assumed rather than planned. It is now an explicit
 > milestone with a completion check — spot-check 20 random names against the boxes.
 
-### Stage 7 — Deck workbench
+### W3 — Deck builder
 
-**Size:** L · **Gate:** Stages 5 + 6
+**Size:** L · **Gate:** W1 + W2
 
 The centrepiece. Gallery owned-by-default with ownership as a filter dimension · filters ·
 zones (Legend, Champion, Main, Runes, Battlefields, Sideboard) · **The Bench** (staging
@@ -255,9 +287,9 @@ DRAFT → BUILT promotion · **full phone parity**.
 
 **Done when:** a complete legal deck can be built end-to-end on both desktop and phone.
 
-### Stage 8 — Statistics
+### W4 — Deck statistics
 
-**Size:** M–L · **Gate:** Stage 7 · Spec: [`spec/DECK-STATS.md`](spec/DECK-STATS.md)
+**Size:** M–L · **Gate:** W3 · Spec: [`spec/DECK-STATS.md`](spec/DECK-STATS.md)
 
 Tier 1 facts and Tier 2 probabilities, including the flagship **rune feasibility curve**
 ([D-023](DECISIONS.md#d-023)). Tier 3 deliberately absent, and the panel must read as
@@ -266,19 +298,19 @@ complete without it.
 **Done when:** both tiers render with correct visual separation, inside the <2 s target.
 **Risk:** Monte Carlo performance on a phone. Measure early; move server-side if needed.
 
-> ### 🏁 MILESTONE — PHASE A COMPLETE
+> ### 🏁 MILESTONE — THE WORKBENCH IS DONE
 > The workbench is usable for real deckbuilding. **If the project stopped here it would
 > still be worth having.**
 
 ---
 
-## 6. Track B — EE
+## 6. The Strategist (EE) — S1 to S4
 
 Specification: [`spec/EVALUATION.md`](spec/EVALUATION.md)
 
-### Stage 9 — Rules core 🔴 **largest single component**
+### S1 — Rules engine 🔴 **largest single component**
 
-**Size:** XL · **Gate:** Stage 4 · **Parallel with Track A**
+**Size:** XL · **Gate:** F3 · **Parallel with the Workbench track**
 
 A real rules engine: game state · legal-action enumeration · **chain resolution (LIFO,
 `[Reaction]`-only when closed)** · **showdowns as alternating priority windows** · combat
@@ -294,9 +326,9 @@ a battlefield mid-game. CR 002 — *card text supersedes rules text* — is a de
 **Done when:** every worked example in CR 355–359, 370–375 and 465.2 passes as a fixture,
 and each of the 21 rule-warping cards has a regression test.
 
-### Stage 10 — Analysis layer
+### S2 — Analysis
 
-**Size:** L · **Gate:** Stage 9
+**Size:** L · **Gate:** S1
 
 Refutation search · robustness (breadth, cost, speed, reach, frequency) · answer coverage ·
 threat pressure classes · Legend fit · dead-card detection.
@@ -306,9 +338,9 @@ hand-annotated rather than parsed.
 
 **Done when:** EE can answer Q-CARD, Q-COMPARE and Q-LEGEND correctly, headlessly.
 
-### Stage 11 — Synthesis layer ⭐ **the one that makes EE usable**
+### S3 — Plain-English answers ⭐ **the one that makes EE usable**
 
-**Size:** M · **Gate:** Stage 10
+**Size:** M · **Gate:** S2
 
 Pattern vocabulary · salience ranking · statement budgets.
 
@@ -319,21 +351,21 @@ Pattern vocabulary · salience ranking · statement budgets.
 **Done when:** no answer exceeds its statement budget, enforced by test.
 **You do:** read 20 answers and say which ones you'd actually act on.
 
-### Stage 12 — Conversation layer
+### S4 — Conversation
 
-**Size:** M · **Gate:** Stage 11 + the X1 decision from Stage 2
+**Size:** M · **Gate:** S3 + the X1 decision from D3
 
 Open questions, follow-ups, "why?", memory of the conversation.
 
 **Discipline, enforced by test:** never does arithmetic, never adjudicates rules, never
 emits a number that didn't come from a tool call.
 
-> ### 🏁 MILESTONE — PHASE B COMPLETE
+> ### 🏁 MILESTONE — THE STRATEGIST IS DONE
 > You can ask Forge questions about your decks and get answers you'd act on.
 
 ---
 
-## 7. Stage 13 — Deferred features
+## 7. L1 — Deferred features
 
 | Feature | Waiting on |
 |---|---|
@@ -344,9 +376,9 @@ emits a number that didn't come from a tool call.
 | Specific rival-deck modelling for EE | The threat-space model shipping first |
 | Limited (Sealed/Draft) support | A genuinely different validator — COMPENDIUM §II.9 |
 
-## 8. Spike G — Generator
+## 8. L2 — Generator research spike
 
-**Gate:** Phase A complete **and** evidence of real need · Spec: [`spec/GENERATOR.md`](spec/GENERATOR.md)
+**Gate:** the Workbench complete **and** evidence of real need · Spec: [`spec/GENERATOR.md`](spec/GENERATOR.md)
 
 ⚠️ **Downgraded to a hypothesis with kill conditions.** The stated goal is to enjoy hours of
 tinkering; a generator automates tinkering. It also needs an objective function, and
@@ -372,7 +404,7 @@ tinkering; a generator automates tinkering. It also needs an objective function,
 
 ## 10. Maintenance
 
-Not a phase — an **ongoing obligation** from Stage 4.
+Not a phase — an **ongoing obligation** from F3.
 
 | Clock | Cadence | Response |
 |---|---|---|
@@ -385,15 +417,15 @@ Not a phase — an **ongoing obligation** from Stage 4.
 
 | Risk | Severity | Mitigation |
 |---|---|---|
-| ⭐ **Time-to-first-value** — enthusiasm decays before the tool is useful (A12) | 🔴 High | **Stage 3.5 walking skeleton** |
+| ⭐ **Time-to-first-value** — enthusiasm decays before the tool is useful (A12) | 🔴 High | **F2, the first usable version** |
 | 🆕 **EE rules core is underestimated** — showdowns, chains, layers and 21 rule-overrides make it a real engine | 🔴 High | Build vertically; rulebook examples as fixtures; headless and resumable |
-| 🆕 **EE answers become noise** — technically correct, practically unreadable | 🔴 High | **Stage 11 synthesis** + budget tests. This killed the v2 spec design |
+| 🆕 **EE answers become noise** — technically correct, practically unreadable | 🔴 High | **S3 synthesis** + budget tests. This killed the v2 spec design |
 | **Undiscovered rules** (LR2) — confirmed twice (Signature, `Unique`) | 🔴 High | Rulebook line by line; every example a test |
 | **Collection entry never happens** (A3) | 🟡 Medium | Explicit milestone with a spot-check |
 | **Annotation drift** — 153 effects + 49 Legends by hand | 🟡 Medium | Completeness test: every card matching `Deal\|Kill\|Stun` must have an annotation |
 | Phone/desktop design sprawl | 🟡 Medium | Phone-first, then expand |
 | Monte Carlo too slow on mobile | 🟡 Medium | Measure early; server-side fallback |
-| Card data source disappears | 🟡 Medium | Full local cache from Stage 4 |
+| Card data source disappears | 🟡 Medium | Full local cache from F3 |
 | Generator scope creep | 🟢 Low | Deferred spike with kill conditions |
 | ~~Premise may not hold~~ | ✅ Closed | [D-033](DECISIONS.md#d-033) |
 | ~~Card data can't support legality~~ | ✅ Closed | [D-034](DECISIONS.md#d-034) |

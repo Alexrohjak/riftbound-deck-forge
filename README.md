@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ Discovery complete · Stage 1 (interface design) is next · no code yet
+> **Status:** ✅ Discovery complete · D2 (interface design) is next · no code yet
 
 ---
 
@@ -21,19 +21,19 @@ Forge inverts the question:
 
 ## What It Will Be
 
-**Phase A — The Workbench**
+**The Workbench**
 Catalogue the cards you physically own, then browse, filter and assemble decks by hand
 with live rules validation and honest statistics. Cards sleeved into a built deck stop
 being available — and always show which deck holds them. The same app on desktop and
 phone, fully editable on both.
 
-**Phase B — EE, the strategist**
+**The Strategist (EE)**
 Ask questions about your cards, decks and matchups; get answers grounded in a
 deterministic rules core. *"What's this card good at? How do I pilot this deck? What
 should I fear? What do I sideboard against Diana?"* Not a report — a conversation, where
 every answer traces back to the rulebook and the real card pool.
 
-***Spike G — The Generator*** *(hypothesis, not a commitment)*
+***L2 — The Generator*** *(hypothesis, not a commitment)*
 Auto-propose legal decks from cards you own. Deliberately downgraded to a research spike
 with kill conditions — see [why](#four-things-worth-knowing).
 
@@ -41,7 +41,7 @@ with kill conditions — see [why](#four-things-worth-knowing).
 
 ## 📍 Start here next session
 
-**Stage 1 — design the interface.** All blockers are cleared. Nothing to prepare.
+**D2 — design the interface.** All blockers are cleared. Nothing to prepare.
 
 Full detail: [`docs/PLAN.md`](docs/PLAN.md)
 
@@ -56,7 +56,7 @@ delivery plan.
 | Document | Contents |
 |---|---|
 | [**`docs/spec/OVERVIEW.md`**](docs/spec/OVERVIEW.md) | **System map — how everything relates, and where new ideas go. Read before adding a feature.** |
-| [**`docs/PLAN.md`**](docs/PLAN.md) | **The delivery plan — every stage, gate, milestone and risk.** |
+| [**`docs/PLAN.md`**](docs/PLAN.md) | **The delivery plan — every step, gate, milestone and risk.** |
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | 40 decisions with alternatives and rationale — including four reversals |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
 | [`docs/AUDIT.md`](docs/AUDIT.md) | First-principles audit of the project's own assumptions |

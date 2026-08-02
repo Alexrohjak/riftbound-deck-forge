@@ -3,7 +3,7 @@
 > ⚠️ **This is not a planned feature. It is a hypothesis with a kill condition.**
 >
 > Downgraded from a committed stage following the [assumption audit](../AUDIT.md)
-> (finding A9, risk 16). **Status:** unproven · **Gate:** Phase A complete **and**
+> (finding A9, risk 16). **Status:** unproven · **Gate:** the Workbench complete **and**
 > evidence of real need
 
 ---
@@ -24,11 +24,11 @@ shape a software solution takes — not because it was established as the thing 
 would be enjoyed. That is a **convention**, not a requirement.
 
 **Plausible alternative:** what is actually wanted is a workbench that makes tinkering
-**fast and well-informed** — which is Phase A — and the felt need after two weeks of
+**fast and well-informed** — which is the Workbench — and the felt need after two weeks of
 real use may be *"help me evaluate the deck I'm already making"* rather than
 *"show me a deck."*
 
-**This is unanswerable before Phase A exists.** Hence: spike, not stage.
+**This is unanswerable before the Workbench exists.** Hence: spike (L2), not a build step.
 
 ---
 
@@ -43,7 +43,7 @@ Abandon without regret if **any** of the following hold:
 | **K3** | No workable definition of "playstyle" emerges (Q5) that is better than the user simply picking cards |
 | **K4** | Generated decks are consistently rejected in favour of hand-built ones |
 
-**Nothing in Phase A depends on this spike.** Cancellation costs nothing already built.
+**Nothing in the Workbench depends on this spike.** Cancellation costs nothing already built.
 
 ---
 
