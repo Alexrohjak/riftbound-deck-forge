@@ -123,19 +123,20 @@ rules core. Not a report — a conversation. It **synthesises rather than enumer
 
 Full specification: [spec/EVALUATION.md](spec/EVALUATION.md).
 
-### L2 — The Generator *(research spike, not a commitment)*
+### Generation *(part of the Strategist)*
 
-⚠️ **Downgraded** following the [assumption audit](AUDIT.md), finding A9. The stated
-goal is to *enjoy hours of tinkering*; a generator automates tinkering. What is
-actually wanted may be a workbench that makes tinkering fast and well-informed —
-which is the Workbench. **Unanswerable until the Workbench exists**, and EE weakens the case further.
+**Reinstated and fused with EE on 2026-08-02** ([D-041](DECISIONS.md#d-041)). It had been
+downgraded to a spike by the [audit](AUDIT.md) (A9) on the grounds that a generator automates
+the tinkering the user wants to do. That objection stands **for a one-shot generator** — and
+is answered by what is now specified: an assistant *inside* the building loop, seeded by
+user intent, that proposes several explained candidates rather than one finished list.
 
-Full specification, including kill conditions and the unresolved
-objective-function contradiction: [spec/GENERATOR.md](spec/GENERATOR.md).
+Full specification, including the four generation modes and how the objective-function
+contradiction was resolved: [spec/GENERATOR.md](spec/GENERATOR.md).
 
 ---
 
-## 7. Generator Requirements *(L2 — captured now, designed later)*
+## 7. Generation Requirements *(S5)*
 
 The generator must weigh **numerous factors**, not just legality:
 

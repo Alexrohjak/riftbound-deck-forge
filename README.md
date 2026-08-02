@@ -33,9 +33,11 @@ deterministic rules core. *"What's this card good at? How do I pilot this deck? 
 should I fear? What do I sideboard against Diana?"* Not a report — a conversation, where
 every answer traces back to the rulebook and the real card pool.
 
-***L2 — The Generator*** *(hypothesis, not a commitment)*
-Auto-propose legal decks from cards you own. Deliberately downgraded to a research spike
-with kill conditions — see [why](#four-things-worth-knowing).
+**Generation** *(part of the Strategist)*
+Propose decks from cards you own — seeded on a Legend or a few cards you like, driven by a
+playstyle, or aimed at a problem: *"I keep losing to this deck, what beats it?"* The
+objective always comes from you, so nothing is ever scored — Forge proposes candidates and
+explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ---
 
@@ -69,7 +71,7 @@ delivery plan.
 | [`docs/spec/DATA-MODEL.md`](docs/spec/DATA-MODEL.md) | Entities, the DRAFT/BUILT commitment model, lifecycle answers |
 | [`docs/spec/LEGALITY.md`](docs/spec/LEGALITY.md) | 33 validation checks, 13 tests drawn from the rulebook's own examples |
 | [`docs/spec/DECK-STATS.md`](docs/spec/DECK-STATS.md) | What Forge measures, and how honest it is about its own uncertainty |
-| [`docs/spec/GENERATOR.md`](docs/spec/GENERATOR.md) | The generator as a research spike, with kill conditions |
+| [`docs/spec/GENERATOR.md`](docs/spec/GENERATOR.md) | **Generation** — EE in the propose direction: seeded, by intent, or to counter a deck |
 
 ### Reference — external facts we don't control
 
@@ -116,10 +118,10 @@ three confidence tiers — facts, probabilities, estimates — and the uncertain
 other Riftbound tool can perform, because none knows your rune split and your deck's Power
 demands together.
 
-**The generator may not be wanted.** The stated goal is to enjoy hours of tinkering; a
-generator automates tinkering. EE weakens the case further — if Forge can *explain* a
-deck's strengths and gaps, the reason to auto-build shrinks. It is a spike with kill
-conditions, not a plan.
+**Generation assists; it never takes over.** The stated goal is to enjoy hours of building,
+so generation lives *inside* that loop — suggestions while you build by hand, answers when
+you're stuck, seeds when you want a starting point. It proposes several distinct candidates
+and explains each; it never hands you one finished list and never ranks them.
 
 ---
 
