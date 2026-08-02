@@ -290,6 +290,8 @@ EE is only as honest as its core. Non-negotiable (all cited in
 |---|---|
 | **Showdowns as alternating priority windows** | Both players act inside a combat (CR 341–348). **211 of 814 cards (26%)** are combat-speed |
 | **Chains resolving LIFO, `[Reaction]`-only once closed** | CR 327–340 |
+| ⭐ **Defend triggers resolve BEFORE attack triggers** | The attacker places triggers on the chain **first** (CR 464.2.e.1) and the chain is **LIFO** (CR 340.1), so attack triggers resolve **last**. A defensive trigger can remove or shrink the attacker before its attack trigger ever fires. **An engine that fires attack triggers first is simulating a different game** |
+| ⭐ **A rune yields Energy *and* Power** | Exhaust for `[1]`, then recycle the exhausted rune for `[C]`. Two abilities, two costs, no rule forbidding both (CR 164.2, 414.1.b, 416). Modelling this as either/or understates every deck's resource ceiling |
 | **Role-conditional Might** | `Assault` attacking only, `Shield` defending only (CR 807, 814) |
 | **Four outcomes with the stall asymmetry** | `STALL` **recalls the attacker** (CR 466.1.a.2) — attacking and defending are different questions |
 | **Hidden information on the board** | **43 `[Hidden]` cards** sit facedown and play later ignoring base cost (CR 811) |

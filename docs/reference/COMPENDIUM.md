@@ -25,7 +25,7 @@ See [Part VII](#part-vii--corrections-to-existing-forge-docs) for the list.
 |---|---|
 | [I](#part-i--orientation) | Orientation — what kind of game this is |
 | [II](#part-ii--deck-construction-the-legality-critical-part) | **Deck construction** — every rule that gates legality |
-| [III](#part-iii--how-the-game-is-played) | Turn structure, resources, combat, scoring |
+| [III](#part-iii--how-the-game-is-played) | Turn structure, resources, combat, scoring — **and [§8, how games actually flow](#8-how-games-actually-flow)** |
 | [IV](#part-iv--the-complete-keyword-glossary) | **All 25 keywords**, cited |
 | [V](#part-v--the-card-universe-as-data) | The card universe measured as data |
 | [VI](#part-vi--strategy-archetypes-and-the-competitive-landscape) | Strategy, archetypes, meta, ban list |
@@ -281,13 +281,37 @@ Runes live in a **separate 12-card Rune Deck**. A Rune is **not** a Main Deck ca
 
 **Every Basic Rune has exactly two abilities** (CR 164.2):
 
-| Ability | Produces | Cost to you |
+| Ability | Cost | Produces |
 |---|---|---|
-| `[E]` Exhaust | **1 Energy** — generic, no domain | Rune stays on board, exhausted |
-| `Recycle this` | **1 Power** of that rune's domain | **Rune returns to the Rune Deck** |
+| `[E]: [Reaction] — Add [1]` | Exhaust it | **1 Energy** — generic, no domain |
+| `Recycle this: [Reaction] — Add [C]` | Recycle it to the Rune Deck | **1 Power** of that rune's domain |
 
-Both are `[Reaction]` — they can be activated **any time resources must be paid**, even
-outside priority (CR 429.3, 444.2.c).
+Both are `[Reaction]` — activatable **any time resources must be paid**, even outside
+priority (CR 429.3, 444.2.c).
+
+### 🔑 A rune can produce BOTH — exhaust it, *then* recycle it
+
+These are **two separate abilities with two separate costs**, and nothing restricts a rune
+to one of them. Verified against the rules:
+
+- Exhausting requires the rune be **ready** — an exhausted object cannot be exhausted again
+  (CR 414.1.b)
+- Recycling has **no ready/exhausted requirement** — it simply moves the card to the bottom
+  of the Rune Deck (CR 416.1.b)
+- **No rule anywhere forbids using both abilities of the same rune**
+
+> **So one ready rune yields `1 Energy` + `1 Power`** — exhaust for the Energy, then recycle
+> the now-exhausted rune for the Power. The rune leaves the board, but you got both.
+
+⚠️ **This is not an either/or choice, and modelling it as one understates a deck's real
+resource ceiling.** The genuine trade-off is *"keep this rune on the board as a recurring
+Energy source"* versus *"cash it out now for Energy **and** Power."* Rune feasibility
+(D-023) must model the exhaust-then-recycle line or it will report decks as unable to pay
+costs they can actually pay.
+
+*Found by reading a community worked example of a real turn (Seal of Rage → Noxian
+Guillotine), then verified against CR 164/414/416. It is not stated explicitly anywhere in
+the rulebook — it falls out of two abilities and an absent restriction.*
 
 **Resource ceiling** (cumulative, assuming no recycling):
 
@@ -425,6 +449,94 @@ Effects apply in three layers, repeatedly until stable:
 3. **Arithmetic** (Might, Energy cost, Power cost — **increases first, then decreases**)
 
 Ties within a layer resolve by **Dependency**, then by **Timestamp**.
+
+---
+
+## 8. How games actually flow
+
+> ⚠️ **This section is different in kind from the rest of Part III.** Everything above is
+> *what the rules say*. This is *what the rules produce* — patterns that only become
+> visible from worked examples of real turns. Each item is marked **verified** (traced back
+> to the PDF) or **community** (plausible, unverified).
+
+### 8.1 ⭐ Defend triggers resolve BEFORE attack triggers — **verified**
+
+Two rules combine into a fact that almost nobody states directly:
+
+| Rule | Says |
+|---|---|
+| CR 464.2.e.1 | *"The Attacking player… places Triggered Abilities on the Chain **first**, followed by all non-Defender players in Turn Order, followed by the **Defending Player**."* |
+| CR 340.1 | *"The **newest** Finalized Chain Item resolves."* — the chain is **LIFO** |
+
+> **Therefore: the attacker's triggers go on first and so resolve LAST. The defender's go on
+> last and resolve FIRST.**
+
+This inverts the intuition that attacking gives initiative. In practice the defender's
+`When I defend…` abilities fire *before* the attacker's `When I attack…` abilities — so a
+defensive trigger can remove, shrink or relocate the attacker before its attack trigger
+ever resolves.
+
+**Consequence for EE:** any combat evaluation that resolves attack triggers first is
+computing the wrong game.
+
+### 8.2 The shape of a game — point pacing — **community**
+
+Two scoring rhythms fall out of the Final Point rule (CR 471.1.b):
+
+| Shape | Pace | Wins by |
+|---|---|---|
+| **Conqueror** | 2 → 4 → 6 | Taking **both** battlefields in one turn (6 → 8). Every battlefield scored that turn satisfies the Final Point restriction |
+| **Holder** | Grinds to 7 | **Holding** — Hold is exempt from the Final Point restriction (CR 471.1.a.1), so it simply wins on the next Beginning Phase |
+
+⚠️ **The non-obvious corollary:** a Conqueror sitting on 6 gains little from scoring a
+single 7th point. At 7 a lone Conquer no longer scores — it draws a card instead — so the
+deck still needs the double-conquer turn it needed at 6. Resources spent going 6 → 7 buy
+nothing toward the actual win condition.
+
+This gives a concrete model of game length: **conqueror games end around turns 4–6**;
+holder games run longer and trail on the scoreboard by design.
+
+### 8.3 Resource sequencing is a real skill — **verified**
+
+A worked line from a real turn, with 4 runes available (3 Fury):
+
+1. **Exhaust** a Fury rune → `+1 Energy`
+2. **Recycle** that same rune → `+1 Fury Power` *(see §3 — both abilities, one rune)*
+3. Play **Seal of Rage** (gear, 1 Fury Power); it enters **ready**
+4. Activate Seal's `[Reaction]` → `+1 Fury Power`
+5. **Exhaust** the remaining 3 runes → `+3 Energy`
+6. Play **Noxian Guillotine** (4 Energy + 1 Power)
+7. It is the **second Main Deck card** played this turn → **`Legion` is live** → kill a unit
+
+**The insight:** the order you touch resources in determines what you can cast. This is not
+flavour — it is the difference between a turn working and not working, and it is invisible
+from a card list.
+
+### 8.4 Sequencing traps that decide games
+
+| Trap | Why it bites | Source |
+|---|---|---|
+| **`Legion` counts *any* Main Deck card** — including 0-cost gear | Cheap gear turns on Legion for free. Sequence it first | **verified** — CR 812.1.b.1 |
+| **Rune Pool empties at the start of Main Phase and end of turn** | Resources generated in the Beginning/Channel phases are **gone** before you act. Never "bank" | **verified** — CR 167, 316.3 |
+| **Damage clears at *two* separate moments** | End of **combat** (CR 466.1.a.1) *and* end of **turn** (CR 317.2.b). Cleanups in between do **not** clear it | **verified** |
+| **Units enter exhausted** | A unit played this turn cannot Standard Move this turn. Playing at a battlefield and moving to one are very different tempo operations | **verified** — CR 143.4 |
+| **A stalled attack recalls your units** | `STALL` sends attackers home and leaves the defender holding (CR 466.1.a.2). Attacking without lethal is worse than not attacking | **verified** |
+| **Hidden cards die if you lose the battlefield** | Facedown cards at a battlefield you no longer control are trashed in the next cleanup (CR 107.3.d) | **verified** |
+
+### 8.5 What the first two turns look like — **community**
+
+From a beginner walkthrough, matching the rules:
+
+- **T1 first player:** channel 2, draw (hand 5), play a unit, Standard Move it to a
+  battlefield (exhausting it). A non-combat Showdown opens; both pass. Battlefield taken,
+  uncontested.
+- **T1 second player:** channel **3** (CR 485.7), play a unit, take the other battlefield.
+- **T2 first player:** Awaken readies the unit; **Beginning scores 1 point** for the held
+  battlefield; channel 2; draw; play a second unit and move it into the opponent's
+  battlefield → **Combat**.
+
+> The rhythm: **turn 1 claims, turn 2 starts scoring and contesting.** Points begin
+> compounding immediately, which is why a slow first two turns is expensive.
 
 ---
 
@@ -950,6 +1062,7 @@ resolution; best-of-5 battlefield reuse permitted.
 | C7 | `DATA-SOURCES.md` | `tags.tags[]` implied to be objects | It is a **plain list of strings** |
 | C8 | — | Opening hand size unrecorded | **4 cards**, mulligan up to 2 by bottom-and-replace |
 | C9 | this doc, v1 | *"A Legend can carry more than one champion tag"* | **Wrong.** Only one Legend carries two *tags*, and only one of them (`Kennen`) is a **champion tag**; `Yordle` is a species tag. Corrected in [§II.5](#5-chosen-champion--cr-1032a) — thanks to a physical-card check |
+| C10 | this doc, v1 · `DECK-STATS.md` | Rune abilities presented as an **either/or**: exhaust for Energy *or* recycle for Power | **Wrong.** They are two abilities with two costs and **no rule forbids using both**. One ready rune yields `1 Energy` **+** `1 Power` (exhaust, then recycle). Understating this makes rune feasibility report decks as unable to pay costs they can pay. See [§III.3](#3-resources--the-central-tension) |
 
 ## New legality checks required
 
@@ -967,6 +1080,10 @@ from 27 checks to 33. Recorded here as the derivation:
 
 ## Design implications
 
+0. ⭐ **Resolve defend triggers before attack triggers.** CR 464.2.e.1 + CR 340.1 (LIFO) mean
+   the attacker's triggers go on the chain first and therefore resolve **last**. An engine
+   that fires attack triggers first is simulating a different game. See
+   [§III.8.1](#81--defend-triggers-resolve-before-attack-triggers--verified).
 1. **Resolve legality by name, never by printing.** TR 601.2.a makes name the legality unit;
    this neutralises all 128 out-of-range printings and all 179 multi-printing names.
    Confirms `DATA-MODEL.md §2`.
