@@ -1,11 +1,11 @@
 # Delivery Plan — Forge
 
-> Every step from here to a finished tool: what gates it, what "done" means, and where the
-> risk sits.
+> The **detail layer**: what gates each milestone, what "done" means, how you validate it, and
+> where the risk sits. For *status* — where we are right now — see [`ROADMAP.md`](ROADMAP.md).
 >
 > **Created:** 2026-08-02 · **Rewritten:** 2026-08-02 (v3 — clearer step naming) · **Status:** Discovery complete; D2 is next
 
-**Navigation:** [`spec/OVERVIEW.md`](spec/OVERVIEW.md) (system map) ·
+**Navigation:** [`ROADMAP.md`](ROADMAP.md) (**status — start here**) · [`spec/OVERVIEW.md`](spec/OVERVIEW.md) (system map) ·
 [`DECISIONS.md`](DECISIONS.md) · [`AUDIT.md`](AUDIT.md) ·
 [`reference/COMPENDIUM.md`](reference/COMPENDIUM.md)
 
@@ -63,6 +63,13 @@ weeks rather than after four steps of infrastructure.
 
 ## 3. The arc
 
+> 📍 **The live status board, milestone table and dependency graph now live in
+> [`ROADMAP.md`](ROADMAP.md).** That is the answer to *"where are we?"*
+>
+> **This document is the detail layer** — what gates each milestone, what "done" means, how
+> you validate it, and where the risk sits. The two are deliberately split so status and
+> rationale don't drift apart.
+
 **The naming key.** A letter says *which track*, the number says *which step within it*.
 Steps in different tracks are **not** ordered against each other.
 
@@ -71,35 +78,8 @@ Steps in different tracks are **not** ordered against each other.
 | **D** | Design | Decide what we're building, before any logic |
 | **F** | Foundation | Get something live and fed with data |
 | **W** | Workbench | Build, validate and measure decks |
-| **S** | Strategist | EE — the part that answers questions |
-| **L** | Later | Deferred, and the generator spike |
-
-```
-DESIGN
-  D1  Discovery ........................ ▓▓▓▓▓▓▓▓▓▓ ✅ COMPLETE
-  D2  Interface design ................. ░░░░░░░░░░  ← NEXT
-  D3  Architecture ..................... ░░░░░░░░░░
-  ═══════════════════ 🔒 DESIGN LOCKED ═══════════════════
-                      no significant logic before this line
-
-FOUNDATION
-  F1  Get it online .................... ░░░░░░░░░░
-  F2  First usable version ⭐ .......... ░░░░░░░░░░  ← first real value
-  F3  Card data ........................ ░░░░░░░░░░
-
-        ┌─────────── W and S run in parallel from here ───────────┐
-
-THE WORKBENCH                        THE STRATEGIST (EE)
-  W1  Legality checking ⚠ ... ░░░░       S1  Rules engine 🔴 ...... ░░░░
-  W2  Collection entry ...... ░░░░       S2  Analysis ............. ░░░░
-  W3  Deck builder .......... ░░░░       S3  Plain-English answers ░░░░ ⭐
-  W4  Deck statistics ....... ░░░░       S4  Conversation ......... ░░░░
-  🏁 THE WORKBENCH IS DONE               S5  Deck generation ⭐ ... ░░░░
-                                         🏁 THE STRATEGIST IS DONE
-
-LATER
-  L1  Deferred features ................ ░░░░░░░░░░
-```
+| **S** | Strategist | EE — answers questions and proposes decks |
+| **L** | Later | Deferred |
 
 **Why W and S are parallel:** the EE rules engine is pure logic over cached card data. It
 needs **F3** and nothing else — not the workbench, not the collection, not the UI. It can be
