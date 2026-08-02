@@ -1,458 +1,408 @@
 # Delivery Plan — Forge
 
-> The complete arc from here to a finished tool: every stage, what gates it, what
-> "done" means, and where the risk sits.
+> Every stage from here to a finished tool: what gates it, what "done" means, and where the
+> risk sits.
 >
-> **Created:** 2026-08-02 · **Revised:** 2026-08-02 after the
-> [assumption audit](AUDIT.md) · **Status:** Stage 0 nearly complete
+> **Created:** 2026-08-02 · **Rewritten:** 2026-08-02 (v2 — EE promoted to a first-class
+> track) · **Status:** Discovery complete; Stage 1 is next
+
+**Navigation:** [`spec/OVERVIEW.md`](spec/OVERVIEW.md) (system map) ·
+[`DECISIONS.md`](DECISIONS.md) · [`AUDIT.md`](AUDIT.md) ·
+[`reference/COMPENDIUM.md`](reference/COMPENDIUM.md)
 
 ---
 
-## ▶️ Next session — start here
+## ▶️ Next session
 
 ### 🎨 Stage 1 — design the interface
 
-**All blockers are cleared.** Discovery is complete, and the next work is the biggest
-remaining unknown and the most enjoyable part: deciding what Forge actually looks and
-feels like.
+**All blockers cleared.** Discovery is complete. The next work is the biggest remaining
+unknown and the most enjoyable part: deciding what Forge looks and feels like.
 
-> Nothing to prepare. Bring opinions about what you want it to feel like.
+> Nothing to prepare. Bring opinions about how it should feel.
 
-**Resolved since the plan was written:**
-
-| | |
-|---|---|
-| ✅ Premise | Confirmed — decks already built from this collection ([D-033](DECISIONS.md#d-033)) |
-| ✅ Legend domains | **Exactly 2**, verified across all 118 Legends ([D-034](DECISIONS.md#d-034)) |
-| ✅ Card data | **Riot's official gallery** — 1,180 cards with domains, champion tags and Signature supertypes ([D-034](DECISIONS.md#d-034)) |
-| ✅ Rules scope | Tournament rules, bo3, competition-only ([D-032](DECISIONS.md#d-032)) |
+⚠️ **Stage 1 has grown.** It must now design **two** things, not one:
+1. The **workbench** — gallery, deck zones, The Bench, ownership language
+2. **How EE speaks** — an answer with a statement, a lever and its grounding is not a stat
+   tile. Whether EE is a panel, a conversation, or both, is a Stage 1 question (X4)
 
 ---
 
-## How to read this
+## 1. What Forge is
 
-Work is expressed in **stages**, not dates. This is an evenings-and-weekends personal
-project; calendar estimates would be fiction. Each stage carries:
+Two phases. **Each stands alone** — if the project stopped after Phase A it would still be
+worth having.
 
-- **Size** — S / M / L, relative effort only
-- **Gate** — what must be true before it may start
+| Phase | What | Status |
+|---|---|---|
+| **A — The Workbench** | Catalogue what you own; browse, filter and build decks by hand with live legality and honest statistics. Cards sleeved into a BUILT deck stop being available and always show which deck holds them | Specified |
+| **B — EE, the strategist** | Ask questions about your cards, decks and matchups; get answers grounded in a deterministic rules core. *"What's this card good at? How do I pilot this? What should I fear? What do I sideboard?"* | Specified — [`spec/EVALUATION.md`](spec/EVALUATION.md) |
+| ⏸️ *Spike G — Generator* | Auto-propose decks. **Deferred**, with kill conditions | [`spec/GENERATOR.md`](spec/GENERATOR.md) |
+
+---
+
+## 2. How to read this
+
+Work is in **stages**, not dates — this is an evenings-and-weekends project and calendar
+estimates would be fiction. Each stage carries:
+
+- **Size** — S / M / L / XL, relative effort only
+- **Gate** — what must be true before it starts
 - **Done when** — the observable condition that ends it
-- **You do** — what Alexander does to validate it (the SOP's Human QA gate, made concrete)
-
-Stages are sequenced by **dependency**. Where two are genuinely parallel, it says so.
+- **You do** — how Alexander validates it (the SOP's Human QA gate, made concrete)
 
 ### Honest scale
 
-**Phase A is a season or two of evenings, not a few weekends.** Stage 7 alone is
-substantial, and Stages 1, 5 and 8 are each real work. This is worth knowing before
-starting rather than discovering in month three.
+**Phase A is a season or two of evenings. Phase B is comparable again** — the EE rules core
+is the single largest component in the project, because Riftbound's showdown/chain system
+and card-level rule overrides make it a real rules engine, not a calculator.
 
-**The mitigation is Stage 3.5**, which puts something genuinely usable in your hands
-within weeks rather than after four stages of infrastructure.
-
----
-
-## The arc
-
-```
-STAGE 0    Discovery ........................ ▓▓▓▓▓▓▓▓▓▓ ~95%
-STAGE 0.5  Premise verification ............. ▓▓▓▓▓▓▓▓▓▓ ✅ CLOSED — premise confirmed
-STAGE 0.6  Card data source verification ... ▓▓▓▓▓▓▓▓▓▓ ✅ CLOSED — official source found
-STAGE 1    Visualization / interface design . ░░░░░░░░░░
-STAGE 2    Architecture .................... ░░░░░░░░░░
-────────────────────────── BLUEPRINT LOCK ──────────────────────────
-STAGE 3    Foundations & deployment spine .. ░░░░░░░░░░
-STAGE 3.5  Walking skeleton ⭐ ............. ░░░░░░░░░░  ← first real value
-STAGE 4    Card data layer ................. ░░░░░░░░░░
-STAGE 5    Legality engine ⚠ highest risk .. ░░░░░░░░░░
-STAGE 6    Collection ...................... ░░░░░░░░░░
-──────────────────── MILESTONE: the collection is real ─────────────────
-STAGE 7    Deck workbench .................. ░░░░░░░░░░
-STAGE 8    Statistics — Tiers 1 & 2 ........ ░░░░░░░░░░
-──────────────────── MILESTONE: PHASE A COMPLETE ───────────────────────
-SPIKE G    Generator research spike ........ ░░░░░░░░░░  ← hypothesis, not commitment
-STAGE 9    Deferred features ............... ░░░░░░░░░░
-```
+**The mitigation is Stage 3.5**, which puts something genuinely usable in your hands within
+weeks rather than after four stages of infrastructure.
 
 ---
 
-## STAGE 0 — Discovery
+## 3. The arc
 
-**Size:** M · **Status:** ~95%
+```
+FOUNDATION
+  0    Discovery ......................... ▓▓▓▓▓▓▓▓▓▓ ✅ COMPLETE
+  1    Interface design .................. ░░░░░░░░░░  ← NEXT
+  2    Architecture ...................... ░░░░░░░░░░
+  ──────────────────── BLUEPRINT LOCK ────────────────────
+  3    Foundations & deployment spine .... ░░░░░░░░░░
+  3.5  Walking skeleton ⭐ ............... ░░░░░░░░░░  ← first real value
+  4    Card data layer ................... ░░░░░░░░░░
 
-### Complete
+              ┌──────────────── then two parallel tracks ────────────────┐
 
-Problem and scope ([DISCOVERY.md](DISCOVERY.md)) · 24+ decisions with rationale
-([DECISIONS.md](DECISIONS.md)) · rulebook-cited rules
-([reference/GAME-RULES.md](reference/GAME-RULES.md)) · data landscape
-([reference/DATA-SOURCES.md](reference/DATA-SOURCES.md)) · statistics framework
-([spec/DECK-STATS.md](spec/DECK-STATS.md)) · data model
-([spec/DATA-MODEL.md](spec/DATA-MODEL.md)) · legality specification
-([spec/LEGALITY.md](spec/LEGALITY.md)) · assumption audit ([AUDIT.md](AUDIT.md))
+TRACK A — Workbench                     TRACK B — EE
+  5   Legality engine ⚠ ....... ░░░░      9   Rules core 🔴 ......... ░░░░
+  6   Collection .............. ░░░░     10   Analysis layer ........ ░░░░
+  7   Deck workbench .......... ░░░░     11   Synthesis layer ⭐ .... ░░░░
+  8   Statistics .............. ░░░░     12   Conversation layer .... ░░░░
+  ── MILESTONE: PHASE A ──                ── MILESTONE: PHASE B ──
 
-Q1 · Q2 · Q3 · Q6 · Q9 resolved. Q5 resolved in principle by the mechanical-playstyle
-proposal in [spec/GENERATOR.md §5](spec/GENERATOR.md).
+  13   Deferred features ................ ░░░░░░░░░░
+  G    Generator spike (kill conditions) ░░░░░░░░░░
+```
 
-### Remaining
-
-| # | Item | Blocks |
-|---|---|---|
-| ~~Q7~~ | Best-of-three / sideboard scope | ✅ **In scope** — [D-032](DECISIONS.md#d-032) |
-| ~~Q8~~ | Default legality mode | ✅ **Competition only**; casual mode not built — [D-032](DECISIONS.md#d-032) |
-| Q10 | How errata and the ban list are ingested and kept current | Stage 4 |
-| ~~DM1 / LR1~~ | ✅ **RESOLVED** — Riot's official gallery supplies domains, champion tags and Signature supertypes | — |
-
-**Discovery is effectively complete.** Only Q10 remains, and it affects one stage's
-implementation detail rather than any decision.
+**Why two tracks:** the EE rules core is pure logic over cached card data. It needs Stage 4
+and nothing else — not the workbench, not the collection, not the UI. It can be built and
+tested headlessly, in parallel, which also makes it the most resumable work in the project.
 
 ---
 
-## STAGE 0.5 — Premise verification ✅ **CLOSED**
+## 4. Foundation stages
 
-**Status:** Resolved 2026-08-02 by direct evidence — see [D-033](DECISIONS.md#d-033)
+### Stage 0 — Discovery ✅ **COMPLETE**
 
-The [audit](AUDIT.md) identified this as the project's highest-risk assumption
-(A13, fragility 4 × impact 5 = **20**): *that the bottleneck is information, not
-cards.* If the collection could not produce complete legal decks, Forge would have
-been a tool that mostly says *"no."*
+Problem and scope · 35+ decisions with rationale · the rules and card universe read from
+primary sources · data landscape · statistics framework · data model · legality spec ·
+EE spec · assumption audit.
 
-### ✅ Confirmed
+**Resolved during Discovery:**
 
-> *"I have over a thousand cards … and I have made numerous decks already."*
-
-**The experiment had already been run** — in the physical world, repeatedly, with a
-positive result. The collection demonstrably supports complete legal decks. Counting
-runes, battlefields and main deck cards was unnecessary.
-
-**Lesson recorded:** the audit was right to demand verification and wrong about the
-cost. The answer was available by **asking the user about their own experience**, not
-by designing an experiment to prove a thing they had already done.
-
-### One question survived
-
-Embedded in the original Check 1 was a question that is **not** about the collection
-at all, but about the rules:
-
-> **Does a Champion Legend carry one domain, or two?**
-
-Community sites say two. The RiftScribe API reports one. **The rulebook states no
-count** — CR 103.1.b.2 says only *"the domains of your Champion Legend."* This gates
-Domain Identity, which gates every card in every deck.
-
-**You do:** answer from experience, or glance at a Legend's upper-left corner.
-
----
-
-## STAGE 0.6 — Card data source verification ✅ **CLOSED**
-
-**Status:** Resolved 2026-08-02 — see [D-034](DECISIONS.md#d-034)
-
-RiftScribe was found to lack champion tags, multi-domain representation and the
-Signature supertype, blocking 7 of 27 legality checks. **Riot's own card gallery
-supplies all of them.**
-
-```
-GET https://playriftbound.com/en-us/card-gallery/          → read buildId
-GET https://playriftbound.com/_next/data/{buildId}/en-us/card-gallery.json
-```
-
-`robots.txt` is `Allow: /` with no exclusions. One request, ~3.2 MB, **1,180 cards**.
-
-| Verified | Result |
+| | |
 |---|---|
-| Cards | **1,180** — vs RiftScribe's 950, which is **missing Vendetta entirely** |
-| `domain.values[]` | Array. **All 118 Legends carry exactly 2 domains**; 169 cards total have 2 |
-| `tags.tags[]` | Champion tags on **826 / 1,180** cards |
-| `cardType.superType[]` | **51 Signature cards** identified |
-
-**Unblocks L8, L10, L17–L21.** [spec/LEGALITY.md](spec/LEGALITY.md) is now fully
-implementable.
-
-> ⚠️ **`buildId` changes on every deploy** — read it from the gallery page, never
-> hard-code it.
+| ✅ Premise | Decks already built from this collection ([D-033](DECISIONS.md#d-033)) |
+| ✅ Card data | Riot's official gallery — 1,180 printings, 935 names ([D-034](DECISIONS.md#d-034)) |
+| ✅ Rules scope | Tournament rules, best-of-three ([D-032](DECISIONS.md#d-032)) |
+| ✅ Rules authority | Official PDFs only ([D-035](DECISIONS.md#d-035)) |
+| ✅ Q10 — errata & ban list | Prose, not APIs. A small hand-maintained overlay — COMPENDIUM §VI.7 |
+| ✅ Legend domains | Exactly 2, all 118 printings; **49 distinct Legends** |
 
 ---
 
-## STAGE 1 — Visualization / interface design
+### Stage 1 — Interface design 🎨 **← NEXT**
 
-**Size:** L · **Gate:** ✅ none — all blockers cleared · **Phase 2 of the SOP** · **← NEXT**
+**Size:** L · **Gate:** ✅ none · **SOP Phase 2**
 
-The largest remaining unknown. Genuinely novel rather than a routine UI pass, because:
+The largest remaining unknown, and genuinely novel rather than a routine UI pass:
 
-- **Ownership is the organising principle** (D-015) — no existing tool works this way,
-  so there is no layout to borrow
-- **Full desktop/phone parity** (D-018) — the same workbench under a mouse and a thumb (Q11)
+- **Ownership is the organising principle** ([D-015](DECISIONS.md#d-015)) — no existing tool
+  works this way, so there is no layout to borrow
+- **Full desktop/phone parity** ([D-018](DECISIONS.md#d-018))
+- ⭐ **EE needs a presentation language.** An answer with a statement, a lever and its
+  grounding is a new component type
 
-### Work
-
-1. Aesthetic direction — explicitly **not** a Piltover Archive clone (D-014)
-2. **Ownership visual language** — owned / unowned / committed-elsewhere, and how
-   *"this card is in Jinx Aggro v2"* appears without nagging (D-017)
-3. **Three-tier statistics language** — the visual encoding preventing a Tier 3
-   estimate from passing as Tier 1 (D-022). Non-negotiable, therefore designed
-4. Desktop layout — gallery, deck zones, The Bench, statistics
-5. Phone layout — same capability, different ergonomics
-6. Collection entry mode — keyboard, collector-number keyed (D-013)
-7. **Interactive prototype**
+**Work:** aesthetic direction (explicitly not a Piltover Archive clone,
+[D-014](DECISIONS.md#d-014)) · ownership visual language (owned / unowned /
+committed-elsewhere) · **EE answer presentation** · honesty-tier encoding
+([D-022](DECISIONS.md#d-022)) · desktop layout · phone layout · collection entry mode ·
+**interactive prototype**
 
 **Done when:** a clickable prototype exists that you have used and approved.
-**You do:** use the prototype and say what feels wrong.
+**You do:** use it and say what feels wrong.
 
 **Risk:** designing two ergonomics for one app is where this could sprawl.
-**Mitigation:** design the **phone layout first** under tighter constraints, then
-expand — never shrink a desktop design down.
+**Mitigation:** design the **phone layout first**, then expand — never shrink a desktop
+design down.
 
 ---
 
-## STAGE 2 — Architecture
+### Stage 2 — Architecture
 
-**Size:** M · **Gate:** Stage 1 approved (D-019 — design constrains the stack)
+**Size:** M · **Gate:** Stage 1 approved ([D-019](DECISIONS.md#d-019) — design constrains the stack)
 
-D-018 narrowed this considerably: editing on two devices demands a single source of
-truth. **But the audit flagged this as convention, not fact** (A6) — a hosted,
-always-on, internet-reachable service for exactly one user was never separately
-justified. **Re-examine before accepting.**
+Decisions: stack · hosting and its **indefinite** running cost · storage · card cache ·
+access control · backup and export.
 
-### Decisions
+⭐ **New:** **where EE's conversation layer runs** (X1) — in-app chat with an API key and
+per-query cost, or Claude Code against an exported deck state. This materially affects
+hosting and cost.
 
-- Stack and framework
-- Hosting — and what it costs to run **indefinitely**
-- Storage for collection, decks, commitments
-- Card cache strategy (1,180 printings, ~3.2 MB — cacheable whole in one request)
-- Access control: one user, public internet
-- **Backup and export** — see [spec/DATA-MODEL.md §6](spec/DATA-MODEL.md#6-backup-and-portability)
+> ⚠️ The audit flagged "hosted, always-on" as convention rather than fact (A6). A
+> permanently-online service for exactly one user was never separately justified.
+> **Re-examine before accepting.**
 
 **Done when:** an architecture document exists with the stack chosen and justified.
 
 > ### 🔒 BLUEPRINT LOCK
-> Stages 0–2 complete. `BLUEPRINT.md` is written and locked. Per the SOP, **no
-> significant logic precedes this point**; afterwards every change maps to a task.
+> Stages 0–2 complete. Per the SOP, **no significant logic precedes this point**;
+> afterwards every change maps to a task.
 
 ---
 
-## STAGE 3 — Foundations & deployment spine
+### Stage 3 — Foundations & deployment spine
 
 **Size:** S · **Gate:** BLUEPRINT locked
 
-Scaffold, repo structure, test harness, CI, and **a deployed hello-world reachable
-from your phone.**
-
-Deployment comes first deliberately: phone parity is a hard requirement, and finding a
-hosting problem after the workbench exists would be expensive.
+Scaffold, repo structure, test harness, CI, and **a deployed hello-world reachable from
+your phone.** Deployment comes first deliberately — phone parity is a hard requirement and
+finding a hosting problem later would be expensive.
 
 **Done when:** a trivial page is live, reachable from the phone, deploying automatically.
 
 ---
 
-## STAGE 3.5 — Walking skeleton ⭐
+### Stage 3.5 — Walking skeleton ⭐
 
 **Size:** M · **Gate:** Stage 3
 
-**The most important change to this plan.** The [audit](AUDIT.md) identified
-time-to-first-value as the dominant risk (A12, risk 20): the original sequence
-required four stages of layered infrastructure before anything was usable.
+**The most important sequencing decision in this plan.** The [audit](AUDIT.md) identified
+time-to-first-value as the dominant risk (A12): the original plan needed four stages of
+infrastructure before anything was usable.
 
-A **walking skeleton** is end-to-end and deliberately crude:
+Deliberately crude, end-to-end: one hardcoded Legend · card data from a static file ·
+legality limited to deck size and domain identity · a hand-written ~30-card collection ·
+add and remove cards · one statistic (the energy curve).
 
-- **One** hardcoded Legend and its domain pool
-- Card data loaded from a static file — no ingestion pipeline
-- Legality: **only** deck-size and domain-identity checks
-- Collection: a hand-written list of ~30 cards
-- Add and remove cards; see the count
-- **One** statistic — the energy curve
-
-Ugly, incomplete, and **genuinely usable end-to-end.**
-
-**Why:** every later stage becomes *"replace the crude part with the real one"*
-instead of *"build a layer and hope it fits."* Design mistakes surface in week three
-rather than month four.
+Ugly, incomplete, and **genuinely usable.**
 
 **Done when:** you can open it on your phone and put cards into a deck.
-**You do:** use it and report what feels wrong — that feedback reshapes Stages 4–8.
+**You do:** use it and report what feels wrong — that feedback reshapes everything after.
 
 ---
 
-## STAGE 4 — Card data layer
+### Stage 4 — Card data layer
 
-**Size:** S–M · **Gate:** Stage 3.5
+**Size:** S–M · **Gate:** Stage 3.5 · **Gates both tracks**
 
-- Ingest the full pool from **Riot's official gallery** ([D-034](DECISIONS.md#d-034)) — **1,180 printings / 935 distinct names** across 5 sets
-- **Cache locally in full** — mitigates the dependency disappearing
-- Single request, no pagination — the whole gallery arrives as one ~3.2 MB payload
-- **Variant collapsing** by name ([spec/DATA-MODEL.md §2](spec/DATA-MODEL.md))
-- **Primary source: Riot's official card gallery** ([D-034](DECISIONS.md#d-034)) —
-  1,180 cards with domains, champion tags and Signature supertypes
-- Resolve `buildId` at fetch time; never hard-code it
-- RiftScribe optionally as a **secondary** source for pre-parsed keywords and typeahead
-- Errata and ban list ingestion (Q10)
-- New-set refresh strategy
+Ingest the full pool from Riot's official gallery — **1,180 printings / 935 names**, one
+~3.2 MB request. Cache locally in full. Resolve `buildId` at fetch time, never hard-code it.
+Variant collapsing **by name**. **Errata and ban-list overlay** (Q10) — hand-maintained,
+~10 banned names and ~8 errata per set.
 
-**Done when:** the full pool is queryable offline, variants correctly collapsed, and
-champion tags / domains / Signature status available for every card.
+**Done when:** the full pool is queryable offline, variants collapsed by name, with champion
+tags, domains and Signature status available for every card.
 
 ---
 
-## STAGE 5 — Legality engine ⚠️ **highest correctness risk**
+## 5. Track A — the Workbench
+
+### Stage 5 — Legality engine ⚠️ **highest correctness risk**
 
 **Size:** M–L · **Gate:** Stage 4 · **Parallel with Stage 6**
 
-Specification: [spec/LEGALITY.md](spec/LEGALITY.md) — 27 checks, 10 rulebook-derived
-tests.
+Specification: [`spec/LEGALITY.md`](spec/LEGALITY.md) — **33 checks**, 13 rulebook-derived tests.
 
 Built early and tested heavily because everything downstream trusts it.
 
-**Done when:** checks L1–L27 implemented, tests T1–T10 passing, and CR 103 / TR 601
-**read in full** and reconciled against the specification.
+**Done when:** L1–L33 implemented, T1–T13 passing, and the spec reconciled against the
+rulebooks (both now read in full — see [COMPENDIUM](reference/COMPENDIUM.md)).
 
-**Risk (LR2):** the Signature card rule was found only by reading the PDF, after
-community sources had already been wrong about the sideboard. **There are probably
-more.** Mitigation — read the rulebook line by line, never summaries; encode every
-rulebook example as a test.
+> **Risk LR2 is confirmed real, twice over.** The Signature-card rule and the `Unique`
+> keyword were both found only by reading the PDF directly. **There are probably more.**
+> Mitigation: read the rulebook line by line, never summaries; encode every rulebook
+> example as a test.
 
----
-
-## STAGE 6 — Collection
+### Stage 6 — Collection
 
 **Size:** M · **Gate:** Stage 4 · **Parallel with Stage 5**
 
-- **Collector-number keyboard entry** (D-013)
-- Name typeahead fallback
-- **Preconstructed products as one-click bundles** — ~200 cards, zero typing
-- Quantity and variant handling
-- The **commitment model** — DRAFT vs BUILT
-  ([spec/DATA-MODEL.md §3](spec/DATA-MODEL.md#3-commitment))
+Collector-number keyboard entry ([D-013](DECISIONS.md#d-013)) — must parse **all 17
+`publicCode` forms**, including `VEN-R01` runes and `UNL-T1` tokens. Name typeahead
+fallback. Preconstructed products as one-click bundles. Quantity and variant handling. The
+DRAFT/BUILT commitment model.
 
 > ### 🏁 MILESTONE — the collection is real
-> You sit down with your boxes and enter the actual collection. From here Forge
-> operates on real data, not fixtures.
+> You sit down with your boxes and enter the actual collection. From here Forge operates on
+> real data, not fixtures.
 >
-> **Audit finding A3 (risk 15):** this was assumed rather than planned. It is now an
-> explicit milestone with a completion check — spot-check 20 random names against the
-> boxes and confirm the counts match.
+> **Audit finding A3:** this was assumed rather than planned. It is now an explicit
+> milestone with a completion check — spot-check 20 random names against the boxes.
 
----
-
-## STAGE 7 — Deck workbench
+### Stage 7 — Deck workbench
 
 **Size:** L · **Gate:** Stages 5 + 6
 
-The centrepiece.
-
-- Gallery — **owned by default**, ownership as a filter dimension (D-015)
-- Filters: set · collector number · domain · type · rarity · variant · energy · power ·
-  might · owned/unowned
-- Zones: Legend · Champion · Main · Runes · Battlefields · Sideboard
-- **The Bench** — staging area, saved with the deck, never validated
-- Live legality validation
-- **Commitment awareness** — unavailable cards always show *which deck holds them*
-- Save, name, edit, snapshot, compare
-- DRAFT → BUILT promotion with conflict resolution
-- **Full phone parity on every screen**
+The centrepiece. Gallery owned-by-default with ownership as a filter dimension · filters ·
+zones (Legend, Champion, Main, Runes, Battlefields, Sideboard) · **The Bench** (staging
+area, saved with the deck, never validated) · live legality · **commitment awareness** —
+unavailable cards always show which deck holds them · save, name, edit, snapshot, compare ·
+DRAFT → BUILT promotion · **full phone parity**.
 
 **Done when:** a complete legal deck can be built end-to-end on both desktop and phone.
 
----
+### Stage 8 — Statistics
 
-## STAGE 8 — Statistics, Tiers 1 & 2
+**Size:** M–L · **Gate:** Stage 7 · Spec: [`spec/DECK-STATS.md`](spec/DECK-STATS.md)
 
-**Size:** M–L · **Gate:** Stage 7 · Specification:
-[spec/DECK-STATS.md](spec/DECK-STATS.md)
-
-Tier 1 facts and Tier 2 probabilities, including the flagship **rune feasibility
-curve** (D-023). **Tier 3 is deliberately absent**, and the panel must read as
+Tier 1 facts and Tier 2 probabilities, including the flagship **rune feasibility curve**
+([D-023](DECISIONS.md#d-023)). Tier 3 deliberately absent, and the panel must read as
 complete without it.
 
 **Done when:** both tiers render with correct visual separation, inside the <2 s target.
-
 **Risk:** Monte Carlo performance on a phone. Measure early; move server-side if needed.
 
 > ### 🏁 MILESTONE — PHASE A COMPLETE
-> The workbench is usable for real deckbuilding. **If the project stopped here it
-> would still be worth having** — which is exactly why the generator can be optional.
+> The workbench is usable for real deckbuilding. **If the project stopped here it would
+> still be worth having.**
 
 ---
 
-## SPIKE G — Generator research spike
+## 6. Track B — EE
 
-**Size:** ? · **Gate:** Phase A complete **and** evidence of real need
-**Specification:** [spec/GENERATOR.md](spec/GENERATOR.md)
+Specification: [`spec/EVALUATION.md`](spec/EVALUATION.md)
 
-⚠️ **Downgraded from a planned stage to a hypothesis with kill conditions**, following
-audit finding A9. The stated goal is to *enjoy hours of tinkering*; a generator
-automates tinkering. What is actually wanted may be a workbench that makes tinkering
-fast and well-informed — which is Phase A.
+### Stage 9 — Rules core 🔴 **largest single component**
 
-It also carries an unresolved contradiction: **a generator needs an objective
-function, and D-016 forbids a composite score.** Leading resolution is multi-objective
-Pareto selection. **Unvalidated.**
+**Size:** XL · **Gate:** Stage 4 · **Parallel with Track A**
 
-**Output:** a recommendation to build, redesign, or cancel — **not a feature.**
+A real rules engine: game state · legal-action enumeration · **chain resolution (LIFO,
+`[Reaction]`-only when closed)** · **showdowns as alternating priority windows** · combat
+damage assignment under Tank/Backline/lethal-first/no-overkill · replacement effects ·
+layers · cleanups including recall-attackers-on-stall.
+
+⚠️ **Rules must be data, not code.** **21 cards rewrite rules an engine would hardcode** —
+Elder Dragon voids the lethal-damage threshold, Dune Surfer voids `Tank`, Baron Nashor adds
+a battlefield mid-game. CR 002 — *card text supersedes rules text* — is a design requirement.
+
+**Build vertically:** one battlefield, 1v1, full fidelity first. Then widen.
+
+**Done when:** every worked example in CR 355–359, 370–375 and 465.2 passes as a fixture,
+and each of the 21 rule-warping cards has a regression test.
+
+### Stage 10 — Analysis layer
+
+**Size:** L · **Gate:** Stage 9
+
+Refutation search · robustness (breadth, cost, speed, reach, frequency) · answer coverage ·
+threat pressure classes · Legend fit · dead-card detection.
+
+**Also here:** the annotation overlays — **~153 card effects** and **49 Legend abilities**,
+hand-annotated rather than parsed.
+
+**Done when:** EE can answer Q-CARD, Q-COMPARE and Q-LEGEND correctly, headlessly.
+
+### Stage 11 — Synthesis layer ⭐ **the one that makes EE usable**
+
+**Size:** M · **Gate:** Stage 10
+
+Pattern vocabulary · salience ranking · statement budgets.
+
+> **This is the layer that turns "66 cards refute this" into "fragile to cheap Mind
+> interaction — attack when they're tapped out."** Without it EE is technically correct and
+> practically useless. See [`spec/EVALUATION.md`](spec/EVALUATION.md) §2.
+
+**Done when:** no answer exceeds its statement budget, enforced by test.
+**You do:** read 20 answers and say which ones you'd actually act on.
+
+### Stage 12 — Conversation layer
+
+**Size:** M · **Gate:** Stage 11 + the X1 decision from Stage 2
+
+Open questions, follow-ups, "why?", memory of the conversation.
+
+**Discipline, enforced by test:** never does arithmetic, never adjudicates rules, never
+emits a number that didn't come from a tool call.
+
+> ### 🏁 MILESTONE — PHASE B COMPLETE
+> You can ask Forge questions about your decks and get answers you'd act on.
 
 ---
 
-## STAGE 9 — Deferred features
+## 7. Stage 13 — Deferred features
 
 | Feature | Waiting on |
 |---|---|
-| **Physical card location** (Q6, D-021) | The new organising box |
+| Physical card location (Q6, [D-021](DECISIONS.md#d-021)) | The new organising box |
 | Pack-opening entry mode | Base entry already covers it |
 | Deck version comparison | Emerges from real use |
-| Tier 3 / meta adapter | Q4 — **and its relevance problem**, see below |
+| Casual (non-tournament) legality mode | Wanted, not just possible |
+| Specific rival-deck modelling for EE | The threat-space model shipping first |
+| Limited (Sealed/Draft) support | A genuinely different validator — COMPENDIUM §II.9 |
+
+## 8. Spike G — Generator
+
+**Gate:** Phase A complete **and** evidence of real need · Spec: [`spec/GENERATOR.md`](spec/GENERATOR.md)
+
+⚠️ **Downgraded to a hypothesis with kill conditions.** The stated goal is to enjoy hours of
+tinkering; a generator automates tinkering. It also needs an objective function, and
+[D-016](DECISIONS.md#d-016) forbids a composite score.
+
+> **EE weakens the case further.** If Forge can explain a deck's strengths, gaps and lines
+> precisely, the reason to auto-generate shrinks. **Output: a recommendation, not a feature.**
 
 ---
 
-## Testing strategy
+## 9. Testing strategy
 
 | Layer | Approach |
 |---|---|
 | **Legality** | Exhaustive. Every check independently tested; every rulebook example a fixture. **Non-negotiable** |
-| **Statistics — Tier 1** | Deterministic; straightforward assertions |
-| **Statistics — Tier 2** | ⚠️ Genuinely hard. Probabilities cannot be asserted exactly. Approach: verify Monte Carlo against **closed-form hypergeometric** where both apply, then test invariants (monotonicity, bounds, convergence) where only simulation applies |
-| **Data layer** | Contract tests against cached fixtures, so RiftScribe changes surface as failures |
-| **UI** | Manual, via the Human QA gates. Automated UI testing is disproportionate for one user |
+| **EE rules core** | The rulebook *is* the test suite — every worked example a fixture. Plus a regression test per rule-warping card |
+| **EE synthesis** | ⭐ Budget tests: no answer exceeds its statement budget or names >3 example cards |
+| **EE conversation** | Adversarial: assert no number appears that didn't come from a tool call |
+| **Statistics — Tier 1** | Deterministic assertions |
+| **Statistics — Tier 2** | ⚠️ Genuinely hard. Verify Monte Carlo against **closed-form hypergeometric** where both apply; test invariants (monotonicity, bounds, convergence) where only simulation applies |
+| **Data layer** | Contract tests against cached fixtures, so upstream changes surface as failures |
+| **UI** | Manual, via Human QA gates. Automated UI testing is disproportionate for one user |
 
----
+## 10. Maintenance
 
-## Maintenance
+Not a phase — an **ongoing obligation** from Stage 4.
 
-Not a phase — an **ongoing obligation** that begins at Stage 4.
+| Clock | Cadence | Response |
+|---|---|---|
+| **New sets** | ~quarterly | Re-fetch gallery; refresh `buildId` |
+| **Errata** | Per set, ~8 cards | Hand-maintained overlay keyed by name |
+| **Rules updates** | With sets and patches | **Re-read the changed PDF sections**, never summaries |
+| **Ban list** | Independent of sets | Hand-maintained — currently 5 cards + 5 battlefields + 1 legend (2v2) |
 
-- **New sets ship regularly** (Vendetta, 31 July 2026). Card refresh must be routine
-- **Errata revise existing cards** — including cards already owned and already in
-  BUILT decks. Refresh must reconcile, not blindly overwrite (DM4)
-- **Rules updates change legality** — the sideboard moved from 8 to 10 in July 2026.
-  Re-verify [spec/LEGALITY.md](spec/LEGALITY.md) against each rules release
-- **The ban list changes independently** of set releases
-
----
-
-## Risk register
+## 11. Risk register
 
 | Risk | Severity | Mitigation |
 |---|---|---|
-| ⭐ **Time-to-first-value** — enthusiasm decays before the tool is useful (audit A12) | 🔴 High | **Stage 3.5 walking skeleton** — usable in weeks, not months |
-| **Premise may not hold** — collection may not support multiple decks (A13) | 🔴 High | **Stage 0.5**, two hours, before any code |
-| ~~Card data cannot support legality~~ | ✅ **Resolved** | Riot's official gallery supplies every required field — [D-034](DECISIONS.md#d-034) |
-| **Undiscovered rules** (LR2) | 🔴 High | Rulebook line by line; every example a test |
+| ⭐ **Time-to-first-value** — enthusiasm decays before the tool is useful (A12) | 🔴 High | **Stage 3.5 walking skeleton** |
+| 🆕 **EE rules core is underestimated** — showdowns, chains, layers and 21 rule-overrides make it a real engine | 🔴 High | Build vertically; rulebook examples as fixtures; headless and resumable |
+| 🆕 **EE answers become noise** — technically correct, practically unreadable | 🔴 High | **Stage 11 synthesis** + budget tests. This killed the v2 spec design |
+| **Undiscovered rules** (LR2) — confirmed twice (Signature, `Unique`) | 🔴 High | Rulebook line by line; every example a test |
 | **Collection entry never happens** (A3) | 🟡 Medium | Explicit milestone with a spot-check |
-| RiftScribe disappears | 🟡 Medium | Full local cache from Stage 4 |
+| **Annotation drift** — 153 effects + 49 Legends by hand | 🟡 Medium | Completeness test: every card matching `Deal\|Kill\|Stun` must have an annotation |
 | Phone/desktop design sprawl | 🟡 Medium | Phone-first, then expand |
 | Monte Carlo too slow on mobile | 🟡 Medium | Measure early; server-side fallback |
-| Generator scope creep | 🟢 Low | Downgraded to a spike with kill conditions |
-| **Meta data relevance** (A8) — tournament winrates come from unlimited pools and may not transfer to a 250-name collection | 🟢 Low | Tier 3 optional by design; question is answerable without obtaining data |
+| Card data source disappears | 🟡 Medium | Full local cache from Stage 4 |
+| Generator scope creep | 🟢 Low | Deferred spike with kill conditions |
+| ~~Premise may not hold~~ | ✅ Closed | [D-033](DECISIONS.md#d-033) |
+| ~~Card data can't support legality~~ | ✅ Closed | [D-034](DECISIONS.md#d-034) |
 
----
+## 12. Guiding principles
 
-## Guiding principles
+The full list lives in [`spec/OVERVIEW.md`](spec/OVERVIEW.md) §4. The three that most often
+decide an argument:
 
-1. **The rulebook is the only legality authority** (D-020). Community guides have
-   already been wrong once.
-2. **Phase A must stand alone.** If the generator is never built, the workbench is
-   still worth having.
-3. **Honesty over polish in statistics** (D-022). Omit Tier 3 rather than fake it.
-4. **Never a dead end.** An unavailable card shows where it is; an impossible deck
-   shows what is missing.
-5. **No scraping** (D-010).
-6. **Design constrains the stack**, not the reverse (D-019).
-7. ⭐ **Verify premises before building on them.** The audit exists because this was
-   nearly skipped.
+1. **The rulebook is the only authority.** Community sources have been wrong twice.
+2. **Omit rather than fake.** No grades, no invented certainty.
+3. **Synthesis over enumeration.** Three useful statements beat sixty-six true ones.

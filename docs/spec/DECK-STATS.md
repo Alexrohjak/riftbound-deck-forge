@@ -1,7 +1,11 @@
 # Deck Statistics Framework
 
-> **Resolves Q9.** Establishes what the workbench and generator report about a deck,
-> now that [D-016](../DECISIONS.md#d-016) has ruled out a composite effectiveness grade.
+> **Resolves Q9.** Establishes what Forge *measures* about a deck, now that
+> [D-016](../DECISIONS.md#d-016) has ruled out a composite effectiveness grade.
+>
+> **Measurement, not interpretation.** This document owns the numbers;
+> [`EVALUATION.md`](EVALUATION.md) (EE) owns what they *mean* and what to do about them.
+> See [`OVERVIEW.md`](OVERVIEW.md) §1 for why the two must never blur.
 >
 > **Status:** Design accepted 2026-08-02. Not yet specified to implementation detail.
 
@@ -114,16 +118,36 @@ Computed or simulated. Correct given assumptions, which are always stated.
 
 ## 5. 🔴 Tier 3 — Estimates
 
-External data. Genuinely uncertain. Visually distinct and explicitly labelled.
+**Requires data external to the rules and the card pool.** Genuinely uncertain — and
+therefore **omitted entirely**, not rendered.
 
-- Meta positioning
-- Matchup counterplay against specific decks and Legends
-- Archetype fit
+- Meta positioning and metashare
+- Win probability against a named deck or Legend
 - Performance of comparable tournament decks
+- Archetype fit as judged by the community
 
-> **Currently blocked on Q4** (legitimate access to tournament data). Under
-> [D-009](../DECISIONS.md#d-009) the panel **omits this tier entirely rather than
-> fabricating it.** An absent Tier 3 is an honest panel; an invented one is not.
+> **Blocked on Q4** (legitimate access to tournament data), and now also **evidentially
+> discredited**: current-set meta data rests on samples of **n = 1 to 3**
+> ([COMPENDIUM §VI.6](../reference/COMPENDIUM.md#6-the-meta--and-why-it-may-not-matter-for-forge)).
+> Under [D-009](../DECISIONS.md#d-009) the panel omits this tier rather than fabricating it.
+> An absent Tier 3 is an honest panel; an invented one is not.
+
+### ⚠️ What is *not* Tier 3 — matchup analysis against the legal format
+
+Tier 3 means *"needs external data."* It does **not** mean *"concerns matchups."*
+
+**EE's matchup analysis is derived entirely from the rules and the card pool** — what an
+opposing Domain Identity *can legally field*, and whether your deck answers it. That needs
+no tournament data and no assumptions, so it is **Tier 1/2, not Tier 3**.
+
+| Question | Tier |
+|---|---|
+| *"Does my removal answer what Body/Fury can field at 5+ cost?"* | 🟢 **Tier 1** — derived from the legal pool |
+| *"How likely am I to hold an answer by turn 4?"* | 🟡 **Tier 2** — computed, assumptions stated |
+| *"What's my winrate against Diana decks?"* | 🔴 **Tier 3** — omitted |
+
+The distinction is *"what they **can** do"* (derivable) versus *"what they **will** do or
+how often you'd beat them"* (not). See [`EVALUATION.md`](EVALUATION.md) §3.
 
 ---
 
