@@ -57,6 +57,7 @@ Full detail: [`docs/PLAN.md`](docs/PLAN.md)
 |---|---|
 | [`docs/spec/DATA-MODEL.md`](docs/spec/DATA-MODEL.md) | Entities, the DRAFT/BUILT commitment model, lifecycle answers |
 | [`docs/spec/LEGALITY.md`](docs/spec/LEGALITY.md) | 27 validation checks, 10 tests drawn from the rulebook's own examples |
+| [**`docs/spec/EVALUATION.md`**](docs/spec/EVALUATION.md) | **The evaluation engine — what a deck does well, what it's good against, and where it comes up short. Derived from the rules, never guessed.** |
 | [`docs/spec/DECK-STATS.md`](docs/spec/DECK-STATS.md) | What Forge reports, and how honest it is about its own uncertainty |
 | [`docs/spec/GENERATOR.md`](docs/spec/GENERATOR.md) | The generator as a research spike, with kill conditions |
 
