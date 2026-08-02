@@ -154,4 +154,4 @@ cuts that further. This is a far more tractable problem than general deckbuildin
 | **G2** | When seeding on a card with no identity constraint, how does the tool ask rather than guess? |
 | **G3** | For counter-mode, does the user enter a full decklist, or just a Legend + a few cards they keep losing to? The latter is far less work and probably enough |
 | **G4** | Does generation propose battlefields too? It should — they are a third of a registered deck and [asymmetry decides them](../reference/BATTLEFIELD-GUIDE.md) |
-| **G5** | Should suggestions appear *live* while hand-building, or only on request? Live risks nagging ([D-017](../DECISIONS.md#d-017) worried about the same thing) |
+| ~~G5~~ | ✅ **RESOLVED — on request only.** See [D-042](../DECISIONS.md#d-042). Forge never volunteers advice while you build |

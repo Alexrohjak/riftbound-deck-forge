@@ -157,6 +157,9 @@ The largest remaining unknown, and genuinely novel rather than a routine UI pass
 - **Full desktop/phone parity** ([D-018](DECISIONS.md#d-018))
 - ⭐ **EE needs a presentation language.** An answer with a statement, a lever and its
   grounding is a new component type
+- ⭐ **EE needs an invocation.** Advice is pull, never push ([D-042](DECISIONS.md#d-042)) —
+  so there must be a deliberate way to *ask*. State (legality, counts, statistics) stays
+  live; opinion waits
 
 **Work:** aesthetic direction (explicitly not a Piltover Archive clone,
 [D-014](DECISIONS.md#d-014)) · ownership visual language (owned / unowned /
