@@ -462,3 +462,131 @@ Read honestly, so EE never overclaims:
 
 Everything above is **mechanically derived**. It describes the possibility space, not the
 meta.
+
+---
+
+# Part 8 — Exhaustive pairwise combat analysis
+
+> Computed, not read. **222,312 ordered unit pairs** resolved under the real damage rules
+> (role-conditional Might, Tank/Backline ordering, lethal-first, no overkill), re-run across
+> the combat-modifying battlefields. This is a working prototype of EE's rules core.
+>
+> ⚠️ **Model scope:** clean combat with no tricks played. Cards, abilities and legends are
+> excluded deliberately — this measures the *baseline* the trick layer then modifies.
+
+## 8.1 ⚠️ STALL is not a real outcome — I over-weighted it
+
+`EVALUATION.md` treats the attacker-recall asymmetry (CR 466.1.a.2) as a headline structural
+fact. The exhaustive run says otherwise:
+
+| Outcome | 1v1 (222,312 pairs) | 2v2 (200,000 samples) |
+|---|---|---|
+| `CONQUEST` | 43.0% | 45.6% |
+| `REPELLED` | 41.4% | 43.7% |
+| `TRADE` | 15.6% | 10.8% |
+| **`STALL`** | **0.003%** (6 pairs) | **0.002%** |
+
+🔎 **derived — STALL is mathematically near-impossible in a clean combat.** In a duel,
+`attacker dies ⟺ D ≥ A` and `defender dies ⟺ A ≥ D`; for *neither* to die you would need
+`A < D` **and** `D < A`. The only exceptions are the three **0-Might** units in the format
+(`Reflection`, `Scuttle Crab`, `Steel Paws`), because lethal damage must be non-zero
+(CR 142.4.b). In multi-unit combat it needs *both* sides to partially clear, which
+lethal-first/no-overkill assignment makes rare.
+
+> **Correct framing:** the recall rule is a **deterrent, not an outcome.** It is the reason
+> you don't attack without lethal — not a state you commonly reach. EE should present it as
+> a *risk of committing*, not as a likely result.
+
+⚠️ **Selection-bias caveat:** these are *random* pairings. Real combats are **chosen** by an
+attacker who commits only when favourable, so the observed distribution in real games will
+skew far more toward `CONQUEST`. This model measures the possibility space, not play.
+
+## 8.2 ⭐ Symmetric battlefields barely matter; asymmetric ones decide games
+
+Re-running all 222,312 pairs on each combat-modifying battlefield, counting **outcome
+flips versus neutral**:
+
+| Battlefield | Effect | Outcomes flipped |
+|---|---|---|
+| **`Forbidding Waste`** | Defender alone has **−2 Might** | 🔴 **90,594 — 40.8%** |
+| `Brush` | Bird/Cat/Dog/Poro/Ivern **+1** | 13,615 — 6.1% |
+| `Kinkou Temple` | `Tank` units **+1** | 5,399 — 2.4% |
+| **`Trifarian War Camp`** | **All** units +1 | 🟢 **6 — 0.0%** |
+
+🔎 **derived — this is the most useful battlefield principle in the game.**
+`Trifarian War Camp` gives **+1 Might to everything**, and changes essentially **nothing**
+about who wins a fight, because both sides get it. `Forbidding Waste` gives **−2 to a lone
+defender** and flips **two fifths of all combats**, pushing attacker conquest from 43% to
+**72.6%**.
+
+> **Rule for EE and for deckbuilding: judge a battlefield by its *asymmetry*, not its
+> magnitude.** A big symmetric buff is nearly irrelevant to combat; a small conditional one
+> is decisive. (Symmetric buffs *do* still matter for **removal thresholds** — a 4-Might
+> unit becoming 5 dodges `Deal 4`.)
+
+## 8.3 ⭐ Quantifying the trick layer — how fragile is a combat?
+
+For each cheap trick, how many of the 222,312 duels change outcome, and how many *losses
+become conquests*:
+
+| Trick | Cost | Outcomes flipped | Losses → `CONQUEST` |
+|---|---|---|---|
+| `Stupefy` (def −1) | 1E | **29.7%** | 34,581 |
+| `Combat Experience` (def +1) | 1E | **29.9%** | 0 — *defensive; converts conquests into repels* |
+| `Frigid Touch` (def −2) | 2E | **40.8%** | 65,901 |
+| `Cleave` (att +3) | 1E | **48.2%** | 90,600 |
+| `Smoke Screen` (def −4) | 2E1P | **52.4%** | 106,539 |
+| `Grand Strategem` (att +5 all) | 6E3P | **54.7%** | 116,572 |
+| `Primal Strength` (att +7) | 4E1P | **56.4%** | 124,062 |
+| `Moonlight Affliction` (def −10) | 7E | **56.9%** | 124,963 |
+
+🔎 **derived — a single 1-Energy card decides roughly a third of all possible combats, and
+`Cleave` alone decides nearly half.**
+
+> **This is the number that justifies EE's whole design.** A combat evaluation that ignores
+> the trick layer is wrong ~30–50% of the time. It is also why the answer must be *"fragile
+> to cheap Mind interaction"* rather than a verdict — the verdict genuinely depends on a
+> card you cannot see.
+
+Note the asymmetry in the last column: **defensive tricks never create conquests**, they
+only deny them. Offensive and defensive interaction are not mirror images, and EE should
+report *"can they stop me?"* and *"can I stop them?"* as separate questions.
+
+## 8.4 What `Tank` actually does
+
+22 units have `Tank`. Forcing damage into them first does **not** produce stalls — it
+shifts the outcome distribution toward the defender:
+
+| Defending board | `CONQUEST` | `REPELLED` |
+|---|---|---|
+| No Tank | 46.4% | 43.0% |
+| **Has a Tank** | **37.4%** | **52.2%** |
+
+🔎 **derived:** `Tank` is worth roughly **9 percentage points** of conquest denial. It works
+by absorbing damage inefficiently, not by creating ties.
+
+## 8.5 The combat ceiling
+
+| | Unit | Profile | Beats |
+|---|---|---|---|
+| **Best attacker** | `Baron Nashor` · `Master Yi, Unstoppable` | M12 | **469 / 471** |
+| **Best defender** | ⭐ **`Volibear, Imposing`** | M10 + `Shield 3` = **13** | **471 / 471 — everything** |
+| Best cheap defender | `Needlessly Large Yordle` | M5 + `Shield 5` = 10 | 465 / 471 |
+| **Beat nothing** | `Reflection`, `Scuttle Crab`, `Steel Paws` | M0 | 0 |
+
+🔎 **derived — no unit in the format beats `Volibear, Imposing` in combat.** It can only be
+answered by `Kill` effects, bounce, or stealing it. That is the clearest possible
+illustration of Part 2: **combat has a ceiling; `Kill` effects don't.**
+
+## 8.6 What this prototype proves for EE
+
+1. **The rules core is buildable and fast.** 222k duels resolve in under a second in pure
+   Python; the full battlefield sweep is trivial. Refutation search over a few hundred
+   combat-speed cards is comfortably within budget.
+2. **The baseline must be computed, then modified by the trick layer** — never reported
+   alone, because tricks flip 30–50% of results.
+3. **Battlefield modelling is cheap and worth doing** (EE open question E2 — answer: yes,
+   include it in v1). Only a handful of battlefields alter combat maths, and one of them
+   changes 40% of outcomes.
+4. **Selection bias must be stated.** Random pairings are not real combats; EE should say
+   *"if you commit here"*, never *"you will win 43% of fights."*
