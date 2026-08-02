@@ -2,8 +2,9 @@
 
 > **Version:** 1.0 · **Updated:** 2026-08-02
 >
-> 🖥️ **Visual version: [`roadmap.html`](roadmap.html)** — same content, rendered. Download and
-> open it in a browser (GitHub shows HTML as source, not as a page).
+> 🖥️ **Visual version: [`roadmap.html`](roadmap.html)** — same content, rendered. Open it from
+> disk, or use the published page. A permanent always-current URL is an open question for
+> `D3` (X5) — GitHub Pages is ruled out on a private repo.
 >
 > The map of where we're going. Five tracks, each a set of milestones with **stable IDs**.
 > *Why* it's built this way lives in [`DISCOVERY.md`](DISCOVERY.md) and
@@ -83,7 +84,7 @@ new work appends the next free number and **nothing ever renumbers**.
 |---|---|---|---|---|
 | `D1` | **Discovery** | Scope, rules, card data, specs and decisions all locked | ✅ | — |
 | `D2` | **Interface design** | A clickable prototype exists that you have used and approved | 🎯 **NEXT** | — |
-| `D3` | **Architecture** | Stack chosen and justified, with indefinite running cost understood | ⬜ | `D2` |
+| `D3` | **Architecture** | Stack chosen and justified, with indefinite running cost understood — **including where the docs are served from** (X5) | ⬜ | `D2` |
 
 **`D2` must design three things** — this is the one that grew:
 1. The **workbench** — gallery, deck zones, The Bench, ownership language
@@ -200,6 +201,7 @@ Carried deliberately, not forgotten.
 |---|---|---|
 | **X1** | Where does EE's conversation layer run — in-app chat, or Claude Code against exported deck state? | `D3` |
 | **A6** | "Hosted, always-on" was recorded as *convention, not fact*. A permanently-online service for one user was never justified | `D3` |
+| **X5** | Where are the docs served from, so the roadmap has an always-current bookmarkable URL? ⚠️ **GitHub Pages is ruled out** — needs a paid plan on a private repo (verified 2026-08-02) | `D3` |
 | **G1–G4** | Generation: how many candidates? How is a no-identity seed handled? Does it propose battlefields? | `S5` |
 | **E2–E7** | EE modelling depth — battlefield abilities, Legend abilities, refutation search depth, hidden cards, multi-unit boards | `S1` |
 | **Q10** | ✅ **Answered** — errata and ban list are prose, so a small hand-maintained overlay | — |
