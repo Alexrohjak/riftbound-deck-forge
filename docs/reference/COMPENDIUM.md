@@ -999,12 +999,19 @@ games.** Its "top performers" are built on samples like **3 decks** and, in one 
 
 ### Access status (unchanged, re-verified 2026-08-02)
 
-| Source | Status |
-|---|---|
-| **RiftDecks** | 🔴 403 Forbidden. `robots.txt` explicitly forbids competing-service scraping |
-| **riftbound.gg** | 🔴 403 Forbidden |
-| **Riftools** | 🟢 Fetchable. Self-describes data as *"incomplete, delayed, or corrected over time"* |
-| **Piltover Archive** | 🟡 Crawlable, but `/api/` disallowed |
+| Source | Status | Diagnosed cause |
+|---|---|---|
+| **RiftDecks** | 🔴 Closed | **Two independent blocks.** Cloudflare managed challenge (`cf-mitigated: challenge`) 403s every non-browser client, *and* `robots.txt` carries `User-agent: anthropic-ai → Disallow: /` plus an explicit anti-competitor warning |
+| **riftbound.gg** | 🔴 Closed | ⚠️ **Not a technical block — a deliberate opt-out.** The server returns **HTTP 200** to a plain client. Its `robots.txt` (inserted by the Raptive ad network) disallows `anthropic-ai`, `Claude-Web`, `GPTBot`, `ChatGPT-User` and `CCbot` from the whole site |
+| **Riftools** | 🟢 Open | Fetchable. Self-describes data as *"incomplete, delayed, or corrected over time"* |
+| **Piltover Archive** | 🟡 Partial | Crawlable, but `/api/` disallowed |
+| **League of Legends Wiki** | 🟢 Open | Official-adjacent; good on game-flow mechanics |
+
+> 🔑 **These sites are not unreliable — they have opted out.** `riftbound.gg` is technically
+> reachable; reading it anyway would mean ignoring an explicit, machine-readable instruction
+> from the publisher. Under [D-010](../DECISIONS.md#d-010) that settles it: **these sources
+> are permanently out of scope, not "retry later."** Treat any future plan that depends on
+> them as blocked at the design stage rather than the implementation stage.
 
 [D-010](../DECISIONS.md#d-010) — **no scraping** — remains non-negotiable and is now also
 the practically enforced state.
