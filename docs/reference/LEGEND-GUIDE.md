@@ -20,8 +20,31 @@ about supplying the *producer*.
 
 **❌ Doesn't fit** matters as much as ✅. Two kinds appear repeatedly:
 - **Dead weight** — cards that simply never trigger the Legend
-- ⚠️ **Anti-synergy** — cards that *compete for the same resource* as the Legend, which is
-  far more damaging and much easier to miss
+- ⚠️ **Tension** — cards that *compete for the same resource* as the Legend
+
+## 🔴 Read "doesn't fit" as a cost, not a ban
+
+**Synergy is a gradient, not a gate.** A card that doesn't trigger your Legend is not
+unplayable — it just isn't doing double duty. The only question is whether its **standalone
+rate is good enough** to earn the slot anyway.
+
+**And a listed tension is frequently a trade worth making:**
+
+| Example | Why the "anti-synergy" is often correct anyway |
+|---|---|
+| `The Boss` spends a buff that `Sett, Kingpin` wanted | You lose +1 Might — and **keep a 5-Might body that was about to die**. That is a good trade almost every time |
+| `Grand Duelist` (Fiora) wants units *becoming* Mighty | She can still run heavy units. They just aren't **Legend fuel** — you need *some* threshold-crossers, not *only* them |
+| `Loose Cannon` (Jinx) wants an empty hand | Drawing cards is still drawing cards. You're trading a conditional Legend draw for a guaranteed one |
+
+> **The distinction that actually matters is card-level vs deck-level.**
+>
+> - **Card-level tension is normal** and often correct. Weigh it, don't avoid it.
+> - **Deck-level mismatch is the real misbuild** — a Kai'Sa deck with 25 units, an Ornn deck
+>   with 4 gear, a Master Yi deck that spends XP faster than it earns. There the Legend
+>   becomes a blank rune for the whole game.
+>
+> Everything marked ⚠️ below is a **thing to weigh**, not a rule. Only the cases explicitly
+> called **deck-level** are close to hard constraints.
 
 > **Universal facts.** Every Legend's ability is `[E]`-gated or triggered, so it readies each
 > Awaken — treat it as **one free effect per turn**. Every pool is 258–268 legal names, so
@@ -270,9 +293,11 @@ The second ability rebuys **play effects**, so vanilla bodies waste it.
 insurance), **`Showstopper`** (buff + move, signature). **`Sett, Brawler`** self-buffs on play
 *and* on conquer, feeding the Legend both ways.
 
-❌ **Doesn't fit.** ⚠️ **`Sett, Kingpin`** is the trap: he gets +1 Might per **buffed** unit,
-so he wants buffs to *stay* — while the Legend **spends** them. They fight over one resource.
-Brawler is the coherent Chosen Champion.
+⚖️ **Tension, not a ban.** **`Sett, Kingpin`** gets +1 Might per **buffed** unit, so he wants
+buffs to *stay* — while the Legend **spends** them. But spending a buff to **save Kingpin
+himself** is a fine trade: you lose +1 Might and keep a 5-Might `Tank`. Run him; just know the
+two effects draw on one pool, so **buff volume is the real constraint**. `Brawler` is the
+lower-friction pairing because he re-buffs himself on play *and* on conquer.
 
 **Shape:** resilient midrange where every buff is a saved unit.
 
@@ -439,9 +464,12 @@ a point.
 trigger again. **`Fiora, Victorious`** (M4) turns on `Deflect`, `Ganking` and `Shield` the
 moment she becomes Mighty — a single buff transforms her.
 
-❌ **Doesn't fit.** ⚠️ **Natively-Mighty units (5+ printed) never *become* Mighty** while you
-control them — they arrive that way. A big-body build silently turns the Legend off. **This is
-the trap that distinguishes it from Relentless Storm, which wants the exact opposite.**
+⚖️ **Tension, not a ban.** **Natively-Mighty units (5+ printed) never *become* Mighty** — they
+arrive that way, so they don't trigger the Legend. That doesn't make them bad cards; heavy
+bodies are still heavy bodies. It means you need **some** threshold-crossers in the curve, not
+that you need **only** them. The deck-level failure is a build where *nothing* crosses 5 Might
+mid-turn. **Note the contrast with `Relentless Storm`, which wants the exact opposite** — same
+stat, opposite triggers.
 
 **Shape:** midrange with a pump package that ramps off threshold-crossing.
 
@@ -583,11 +611,12 @@ usable ability at 0 XP** — it is a blank until turn 4–6.
 (signature — XP per kill). ⭐ `[Level 11]` (*units enter ready*) is a genuine game-ender,
 effectively giving your whole board haste permanently.
 
-❌ **Doesn't fit.** ⚠️ **Any XP *spender* is an anti-synergy.** `Conscription` (5 XP),
-`Voidreaver`-style sinks, and even `Concentrate`'s discount consume the resource the Legend
-needs to *hold*. Levels check a **current total**, not lifetime earnings — spending XP
-switches your Legend back off. This is the single most counterintuitive deckbuilding
-constraint in the format.
+⚖️ **The sharpest tension in the format — but still a trade.** Levels check a **current
+total**, not lifetime earnings, so every XP spender (`Conscription` at 5 XP, `Concentrate`'s
+discount) **temporarily switches the Legend off**. That is a real cost — but spending 5 XP to
+steal a game-winning threat can obviously be right. The **deck-level** failure is a build that
+spends faster than it earns and therefore never reaches `[Level 6]` at all. Budget XP like
+mana: know your income before you commit to a sink.
 
 **Shape:** slow XP accumulation; never spend, just climb.
 
@@ -925,12 +954,16 @@ is the champion tag — the Chosen Champion pool is 2 units, **not** the 13 Yord
 | **Tribal / type** | Rumble (Mech), Ivern (Brush tags), Azir (Sand Soldiers) | Least flexible; count your enablers first |
 | **Stat payoffs** | Volibear (Mighty), Fiora (becomes Mighty), Master Yi (XP), Lee Sin (buffs) | ⚠️ Threshold effects — verify you can actually reach them |
 
-**The three most common misbuilds**, all visible from this analysis:
+**The three most common misbuilds** — note all three are **deck-level**, not card-level:
 
 1. ⚠️ **Restricted mana with the wrong card mix** — a Kai'Sa deck with 25 units, an Ornn deck
-   with 4 gear. The Legend becomes a blank rune.
-2. ⚠️ **Spending a resource the Legend needs held** — `Master Yi` (Levels check a *current*
-   total, so any XP sink turns him off) and `The Boss` vs `Sett, Kingpin` (both want the buff).
+   with 4 gear. The Legend becomes a blank rune *for the whole game*. This is the only
+   near-absolute constraint in the format.
+2. ⚠️ **A resource budget that never reaches its threshold** — `Master Yi` spending XP faster
+   than he earns it. Individual sinks are fine; a deck with no net income is not.
 3. ⚠️ **Hold vs Conquer confusion** — `Bashful Bloom`'s Temporary units **die before scoring**
-   and can never Hold; `Poppy` and `Gloomist` gain nothing from conquering. Getting this
-   backwards silently halves the deck.
+   and can never Hold; `Poppy` and `Gloomist` gain nothing from conquering. Getting the
+   *direction* backwards silently halves the deck.
+
+> **What is *not* on this list:** individual cards that don't trigger the Legend. A good card
+> is a good card. Forty cards that all fail the Legend is the problem — one is not.
