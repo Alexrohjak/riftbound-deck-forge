@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!--
+  Forge — visual roadmap.
+  GENERATED VIEW of docs/ROADMAP.md — that file is the source of truth.
+  If they disagree, ROADMAP.md is right and this needs regenerating.
+  Self-contained: no external fonts, scripts or images.
+-->
+<title>Forge — Roadmap</title>
+</head>
+<body>
+<style>
+  :root{
+    --ground:#EEF1F4; --surface:#FFFFFF; --surface-2:#F7F9FB;
+    --ink:#0F151C; --muted:#5C6874; --faint:#8A97A4;
+    --line:#DCE2E8; --line-strong:#C3CCD6;
+    --accent:#A8560A; --accent-ink:#FFFFFF; --accent-soft:#FDF0DC;
+    --done:#146334; --done-soft:#E1F3E7;
+    --todo:#8A97A4;
+    --shadow:0 1px 2px rgba(16,24,32,.06),0 8px 24px -12px rgba(16,24,32,.18);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#0D1117; --surface:#151B22; --surface-2:#111820;
+      --ink:#E8EFF6; --muted:#93A1AF; --faint:#6B7885;
+      --line:#232C35; --line-strong:#33404C;
+      --accent:#F0A020; --accent-ink:#1A1206; --accent-soft:#2A1F0C;
+      --done:#46C46A; --done-soft:#12261A;
+      --todo:#5E6B78;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="light"]{
+    --ground:#EEF1F4; --surface:#FFFFFF; --surface-2:#F7F9FB;
+    --ink:#0F151C; --muted:#5C6874; --faint:#8A97A4;
+    --line:#DCE2E8; --line-strong:#C3CCD6;
+    --accent:#A8560A; --accent-ink:#FFFFFF; --accent-soft:#FDF0DC;
+    --done:#146334; --done-soft:#E1F3E7; --todo:#8A97A4;
+    --shadow:0 1px 2px rgba(16,24,32,.06),0 8px 24px -12px rgba(16,24,32,.18);
+  }
+  :root[data-theme="dark"]{
+    --ground:#0D1117; --surface:#151B22; --surface-2:#111820;
+    --ink:#E8EFF6; --muted:#93A1AF; --faint:#6B7885;
+    --line:#232C35; --line-strong:#33404C;
+    --accent:#F0A020; --accent-ink:#1A1206; --accent-soft:#2A1F0C;
+    --done:#46C46A; --done-soft:#12261A; --todo:#5E6B78;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--ground); color:var(--ink);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace}
+  .wrap{max-width:1080px; margin:0 auto; padding:48px 24px 96px}
+  @media(max-width:640px){ .wrap{padding:28px 16px 64px} }
+
+  /* ── masthead ─────────────────────────────── */
+  .mast{display:flex; flex-wrap:wrap; align-items:baseline; gap:16px; margin-bottom:8px}
+  h1{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:32px; font-weight:600; letter-spacing:-.02em; margin:0; text-wrap:balance;
+  }
+  .mast .sub{color:var(--muted); font-size:14px}
+  .meta{
+    display:flex; flex-wrap:wrap; gap:6px 18px; color:var(--faint);
+    font-size:12px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:36px;
+  }
+
+  /* ── status board ─────────────────────────── */
+  .board{
+    background:var(--surface); border:1px solid var(--line); border-radius:4px;
+    box-shadow:var(--shadow); overflow:hidden; margin-bottom:14px;
+  }
+  .board-head{
+    display:flex; align-items:center; gap:10px; padding:12px 18px;
+    border-bottom:1px solid var(--line); background:var(--surface-2);
+  }
+  .board-head .dot{width:7px; height:7px; border-radius:50%; background:var(--accent)}
+  .board-head h2{
+    margin:0; font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    font-weight:600; color:var(--muted);
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  .rows{display:grid}
+  .row{
+    display:grid; grid-template-columns:132px 1fr; gap:16px;
+    padding:12px 18px; border-bottom:1px solid var(--line);
+  }
+  .row:last-child{border-bottom:0}
+  .row dt{
+    font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint);
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace; padding-top:2px;
+  }
+  .row dd{margin:0}
+  .row dd strong{font-weight:650}
+  @media(max-width:640px){ .row{grid-template-columns:1fr; gap:4px} }
+
+  /* ── ledger (progress) ────────────────────── */
+  .ledger{
+    background:var(--surface); border:1px solid var(--line); border-radius:4px;
+    box-shadow:var(--shadow); padding:6px 0; margin-bottom:44px; overflow-x:auto;
+  }
+  .lrow{
+    display:grid; grid-template-columns:20px 116px 1fr 54px; align-items:center;
+    gap:14px; padding:9px 18px; min-width:420px;
+  }
+  .lrow .key{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:13px; font-weight:600; color:var(--muted);
+  }
+  .lrow .nm{font-size:13.5px}
+  .lrow.here .nm{color:var(--accent); font-weight:600}
+  .lrow.here .key{color:var(--accent)}
+  .bar{height:6px; border-radius:3px; background:var(--line); overflow:hidden}
+  .bar span{display:block; height:100%; background:var(--done); border-radius:3px}
+  .lrow.here .bar span{background:var(--accent)}
+  .cnt{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:12.5px; color:var(--muted); text-align:right; font-variant-numeric:tabular-nums;
+  }
+  .ltot{
+    border-top:1px solid var(--line); margin-top:6px; padding-top:12px;
+  }
+  .ltot .nm{font-weight:600}
+
+  /* ── track lanes ──────────────────────────── */
+  .track{margin-bottom:40px}
+  .track-head{display:flex; align-items:baseline; gap:12px; margin-bottom:14px}
+  .track-head .id{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:12px; font-weight:700; letter-spacing:.1em;
+    border:1px solid var(--line-strong); border-radius:3px;
+    padding:2px 7px; color:var(--muted);
+  }
+  .track-head h3{margin:0; font-size:19px; font-weight:640; letter-spacing:-.01em}
+  .track-head .note{color:var(--faint); font-size:13px}
+
+  .lane{border-left:2px solid var(--line-strong); padding-left:18px; display:grid; gap:8px}
+  .lane.future{border-left-style:dashed}
+  @media(max-width:640px){ .lane{padding-left:12px} }
+
+  .ms{
+    background:var(--surface); border:1px solid var(--line); border-radius:4px;
+    padding:13px 16px; display:grid; grid-template-columns:52px 1fr auto; gap:14px;
+    align-items:start;
+  }
+  .ms.next{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent)}
+  .ms .code{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:13px; font-weight:700; color:var(--muted); padding-top:1px;
+  }
+  .ms.next .code{color:var(--accent)}
+  .ms.done .code{color:var(--done)}
+  .ms .body h4{margin:0 0 3px; font-size:15px; font-weight:620; letter-spacing:-.005em}
+  .ms .body p{margin:0; color:var(--muted); font-size:13.5px; max-width:62ch}
+  .ms .dep{
+    display:inline-block; margin-top:7px; font-size:11.5px; color:var(--faint);
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media(max-width:640px){
+    .ms{grid-template-columns:44px 1fr; }
+    .ms .pill{grid-column:2; justify-self:start; margin-top:8px}
+  }
+
+  .pill{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:650;
+    padding:3px 9px; border-radius:99px; white-space:nowrap; border:1px solid transparent;
+  }
+  .pill.done{background:var(--done-soft); color:var(--done); border-color:var(--done)}
+  .pill.next{background:var(--accent-soft); color:var(--accent); border-color:var(--accent)}
+  .pill.todo{color:var(--todo); border-color:var(--line-strong); border-style:dashed}
+
+  /* ── the gate ─────────────────────────────── */
+  .gate{
+    display:flex; align-items:center; gap:14px; margin:26px 0 34px;
+  }
+  .gate .rule{flex:1; height:0; border-top:2px solid var(--line-strong)}
+  .gate .label{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:11px; letter-spacing:.16em; text-transform:uppercase; font-weight:700;
+    color:var(--muted); border:2px solid var(--line-strong); border-radius:3px; padding:5px 12px;
+    text-align:center;
+  }
+  .gate .label small{display:block; font-size:9.5px; letter-spacing:.08em; font-weight:500; color:var(--faint); text-transform:none; margin-top:2px}
+
+  .callout{
+    border-left:3px solid var(--accent); background:var(--surface-2);
+    padding:12px 16px; margin:12px 0 0 18px; border-radius:0 4px 4px 0;
+    font-size:13.5px; color:var(--muted); max-width:70ch;
+  }
+  .callout strong{color:var(--ink)}
+  .parallel{
+    text-align:center; font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint);
+    margin:34px 0 26px;
+  }
+
+  /* ── closing panels ───────────────────────── */
+  .panels{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; margin-top:52px}
+  .panel{background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:18px}
+  .panel h3{
+    margin:0 0 12px; font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--muted); font-weight:650;
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  .panel ul{margin:0; padding:0; list-style:none; display:grid; gap:9px}
+  .panel li{font-size:13.5px; color:var(--muted); display:grid; grid-template-columns:auto 1fr; gap:9px}
+  .panel li b{color:var(--ink); font-weight:600}
+  .panel li .k{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:11.5px; color:var(--faint); padding-top:2px; white-space:nowrap;
+  }
+  footer{
+    margin-top:56px; padding-top:20px; border-top:1px solid var(--line);
+    color:var(--faint); font-size:12.5px; display:flex; flex-wrap:wrap; gap:6px 20px;
+  }
+  a{color:var(--accent); text-decoration:none; border-bottom:1px solid transparent}
+  a:hover{border-bottom-color:var(--accent)}
+  a:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important; animation:none!important} }
+</style>
+
+<div class="wrap">
+
+  <div class="mast">
+    <h1>Forge</h1>
+    <span class="sub">Roadmap — a personal deckbuilding workbench for Riftbound</span>
+  </div>
+  <div class="meta mono">
+    <span>Version 1.0</span><span>Updated 2026-08-02</span><span>16 milestones</span><span>5 tracks</span>
+  </div>
+
+  <!-- STATUS BOARD -->
+  <div class="board">
+    <div class="board-head"><span class="dot"></span><h2>Status board — you are here</h2></div>
+    <dl class="rows">
+      <div class="row"><dt>Track</dt><dd><strong>D — Design</strong></dd></div>
+      <div class="row"><dt>Progress</dt><dd><strong class="mono">1 of 16</strong> milestones · <span class="mono">D1</span> complete</dd></div>
+      <div class="row"><dt>Next</dt><dd><strong><span class="mono">D2</span> — Interface design.</strong> No blockers, nothing to prepare. Bring opinions about how it should feel.</dd></div>
+      <div class="row"><dt>Active</dt><dd>None — awaiting <span class="mono">D2</span></dd></div>
+      <div class="row"><dt>Blocked</dt><dd>Nothing</dd></div>
+      <div class="row"><dt>Code</dt><dd><strong>None yet — by design.</strong> The <span class="mono">DESIGN LOCKED</span> gate holds all logic until <span class="mono">D3</span> completes.</dd></div>
+    </dl>
+  </div>
+
+  <!-- LEDGER -->
+  <div class="ledger">
+    <div class="lrow here"><span class="key">D</span><span class="nm">Design</span><span class="bar"><span style="width:33.3%"></span></span><span class="cnt">1/3</span></div>
+    <div class="lrow"><span class="key">F</span><span class="nm">Foundation</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/3</span></div>
+    <div class="lrow"><span class="key">W</span><span class="nm">Workbench</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/4</span></div>
+    <div class="lrow"><span class="key">S</span><span class="nm">Strategist</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/5</span></div>
+    <div class="lrow"><span class="key">L</span><span class="nm">Later</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/1</span></div>
+    <div class="lrow ltot"><span class="key">—</span><span class="nm">Total</span><span class="bar"><span style="width:6.25%"></span></span><span class="cnt">1/16</span></div>
+  </div>
+
+  <!-- TRACK D -->
+  <section class="track">
+    <div class="track-head"><span class="id">D</span><h3>Design</h3><span class="note">Decide what we're building, before any logic</span></div>
+    <div class="lane">
+      <div class="ms done">
+        <span class="code">D1</span>
+        <div class="body"><h4>Discovery</h4><p>Scope, rules, card data, specs and decisions all locked. Produced 19 documents and 42 decisions; both rulebooks read in full; all 935 cards read and 814 main-deck cards classified; 1.3 MB of cached card data.</p></div>
+        <span class="pill done">Done</span>
+      </div>
+      <div class="ms next">
+        <span class="code">D2</span>
+        <div class="body"><h4>Interface design</h4><p>A clickable prototype exists that you have used and approved. Must design three things: the workbench, how EE speaks, and how EE is invoked — advice is pull, never push.</p></div>
+        <span class="pill next">Next</span>
+      </div>
+      <div class="ms">
+        <span class="code">D3</span>
+        <div class="body"><h4>Architecture</h4><p>Stack chosen and justified, with indefinite running cost understood.</p><span class="dep">depends on D2</span></div>
+        <span class="pill todo">Todo</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="gate">
+    <span class="rule"></span>
+    <span class="label">Design locked<small>no significant logic before this line</small></span>
+    <span class="rule"></span>
+  </div>
+
+  <!-- TRACK F -->
+  <section class="track">
+    <div class="track-head"><span class="id">F</span><h3>Foundation</h3><span class="note">Get something live and fed with data</span></div>
+    <div class="lane future">
+      <div class="ms"><span class="code">F1</span><div class="body"><h4>Get it online</h4><p>A trivial page is live, reachable from your phone, deploying automatically.</p><span class="dep">depends on D3</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">F2</span><div class="body"><h4>First usable version</h4><p>You can open it on your phone and put cards into a deck. Deliberately crude and genuinely usable.</p><span class="dep">depends on F1</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">F3</span><div class="body"><h4>Card data</h4><p>Full pool queryable offline, variants collapsed by name, errata and ban overlay working.</p><span class="dep">depends on F2</span></div><span class="pill todo">Todo</span></div>
+    </div>
+    <div class="callout"><strong>F2 is the most important sequencing decision in the plan.</strong> The audit found time-to-first-value was the dominant risk — the original plan needed four steps of infrastructure before anything was usable.</div>
+  </section>
+
+  <div class="parallel">W and S run in parallel from here — both gated only on F3</div>
+
+  <!-- TRACK W -->
+  <section class="track">
+    <div class="track-head"><span class="id">W</span><h3>The Workbench</h3><span class="note">Catalogue what you own; build, validate and measure decks</span></div>
+    <div class="lane future">
+      <div class="ms"><span class="code">W1</span><div class="body"><h4>Legality checking</h4><p>All 33 checks implemented, 13 rulebook-derived tests passing.</p><span class="dep">depends on F3</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">W2</span><div class="body"><h4>Collection entry</h4><p>You have entered the real collection; 20 random names spot-check correct against the boxes.</p><span class="dep">depends on F3</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">W3</span><div class="body"><h4>Deck builder</h4><p>A complete legal deck can be built end-to-end on desktop <em>and</em> phone.</p><span class="dep">depends on W1, W2</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">W4</span><div class="body"><h4>Deck statistics</h4><p>Tier 1 facts and Tier 2 probabilities render with correct visual separation, under 2 s.</p><span class="dep">depends on W3</span></div><span class="pill todo">Todo</span></div>
+    </div>
+    <div class="callout"><strong>W1 is the highest correctness risk in the project.</strong> Everything downstream trusts it — and two rules (<span class="mono">Signature</span>, <span class="mono">Unique</span>) were found only by reading the PDF directly. There are probably more.</div>
+    <div class="callout"><strong>W2 is the biggest practical risk.</strong> It's an evening of typing that everything else depends on. From there Forge runs on real data, not fixtures.</div>
+  </section>
+
+  <!-- TRACK S -->
+  <section class="track">
+    <div class="track-head"><span class="id">S</span><h3>The Strategist</h3><span class="note">EE — answers questions about your decks, and proposes new ones</span></div>
+    <div class="lane future">
+      <div class="ms"><span class="code">S1</span><div class="body"><h4>Rules engine</h4><p>Every worked example in the rulebook passes as a fixture; each of the 21 rule-warping cards has a regression test.</p><span class="dep">depends on F3</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">S2</span><div class="body"><h4>Analysis</h4><p>Answers card, comparison and Legend questions correctly, headlessly.</p><span class="dep">depends on S1</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">S3</span><div class="body"><h4>Plain-English answers</h4><p>No answer exceeds its statement budget, enforced by test.</p><span class="dep">depends on S2</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">S4</span><div class="body"><h4>Conversation</h4><p>Follow-ups and “why?” work; no number appears that didn't come from a tool call.</p><span class="dep">depends on S3, D3</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">S5</span><div class="body"><h4>Deck generation</h4><p>All four modes — seeded, intent, counter, open — produce legal, owned, explained candidates you'd actually sleeve.</p><span class="dep">depends on S3, W2</span></div><span class="pill todo">Todo</span></div>
+    </div>
+    <div class="callout"><strong>S1 is the largest single component in the project.</strong> Riftbound's showdown and chain system, plus 21 cards that rewrite rules an engine would hardcode, make it a real rules engine — not a calculator. Build it vertically: one battlefield, 1v1, full fidelity, then widen.</div>
+    <div class="callout"><strong>S3 is what makes EE usable.</strong> It turns “66 cards refute this” into “fragile to cheap Mind interaction — attack when they're tapped out.” Without it EE is technically correct and practically worthless.</div>
+  </section>
+
+  <!-- TRACK L -->
+  <section class="track">
+    <div class="track-head"><span class="id">L</span><h3>Later</h3><span class="note">Deferred, deliberately</span></div>
+    <div class="lane future">
+      <div class="ms"><span class="code">L1</span><div class="body"><h4>Deferred features</h4><p>Physical card location · pack-opening entry · deck version comparison · casual legality mode · rival-deck modelling · Limited (Sealed / Draft) support.</p></div><span class="pill todo">Todo</span></div>
+    </div>
+  </section>
+
+  <!-- PANELS -->
+  <div class="panels">
+    <div class="panel">
+      <h3>Not building — on purpose</h3>
+      <ul>
+        <li><span class="k">meta</span><span>Tournament statistics — the sources <b>opted out</b> in robots.txt, and current-set data is n = 1–3</span></li>
+        <li><span class="k">score</span><span>A deck power rating — <b>no composite score, anywhere</b></span></li>
+        <li><span class="k">social</span><span>Multi-user, accounts, sharing — single user by design</span></li>
+        <li><span class="k">ocr</span><span>Card scanner — collector-number entry is faster</span></li>
+        <li><span class="k">db</span><span>Our own card database — Riot's gallery is authoritative and cached</span></li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Locked principles</h3>
+      <ul>
+        <li><span class="k">D-020</span><span><b>The rulebook is the only authority</b> — community sources have been wrong twice</span></li>
+        <li><span class="k">D-016</span><span><b>No composite score</b> — no grades, ratings or stars</span></li>
+        <li><span class="k">D-022</span><span><b>Omit rather than fake</b> — uncertain statistics are left out</span></li>
+        <li><span class="k">D-039</span><span><b>Synthesise, never enumerate</b> — in output. The data layer stays complete</span></li>
+        <li><span class="k">D-042</span><span><b>Advice is pull, never push</b> — Forge never volunteers suggestions</span></li>
+        <li><span class="k">D-015</span><span><b>Ownership is the organising principle</b> — the reason Forge exists</span></li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Open questions</h3>
+      <ul>
+        <li><span class="k">X1 → D3</span><span>Where does EE's conversation layer run — in-app, or against exported deck state?</span></li>
+        <li><span class="k">A6 → D3</span><span>“Hosted, always-on” was recorded as convention, not fact. Never justified for one user</span></li>
+        <li><span class="k">G1–G4 → S5</span><span>Generation: how many candidates? Does it propose battlefields?</span></li>
+        <li><span class="k">E2–E7 → S1</span><span>EE modelling depth — battlefield abilities, refutation search, hidden cards</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <span>Where are we? → the status board.</span>
+    <span>What does “done” mean? → <span class="mono">PLAN.md</span></span>
+    <span>Why this way? → <span class="mono">DECISIONS.md</span></span>
+  </footer>
+</div>
+
+</body>
+</html>
