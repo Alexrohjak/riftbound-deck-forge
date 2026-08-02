@@ -73,7 +73,7 @@
 | [`LEGALITY.md`](LEGALITY.md) | Deck validation — every check, every rulebook test |
 | [`DECK-STATS.md`](DECK-STATS.md) | What we measure and the honesty tiers |
 | [`EVALUATION.md`](EVALUATION.md) | **EE** — the strategist. Questions, synthesis, conversation |
-| [`GENERATOR.md`](GENERATOR.md) | Deferred research spike, with kill conditions |
+| [`GENERATOR.md`](GENERATOR.md) | **Generation** — EE in the propose direction (seeded / intent / counter / open) |
 
 ### Process — how we got here and where we're going
 
@@ -143,7 +143,7 @@ These are decided and load-bearing. Changing one means writing a `D-***`.
 | **EE — the strategist** | `EVALUATION.md` | 🟡 specified; rules core is the open work |
 | Interface / interaction design | — | 🔴 **D2 — next, not yet started** |
 | Architecture + hosting | — | 🔴 D3 — not started |
-| Deck generator | `GENERATOR.md` | ⏸️ deferred spike, kill conditions set |
+| **Deck generation** | `GENERATOR.md` | ✅ specified — reinstated and fused with EE ([D-041](../DECISIONS.md#d-041)) |
 
 ---
 

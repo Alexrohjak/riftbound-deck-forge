@@ -1,143 +1,157 @@
-# The Generator — Research Spike
+# Generation — EE in the Propose Direction
 
-> ⚠️ **This is not a planned feature. It is a hypothesis with a kill condition.**
+> How Forge proposes decks. **Not a separate subsystem** — this is EE running in the
+> *propose* direction rather than the *evaluate* direction, using the same rules engine,
+> synergy graph, collection awareness and explanation layer.
 >
-> Downgraded from a committed stage following the [assumption audit](../AUDIT.md)
-> (finding A9, risk 16). **Status:** unproven · **Gate:** the Workbench complete **and**
-> evidence of real need
+> **Created:** 2026-08-02 (as a deferred spike) · **Rewritten:** 2026-08-02 —
+> reinstated and fused with EE by [D-041](../DECISIONS.md#d-041) · **Step:** `S5`
+
+**Related:** [`EVALUATION.md`](EVALUATION.md) (EE) · [`OVERVIEW.md`](OVERVIEW.md) ·
+[`LEGALITY.md`](LEGALITY.md) · [`DATA-MODEL.md`](DATA-MODEL.md) ·
+[`../reference/LEGEND-GUIDE.md`](../reference/LEGEND-GUIDE.md)
 
 ---
 
-## 1. Why this was downgraded
+## 1. ⭐ The objective-function problem, resolved
 
-The audit surfaced a direct contradiction between the stated goal and the proposed
-feature:
+The previous version of this document recorded a genuine blocker:
 
-> **Stated goal:** *"I want to enjoy sitting for hours creating, putting together,
-> sleeving and testing decks."*
->
-> **What a generator does:** produces a finished deck, removing the activity the user
-> says they want to spend hours doing.
+> *"A generator needs an objective function. [D-016](../DECISIONS.md#d-016) forbids a
+> composite score."*
 
-The generator was reached for because *"the computer figures it out"* is the obvious
-shape a software solution takes — not because it was established as the thing that
-would be enjoyed. That is a **convention**, not a requirement.
+**The resolution is that the objective comes from the user, not the tool.** Every generation
+mode is *seeded* with intent, so nothing has to invent a definition of "good":
 
-**Plausible alternative:** what is actually wanted is a workbench that makes tinkering
-**fast and well-informed** — which is the Workbench — and the felt need after two weeks of
-real use may be *"help me evaluate the deck I'm already making"* rather than
-*"show me a deck."*
-
-**This is unanswerable before the Workbench exists.** Hence: spike (L2), not a build step.
-
----
-
-## 2. Kill conditions
-
-Abandon without regret if **any** of the following hold:
-
-| # | Condition |
+| Mode | Where "good" comes from |
 |---|---|
-| **K1** | After two weeks of real workbench use, the felt need is evaluation rather than generation |
-| **K2** | The collection cannot support multiple distinct legal decks — see [AUDIT.md](../AUDIT.md) Stage 0.5. **Then generation has nothing to search** and the correct product is gap analysis |
-| **K3** | No workable definition of "playstyle" emerges (Q5) that is better than the user simply picking cards |
-| **K4** | Generated decks are consistently rejected in favour of hand-built ones |
+| **Seeded** | The cards you named. *"Build around Ornn"* — the tool satisfies constraints, it doesn't decide what's worth building |
+| **Intent** | Your stated playstyle, expressed **mechanically** ([D-030](../DECISIONS.md#d-030)) |
+| **Counter** | ⭐ A **computable target** — answer coverage against a specific deck's threats |
+| **Open** | Several *distinct* directions your collection supports, each explained |
 
-**Nothing in the Workbench depends on this spike.** Cancellation costs nothing already built.
+> **Forge never says which deck is best.** It proposes candidates satisfying your objective,
+> explains each one's strengths and gaps in EE's normal voice, and lets you choose.
+> **No composite score is computed anywhere.**
 
----
-
-## 3. ⚠️ The unresolved contradiction
-
-**A generator needs an objective function. [D-016](../DECISIONS.md#d-016) forbids a
-composite score.**
-
-To *search* a space, something must rank candidates. To *rank*, something must
-compose multiple factors into an ordering. That is precisely the composite grade the
-project rejected as false precision.
-
-This is not a detail to resolve during implementation. **It is a design contradiction
-that must be settled first.**
-
-### Candidate resolutions
-
-| | Approach | Assessment |
-|---|---|---|
-| **R1** | Optimise internally, never display the score | Defensible — the score is a search heuristic, not a claim about the deck. But it silently smuggles back the judgement D-016 rejected |
-| **R2** | Generate diverse *legal* candidates; let the statistics panel do all judging | Purest fit with D-016, but "diverse" still needs a metric, and output quality may be poor |
-| **R3** | **Multi-objective / Pareto** — return only candidates not strictly worse than another on every axis | **Preferred.** Preserves "no single grade" honestly: the tool never says *which* is best, only *these are the non-dominated options*. The user chooses their trade-off |
-
-**R3 is the leading candidate** and needs validation before any code.
+This is also what [D-008](../DECISIONS.md#d-008) originally asked for: *multi-factor and
+conversational.*
 
 ---
 
-## 4. Search strategy — unspecified
+## 2. The four generation modes
 
-The plan previously sized this **L** with eight bullets and no method. Honestly:
+### 2.1 Seeded — *"build around these"*
+
+**Input:** a Legend, a Champion unit, or any set of cards you want in the deck.
+
+1. **Resolve the identity.** A Legend fixes it directly. An arbitrary card requires
+   *reverse-solving*: which Legends can legally include it? ([LEGEND-GUIDE](../reference/LEGEND-GUIDE.md)
+   gives all 49 pools). If several, offer the choice — this is a decision the user should make.
+2. **Read the Legend's reward** from the Legend Guide, and prioritise cards that supply it.
+3. **Fill from the collection**, respecting `BUILT` commitments
+   ([DATA-MODEL §3](DATA-MODEL.md#3-commitment)).
+
+⚠️ **Hardest case:** seeding on a card with no Legend constraint (e.g. a colourless gear).
+The identity is then unconstrained and the tool must *ask* rather than guess.
+
+### 2.2 Intent — *"aggressive"*, *"I want to hold battlefields"*
+
+Playstyle is expressed **mechanically, never by archetype name**
+([D-030](../DECISIONS.md#d-030)) — no external taxonomy is needed:
+
+| Intent | Mechanical target |
+|---|---|
+| Aggressive | High share of ≤2-cost units · `Assault` · early Might · short speed-to-first-score |
+| Defensive / holding | `Tank`, `Shield`, `Backline` · Hold-triggered payoffs · high Might-per-cost at 3+ |
+| Go-wide | Unit count · token production · per-unit payoffs |
+| Reactive | `Action`/`Reaction` share · `Deflect` · `Hidden` |
+| Value / grind | Draw, recursion, `Deathknell`, trash payoffs |
+
+⚠️ **`Hold` vs `Conquer` is the intent that matters most.** They are opposite decks
+(LEGEND-GUIDE §5), and getting the direction wrong silently halves a build.
+
+### 2.3 ⭐ Counter — *"I keep losing to this deck, what beats it"*
+
+**The mode that most justifies the fusion** — it is EE's threat analysis run backwards, and
+it cannot be built without EE.
+
+1. Take the opposing deck (entered by the user) or its Legend (→ the threat space of that
+   identity, per [D-038](../DECISIONS.md#d-038))
+2. Compute **what actually beats it**: units that win the duel in both orientations, removal
+   that clears its key threats (⚠️ **`Kill` vs `Damage`** — see
+   [CARD-KNOWLEDGE §2](../reference/CARD-KNOWLEDGE.md)), and cheap interaction that flips its
+   combats
+3. Filter to **cards you own**
+4. Propose builds, and — importantly — say when the answer is **not a new deck**:
+   *"you already have this covered; the problem is your battlefield choice"* or *"three
+   sideboard swaps fix this matchup"*
+
+### 2.4 Open — *"give me ideas"*
+
+Propose **several distinct directions** the collection genuinely supports, each with a
+one-line reason. Distinctness is measured by identity, curve shape and Legend reward — not by
+a diversity score.
+
+---
+
+## 3. Constraints every mode obeys
+
+| Constraint | Source |
+|---|---|
+| **Legal** — all 33 checks | [LEGALITY.md](LEGALITY.md) |
+| **Owned** — only cards in the collection | [D-013](../DECISIONS.md#d-013) |
+| **Uncommitted** — never propose cards held by a `BUILT` deck | [D-026](../DECISIONS.md#d-026) |
+| **Negative constraints** — *"not this card"*, *"not this strategy"* | Original vision |
+| **Multiple candidates, never one answer** | [D-008](../DECISIONS.md#d-008) |
+| **Explained** — every proposal carries EE's normal reasoning | [D-039](../DECISIONS.md#d-039) |
+
+### ⭐ Failure is a feature
+
+If the collection cannot produce a legal deck, the correct output is **gap analysis**, never
+"no results":
+
+> *"You have 34 of 40. The gaps are: 2 more 2-drops in Calm, a second removal spell, and
+> 4 more Calm runes. The closest you can get today is this 38-card list plus two off-plan
+> cards."*
+
+This was `K2` in the old kill-conditions list. It is now the **designed failure mode** — and
+it is arguably the most valuable output for a collection-constrained player.
+
+---
+
+## 4. Search strategy
 
 | Approach | Assessment |
 |---|---|
-| Exhaustive enumeration | ❌ Combinatorially impossible — choosing 40 cards with quantities from ~100 candidates |
-| Constraint satisfaction (CSP / ILP) | 🟡 Legality maps cleanly to hard constraints, but requires §3 resolved first |
-| Greedy from the anchor | 🟡 Fast, weak results, easy to prototype |
-| **Archetype-skeleton fill** | 🟢 Start from a curve/role template, fill with owned cards. Most tractable |
-| Local search / annealing | 🟡 Good for *refinement* — likely the right engine for the interactive loop |
+| Exhaustive enumeration | ❌ Combinatorially impossible |
+| **Skeleton fill** | 🟢 **Primary.** Start from a curve/role template implied by the intent, fill with owned cards ranked by Legend fit and synergy tags |
+| **Local search** | 🟢 **For refinement.** Swap single cards, re-evaluate. This is the interactive loop |
+| Constraint satisfaction (CSP/ILP) | 🟡 Legality maps cleanly to hard constraints; worth it only if skeleton-fill proves inadequate |
 
-**Likely shape:** skeleton fill for the initial candidate, local search for interactive
-refinement. **Not yet validated.**
+**The search space is small.** You own ~200–300 unique names, not 935 — and Domain Identity
+cuts that further. This is a far more tractable problem than general deckbuilding.
+
+> **The interactive loop *is* the product.** Reject a card, say why, re-derive. One-shot
+> generation was explicitly not what was asked for.
 
 ---
 
-## 5. Q5 — "playstyle", and a way around it
+## 5. What generation must not become
 
-Archetype→card mapping exists in **no API** (see
-[DATA-SOURCES.md](../reference/DATA-SOURCES.md)). The plan's previous answer — *"must
-be sourced or derived"* — restates the problem rather than solving it.
-
-### Proposal: define playstyle **mechanically**, not by name
-
-Instead of labelling decks "aggro" or "control" and needing a taxonomy nobody
-publishes, express intent as **axes computable from data already held**:
-
-| Intent | Mechanical expression |
+| Never | Why |
 |---|---|
-| *Aggressive* | High share of ≤2-energy Units; Assault keywords; high early Might |
-| *Defensive* | Tank keywords; high Might-per-energy at 3+; late-game Might curve |
-| *Board-wide* | Unit count and token generation |
-| *Reactive* | Spell share; Deflect; Hidden |
-| *Resource-hungry* | High Power demand relative to rune split |
+| A single "best deck" answer | [D-016](../DECISIONS.md#d-016) — and it removes the tinkering that is the point |
+| A ranked list with scores | Same. Candidates are *distinct*, not *ordered* |
+| A black box | Every proposal explains itself, or it is not shippable |
+| A replacement for building by hand | ⚠️ Audit finding **A9** stands: the goal is to *enjoy hours of building*. Generation must **add** to that loop — suggestions while you build, answers when stuck — not shortcut it |
 
-**Why this is better:** it needs no external data, it is honest about being a
-mechanical proxy rather than a claim about strategy, and it composes with the existing
-statistics framework instead of inventing a parallel vocabulary.
+## 6. Open questions
 
-**Also resolves Q5** without waiting on data that may never arrive.
-
----
-
-## 6. If the spike proceeds
-
-Requirements captured from the original vision, retained verbatim in intent:
-
-- **Anchor** — a Legend, a Champion, or an arbitrary card. The third is hardest:
-  it requires reverse-solving for Legends that could legally include it
-- **Negative constraints** — "not this card", "not this strategy"
-- Respect commitments — never propose a deck using cards held by a BUILT deck
-  ([DATA-MODEL.md](DATA-MODEL.md#3-commitment))
-- **Multiple candidates, never one answer**
-- **Interactive refinement** — reject a choice, say why, re-derive. *This loop is the
-  product;* one-shot generation is not what was asked for
-- **Failure modes done well** — *"you have 34 of 40, here are the 6 gaps"* beats
-  "no results". Note this is the gap-analysis idea returning as an error state
-
----
-
-## 7. Spike deliverable
-
-A **time-boxed** investigation producing a written answer to:
-
-1. Is R3 (Pareto) workable, or does it degenerate to too many candidates?
-2. Does skeleton-fill produce decks the user would actually sleeve?
-3. Do the mechanical playstyle axes in §5 feel like real control, or like noise?
-
-**Output:** a recommendation to build, redesign, or cancel — **not** a feature.
+| # | Question |
+|---|---|
+| **G1** | How many candidates is useful? Three feels right; more becomes a wall |
+| **G2** | When seeding on a card with no identity constraint, how does the tool ask rather than guess? |
+| **G3** | For counter-mode, does the user enter a full decklist, or just a Legend + a few cards they keep losing to? The latter is far less work and probably enough |
+| **G4** | Does generation propose battlefields too? It should — they are a third of a registered deck and [asymmetry decides them](../reference/BATTLEFIELD-GUIDE.md) |
+| **G5** | Should suggestions appear *live* while hand-building, or only on request? Live risks nagging ([D-017](../DECISIONS.md#d-017) worried about the same thing) |

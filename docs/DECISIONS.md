@@ -49,6 +49,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-038](#d-038) | EE evaluates against the **whole legal format**, not modelled archetypes | ✅ |
 | [D-039](#d-039) | ⭐ **EE synthesises; it never enumerates** |  |
 | [D-040](#d-040) | EE's rules engine is **rules-as-data**, because cards rewrite rules |  |
+| [D-041](#d-041) | ⭐ **The generator is reinstated and fused with EE** — reverses D-029 | ↩️ reverses |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -1215,3 +1216,77 @@ wrong the moment Elder Dragon resolves.
 **Consequence:** Stage 9 is an **XL** stage and the largest single component in the
 project. Mitigated by building vertically (one battlefield, 1v1, full fidelity) and by
 using the rulebook's own worked examples as the test suite.
+
+---
+
+<a id="d-041"></a>
+
+## D-041 — ⭐ The generator is reinstated, and fused with EE ↩️ REVERSES D-029
+
+**Date:** 2026-08-02
+**Status:** Accepted — reverses [D-029](#d-029), refines [D-007](#d-007), **resolves the
+contradiction in [D-016](#d-016) vs generation**
+
+**User:** *"the generator now looks to be pretty moot, I don't want this. I want the
+generator to work hand in hand with the EE… I should also be able to generate a deck either
+from scratch with keywords or ideas for playstyles or some inputs like 'I keep losing to this
+deck what can I play to counter', and also choose a legend, unit or a few cards I want in my
+new deck and generate ideas from that."*
+
+**Decided:** generation is **not a separate feature and not a deferred spike.** It is EE
+running in the *propose* direction instead of the *evaluate* direction, and it ships as part
+of the Strategist track.
+
+### ⭐ Why this resolves the objective-function contradiction
+
+`GENERATOR.md` §3 recorded a genuine blocker: *"a generator needs an objective function, and
+D-016 forbids a composite score."* Three candidate resolutions were listed and none was
+satisfying.
+
+**The user's framing dissolves it.** Every generation mode they described **supplies the
+objective from outside the tool**:
+
+| Mode | Where "good" comes from |
+|---|---|
+| **Seeded** — *"build around Ornn / these three cards"* | The seed. The tool satisfies constraints; it does not decide what is worth building |
+| **Intent** — *"aggressive"*, *"I want to hold battlefields"* | The stated intent, expressed **mechanically** per [D-030](#d-030) — curve, unit density, interaction count |
+| **Counter** — *"I keep losing to this deck, what beats it"* | ⭐ **A specific, computable target**: answer coverage against that deck's threats. This is EE's existing threat analysis run in reverse — not a vibe score |
+| **Blank** — *"surprise me"* | Several **distinct** directions the collection supports, each explained |
+
+> **The tool never decides which deck is best.** It proposes candidates that satisfy a
+> user-supplied objective, then **explains each one's strengths and gaps** in EE's normal
+> voice. The user chooses. **No composite score is computed anywhere**, so D-016 holds
+> intact — and this is what [D-008](#d-008) asked for originally ("multi-factor and
+> conversational").
+
+### Why the earlier downgrade was still right at the time
+
+[D-029](#d-029) downgraded the generator because the stated goal was *"to enjoy hours of
+tinkering"* and a generator automates tinkering. That reasoning was sound **for a
+one-shot generator that hands you a finished list.**
+
+What is now specified is different: an **assistant inside the tinkering loop** — suggesting
+cards while you build by hand, answering *"what beats this"*, and seeding ideas you then take
+over. It **adds** to the hours rather than replacing them. The audit's finding A9 is answered
+rather than ignored.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Keep it a post-Workbench spike | The user has now stated the need directly. The spike existed to discover whether it was wanted; that question is answered |
+| Build it as a separate generator subsystem | It would duplicate EE's rules engine, synergy graph, collection awareness and explanation layer. Everything a generator needs, EE already has |
+| One-shot generation | Explicitly not what was asked for. The **interactive loop is the product** |
+
+**Consequences:**
+
+- **L2 is dissolved.** `GENERATOR.md` is rewritten from a spike proposal into a
+  specification of EE's generation modes
+- **New step `S5` — Deck generation**, gated on `S3` (plain-English answers) and `W2`
+  (collection), since generation is meaningless without knowing what you own
+- The kill conditions in the old spec are retained as **design constraints** rather than
+  cancellation triggers — K2 in particular ("if the collection can't support multiple decks,
+  the right product is gap analysis") becomes the **failure mode**: *"you have 34 of 40 —
+  here are the 6 gaps"*
+- [D-007](#d-007) ("workbench first, generator second") still holds in **sequence** — W1/W2
+  gate S5 — but no longer in **commitment**

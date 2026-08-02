@@ -20,7 +20,13 @@ conversation, where every answer traces back to the rules and the real card pool
 
 > *"What's this card actually good at?"* · *"How do I play this deck?"* ·
 > *"What should I fear?"* · *"What do I sideboard against Diana?"* ·
-> *"Should I attack here?"* · *"What cards suit this Legend?"*
+> *"Should I attack here?"* · *"What cards suit this Legend?"* ·
+> ⭐ *"Build me something around Ornn"* · *"I keep losing to this deck — what beats it?"*
+
+**EE runs in two directions.** *Evaluate* — you bring a deck, it explains it. *Propose* —
+you bring an intent, it builds candidates and explains those. Same rules engine, same synergy
+graph, same voice. Generation is specified in [`GENERATOR.md`](GENERATOR.md)
+([D-041](../DECISIONS.md#d-041)).
 
 ## 2. 🔴 Prime directive — synthesis, not enumeration
 
@@ -63,6 +69,7 @@ way EE grows — see [`OVERVIEW.md`](OVERVIEW.md) for the extension procedure.
 | **Q-SIDEBOARD** | What do I swap, against what, and for what? | [6.6](#66-q-sideboard--what-do-i-swap) |
 | **Q-LINE** | Should I attack / hold / commit here? | [6.7](#67-q-line--should-i-attack-here) |
 | **Q-BUILD** | What should I add or cut? | [6.8](#68-q-build--what-should-i-change) |
+| ⭐ **Q-GENERATE** | Build me a deck — seeded, by intent, or to counter something | [`GENERATOR.md`](GENERATOR.md) |
 
 ---
 

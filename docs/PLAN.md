@@ -36,7 +36,7 @@ worth having.
 |---|---|---|
 | **The Workbench** | Catalogue what you own; browse, filter and build decks by hand with live legality and honest statistics. Cards sleeved into a BUILT deck stop being available and always show which deck holds them | Specified |
 | **The Strategist (EE)** | Ask questions about your cards, decks and matchups; get answers grounded in a deterministic rules core. *"What's this card good at? How do I pilot this? What should I fear? What do I sideboard?"* | Specified — [`spec/EVALUATION.md`](spec/EVALUATION.md) |
-| ⏸️ *L2 — Generator* | Auto-propose decks. **Deferred**, with kill conditions | [`spec/GENERATOR.md`](spec/GENERATOR.md) |
+| **Generation** (part of the Strategist) | Propose decks — seeded on cards you name, on a playstyle, or on *"what beats this deck"*. Reinstated and fused with EE ([D-041](DECISIONS.md#d-041)) | Specified — [`spec/GENERATOR.md`](spec/GENERATOR.md) |
 
 ---
 
@@ -94,11 +94,11 @@ THE WORKBENCH                        THE STRATEGIST (EE)
   W2  Collection entry ...... ░░░░       S2  Analysis ............. ░░░░
   W3  Deck builder .......... ░░░░       S3  Plain-English answers ░░░░ ⭐
   W4  Deck statistics ....... ░░░░       S4  Conversation ......... ░░░░
-  🏁 THE WORKBENCH IS DONE               🏁 THE STRATEGIST IS DONE
+  🏁 THE WORKBENCH IS DONE               S5  Deck generation ⭐ ... ░░░░
+                                         🏁 THE STRATEGIST IS DONE
 
 LATER
   L1  Deferred features ................ ░░░░░░░░░░
-  L2  Generator spike (kill conditions)  ░░░░░░░░░░
 ```
 
 **Why W and S are parallel:** the EE rules engine is pure logic over cached card data. It
@@ -117,7 +117,7 @@ built and tested headlessly, which also makes it the most resumable work in the 
 | Stage 3.5 | **F2** | | Stage 11 | **S3** |
 | Stage 4 | **F3** | | Stage 12 | **S4** |
 | Stage 5 | **W1** | | Stage 13 | **L1** |
-| Stage 6 | **W2** | | Spike G | **L2** |
+| Stage 6 | **W2** | | Spike G | **S5** (reinstated) |
 | Phase A | The Workbench | | BLUEPRINT LOCK | DESIGN LOCKED |
 | Phase B | The Strategist | | | |
 
@@ -360,6 +360,37 @@ Open questions, follow-ups, "why?", memory of the conversation.
 **Discipline, enforced by test:** never does arithmetic, never adjudicates rules, never
 emits a number that didn't come from a tool call.
 
+### S5 — Deck generation ⭐
+
+**Size:** L · **Gate:** S3 + **W2** (generation is meaningless without knowing what you own)
+· Spec: [`spec/GENERATOR.md`](spec/GENERATOR.md)
+
+**Reinstated and fused with EE** ([D-041](DECISIONS.md#d-041)) — this is EE running in the
+*propose* direction, not a separate subsystem.
+
+**Four modes:**
+
+| Mode | Input |
+|---|---|
+| **Seeded** | *"Build around Ornn"* / a few cards you want in the deck |
+| **Intent** | A playstyle, expressed mechanically ([D-030](DECISIONS.md#d-030)) |
+| ⭐ **Counter** | *"I keep losing to this deck — what beats it?"* |
+| **Open** | Several distinct directions your collection supports |
+
+> **The objective always comes from you**, so no composite score is ever computed and
+> [D-016](DECISIONS.md#d-016) holds. Forge proposes candidates and explains them; you choose.
+
+**Also here:** live suggestions while hand-building (G5), and the **gap-analysis failure
+mode** — *"you have 34 of 40, here are the 6 gaps"* — which is the most valuable output for a
+collection-constrained player.
+
+**Done when:** all four modes produce legal, owned, explained candidates you would actually
+sleeve.
+**You do:** generate ten decks and say how many you'd build.
+
+> ⚠️ Audit finding **A9** still stands: the stated goal is *enjoying hours of building*.
+> Generation must **add** to that loop, never shortcut it.
+
 > ### 🏁 MILESTONE — THE STRATEGIST IS DONE
 > You can ask Forge questions about your decks and get answers you'd act on.
 
@@ -376,16 +407,14 @@ emits a number that didn't come from a tool call.
 | Specific rival-deck modelling for EE | The threat-space model shipping first |
 | Limited (Sealed/Draft) support | A genuinely different validator — COMPENDIUM §II.9 |
 
-## 8. L2 — Generator research spike
+## 8. What is *not* being built
 
-**Gate:** the Workbench complete **and** evidence of real need · Spec: [`spec/GENERATOR.md`](spec/GENERATOR.md)
-
-⚠️ **Downgraded to a hypothesis with kill conditions.** The stated goal is to enjoy hours of
-tinkering; a generator automates tinkering. It also needs an objective function, and
-[D-016](DECISIONS.md#d-016) forbids a composite score.
-
-> **EE weakens the case further.** If Forge can explain a deck's strengths, gaps and lines
-> precisely, the reason to auto-generate shrinks. **Output: a recommendation, not a feature.**
+| Not building | Why |
+|---|---|
+| Casual (non-tournament) legality mode | Tournament-only by [D-032](DECISIONS.md#d-032). Recorded, cheap to add if ever wanted |
+| Limited (Sealed/Draft) support | A genuinely different validator — no copy limits, `Unique` doesn't apply |
+| Meta / tournament statistics | Sources have **opted out** ([DATA-SOURCES](reference/DATA-SOURCES.md)), and current-set data is n=1–3 |
+| A deck power rating | [D-016](DECISIONS.md#d-016). Never |
 
 ---
 
@@ -426,7 +455,7 @@ Not a phase — an **ongoing obligation** from F3.
 | Phone/desktop design sprawl | 🟡 Medium | Phone-first, then expand |
 | Monte Carlo too slow on mobile | 🟡 Medium | Measure early; server-side fallback |
 | Card data source disappears | 🟡 Medium | Full local cache from F3 |
-| Generator scope creep | 🟢 Low | Deferred spike with kill conditions |
+| 🆕 **Generation shortcuts the fun** (audit A9) | 🟡 Medium | Generation must live *inside* the building loop — suggestions and seeds, never one finished list. Validated at S5 by generating ten decks and counting how many you'd build |
 | ~~Premise may not hold~~ | ✅ Closed | [D-033](DECISIONS.md#d-033) |
 | ~~Card data can't support legality~~ | ✅ Closed | [D-034](DECISIONS.md#d-034) |
 
