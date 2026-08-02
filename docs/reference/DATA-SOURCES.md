@@ -166,13 +166,36 @@ actually produce.
 > **Q4 was framed as an access problem. It is also a relevance problem**, and the
 > relevance question is answerable *without* obtaining any data.
 
+### ⚠️ Diagnosed 2026-08-02 — these sources have *opted out*, not merely failed
+
+Both major meta sites were probed directly to establish **why** they are unavailable. The
+answer is a deliberate publisher choice in both cases:
+
+| Site | HTTP to a plain client | `robots.txt` |
+|---|---|---|
+| **riftbound.gg** | **200 OK** — fully reachable | `anthropic-ai`, `Claude-Web`, `GPTBot`, `ChatGPT-User`, `CCbot` → **`Disallow: /`** (inserted by the Raptive ad network) |
+| **riftdecks.com** | **403** — Cloudflare managed challenge (`cf-mitigated: challenge`) | `anthropic-ai`, `GPTBot`, `ChatGPT-User` → **`Disallow: /`**, plus the anti-competitor warning above |
+
+> 🔑 **The important case is `riftbound.gg`: it serves content perfectly well.** Nothing
+> technical prevents reading it. What prevents it is an explicit, machine-readable
+> instruction from the publisher that agents like this one must not.
+>
+> Under [D-010](../DECISIONS.md#d-010) that is decisive. **These are permanently out of
+> scope — not "blocked, retry later."** Any future feature that depends on them is blocked
+> at *design* time, not implementation time.
+
+*(An article was fetched from `riftbound.gg` during this diagnosis, before its `robots.txt`
+had been read. It was discarded unread and none of its content informed this project.)*
+
 ### Position
 
 [D-009](../DECISIONS.md#d-009) — pluggable adapter; the project is complete without it.
-[D-010](../DECISIONS.md#d-010) — **no scraping**, non-negotiable.
+[D-010](../DECISIONS.md#d-010) — **no scraping**, non-negotiable, and now demonstrably the
+operative constraint rather than a theoretical one.
 
-**Cheap action available now:** ask Riftools and RiftDecks about API access for a
-personal, non-published tool. They are fan projects and may simply agree.
+**The one legitimate route left:** ask these projects directly for permission or an API for
+a personal, non-published tool. They are fan projects and may simply agree — and consent
+from the publisher is exactly what `robots.txt` is withholding.
 
 ---
 
