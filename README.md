@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ Discovery complete · D2 (interface design) is next · no code yet
+> **Status:** ✅ Discovery complete · 🟡 `D2` interface design in progress · **the collection tool works and is in use**
 
 ---
 
@@ -41,11 +41,58 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ---
 
-## 📍 Start here next session
+## 📍 Start here — how to pick this up
 
-**`D2` — design the interface.** All blockers are cleared. Nothing to prepare.
+*Last worked on 2026-08-02. This section is the recipe; the live status board is
+[`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
-Status: [`docs/ROADMAP.md`](docs/ROADMAP.md) (or [`roadmap.html`](docs/roadmap.html) for the visual one) · Detail: [`docs/PLAN.md`](docs/PLAN.md)
+**Where things stand.** Discovery is done. Forge has its first working code — a
+[collection tool](tools/collection/) that has been used for real entry and already improved
+twice from that use. `D2` (interface design) is **in progress**: a prototype exists and is
+waiting on a verdict.
+
+### 1 · Run what exists
+
+```bash
+cd ~/code/riftbound && git pull
+cd tools/collection && python3 -m http.server 8000     # → http://localhost:8000
+```
+
+Pick a set, type collector numbers — matches appear as you type, `⏎` adds.
+**Export from the Data tab when finished**: the collection lives in `localStorage`, and that
+exported JSON is the durable asset. Full instructions in
+[`tools/collection/README.md`](tools/collection/README.md).
+
+### 2 · Three proposals need a decision
+
+Discussed at length, **deliberately not recorded as decisions** — see the open-questions
+table in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+| # | Proposal | If accepted |
+|---|---|---|
+| **P1** | EE is a rules engine with a **swappable mouth**, and the mouth is Claude Code against exported state rather than an in-app chat | Deletes `S3`/`S4` as build work; resolves X1 without `D3` |
+| **P2** | **Split `S1`** into `S1a` (combat + legality) and `S1b` (chains, deferred until `Q-LINE` is actually missed) | The strategist starts delivering without waiting on the largest component |
+| **P3** | **Tier by answer-part** — grounding restricted to Tier 1/2, lever explicitly opinion | Fixes the contradiction where [D-022](docs/DECISIONS.md#d-022) forbids the advice EE promises |
+
+**P1 is the load-bearing one** — it decides whether roughly a third of the roadmap gets built.
+
+### 3 · Two questions `D2` needs answered
+
+Open [`docs/design/D2-workbench-prototype.html`](docs/design/D2-workbench-prototype.html)
+in a browser (it's self-contained) and click **Design notes**:
+
+- **Do the ownership pips read instantly, or do they need numbers?** The collection tool
+  already uses this language, so it's the piece most worth getting right.
+- **Is EE's answer the right length?** That judgment becomes `S3`'s statement budget.
+
+### Then
+
+`D2` closes when the prototype is approved → `D3` picks the stack and where docs are
+served from (X5) → `F1`/`F2` get it online.
+
+> ⚠️ **Read [`docs/AUDIT.md`](docs/AUDIT.md) and the honest-review findings before adding
+> more documentation.** The project has 64,000 words of docs against a few hundred lines of
+> code, and the counts in them have drifted three times. **Prefer building over writing.**
 
 ---
 
@@ -64,6 +111,13 @@ system map and **where to put a new idea**.
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | 42 decisions with alternatives and rationale — including five reversals |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
 | [`docs/AUDIT.md`](docs/AUDIT.md) | First-principles audit of the project's own assumptions |
+| [`docs/design/`](docs/design/) | The `D2` interface prototype — open the HTML in a browser |
+
+### Code
+
+| | |
+|---|---|
+| [**`tools/collection/`**](tools/collection/) | **The collection tool — keyboard entry over all 1,180 printings, live matches with images, JSON export. Working, and in use.** |
 
 ### Specification — what we're building
 
@@ -132,7 +186,7 @@ and explains each; it never hands you one finished list and never ranks them.
 4-Phase Spec-Driven Development:
 
 1. ✅ **Discovery** — lock the spec before writing logic
-2. **Visualization** — prototype for early UX validation ← *next*
+2. 🟡 **Visualization** — prototype for early UX validation ← *in progress (`D2`)*
 3. **Development** — every change maps to a task
 4. **Human QA** — the final gate
 
