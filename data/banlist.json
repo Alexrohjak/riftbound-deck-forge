@@ -1,0 +1,20 @@
+{
+  "source": "https://playriftbound.com/en-us/rules-hub/",
+  "lastUpdated": "2026-07-16",
+  "note": "Hand-maintained. The official list is prose, not an API. Re-check on every rules or set release; the ban list changes independently of sets.",
+  "constructed_1v1": {
+    "cards": ["Called Shot", "Draven, Vanquisher", "Fight or Flight", "Scrapheap", "Stealthy Pursuer"],
+    "battlefields": ["The Arena's Greatest", "Aspirant's Climb", "Dreaming Tree", "Obelisk of Power", "Reaver's Row"],
+    "legends": []
+  },
+  "constructed_2v2": {
+    "cards": ["Called Shot", "Draven, Vanquisher", "Fight or Flight", "Scrapheap", "Stealthy Pursuer"],
+    "battlefields": ["The Arena's Greatest", "Aspirant's Climb", "Dreaming Tree", "Obelisk of Power", "Reaver's Row"],
+    "legends": ["Master Yi, Wuju Bladesman"]
+  },
+  "aliases": {
+    "_comment": "The official list does not always use the printed card name. Ban matching MUST go through this map, not string equality. See LEGALITY.md L31.",
+    "Dreaming Tree": "The Dreaming Tree"
+  },
+  "precon_exception": "TR 601.2.d.2 - at low OPL an EXACT preconstructed configuration may use its banned cards. Any change or added sideboard voids this."
+}

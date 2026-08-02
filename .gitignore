@@ -20,8 +20,17 @@ out/
 *.pem
 *.key
 
-# Local data — the collection is personal, and cached card data is reproducible
-data/
+# Local data
+#
+# The COLLECTION is personal and must never be committed.
+# Public card data from Riot's gallery IS committed — see data/README.md. The upstream
+# buildId changes on every site deploy, so a cached snapshot is the mitigation D-034
+# already requires, and a complete data layer is what makes good EE answers possible
+# (D-039 governs OUTPUT, not storage).
+data/collection*
+data/decks*
+data/*.sqlite
+data/*.db
 *.sqlite
 *.sqlite3
 *.db

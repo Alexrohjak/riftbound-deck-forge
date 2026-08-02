@@ -122,7 +122,7 @@ These are decided and load-bearing. Changing one means writing a `D-***`.
 | 1 | **The rulebook is the only legality authority.** Community guides have been wrong twice | [D-020](../DECISIONS.md#d-020) |
 | 2 | **No composite score.** No grades, ratings or stars, anywhere | [D-016](../DECISIONS.md#d-016) |
 | 3 | **Omit rather than fake.** An uncertain statistic is left out, not estimated | [D-022](../DECISIONS.md#d-022) |
-| 4 | **Synthesis over enumeration.** EE says three useful things, not 66 true ones | `EVALUATION.md` §2 |
+| 4 | **Synthesis over enumeration — *in output only*.** EE says three useful things, not 66 true ones. ⚠️ The **data layer stays complete**; this governs what a human reads, never what we store | `EVALUATION.md` §2 |
 | 5 | **Never a dead end.** An unavailable card shows where it is; an impossible deck shows what's missing | [DISCOVERY](../DISCOVERY.md) |
 | 6 | **Ownership is the organising principle** — the whole reason Forge exists | [D-015](../DECISIONS.md#d-015) |
 | 7 | **Legality ≠ buildability.** A deck can be legal and unbuildable. Never conflate | `LEGALITY.md` §2 |
