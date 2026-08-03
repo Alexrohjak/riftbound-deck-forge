@@ -27,7 +27,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-016](#d-016) | No single effectiveness grade — show a panel of stats | ✅ |
 | [D-017](#d-017) | Cards in decks are committed and leave the available pool | ✅ |
 | [D-018](#d-018) | Phone gets FULL parity with desktop, including editing | ↩️ reverses |
-| [D-019](#d-019) | Architecture is deliberately deferred |  |
+| [D-019](#d-019) | Architecture is deliberately deferred | ✅ fulfilled by [D-047](#d-047)–[D-049](#d-049) |
 | [D-020](#d-020) | Official rulebook is the sole legality authority | ✅ |
 | [D-021](#d-021) | Physical card-location system deferred until re-organisation |  |
 | [D-022](#d-022) | Deck statistics use a three-tier confidence framework | ✅ |
@@ -55,6 +55,9 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-044](#d-044) | **`S1` splits** — combat and legality ship without chain resolution | ✅ |
 | [D-045](#d-045) | **Tier by answer-part**, not by answer — refines D-022 | ✅ |
 | [D-046](#d-046) | 🔒 **`D2` is closed** — the interface is locked | ✅ |
+| [D-047](#d-047) | ⭐ **One TypeScript rules package, two consumers** — the engine never deploys | ✅ |
+| [D-048](#d-048) | **Nothing is always-on** — static + edge + D1 on Cloudflare, £0/mo | ✅ A6, X5 |
+| [D-049](#d-049) | **Editing requires connectivity; offline is read-only** — corrects D-018 | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -1570,3 +1573,139 @@ answer are almost always the first one restated at lower salience. §5.2 is upda
   is adopted; its visual identity is not
 - The prototype in [`docs/design/`](design/) is the reference. It is a **design artifact, not
   a starting codebase** — `D3` picks the stack without regard to how the prototype was built
+
+---
+
+<a id="d-047"></a>
+
+## D-047 — ⭐ One TypeScript rules package, two consumers ✅
+
+**Date:** 2026-08-03
+**Status:** Accepted — the load-bearing decision of `D3`. Full reasoning in
+[`ARCHITECTURE.md`](ARCHITECTURE.md) §2
+
+**Decided:** the rules live in **one pure TypeScript package**, imported by both the web app and
+the CLI that Claude Code calls. **The engine is never deployed** — it is a library, not a service.
+
+### The collision that forced it
+
+| Requirement | Source | Where rules must run |
+|---|---|---|
+| Legality and counts are **live on screen** — they are state, not advice | [D-042](#d-042) | **In the browser**, on every edit |
+| EE answers **headlessly**, called by Claude Code | [D-043](#d-043) | **On the desktop**, outside any browser |
+
+The same 33 legality checks are needed in both places. Two implementations would mean **two
+bodies for the highest-correctness-risk component in the project** — `W1` is already the thing
+everything downstream trusts, and two of it drifting apart is the worst available outcome.
+
+**This is why the stack is TypeScript and not Python**, despite the card tooling already being
+Python. Python cannot serve live in-browser legality without dragging in Pyodide. The Python in
+`tools/` stays, because it is a **build step**, and build steps have no such constraint.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Rules on the server, browser asks over HTTP | Every keystroke becomes a round trip. Legality is live state ([D-042](#d-042)) — it cannot wait on a network |
+| Python engine + a separate JS legality check for the UI | Two implementations of `W1`. The exact failure this decision exists to prevent |
+| Python engine compiled to WASM via Pyodide | ~10 MB of runtime to avoid writing TypeScript. Disproportionate |
+
+**Consequences:**
+
+- The engine is **pure** — no network, no filesystem, no DOM — which is also what makes the
+  `S1a` rulebook fixtures trivial to run
+- `apps/cli` is a thin shell over the package; [`S6`](ROADMAP.md) gets smaller again
+- ⚠️ **The engine must not import anything browser- or Node-specific.** A single `fetch` or
+  `fs` call in it breaks one of the two consumers, and it will be the one nobody ran
+
+<a id="d-048"></a>
+
+## D-048 — Nothing is always-on ✅ RESOLVES A6 + X5
+
+**Date:** 2026-08-03
+**Status:** Accepted — resolves **A6** and **X5**. Verified costs in
+[`ARCHITECTURE.md`](ARCHITECTURE.md) §5
+
+**Decided:** a **static bundle on a CDN**, **one edge function**, and **managed SQLite**
+(Cloudflare D1), behind **Cloudflare Access**. **£0/month**, verified against vendor
+documentation on 2026-08-03.
+
+### A6, answered
+
+The audit flagged *"hosted, always-on"* as convention rather than fact. **The instinct was
+right and the word it caught was "always-on."** Two ideas had been fused that are not the same:
+
+- *"reachable from anywhere"* — **required**, by [D-018](#d-018) and [D-012](#d-012)
+- *"a server I keep running"* — **never justified, and now not built**
+
+Static files, per-request functions and managed SQLite have **no idle state**. Nothing is
+running when Forge is not being used: no VM, no container, no process to restart, no patching
+cadence, no bill that accrues while you sleep. A6 is upheld — not by abandoning hosting, but by
+hosting something with nothing to keep on.
+
+**Why Cloudflare:** the repo is private ([D-011](#d-011)), which is what ruled out GitHub Pages
+at `D2`. Cloudflare deploys private repos on the free plan, and one account covers app, API,
+database, access control **and the docs — so X5 resolves as a side effect** rather than as a
+second decision. `PLAN.md` had asked for exactly that: *"one host can serve both, and picking
+twice is waste."*
+
+**D1 rather than Workers KV — consistency decides it.** KV is eventually consistent, taking
+**up to 60 seconds** to propagate globally. The core journey is *edit on the phone at a shop,
+open the desktop at home*; a store that can serve a minute-old collection turns *"where did that
+card go?"* into a real bug on the one axis ([ownership, D-015](#d-015)) the product is organised
+around. D1 is strongly consistent, relational — matching
+[`DATA-MODEL.md`](spec/DATA-MODEL.md) directly — and allows **100× KV's daily writes.**
+
+**Cloudflare Access for auth**, free to 50 users, **zero application code**. Forge never sees a
+password and has no session logic to get wrong. Hand-rolled auth on a personal project is pure
+downside risk.
+
+**Consequences:**
+
+- ⚠️ **The risk is terms changing, not usage growing.** Forge sits ~3 orders of magnitude below
+  every limit that matters. **Mitigation: nothing here is lock-in** — a static bundle moves to
+  any host, one small function is portable, and D1 exports to a `.sql` file
+- The roadmap gets the bookmarkable URL X5 wanted
+- ❌ **Rules out** Next.js and every SSR framework (nothing to server-render), Postgres and
+  every always-on database, and hand-rolled authentication
+
+<a id="d-049"></a>
+
+## D-049 — Editing requires connectivity; offline is read-only ⚠️ CORRECTS D-018
+
+**Date:** 2026-08-03
+**Status:** Accepted — corrects a claim in [D-018](#d-018)
+
+### The error being corrected
+
+[D-018](#d-018) concluded that because there is one app rather than two synchronised surfaces,
+**"no sync-conflict or merge logic is needed."** That holds only while the app always talks to
+the server. **An offline-editing PWA breaks it:** edit a deck on the phone in a basement, edit
+the same deck at home, and there are two divergent versions with no rule for combining them.
+
+D-018 was right about its own case and wrong about the one it did not consider.
+
+**Decided:**
+
+- **Offline you can look.** Decks, collection and full card data are service-worker cached —
+  the *"at a shop, no signal, what's in this deck?"* case works
+- **Offline you cannot edit.** The affordances disable with a plain reason — never a silent
+  failure, never an edit that appears to save and doesn't
+- **D-018's conclusion survives**: still no merge logic, because there is still exactly one
+  writable copy
+
+**The cost, named.** D-018's reason for phone parity was *"I learn new things while playing."*
+A shop with no signal is exactly when that happens, and this says: capture it in the app when
+you have signal, on paper when you don't. **That is a real limitation, not a technicality.**
+
+**The trigger for revisiting** — the same pattern as [D-044](#d-044)'s deferral of chains: if
+you find yourself unable to record something at a table and mind it, build the queued-writes
+flow (a per-deck version counter plus last-write-wins). **Not on speculation.**
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Full offline editing with CRDTs | Weeks of work and a permanent complexity tax, for one user who is never editing from two devices at the same moment |
+| Offline editing, last-write-wins, silent | Silently discards work. The one outcome worse than not being able to edit |
+| No offline capability at all | Throws away the read case, which is cheap, genuinely useful, and already how the collection tool's standalone build works |

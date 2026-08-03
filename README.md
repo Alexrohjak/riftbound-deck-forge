@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ `D1` discovery + `D2` interface design complete · 🎯 `D3` architecture is next, the last gate before `DESIGN LOCKED` · **the collection tool works and is in use**
+> **Status:** 🔓 **`DESIGN LOCKED` lifted** — `D1`, `D2` and `D3` are complete, so logic can now be written · 🎯 `F1` (get it online) is next · **the collection tool works and is in use**
 
 ---
 
@@ -46,10 +46,10 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 *Last worked on 2026-08-03. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
-**Where things stand.** 🔒 **`D1` and `D2` are closed.** Discovery is done, the interface is
-locked, and Forge has working code — a [collection tool](tools/collection/) used for real entry
-and improved twice from that use. **`D3` (architecture) is the last gate before
-`DESIGN LOCKED`**, after which logic can be written.
+**Where things stand.** 🔓 **The whole design track is done and `DESIGN LOCKED` has lifted.**
+Discovery, the interface and the architecture are all settled, so **logic can now be written** —
+for the first time in the project. Forge already has working code: a
+[collection tool](tools/collection/) used for real entry and improved twice from that use.
 
 ### 1 · Run what exists
 
@@ -63,39 +63,42 @@ Pick a set, type collector numbers — matches appear as you type, `⏎` adds.
 exported JSON is the durable asset. Full instructions in
 [`tools/collection/README.md`](tools/collection/README.md).
 
-### 2 · What changed on 2026-08-03
+### 2 · What was decided on 2026-08-03
 
-Four decisions, and the `S` track is a different shape because of them.
+Seven decisions closed `D2` and `D3`. The two that reshape the most work:
 
 | # | Decision | Effect |
 |---|---|---|
 | [**D-043**](docs/DECISIONS.md#d-043) | **EE is a rules engine with a swappable mouth** — the mouth is Claude Code against exported state | `S3`/`S4` retired; new `S6` at a fraction of the size; **X1 and E1 dissolved** |
-| [**D-044**](docs/DECISIONS.md#d-044) | **`S1` splits** — `S1a` combat and legality now, `S1b` chains deferred | Seven of EE's eight questions stop waiting on the hardest half |
-| [**D-045**](docs/DECISIONS.md#d-045) | **Tier by answer-part** — Grounding is measured-only, the read is opinion | Resolves the contradiction where [D-022](docs/DECISIONS.md#d-022) forbade the advice EE promises |
-| [**D-046**](docs/DECISIONS.md#d-046) | 🔒 **`D2` closed** — the interface is locked | `D3` is the only remaining design gate |
+| [**D-047**](docs/DECISIONS.md#d-047) | **One TypeScript rules package, two consumers** — the browser and Claude Code import the same engine | Prevents two implementations of `W1`, the highest-correctness-risk component |
+| [**D-048**](docs/DECISIONS.md#d-048) | **Nothing is always-on** — static bundle, one edge function, managed SQLite on Cloudflare | **£0/month, verified.** A6 upheld, X5 resolved as a side effect |
+| [**D-044**](docs/DECISIONS.md#d-044) · [**D-045**](docs/DECISIONS.md#d-045) · [**D-046**](docs/DECISIONS.md#d-046) · [**D-049**](docs/DECISIONS.md#d-049) | `S1` splits · tier by answer-part · `D2` closed · offline is read-only | See [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) and the decision log |
 
-**Two calls inside D-046 were mine, not yours.** Pips cap at three (a fourth copy is
-unplayable under [L13](docs/spec/LEGALITY.md), so a fourth pip encodes nothing), and EE's
-answer budget is 1 statement / ≤2 lever sentences / ≤3 grounding lines. **Both are cheap to
-reverse** — open the [prototype](docs/design/D2-workbench-prototype.html) and say so if either
-reads wrong.
+**Three calls were mine rather than yours**, all flagged in the decisions and all cheap to
+reverse: pips cap at three (a fourth copy is unplayable under
+[L13](docs/spec/LEGALITY.md)); EE's answer budget is 1 statement / ≤2 lever sentences / ≤3
+grounding lines; and **editing requires connectivity** — offline you can look but not edit
+([D-049](docs/DECISIONS.md#d-049)), which is a real limitation at a table with no signal.
 
-### 3 · Next — `D3`, architecture
+### 3 · Next — `F1`, get it online
 
-Stack · hosting and its **indefinite** running cost · storage · card cache · access control ·
-backup and export. Plus two questions deliberately carried this far:
+🔓 **This is the first milestone where logic gets written.** Read
+[`ARCHITECTURE.md`](docs/ARCHITECTURE.md) first — it says what to scaffold and, just as
+usefully, [what is ruled out](docs/ARCHITECTURE.md#8-what-this-rules-out).
 
-- **X5** — where the docs are served from, so the roadmap has a bookmarkable always-current URL.
-  ⚠️ GitHub Pages is ruled out: it needs a paid plan on a private repo
-- **A6** — *"hosted, always-on"* was recorded as **convention, not fact**. A permanently-online
-  service for exactly one user was never justified. **Re-examine it before accepting it**
+- npm workspaces: `packages/engine` (pure TS), `apps/web` (React + Vite), `apps/api` (one Worker)
+- Cloudflare Pages from the private repo, D1 for state, Access in front of both
+- CI runs [`tools/check-docs.py`](tools/check-docs.py) — it already exists
+- **Done when** a trivial page is live and reachable from your phone, deploying on push
 
-Then `F1`/`F2` get it online, and `F2` is the one that matters — the first genuinely usable
-version, deliberately crude.
+Then `F2` — the one that actually matters. The first genuinely usable version, deliberately
+crude: open it on your phone and put cards into a deck.
 
-> ⚠️ **Read [`docs/AUDIT.md`](docs/AUDIT.md) and the honest-review findings before adding
-> more documentation.** The project has 64,000 words of docs against a few hundred lines of
-> code, and the counts in them have drifted three times. **Prefer building over writing.**
+> ⚠️ **The design phase is over — stop writing documents.** The project has ~66,000 words of
+> docs against a few hundred lines of code. Every remaining milestone produces **running code**,
+> and [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) is the last document the plan called for.
+> If a doc must change, update its existing home and run
+> [`tools/check-docs.py`](tools/check-docs.py). **Prefer building over writing.**
 
 ---
 
@@ -111,8 +114,9 @@ system map and **where to put a new idea**.
 | [`docs/roadmap.html`](docs/roadmap.html) | The same roadmap, rendered. Download and open in a browser |
 | [**`docs/spec/OVERVIEW.md`**](docs/spec/OVERVIEW.md) | **System map — how everything relates, and where new ideas go. Read before adding a feature.** |
 | [`docs/PLAN.md`](docs/PLAN.md) | The detail layer — gates, "done when", validation and risks |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 46 decisions with alternatives and rationale — including five reversals |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 49 decisions with alternatives and rationale — including five reversals |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
+| [**`docs/ARCHITECTURE.md`**](docs/ARCHITECTURE.md) | **How it's built — stack, hosting, verified £0/month cost, and what's ruled out. Read before writing code.** |
 | [`docs/AUDIT.md`](docs/AUDIT.md) | First-principles audit of the project's own assumptions |
 | [`docs/design/`](docs/design/) | 🔒 The **locked** `D2` interface — open the HTML in a browser. A design artifact, not a starting codebase |
 
