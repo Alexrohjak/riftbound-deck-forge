@@ -3,8 +3,8 @@
 > Forge's strategist. You ask it questions about your cards, your decks and your
 > matchups; it answers in plain language, grounded in a deterministic rules core.
 >
-> **Created:** 2026-08-02 · **Revised:** 2026-08-02 (v3 — question-driven) ·
-> **Status:** specification, no code
+> **Created:** 2026-08-02 · **Revised:** 2026-08-03 (v4 — the mouth is swappable,
+> [D-043](../DECISIONS.md#d-043)) · **Status:** specification, no code
 
 **Related:** [`OVERVIEW.md`](OVERVIEW.md) (system map) ·
 [`../reference/COMPENDIUM.md`](../reference/COMPENDIUM.md) (rules + cards) ·
@@ -76,12 +76,12 @@ way EE grows — see [`OVERVIEW.md`](OVERVIEW.md) for the extension procedure.
 ## 4. Architecture — four layers
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│ 4. CONVERSATION   the voice. Open questions, follow-ups, │
-│                   "why?", memory of what you asked       │
-├──────────────────────────────────────────────────────────┤
-│ 3. SYNTHESIS      turns computation into a few named,    │
-│                   actionable statements  ← §2, §5        │
+╔══════════════════════════════════════════════════════════╗
+║ 4. THE MOUTH      Claude Code. NOT BUILT — D-043.        ║  ← swappable
+║                   Synthesis, voice, follow-ups, "why?"   ║
+╠══════════════════════════════════════════════════════════╣
+│ 3. CONTRACT       tool surface + export format +         │  ← S6, and the
+│                   briefing. The seam.                    │     whole seam
 ├──────────────────────────────────────────────────────────┤
 │ 2. ANALYSIS       refutation search, coverage, pressure, │
 │                   robustness, Legend fit  (deterministic)│
@@ -89,13 +89,23 @@ way EE grows — see [`OVERVIEW.md`](OVERVIEW.md) for the extension procedure.
 │ 1. RULES CORE     state, legal actions, chain, showdown, │
 │                   combat, rules-as-data  (deterministic) │
 └──────────────────────────────────────────────────────────┘
+     └── layers 1–3 are Forge. Layer 4 is replaceable. ──┘
 ```
 
-**Layer 3 is the one that makes EE usable, and the one v2 was missing.**
+**[D-043](../DECISIONS.md#d-043) — EE is a rules engine with a swappable mouth.** v2's layer 4
+was going to be built; it no longer is. Layer 3 changed with it: **it used to be synthesis, and
+is now the contract that lets someone else synthesise** — the tools, the export format, and the
+briefing that binds the mouth to §2 and §5.
 
-**Discipline:** layers 1–2 are the only source of truth. Layer 4 never does arithmetic and
-never adjudicates a rules interaction — it asks layer 2. Any statement layer 4 cannot
-ground, it does not make.
+**Why the layer 4 box is double-ruled:** everything below it is deterministic and tested.
+Everything at it is a language model. **The line is where Forge's guarantees stop**, and it is
+drawn thickly on purpose.
+
+**Discipline:** layers 1–2 are the only source of truth. **Layer 4 never does arithmetic and
+never adjudicates a rules interaction** — it asks layer 2. Any statement it cannot ground, it
+does not make. Under [D-045](../DECISIONS.md#d-045) this is **structural, not merely a rule**:
+grounding lines are assembled from tool output, and layer 4 is never given the ability to
+author one.
 
 ---
 
@@ -135,7 +145,43 @@ Computation produces many true statements. Synthesis must choose **few**. Rankin
 | **Actionability** | Can the user *do* something about it? Prefer statements with a lever |
 | **Non-obviousness** | Don't tell someone their 12-cost card is expensive |
 
-**Default budget: 3–5 statements per answer.** Everything else is available on request.
+### 5.2b The answer budget 🔒 fixed by D-046
+
+The `D2` prototype made the case that **one statement plus one lever is enough** — the second
+and third statements in an answer are almost always the first one restated at lower salience.
+
+| Part | Budget | Permitted confidence tiers |
+|---|---|---|
+| **Statement** | 1 sentence, no preamble | Unrestricted, but derivable from the grounding shown |
+| **Lever** | ≤2 sentences, naming ≤3 cards | Unrestricted — **labelled opinion**, once, at the part level |
+| **Grounding** | ≤3 lines | ⚠️ **Tier 1 and Tier 2 only** |
+| **Whole answer** | ~60 words before any "show me" affordance | |
+
+> This replaces the earlier *"3–5 statements per answer"*, which was written before there was
+> anything to look at.
+
+### 5.2c Tiering by answer-part ⭐ D-045
+
+[D-022](../DECISIONS.md#d-022) says **omit rather than fake**: Tier 3 is left out, not hedged.
+But every strategic claim EE exists to make — *"attack when they're tapped out"* — **is Tier 3
+inference.** Read literally, D-022 requires EE to be silent about its entire purpose.
+
+**The resolution: tiers apply per answer-part, not per answer.**
+
+**`Grounding` is measured, always.** Counts from the collection, rules the engine adjudicated,
+simulated frequencies. **Nothing EE inferred.** That is the guarantee D-022 was actually
+protecting — not silence, but the integrity of the evidence line. A reader can discard EE's
+opinion entirely and still trust every fact beneath it.
+
+**The statement and lever are opinion, and say so once.** Labelling is per-part, never
+per-line: **a hedge on every line of an opinion is noise**, and trains the reader to ignore all
+of them.
+
+> ⚠️ **The failure this prevents, observed in the prototype.** It labelled *"most games are
+> decided by which player holds two battlefields first"* as `LIKELY` — Tier 2,
+> *measured-but-uncertain*. Nothing was measured. **That is opinion laundered as evidence**,
+> which is the precise dishonesty D-022 was written to stop. A tier badge is a promise about
+> where a number came from; it must never appear above something that came from a hunch.
 
 ### 5.3 Voice
 
@@ -324,13 +370,17 @@ EE is only as honest as its core. Non-negotiable (all cited in
 | Effect annotation | ⚠️ **~153 cards (19%)** — hand-annotate, don't parse |
 | Legend ability annotation | ⚠️ **49 Legends** — hand-annotate |
 | Pattern vocabulary | 🟡 Curated definitions over the above |
-| Rules core with overrides | 🔴 **The bulk of the work** |
-| Synthesis layer | 🟡 Ranking + templating; the quality bar is editorial |
-| Conversation layer | 🟡 Depends on the D3 architecture decision |
+| Rules core with overrides | 🔴 **The bulk of the work** — split into `S1a` / `S1b` by [D-044](../DECISIONS.md#d-044) |
+| Contract layer — tools, export, briefing | 🟢 **Small** (`S6`) — replaced synthesis + conversation per [D-043](../DECISIONS.md#d-043) |
+| ~~Conversation layer~~ | ❌ **Not built.** Claude Code is the mouth |
 
 **Corpus fits in context.** Measured: 814 main-deck cards with full text ≈ **38,700
 tokens**; +115 Legends/Battlefields ≈ **3,900**; both rulebooks ≈ **75,000**. The entire
 game is **~118k tokens** — a conversational layer can genuinely hold all of Riftbound.
+
+> **This measurement was taken to prove a conversation layer *could* be built. It equally
+> proves one doesn't need to be** — which is the argument [D-043](../DECISIONS.md#d-043) rests
+> on. The mouth already exists, already holds the whole game, and was never the hard part.
 
 > **Scale honesty:** the rules core is comparable to the rest of the Workbench combined. Build it
 > **vertically** — one battlefield, 1v1, full fidelity — then widen.
@@ -343,14 +393,20 @@ game is **~118k tokens** — a conversational layer can genuinely hold all of Ri
 | Chain / showdown | Property tests: LIFO, Reaction-only when closed, pass-pass termination |
 | Rule overrides | A named regression test per rule-warping card |
 | Analysis | Golden files per Domain Identity; card-pool drift fails the build |
-| **Synthesis** | ⭐ **Budget tests** — assert no answer exceeds its statement budget or names more than 3 example cards. *This is how §2 stays true under pressure* |
-| Conversation | Adversarial: assert no number appears that didn't come from a tool call |
+| **Contract** | ⭐ **Assert the mouth cannot author a grounding line** — every `Grounding` entry must be traceable to a tool return, structurally. *This is how §2 and §5.2c stay true under pressure* |
+| Mouth | Adversarial: assert no number appears that didn't come from a tool call |
+
+> 🔻 **What was lost.** `S3`'s budget test was going to assert in CI that no answer exceeds its
+> statement budget. Under [D-043](../DECISIONS.md#d-043) the budget lives in a briefing
+> instead — **guidance, not a gate.** The structural check above is stronger than the test it
+> replaces for *provenance*, and weaker than it for *length*. That trade is the real price of
+> not building the mouth, and it is recorded rather than glossed.
 
 ## 11. Open questions
 
 | # | Question | Blocks |
 |---|---|---|
-| **E1** | Where does the conversation layer run — in-app, or Claude Code against an exported deck state? | D3 architecture |
+| ~~**E1**~~ | ✅ **Answered** — [D-043](../DECISIONS.md#d-043). Claude Code, against exported state. It was never a D3 question | — |
 | **E2** | Battlefield abilities modify combat. v1, or evaluate neutral and flag the simplification? | Rules core |
 | **E3** | Legend abilities are always-on. v1 or later? | Rules core |
 | **E4** | Refutation search depth — single card, or card-answers-card chains? | Analysis |

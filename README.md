@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ Discovery complete · 🟡 `D2` interface design in progress · **the collection tool works and is in use**
+> **Status:** ✅ `D1` discovery + `D2` interface design complete · 🎯 `D3` architecture is next, the last gate before `DESIGN LOCKED` · **the collection tool works and is in use**
 
 ---
 
@@ -43,13 +43,13 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here — how to pick this up
 
-*Last worked on 2026-08-02. This section is the recipe; the live status board is
+*Last worked on 2026-08-03. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
-**Where things stand.** Discovery is done. Forge has its first working code — a
-[collection tool](tools/collection/) that has been used for real entry and already improved
-twice from that use. `D2` (interface design) is **in progress**: a prototype exists and is
-waiting on a verdict.
+**Where things stand.** 🔒 **`D1` and `D2` are closed.** Discovery is done, the interface is
+locked, and Forge has working code — a [collection tool](tools/collection/) used for real entry
+and improved twice from that use. **`D3` (architecture) is the last gate before
+`DESIGN LOCKED`**, after which logic can be written.
 
 ### 1 · Run what exists
 
@@ -63,32 +63,35 @@ Pick a set, type collector numbers — matches appear as you type, `⏎` adds.
 exported JSON is the durable asset. Full instructions in
 [`tools/collection/README.md`](tools/collection/README.md).
 
-### 2 · Three proposals need a decision
+### 2 · What changed on 2026-08-03
 
-Discussed at length, **deliberately not recorded as decisions** — see the open-questions
-table in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+Four decisions, and the `S` track is a different shape because of them.
 
-| # | Proposal | If accepted |
+| # | Decision | Effect |
 |---|---|---|
-| **P1** | EE is a rules engine with a **swappable mouth**, and the mouth is Claude Code against exported state rather than an in-app chat | Deletes `S3`/`S4` as build work; resolves X1 without `D3` |
-| **P2** | **Split `S1`** into `S1a` (combat + legality) and `S1b` (chains, deferred until `Q-LINE` is actually missed) | The strategist starts delivering without waiting on the largest component |
-| **P3** | **Tier by answer-part** — grounding restricted to Tier 1/2, lever explicitly opinion | Fixes the contradiction where [D-022](docs/DECISIONS.md#d-022) forbids the advice EE promises |
+| [**D-043**](docs/DECISIONS.md#d-043) | **EE is a rules engine with a swappable mouth** — the mouth is Claude Code against exported state | `S3`/`S4` retired; new `S6` at a fraction of the size; **X1 and E1 dissolved** |
+| [**D-044**](docs/DECISIONS.md#d-044) | **`S1` splits** — `S1a` combat and legality now, `S1b` chains deferred | Seven of EE's eight questions stop waiting on the hardest half |
+| [**D-045**](docs/DECISIONS.md#d-045) | **Tier by answer-part** — Grounding is measured-only, the read is opinion | Resolves the contradiction where [D-022](docs/DECISIONS.md#d-022) forbade the advice EE promises |
+| [**D-046**](docs/DECISIONS.md#d-046) | 🔒 **`D2` closed** — the interface is locked | `D3` is the only remaining design gate |
 
-**P1 is the load-bearing one** — it decides whether roughly a third of the roadmap gets built.
+**Two calls inside D-046 were mine, not yours.** Pips cap at three (a fourth copy is
+unplayable under [L13](docs/spec/LEGALITY.md), so a fourth pip encodes nothing), and EE's
+answer budget is 1 statement / ≤2 lever sentences / ≤3 grounding lines. **Both are cheap to
+reverse** — open the [prototype](docs/design/D2-workbench-prototype.html) and say so if either
+reads wrong.
 
-### 3 · Two questions `D2` needs answered
+### 3 · Next — `D3`, architecture
 
-Open [`docs/design/D2-workbench-prototype.html`](docs/design/D2-workbench-prototype.html)
-in a browser (it's self-contained) and click **Design notes**:
+Stack · hosting and its **indefinite** running cost · storage · card cache · access control ·
+backup and export. Plus two questions deliberately carried this far:
 
-- **Do the ownership pips read instantly, or do they need numbers?** The collection tool
-  already uses this language, so it's the piece most worth getting right.
-- **Is EE's answer the right length?** That judgment becomes `S3`'s statement budget.
+- **X5** — where the docs are served from, so the roadmap has a bookmarkable always-current URL.
+  ⚠️ GitHub Pages is ruled out: it needs a paid plan on a private repo
+- **A6** — *"hosted, always-on"* was recorded as **convention, not fact**. A permanently-online
+  service for exactly one user was never justified. **Re-examine it before accepting it**
 
-### Then
-
-`D2` closes when the prototype is approved → `D3` picks the stack and where docs are
-served from (X5) → `F1`/`F2` get it online.
+Then `F1`/`F2` get it online, and `F2` is the one that matters — the first genuinely usable
+version, deliberately crude.
 
 > ⚠️ **Read [`docs/AUDIT.md`](docs/AUDIT.md) and the honest-review findings before adding
 > more documentation.** The project has 64,000 words of docs against a few hundred lines of
@@ -108,16 +111,17 @@ system map and **where to put a new idea**.
 | [`docs/roadmap.html`](docs/roadmap.html) | The same roadmap, rendered. Download and open in a browser |
 | [**`docs/spec/OVERVIEW.md`**](docs/spec/OVERVIEW.md) | **System map — how everything relates, and where new ideas go. Read before adding a feature.** |
 | [`docs/PLAN.md`](docs/PLAN.md) | The detail layer — gates, "done when", validation and risks |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 42 decisions with alternatives and rationale — including five reversals |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 46 decisions with alternatives and rationale — including five reversals |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
 | [`docs/AUDIT.md`](docs/AUDIT.md) | First-principles audit of the project's own assumptions |
-| [`docs/design/`](docs/design/) | The `D2` interface prototype — open the HTML in a browser |
+| [`docs/design/`](docs/design/) | 🔒 The **locked** `D2` interface — open the HTML in a browser. A design artifact, not a starting codebase |
 
 ### Code
 
 | | |
 |---|---|
 | [**`tools/collection/`**](tools/collection/) | **The collection tool — keyboard entry over all 1,180 printings, live matches with images, JSON export. Working, and in use.** |
+| [`tools/check-docs.py`](tools/check-docs.py) | Fails when the docs contradict themselves — milestone arithmetic, the two status boards, decision counts, links. Run it after editing any planning doc |
 
 ### Specification — what we're building
 
@@ -185,9 +189,9 @@ and explains each; it never hands you one finished list and never ranks them.
 
 4-Phase Spec-Driven Development:
 
-1. ✅ **Discovery** — lock the spec before writing logic
-2. 🟡 **Visualization** — prototype for early UX validation ← *in progress (`D2`)*
-3. **Development** — every change maps to a task
+1. ✅ **Discovery** — lock the spec before writing logic (`D1`)
+2. ✅ **Visualization** — prototype for early UX validation (`D2`, closed 2026-08-03)
+3. 🟡 **Development** — every change maps to a task ← *`D3` first, then `DESIGN LOCKED` lifts*
 4. **Human QA** — the final gate
 
 ---

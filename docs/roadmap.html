@@ -234,7 +234,7 @@
     <span class="sub">Roadmap — a personal deckbuilding workbench for Riftbound</span>
   </div>
   <div class="meta mono">
-    <span>Version 1.0</span><span>Updated 2026-08-02</span><span>16 milestones</span><span>5 tracks</span>
+    <span>Version 1.1</span><span>Updated 2026-08-03</span><span>16 milestones</span><span>5 tracks</span>
   </div>
 
   <!-- STATUS BOARD -->
@@ -242,22 +242,22 @@
     <div class="board-head"><span class="dot"></span><h2>Status board — you are here</h2></div>
     <dl class="rows">
       <div class="row"><dt>Track</dt><dd><strong>D — Design</strong></dd></div>
-      <div class="row"><dt>Progress</dt><dd><strong class="mono">1 of 16</strong> milestones · <span class="mono">D1</span> complete</dd></div>
-      <div class="row"><dt>Next</dt><dd><strong><span class="mono">D2</span> — Interface design.</strong> No blockers, nothing to prepare. Bring opinions about how it should feel.</dd></div>
-      <div class="row"><dt>Active</dt><dd>None — awaiting <span class="mono">D2</span></dd></div>
+      <div class="row"><dt>Progress</dt><dd><strong class="mono">2 of 16</strong> milestones · <span class="mono">D1</span>, <span class="mono">D2</span> complete</dd></div>
+      <div class="row"><dt>Next</dt><dd><strong><span class="mono">D3</span> — Architecture.</strong> The last gate before <span class="mono">DESIGN LOCKED</span>. Stack, hosting and its indefinite cost, storage, backup — plus X5 and A6.</dd></div>
+      <div class="row"><dt>Active</dt><dd>Nothing in flight</dd></div>
       <div class="row"><dt>Blocked</dt><dd>Nothing</dd></div>
-      <div class="row"><dt>Code</dt><dd><strong>None yet — by design.</strong> The <span class="mono">DESIGN LOCKED</span> gate holds all logic until <span class="mono">D3</span> completes.</dd></div>
+      <div class="row"><dt>Code</dt><dd><strong>The collection tool is live and in use.</strong> Carved out ahead of <span class="mono">D3</span> because the collection is the durable asset. <span class="mono">DESIGN LOCKED</span> still gates the rules engine.</dd></div>
     </dl>
   </div>
 
   <!-- LEDGER -->
   <div class="ledger">
-    <div class="lrow here"><span class="key">D</span><span class="nm">Design</span><span class="bar"><span style="width:33.3%"></span></span><span class="cnt">1/3</span></div>
+    <div class="lrow here"><span class="key">D</span><span class="nm">Design</span><span class="bar"><span style="width:66.6%"></span></span><span class="cnt">2/3</span></div>
     <div class="lrow"><span class="key">F</span><span class="nm">Foundation</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/3</span></div>
     <div class="lrow"><span class="key">W</span><span class="nm">Workbench</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/4</span></div>
     <div class="lrow"><span class="key">S</span><span class="nm">Strategist</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/5</span></div>
     <div class="lrow"><span class="key">L</span><span class="nm">Later</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/1</span></div>
-    <div class="lrow ltot"><span class="key">—</span><span class="nm">Total</span><span class="bar"><span style="width:6.25%"></span></span><span class="cnt">1/16</span></div>
+    <div class="lrow ltot"><span class="key">—</span><span class="nm">Total</span><span class="bar"><span style="width:12.5%"></span></span><span class="cnt">2/16</span></div>
   </div>
 
   <!-- TRACK D -->
@@ -269,15 +269,15 @@
         <div class="body"><h4>Discovery</h4><p>Scope, rules, card data, specs and decisions all locked. Produced 19 documents and 42 decisions; both rulebooks read in full; all 935 cards read and 814 main-deck cards classified; 1.3 MB of cached card data.</p></div>
         <span class="pill done">Done</span>
       </div>
-      <div class="ms next">
+      <div class="ms done">
         <span class="code">D2</span>
-        <div class="body"><h4>Interface design</h4><p>A clickable prototype exists that you have used and approved. Must design three things: the workbench, how EE speaks, and how EE is invoked — advice is pull, never push.</p></div>
-        <span class="pill next">Next</span>
+        <div class="body"><h4>Interface design</h4><p>Closed 2026-08-03 by D-046. A clickable prototype you have used and approved. Designed three things: the workbench, how EE speaks, and how EE is invoked — advice is pull, never push.</p></div>
+        <span class="pill done">Done</span>
       </div>
-      <div class="ms">
+      <div class="ms next">
         <span class="code">D3</span>
-        <div class="body"><h4>Architecture</h4><p>Stack chosen and justified, with indefinite running cost understood.</p><span class="dep">depends on D2</span></div>
-        <span class="pill todo">Todo</span>
+        <div class="body"><h4>Architecture</h4><p>Stack chosen and justified, with indefinite running cost understood — including where the docs are served from (X5), and whether always-on is justified at all (A6).</p><span class="dep">depends on D2</span></div>
+        <span class="pill next">Next</span>
       </div>
     </div>
   </section>
@@ -318,14 +318,16 @@
   <section class="track">
     <div class="track-head"><span class="id">S</span><h3>The Strategist</h3><span class="note">EE — answers questions about your decks, and proposes new ones</span></div>
     <div class="lane future">
-      <div class="ms"><span class="code">S1</span><div class="body"><h4>Rules engine</h4><p>Every worked example in the rulebook passes as a fixture; each of the 21 rule-warping cards has a regression test.</p><span class="dep">depends on F3</span></div><span class="pill todo">Todo</span></div>
-      <div class="ms"><span class="code">S2</span><div class="body"><h4>Analysis</h4><p>Answers card, comparison and Legend questions correctly, headlessly.</p><span class="dep">depends on S1</span></div><span class="pill todo">Todo</span></div>
-      <div class="ms"><span class="code">S3</span><div class="body"><h4>Plain-English answers</h4><p>No answer exceeds its statement budget, enforced by test.</p><span class="dep">depends on S2</span></div><span class="pill todo">Todo</span></div>
-      <div class="ms"><span class="code">S4</span><div class="body"><h4>Conversation</h4><p>Follow-ups and “why?” work; no number appears that didn't come from a tool call.</p><span class="dep">depends on S3, D3</span></div><span class="pill todo">Todo</span></div>
-      <div class="ms"><span class="code">S5</span><div class="body"><h4>Deck generation</h4><p>All four modes — seeded, intent, counter, open — produce legal, owned, explained candidates you'd actually sleeve.</p><span class="dep">depends on S3, W2</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">S1a</span><div class="body"><h4>Rules engine — core</h4><p>State, legal actions, combat under Tank/Backline/lethal-first/no-overkill, replacement effects, layers. Each of the 21 rule-warping cards has a regression test.</p><span class="dep">depends on F3</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">S1b</span><div class="body"><h4>Chains and showdowns</h4><p>Deferred until Q-LINE is actually missed. Rulebook worked examples pass as fixtures; LIFO and Reaction-only-when-closed hold as property tests.</p><span class="dep">depends on S1a · deferred</span></div><span class="pill todo">Deferred</span></div>
+      <div class="ms"><span class="code">S2</span><div class="body"><h4>Analysis</h4><p>Answers card, comparison and Legend questions correctly, headlessly.</p><span class="dep">depends on S1a</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">S6</span><div class="body"><h4>EE's mouth</h4><p>Tool surface, export contract and briefing. A real question answered end-to-end from Claude Code, with every number traceable to a tool call.</p><span class="dep">depends on S2</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">S5</span><div class="body"><h4>Deck generation</h4><p>All four modes — seeded, intent, counter, open — produce legal, owned, explained candidates you'd actually sleeve.</p><span class="dep">depends on S2, W2</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">S3 · S4</span><div class="body"><h4>Retired — D-043</h4><p>Plain-English answers and Conversation are no longer built. Claude Code is the mouth. IDs never renumber, so they stay here retired rather than reused.</p></div><span class="pill todo">Retired</span></div>
     </div>
-    <div class="callout"><strong>S1 is the largest single component in the project.</strong> Riftbound's showdown and chain system, plus 21 cards that rewrite rules an engine would hardcode, make it a real rules engine — not a calculator. Build it vertically: one battlefield, 1v1, full fidelity, then widen.</div>
-    <div class="callout"><strong>S3 is what makes EE usable.</strong> It turns “66 cards refute this” into “fragile to cheap Mind interaction — attack when they're tapped out.” Without it EE is technically correct and practically worthless.</div>
+    <div class="callout"><strong>Restructured 2026-08-03.</strong> D-043 — EE is a rules engine with a swappable mouth, and the mouth is Claude Code against exported state. D-044 splits the engine so the track delivers before its hardest half is finished.</div>
+    <div class="callout"><strong>S1a is still the largest single component.</strong> 21 cards rewrite rules an engine would hardcode, so rules must be data, not code. Build it vertically: one battlefield, 1v1, full fidelity, then widen — and leave room for a priority stack, or S1b becomes a rewrite instead of a deferral.</div>
+    <div class="callout"><strong>S6 is what makes EE usable</strong> — the role S3 used to hold. It turns “66 cards refute this” into “fragile to cheap Mind interaction — attack when they're tapped out.” The difference is that the prose is Claude's job and only the contract is built.</div>
   </section>
 
   <!-- TRACK L -->
@@ -362,10 +364,11 @@
     <div class="panel">
       <h3>Open questions</h3>
       <ul>
-        <li><span class="k">X1 → D3</span><span>Where does EE's conversation layer run — in-app, or against exported deck state?</span></li>
         <li><span class="k">A6 → D3</span><span>“Hosted, always-on” was recorded as convention, not fact. Never justified for one user</span></li>
+        <li><span class="k">X5 → D3</span><span>Where are the docs served from? GitHub Pages is ruled out — paid plan on a private repo</span></li>
         <li><span class="k">G1–G4 → S5</span><span>Generation: how many candidates? Does it propose battlefields?</span></li>
-        <li><span class="k">E2–E7 → S1</span><span>EE modelling depth — battlefield abilities, refutation search, hidden cards</span></li>
+        <li><span class="k">E2–E7 → S1a</span><span>EE modelling depth — battlefield abilities, refutation search, hidden cards</span></li>
+        <li><span class="k">X1 · E1 ✓</span><span>Dissolved by D-043 — EE's conversation layer runs in Claude Code. Never a D3 question</span></li>
       </ul>
     </div>
   </div>

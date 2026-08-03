@@ -51,6 +51,10 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-040](#d-040) | EE's rules engine is **rules-as-data**, because cards rewrite rules |  |
 | [D-041](#d-041) | ⭐ **The generator is reinstated and fused with EE** — reverses D-029 | ↩️ reverses |
 | [D-042](#d-042) | **Advice is pull, never push** — Forge never volunteers suggestions | ✅ |
+| [D-043](#d-043) | ⭐ **EE is a rules engine with a swappable mouth** — the mouth is Claude Code | ✅ |
+| [D-044](#d-044) | **`S1` splits** — combat and legality ship without chain resolution | ✅ |
+| [D-045](#d-045) | **Tier by answer-part**, not by answer — refines D-022 | ✅ |
+| [D-046](#d-046) | 🔒 **`D2` is closed** — the interface is locked | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -1341,3 +1345,228 @@ generalises an existing principle rather than inventing one.
 - Generation is always user-initiated
 - ⚠️ **Legality and ownership remain live**, because they are state. A silently illegal deck
   would be a worse failure than a nagging one
+
+---
+
+<a id="d-043"></a>
+
+## D-043 — ⭐ EE is a rules engine with a swappable mouth ✅ RESOLVES X1 + E1
+
+**Date:** 2026-08-03
+**Status:** Accepted — resolves **X1** and **E1**; retires `S3` and `S4` as build work
+
+**User:** *"accept all three, lets close D2"* — on proposals raised 2026-08-02.
+
+**Decided:** EE's deliverable is a **headless tool surface** over a deterministic rules core —
+`legality()`, `duel()`, `coverage()`, `legendPool()` and their siblings. **The conversation
+layer is not built.** Claude Code is the mouth, reading exported state and calling those tools.
+
+### The tell that made this decision
+
+`S1`'s done-when is *"every worked example in CR 355–359 passes as a fixture."* **You cannot
+write that test against a chat interface** — only against an engine. Sort the `S` track by
+whether its done-when is falsifiable and it splits cleanly:
+
+| Milestone | Done-when | Falsifiable? |
+|---|---|---|
+| `S1` Rules engine | Rulebook worked examples pass as fixtures | ✅ Yes |
+| `S2` Analysis | Q-CARD / Q-COMPARE / Q-LEGEND answered headlessly | ✅ Yes |
+| `S3` Plain-English | *"No answer exceeds its statement budget"* | ⚠️ The **test** is real; the **budget** was always going to be picked, not derived |
+| `S4` Conversation | Follow-ups work; no ungrounded number | ⚠️ Half a discipline, half a rebuild of something that exists |
+
+Everything falsifiable describes the **engine**. Everything else describes the **voice** — and
+the voice already exists, sitting in a terminal, holding the whole game in context.
+
+**The corpus fits.** [`EVALUATION.md`](spec/EVALUATION.md) §9 measured it: 814 main-deck cards
+with full text ≈ 38,700 tokens, +115 Legends/Battlefields ≈ 3,900, both rulebooks ≈ 75,000.
+**Riftbound entire is ~118k tokens.** That measurement was taken to prove a conversation layer
+*could* be built. It equally proves one doesn't need to be.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Build the in-app chat (`S3` + `S4` as specified) | Two milestones of work to reproduce, worse, a thing already open on the desktop. Its own spec called the conversation layer *"depends on the D3 architecture decision"* — it was never load-bearing, only assumed |
+| Ship the engine with no voice at all | The engine's raw output is *"66 cards refute this"* — exactly what [D-039](#d-039) forbids. Something must synthesise |
+| Both — engine now, in-app chat later if the mouth disappoints | Accepted as the **fallback**, not the plan. `S3`/`S4` stay in the log as retired-not-deleted for precisely this reason |
+
+**Consequences:**
+
+- ✅ **`X1` and `E1` dissolve.** Both asked *"where does the conversation layer run?"* It runs
+  in Claude Code. This was never a `D3` architecture question — it was a late, reversible
+  choice that had been promoted to a gate
+- ✅ **Roughly a third of the `S` track stops being build work**
+- 🆕 **New milestone `S6` — EE's mouth.** P1 makes the voice *cheap*, not *free*. The tool
+  surface, the export contract, and the briefing document that makes Claude behave as EE
+  are real work. Small, but real, and honesty demands it be a line in the plan
+- ⚠️ **`S5` (generation) re-gates on `S2`**, not `S3` — its old gate no longer exists
+- 🔻 **The cost, named:** `S3`'s budget test was going to be enforced by CI. Under this
+  decision it is enforced by a **briefing document**, which is weaker. This is the real price
+  of P1, and [D-045](#d-045) is what keeps it from being paid in honesty
+- **The engine must be genuinely headless** — no assumption of a caller that can be
+  reasoned with. It returns structured data or it fails
+
+<a id="d-044"></a>
+
+## D-044 — `S1` splits: combat and legality ship without chain resolution ✅
+
+**Date:** 2026-08-03
+**Status:** Accepted — supersedes `S1` as a single milestone
+
+**Decided:** `S1` becomes two milestones:
+
+| ID | Scope | Status |
+|---|---|---|
+| **`S1a`** | Game state · legal-action enumeration · combat damage under Tank/Backline/lethal-first/no-overkill · replacement effects · layers · rules-as-data overrides | The next engine work |
+| **`S1b`** | **Chain resolution** (LIFO, `[Reaction]`-only when closed) and showdowns as alternating priority windows | **Deferred until `Q-LINE` is actually missed** |
+
+**Why:** `S1` was the largest single component in the project and gated the entire `S` track.
+Its two halves have very different value density. Of the eight questions EE answers, **seven
+need combat and card evaluation; one needs chains** — `Q-LINE`, *"should I attack here?"*,
+the only question requiring a fully-resolved priority window.
+
+Deferring the half that serves one question unblocks the half that serves seven.
+
+**The trigger is named, not vague:** `S1b` starts when you ask `Q-LINE` and get a refusal
+you mind. Not on a date, not on a hunch — on a real miss.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Keep `S1` whole | The largest, riskiest component gating everything downstream is the shape the audit already flagged as time-to-first-value risk. Same mistake, one track over |
+| Cut chains permanently | `Q-LINE` is a genuinely wanted question, and Riftbound's chain system is a real part of the game. Deferred, not abandoned |
+| Build chains first (hardest-first) | Defensible for risk-retirement, but delivers nothing usable for the longest possible time |
+
+**Consequences:**
+
+- `S2` gates on **`S1a`**, so analysis starts far earlier
+- ⚠️ **`S1a` must not make chains impossible.** The state model has to leave room for a
+  priority stack even while nothing pushes to it. A flat "resolve immediately" model that
+  can't be extended would convert a deferral into a rewrite
+- `Q-LINE` returns an explicit *"not modelled yet"* — never a guess. [D-022](#d-022) applies
+
+<a id="d-045"></a>
+
+## D-045 — Tier by answer-part, not by answer ⭐ REFINES D-022
+
+**Date:** 2026-08-03
+**Status:** Accepted — resolves a contradiction between [D-022](#d-022) and
+[`EVALUATION.md`](spec/EVALUATION.md)
+
+### The contradiction
+
+[D-022](#d-022) established three confidence tiers and the rule **omit rather than fake**:
+Tier 3 is left out, not hedged. But EE's entire purpose is strategic advice — *"attack when
+they're tapped out"*, *"hold Jinx rather than curving her out"* — and **all of that is Tier 3
+inference.** Applied literally, D-022 requires EE to be silent about the only thing it exists
+to say.
+
+The `D2` prototype demonstrated the failure directly. It labelled *"Most games are decided by
+which player holds two battlefields first"* and *"three swaps is usually the right size of
+change"* as `LIKELY` — **Tier 2, measured-but-uncertain**. Neither is measured. Neither could
+be. The prototype was laundering opinion as estimate, which is the exact dishonesty D-022 was
+written to prevent.
+
+**Decided:** confidence tiers apply **per answer-part**, not per answer.
+
+| Answer part | Permitted tiers | What it may contain |
+|---|---|---|
+| **Grounding** | Tier 1 (`FACT`) and Tier 2 (`LIKELY`) **only** | Counts from your collection, rules the engine adjudicated, simulated frequencies. Nothing EE inferred |
+| **Statement** | Unrestricted — but must be **derivable from the grounding shown** | The claim |
+| **Lever** | Unrestricted — labelled **opinion** at the part level | What to do about it |
+
+**The guarantee this preserves:** *everything under `Grounding` is something Forge measured.*
+That is what D-022 was actually protecting — not silence, but the integrity of the evidence
+line. A reader can discard EE's opinion entirely and still trust every fact beneath it.
+
+**Labelling is per-part, not per-line.** The `Grounding` heading carries the tier badges; the
+lever carries a single "EE's read" marker. **A per-line hedge on an opinion is noise** —
+if the whole part is opinion, saying so once is more honest and less cluttered than saying
+so four times.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Apply D-022 literally — EE gives no strategic advice | Deletes the product. `Q-DECK`, `Q-THREAT`, `Q-SIDEBOARD`, `Q-BUILD` and `Q-LINE` are all Tier 3 by nature |
+| Add a Tier 3 badge and show it inline | Tested in the prototype and it reads as noise — four hedges in a six-line answer trains you to ignore all of them. Also invites the failure the prototype actually made: `LIKELY` used where nothing was measured |
+| Drop the tier system for EE and keep it for statistics only | Loses the guarantee at exactly the point it matters most. Statistics are self-evidently measured; advice is where a reader needs to know what's underneath |
+
+**Consequences:**
+
+- The `D2` prototype's three mislabelled `LIKELY` lines move out of `Grounding`
+- 🔻 **Under [D-043](#d-043) this is enforced by briefing, not by CI.** The `S3` budget test
+  is gone. What replaces it: EE's grounding is assembled by **tool output only** — the mouth
+  is never given the ability to author a grounding line. **Structural enforcement instead of
+  a test**, which is the stronger of the two and available precisely because the engine is
+  headless
+- [D-022](#d-022) is unchanged for deck statistics, where it always applied cleanly
+
+<a id="d-046"></a>
+
+## D-046 — 🔒 `D2` is closed: the interface is locked ✅
+
+**Date:** 2026-08-03
+**Status:** Accepted — closes `D2`; `D3` is the remaining gate before `DESIGN LOCKED`
+
+**User:** *"lets close D2"*
+
+**Decided:** the [`D2` prototype](design/D2-workbench-prototype.html) is the locked interface
+design, with [D-045](#d-045) applied and the two open questions answered below.
+
+`D2` had to design three things ([D-042](#d-042) added the third). All three are settled:
+
+| # | Thing | Resolution |
+|---|---|---|
+| 1 | **The workbench** — gallery, deck zones, The Bench, ownership language | Pips + zone rail, dock on phone / panel on desktop. Parity per [D-018](#d-018) |
+| 2 | **How EE speaks** | Statement · lever · grounding, tiered per [D-045](#d-045) |
+| 3 | **How EE is invoked** | A deliberate ask affordance. State is live, opinion waits ([D-042](#d-042)) |
+
+### Q1 — Ownership pips: do they read instantly, or need numbers?
+
+**Answered: pips alone, capped at three, with surplus shown separately.**
+
+This turned out to be answerable on a rule rather than on taste. **[L13](spec/LEGALITY.md):
+≤3 copies per card *name*, across main deck and sideboard.** A fourth copy is unplayable — so
+a fourth pip encodes nothing a deckbuilder can act on.
+
+- **Three pip slots**, always. Filled = free, hollow = committed elsewhere, empty = you don't
+  own it. The row answers *"can I still put this in a deck?"* at a glance, which is the only
+  question the gallery is asked
+- **Surplus is a different fact and gets different treatment** — a `+2` marker, not more pips.
+  Owning five copies matters for trading, never for building
+- **No numbers in the gallery.** A three-item row is below the subitising threshold; a digit
+  there costs a saccade to read something a shape already said
+
+**Why not numbers:** the count you need while scanning is *free copies remaining*, and it is
+never above three. Numbers earn their place where the range is unbounded — the card sheet's
+ownership breakdown, and the deck counts — and both already use them.
+
+### Q2 — Is EE's answer the right length?
+
+**Answered: yes, and this becomes the budget.**
+
+| Part | Budget |
+|---|---|
+| **Statement** | 1 sentence. The claim, no preamble |
+| **Lever** | ≤2 sentences, naming ≤3 cards |
+| **Grounding** | ≤3 lines, Tier 1/2 only ([D-045](#d-045)) |
+| **Whole answer** | ~60 words before any "show me" affordance |
+
+This is tighter than [`EVALUATION.md`](spec/EVALUATION.md) §5.2's *"3–5 statements per
+answer"*, which was written before there was anything to look at. **The prototype makes the
+case that one statement plus one lever is enough** — the second and third statements in an
+answer are almost always the first one restated at lower salience. §5.2 is updated to match.
+
+> ⚠️ **Both answers are my call, not yours** — you asked to close `D2` without settling them,
+> and the reasoning above is what I'd defend. They are **cheap to reverse**: the pip cap is
+> one function, the budget is a line in EE's briefing. **First real use overrides either.**
+
+**Consequences:**
+
+- `D3` is now the only thing between here and `DESIGN LOCKED`
+- [D-014](#d-014) is confirmed in its narrow reading: Piltover Archive's **deck-zone structure**
+  is adopted; its visual identity is not
+- The prototype in [`docs/design/`](design/) is the reference. It is a **design artifact, not
+  a starting codebase** — `D3` picks the stack without regard to how the prototype was built
