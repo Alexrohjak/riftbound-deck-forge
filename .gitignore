@@ -50,3 +50,6 @@ Thumbs.db
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Local wrangler/miniflare state — a throwaway SQLite copy of D1, never shared
+.wrangler/
