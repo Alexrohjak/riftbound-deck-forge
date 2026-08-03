@@ -100,20 +100,21 @@ npm run build -w @forge/cli
 node apps/cli/dist/index.js legality <deck.json> --cards <names.json>
 ```
 
-### 4 · `F1` — two dashboard steps left
+### 4 · `F1` — Forge is live and private
 
-**[Forge is live](https://forge.alexander-rohde-jakobsen.workers.dev)**, on real D1. The account,
-database, schema and deploy are done and verified; one Worker serves the SPA and the API from one
-origin ([D-050](docs/DECISIONS.md#d-050) — Cloudflare has closed Pages to new projects). What
-remains needs the browser:
+**[forge.alexander-rohde-jakobsen.workers.dev](https://forge.alexander-rohde-jakobsen.workers.dev)**
+— sign in with your email; nobody else gets in.
 
-1. **Automatic deploys.** Workers → `forge` → Settings → Build → connect this repo. The
-   Cloudflare GitHub App covers private repos, so no API token has to live anywhere
-2. ⚠️ **Zero Trust → Access** → a self-hosted application over
-   `forge.alexander-rohde-jakobsen.workers.dev`, policy = your email. **Until this exists the
-   site is public.** Free to 50 users, and it means Forge never handles a password
+| Piece | State |
+|---|---|
+| **One Worker, one origin** | Serves the SPA *and* the API ([D-050](docs/DECISIONS.md#d-050) — Cloudflare closed Pages to new projects) |
+| **D1** | `forge`, schema applied, write round-trip verified. Empty until `W2` |
+| **Zero Trust Access** | Self-hosted app, allow-list of one email, 7-day sessions. Verified enforcing |
+| **Automatic deploys** | `main` → build → deploy, via Workers Builds. `npm run build`, then `npx wrangler deploy --config apps/api/wrangler.toml` |
 
-`F1` closes when a push deploys itself and the page asks you to sign in.
+**Deploying by hand is no longer the way.** Push to `main` and Cloudflare builds it. Preview
+builds for other branches are deliberately **off**: they would inherit the same D1 binding, and
+there is only one database — a branch build would write to the collection.
 
 Then `F2` — the one that actually matters. The first genuinely usable version, deliberately
 crude: open it on your phone and put cards into a deck.
