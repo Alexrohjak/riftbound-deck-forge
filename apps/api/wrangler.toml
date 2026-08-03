@@ -9,7 +9,7 @@ compatibility_date = "2025-01-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "forge"
-database_id = "REPLACE_ME_AFTER_wrangler_d1_create"
+database_id = "0dd2f27e-30bc-421b-99c1-43c224dd7269"
 
 [observability]
 enabled = true

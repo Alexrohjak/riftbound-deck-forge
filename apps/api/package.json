@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "db:init": "wrangler d1 execute forge --file=./schema.sql",
+    "db:init": "wrangler d1 execute forge --remote --file=./schema.sql",
     "db:init:local": "wrangler d1 execute forge --local --file=./schema.sql",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
