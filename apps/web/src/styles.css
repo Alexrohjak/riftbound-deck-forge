@@ -1,0 +1,48 @@
+/* Deliberately minimal. The locked D2 design lands at F2 — this is a skeleton (D-027),
+   and dressing it up would invite mistaking it for the real interface. */
+:root {
+  --ground: #eef1f4;
+  --surface: #fff;
+  --ink: #0f151c;
+  --muted: #5c6874;
+  --line: #dce2e8;
+  --pass: #146334;
+  --fail: #9a2c2c;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ground: #0d1117;
+    --surface: #151b22;
+    --ink: #e8eff6;
+    --muted: #93a1af;
+    --line: #232c35;
+    --pass: #46c46a;
+    --fail: #f08a8a;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.9em; }
+main { max-width: 42rem; margin: 0 auto; padding: 2rem 1rem 4rem; display: grid; gap: 1.5rem; }
+h1 { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 1.9rem; margin: 0; letter-spacing: -0.02em; }
+h2 { font-size: 1.05rem; margin: 0 0 0.5rem; }
+.sub { color: var(--muted); margin: 0.25rem 0 0; font-size: 0.85rem; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 1.25rem; }
+.card > p { color: var(--muted); margin: 0 0 1rem; }
+.rows { display: grid; gap: 0; margin: 0; }
+.rows > div { display: grid; grid-template-columns: 11rem 1fr; gap: 1rem; padding: 0.6rem 0; border-top: 1px solid var(--line); }
+dt { color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; }
+dd { margin: 0; }
+.pass { color: var(--pass); font-weight: 600; }
+.fail { color: var(--fail); font-weight: 600; }
+.violations { margin: 1rem 0 0; padding-left: 1.1rem; color: var(--muted); font-size: 0.9rem; }
+.cite { font-family: ui-monospace, monospace; font-size: 0.8em; }
+.caveat { margin: 1rem 0 0; padding-top: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.85rem; }
+footer { color: var(--muted); font-size: 0.85rem; }
+@media (max-width: 32rem) { .rows > div { grid-template-columns: 1fr; gap: 0.15rem; } }
