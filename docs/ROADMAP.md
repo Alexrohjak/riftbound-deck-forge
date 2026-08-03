@@ -22,10 +22,10 @@
 |---|---|
 | **Track** | **F — Foundation** |
 | **Progress** | **3 of 16** milestones · `D1`, `D2`, `D3` complete |
-| **🎯 Next** | **Finish `F1`** — the code half is done and merged; the **Cloudflare half is yours** (account, Pages, D1, Access). ~10 minutes of clicking, and then `F1` closes |
-| **Active** | **`F1`** — workspace scaffolded, engine + CLI + web + API building and tested. ⛔ Blocked on the Cloudflare account only |
-| **Blocked** | `F1`'s deployment — needs you at [dash.cloudflare.com](https://dash.cloudflare.com). Nothing else |
-| **Stack** | TypeScript · React + Vite · Cloudflare Pages + Workers + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
+| **🎯 Next** | **Finish `F1`** — **[Forge is live](https://forge.alexander-rohde-jakobsen.workers.dev)** on real D1. Two dashboard steps remain, both yours: connect the repo for automatic deploys, and put Access in front of it |
+| **Active** | **`F1`** — deployed and verified end-to-end: SPA, `/health`, `/collection`, and a D1 write round-trip |
+| **Blocked** | Nothing. ⚠️ The site is **publicly reachable** until Zero Trust Access is configured |
+| **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
 | **Code** | **The workspace is real.** `packages/engine` (pure TS, 8 of 33 legality checks, 14 tests) · `apps/web` · `apps/cli` · `apps/api` · CI. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
 
 ```
@@ -64,7 +64,7 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 | [`PLAN.md`](PLAN.md) | **The detail** — gates, "done when", how you validate, risks | Per-milestone |
 | [`spec/`](spec/) | **What we're building** — legality, EE, generation, data model | Deep reference |
 | [`reference/`](reference/) | **Riftbound itself** — rules, cards, Legends, battlefields | External facts |
-| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 49 decisions, append-only | Never rewritten |
+| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 50 decisions, append-only | Never rewritten |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | **How it's built** — stack, hosting, verified cost, what's ruled out | Changes rarely |
 
 **Milestone IDs are permanent handles.** Format `PREFIX-N` — the letter says *which track*,
@@ -120,7 +120,7 @@ new work appends the next free number and **nothing ever renumbers**.
 
 | ID | Milestone | Done when | Status | Depends on |
 |---|---|---|---|---|
-| `F1` | **Get it online** | A trivial page is live, reachable from your phone, deploying automatically | 🟡 **ACTIVE** — code done, awaiting Cloudflare | `D3` |
+| `F1` | **Get it online** | A trivial page is live, reachable from your phone, deploying automatically | 🟡 **ACTIVE** — deployed and verified; awaiting Git-triggered deploys + Access | `D3` |
 | `F2` | **First usable version** ⭐ | You can open it on your phone and put cards into a deck | ⬜ | `F1` |
 | `F3` | **Card data** | Full pool queryable offline, variants collapsed by name, errata + ban overlay working | ⬜ | `F2` |
 
@@ -232,8 +232,8 @@ Carried deliberately, not forgotten.
 
 | # | Question | Resolve at |
 |---|---|---|
-| **X6** | Custom domain, or is `forge.pages.dev` enough? Cosmetic and reversible | `F1` |
-| **X7** | Does the docs site share the app's Pages project, or get its own? One build vs one URL | `F1` |
+| **X6** | Custom domain, or is `forge.<subdomain>.workers.dev` enough? Cosmetic and reversible | `F1` |
+| ~~**X7**~~ | ✅ **Answered** — [D-050](DECISIONS.md#d-050) removed the Pages project, so the docs site is a separate question, deferred until the docs need a URL | — |
 | **X8** | Scheduled D1 → JSON backup: a Cron Trigger, or a manual export that genuinely gets done | `F1` |
 | **X9** | Does `apps/cli` gain an MCP wrapper, or is shelling out enough? | `S6`, on evidence |
 | **G1–G4** | Generation: how many candidates? How is a no-identity seed handled? Does it propose battlefields? | `S5` |

@@ -100,21 +100,20 @@ npm run build -w @forge/cli
 node apps/cli/dist/index.js legality <deck.json> --cards <names.json>
 ```
 
-### 4 · ⛔ `F1` is blocked on you — about ten minutes
+### 4 · `F1` — two dashboard steps left
 
-Everything that can be done without a Cloudflare account is done and merged. **These steps
-are yours**, and `F1` closes when the page loads on your phone:
+**[Forge is live](https://forge.alexander-rohde-jakobsen.workers.dev)**, on real D1. The account,
+database, schema and deploy are done and verified; one Worker serves the SPA and the API from one
+origin ([D-050](docs/DECISIONS.md#d-050) — Cloudflare has closed Pages to new projects). What
+remains needs the browser:
 
-1. **Create a Cloudflare account** (free) at [dash.cloudflare.com](https://dash.cloudflare.com)
-2. **Pages → connect to Git → this private repo.** Build command `npm run build`, output
-   directory `apps/web/dist`. Private repos work on the free plan — this is the thing GitHub
-   Pages wouldn't do
-3. **Create the database:** `npx wrangler d1 create forge`, then paste the returned
-   `database_id` into [`apps/api/wrangler.toml`](apps/api/wrangler.toml) and run
-   `npm run db:init -w @forge/api`
-4. **Zero Trust → Access** → add an application covering the Pages URL, policy = your email.
-   Free to 50 users, and it means Forge never handles a password
-5. Open the URL on your phone
+1. **Automatic deploys.** Workers → `forge` → Settings → Build → connect this repo. The
+   Cloudflare GitHub App covers private repos, so no API token has to live anywhere
+2. ⚠️ **Zero Trust → Access** → a self-hosted application over
+   `forge.alexander-rohde-jakobsen.workers.dev`, policy = your email. **Until this exists the
+   site is public.** Free to 50 users, and it means Forge never handles a password
+
+`F1` closes when a push deploys itself and the page asks you to sign in.
 
 Then `F2` — the one that actually matters. The first genuinely usable version, deliberately
 crude: open it on your phone and put cards into a deck.
@@ -139,7 +138,7 @@ system map and **where to put a new idea**.
 | [`docs/roadmap.html`](docs/roadmap.html) | The same roadmap, rendered. Download and open in a browser |
 | [**`docs/spec/OVERVIEW.md`**](docs/spec/OVERVIEW.md) | **System map — how everything relates, and where new ideas go. Read before adding a feature.** |
 | [`docs/PLAN.md`](docs/PLAN.md) | The detail layer — gates, "done when", validation and risks |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 49 decisions with alternatives and rationale — including five reversals |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 50 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
 | [**`docs/ARCHITECTURE.md`**](docs/ARCHITECTURE.md) | **How it's built — stack, hosting, verified £0/month cost, and what's ruled out. Read before writing code.** |
 | [`docs/AUDIT.md`](docs/AUDIT.md) | First-principles audit of the project's own assumptions |

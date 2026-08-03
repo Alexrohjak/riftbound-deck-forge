@@ -58,6 +58,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-047](#d-047) | ⭐ **One TypeScript rules package, two consumers** — the engine never deploys | ✅ |
 | [D-048](#d-048) | **Nothing is always-on** — static + edge + D1 on Cloudflare, £0/mo | ✅ A6, X5 |
 | [D-049](#d-049) | **Editing requires connectivity; offline is read-only** — corrects D-018 | ✅ |
+| [D-050](#d-050) | **App ships as static assets on the Worker** — Pages is closed to new projects; amends D-048 | ✅ X7 |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -1709,3 +1710,48 @@ flow (a per-deck version counter plus last-write-wins). **Not on speculation.**
 | Full offline editing with CRDTs | Weeks of work and a permanent complexity tax, for one user who is never editing from two devices at the same moment |
 | Offline editing, last-write-wins, silent | Silently discards work. The one outcome worse than not being able to edit |
 | No offline capability at all | Throws away the read case, which is cheap, genuinely useful, and already how the collection tool's standalone build works |
+
+<a id="d-050"></a>
+
+## D-050 — The app ships as static assets on the Worker, not Cloudflare Pages ⚠️ AMENDS D-048
+
+**Date:** 2026-08-03
+**Status:** Accepted — amends the delivery half of [D-048](#d-048); forced by the vendor
+
+### What changed underneath us
+
+[D-048](#d-048) picked **Cloudflare Pages** for the app and a Worker for the API. Executing it
+at `F1` on a fresh account, **the dashboard would not create a Pages project** — every "create"
+flow routes to Workers. This is deliberate on Cloudflare's part: Pages is in maintenance, all
+new work goes to Workers, and [static assets on Workers](https://developers.cloudflare.com/workers/static-assets/)
+is the stated replacement.
+
+**The vendor decision survives untouched.** D-048 chose Cloudflare on two constraints — private
+repos on the free plan, and one host covering app, API, database, access and docs. Both still
+hold. Only the product inside Cloudflare moved.
+
+**Decided:** one Worker serves the built SPA *and* the API, from one origin.
+
+- `[assets]` in `wrangler.toml` points at `apps/web/dist`; `not_found_handling` is
+  `single-page-application`, so client-side routes work at `W3` without server config
+- `run_worker_first = ["/health", "/collection"]` keeps the API paths with the Worker —
+  without it the SPA fallback answers them with `index.html`, which is a 200 carrying the
+  wrong body, the worst failure shape available
+- The old `forge-api` Worker was deleted rather than left running, so there is exactly one
+  endpoint on the database to put Access in front of
+
+**What this buys, beyond being the only option.** Same origin means the app fetches
+`/collection` relatively: no CORS, no build-time API URL, and **one** Access application
+protecting everything. Two hostnames would have needed two.
+
+**What it costs.** `npm run build` must run before `npm run deploy` — the Worker now carries
+the app's build output, so a stale `dist/` ships silently. Automatic deploys from Git make
+that a non-issue in practice, which is why `F1` is not done until they are wired.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Two Workers — one assets, one API | Two hostnames, so CORS, a build-time API URL, and two Access applications to keep in step. Pure cost, no benefit for a single user |
+| Pages via the API, bypassing the dashboard | Only creates *direct-upload* projects — Git integration is browser-only. That trades the automatic deploys `F1` requires for a hand-built GitHub Action and a long-lived token on disk |
+| A different host (Netlify, Vercel, Fly) | Would reopen D-048's whole comparison, including the £0/month verification, over a product rename inside a vendor that still meets every constraint |

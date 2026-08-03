@@ -210,8 +210,9 @@ SQLite that exports to a file.
 **Size:** S · **Gate:** ✅ design locked · 📐 Build to [`ARCHITECTURE.md`](ARCHITECTURE.md)
 
 **Scaffold:** npm workspaces — `packages/engine` (pure TypeScript, no I/O),
-`apps/web` (React + Vite), `apps/api` (one Cloudflare Worker over D1). Cloudflare Pages
-deploying from the private repo, with Cloudflare Access in front of app and API.
+`apps/web` (React + Vite), `apps/api` (one Cloudflare Worker over D1). **One Worker serves
+both** — the built SPA as static assets plus the API, from one origin
+([D-050](DECISIONS.md#d-050)) — deploying from the private repo, with Cloudflare Access in front.
 
 ⚠️ **The engine must not import anything browser- or Node-specific** — a single `fetch` or
 `fs` call in it breaks one of its two consumers, and it will be the one nobody ran
