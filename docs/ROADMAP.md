@@ -1,6 +1,6 @@
 # Forge — Roadmap
 
-> **Version:** 1.0 · **Updated:** 2026-08-02
+> **Version:** 1.1 · **Updated:** 2026-08-03 — `D2` closed, the `S` track restructured
 >
 > 🖥️ **Visual version: [`roadmap.html`](roadmap.html)** — same content, rendered. Open it from
 > disk, or use the published page. A permanent always-current URL is an open question for
@@ -21,26 +21,33 @@
 | | |
 |---|---|
 | **Track** | **D — Design** |
-| **Progress** | **1 of 16** milestones · `D1` complete |
-| **🎯 Next** | **Decide the three EE proposals below**, then continue `D2` from real use of the collection tool |
-| **Active** | **`D2`** — [prototype built](design/D2-workbench-prototype.html), awaiting your verdict on the ownership pips and EE answer length |
+| **Progress** | **2 of 16** milestones · `D1`, `D2` complete |
+| **🎯 Next** | **`D3` — Architecture.** The last gate before `DESIGN LOCKED`. Stack, hosting and its indefinite cost, storage, backup — plus **X5** (where docs are served from) and **A6** (whether always-on is justified at all) |
+| **Active** | Nothing in flight |
 | **Blocked** | Nothing |
 | **Code** | **[The collection tool](../tools/collection/) is live and in use.** Carved out ahead of `D3` because the collection is the durable asset and every later milestone needs it. `DESIGN LOCKED` still gates the rules engine |
 
 ```
-D ─ Design         ▓▓▓▓░░░░░░░░  1/3   ← you are here
+D ─ Design         ▓▓▓▓▓▓▓▓░░░░  2/3   ← you are here
 F ─ Foundation     ░░░░░░░░░░░░  0/3
 W ─ Workbench      ░░░░░░░░░░░░  0/4
 S ─ Strategist     ░░░░░░░░░░░░  0/5
 L ─ Later          ░░░░░░░░░░░░  0/1
                                  ────
-                                 1/16
+                                 2/16
 ```
+
+> **The count is unchanged; the shape is not.** [D-043](DECISIONS.md#d-043) retired `S3` and
+> `S4` and added `S6`; [D-044](DECISIONS.md#d-044) split `S1` into `S1a` + `S1b`. Two out, two
+> in — still 16. **What changed is the size of the pieces**: the largest milestone is no longer
+> a single block, and the two retired ones were the second and third largest in the `S` track.
+> **Milestone IDs never renumber** — superseded ones stay in the table, struck through.
 
 ### Recently completed
 
 | ID | Milestone | What it produced | Date |
 |---|---|---|---|
+| `D2` | **Interface design** | [Clickable prototype](design/D2-workbench-prototype.html), approved. Ownership visual language, EE's answer shape, and how EE is invoked — all three locked. Four decisions: [D-043](DECISIONS.md#d-043) to [D-046](DECISIONS.md#d-046) | 2026-08-03 |
 | — | **Collection tool** | Keyboard entry over 1,180 printings, live matches with images, JSON export. 21 parser tests | 2026-08-02 |
 | `D1` | **Discovery** | 19 documents · 42 decisions · both rulebooks read in full · all 935 cards read, 814 main-deck cards classified · 1.3 MB cached card data · 33 legality checks · EE and generation specified | 2026-08-02 |
 
@@ -55,7 +62,7 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 | [`PLAN.md`](PLAN.md) | **The detail** — gates, "done when", how you validate, risks | Per-milestone |
 | [`spec/`](spec/) | **What we're building** — legality, EE, generation, data model | Deep reference |
 | [`reference/`](reference/) | **Riftbound itself** — rules, cards, Legends, battlefields | External facts |
-| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 42 decisions, append-only | Never rewritten |
+| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 46 decisions, append-only | Never rewritten |
 
 **Milestone IDs are permanent handles.** Format `PREFIX-N` — the letter says *which track*,
 the number is an **identity, not a priority**. Order and state live in the Status column, so
@@ -83,16 +90,19 @@ new work appends the next free number and **nothing ever renumbers**.
 
 | ID | Milestone | Done when | Status | Depends on |
 |---|---|---|---|---|
-| — | **Collection tool** | Keyboard entry over 1,180 printings, live matches with images, JSON export. 21 parser tests | 2026-08-02 |
 | `D1` | **Discovery** | Scope, rules, card data, specs and decisions all locked | ✅ | — |
-| `D2` | **Interface design** | A clickable prototype exists that you have used and approved | 🎯 **NEXT** | — |
-| `D3` | **Architecture** | Stack chosen and justified, with indefinite running cost understood — **including where the docs are served from** (X5) | ⬜ | `D2` |
+| `D2` | **Interface design** | A clickable prototype exists that you have used and approved | ✅ | — |
+| `D3` | **Architecture** | Stack chosen and justified, with indefinite running cost understood — **including where the docs are served from** (X5) | 🎯 **NEXT** | `D2` |
 
-**`D2` must design three things** — this is the one that grew:
+**`D2` designed three things**, all locked in [D-046](DECISIONS.md#d-046):
 1. The **workbench** — gallery, deck zones, The Bench, ownership language
 2. **How EE speaks** — a claim carries a statement, a lever and its grounding. Not a stat tile
 3. **How EE is invoked** — advice is pull, never push ([D-042](DECISIONS.md#d-042)), so there
    must be a deliberate way to *ask*
+
+> **`D3` is smaller than it was.** [D-043](DECISIONS.md#d-043) dissolved **X1** — "where does
+> EE's conversation layer run" was never an architecture question. `D3` now decides the stack,
+> hosting, storage, backup, **X5** and **A6**.
 
 > 🔒 **DESIGN LOCKED** after `D3`. No significant logic before this line.
 
@@ -140,21 +150,35 @@ project* — it's an evening of typing that everything else depends on.
 *Answers questions about your cards, decks and matchups — and proposes decks.*
 **Runs parallel to `W`.**
 
+> 🔑 **This track was restructured on 2026-08-03.** [D-043](DECISIONS.md#d-043) — **EE is a
+> rules engine with a swappable mouth**, and the mouth is Claude Code against exported state.
+> The conversation layer is not built. [D-044](DECISIONS.md#d-044) splits the rules engine so
+> the track starts delivering before its hardest half is finished.
+
 | ID | Milestone | Done when | Status | Depends on |
 |---|---|---|---|---|
-| `S1` | **Rules engine** 🔴 | Every worked example in CR 355–359, 370–375, 465.2 passes as a fixture; each of the 21 rule-warping cards has a regression test | ⬜ | `F3` |
-| `S2` | **Analysis** | EE answers Q-CARD, Q-COMPARE and Q-LEGEND correctly, headlessly | ⬜ | `S1` |
-| `S3` | **Plain-English answers** ⭐ | No answer exceeds its statement budget, enforced by test | ⬜ | `S2` |
-| `S4` | **Conversation** | Follow-ups and "why?" work; no number appears that didn't come from a tool call | ⬜ | `S3`, `D3` (X1) |
-| `S5` | **Deck generation** ⭐ | All four modes produce legal, owned, explained candidates you'd actually sleeve | ⬜ | `S3`, `W2` |
+| `S1a` | **Rules engine — core** 🔴 | State, legal actions, combat under Tank/Backline/lethal-first/no-overkill, replacement effects, layers. Each of the 21 rule-warping cards has a regression test | ⬜ | `F3` |
+| `S1b` | **Chains and showdowns** | CR 355–359, 370–375, 465.2 worked examples pass as fixtures; LIFO and Reaction-only-when-closed hold as property tests | 💤 **deferred** | `S1a` |
+| `S2` | **Analysis** | EE answers Q-CARD, Q-COMPARE and Q-LEGEND correctly, headlessly | ⬜ | `S1a` |
+| `S6` | **EE's mouth** | Tool surface + export contract + briefing. A real question answered end-to-end from Claude Code, with every number traceable to a tool call | ⬜ | `S2` |
+| `S5` | **Deck generation** ⭐ | All four modes produce legal, owned, explained candidates you'd actually sleeve | ⬜ | `S2`, `W2` |
+| ~~`S1`~~ | ~~Rules engine~~ | — | ↔️ **split** into `S1a` + `S1b` — [D-044](DECISIONS.md#d-044) | — |
+| ~~`S3`~~ | ~~Plain-English answers~~ | — | ❌ **retired** — [D-043](DECISIONS.md#d-043) | — |
+| ~~`S4`~~ | ~~Conversation~~ | — | ❌ **retired** — [D-043](DECISIONS.md#d-043) | — |
 
-🔴 **`S1` is the largest single component in the project.** Riftbound's showdown/chain system
-plus **21 cards that rewrite rules an engine would hardcode** make it a real rules engine, not
-a calculator. Build it **vertically** — one battlefield, 1v1, full fidelity — then widen.
+🔴 **`S1a` is still the largest single component.** **21 cards rewrite rules an engine would
+hardcode** — Elder Dragon voids the lethal-damage threshold, Dune Surfer voids `Tank`. Rules
+must be **data, not code**. Build it **vertically** — one battlefield, 1v1, full fidelity.
 
-⭐ **`S3` is what makes EE usable.** It turns *"66 cards refute this"* into *"fragile to cheap
-Mind interaction — attack when they're tapped out."* Without it EE is technically correct and
-practically worthless.
+💤 **`S1b` starts when `Q-LINE` is actually missed** — when you ask *"should I attack here?"*
+and mind the refusal. Not on a date. ⚠️ **`S1a` must leave room for a priority stack** even
+while nothing pushes to it, or the deferral becomes a rewrite.
+
+⭐ **`S6` is what makes EE usable** — the role `S3` used to hold. The difference is that the
+prose is Claude's job and only the **contract** is built: tools that return structured data,
+an export format, and a briefing that binds EE to [D-039](DECISIONS.md#d-039) synthesis and
+[D-045](DECISIONS.md#d-045) tiering. **Grounding lines come from tool output only** — the
+mouth is never given the ability to author one.
 
 ---
 
@@ -187,6 +211,7 @@ Non-negotiable. Changing one means writing a new `D-***`.
 | **The rulebook is the only authority** — community sources have been wrong twice | [D-020](DECISIONS.md#d-020), [D-035](DECISIONS.md#d-035) |
 | **No composite score** — no grades, ratings or stars | [D-016](DECISIONS.md#d-016) |
 | **Omit rather than fake** — uncertain statistics are left out | [D-022](DECISIONS.md#d-022) |
+| **Grounding is measured, always** — an evidence line is never inference | [D-045](DECISIONS.md#d-045) |
 | **Synthesise, never enumerate** — *in output.* The data layer stays complete | [D-039](DECISIONS.md#d-039) |
 | **Advice is pull, never push** — Forge never volunteers suggestions | [D-042](DECISIONS.md#d-042) |
 | **Legality ≠ buildability** — a deck can be legal and unbuildable. Never conflate | `spec/LEGALITY.md` |
@@ -201,22 +226,15 @@ Carried deliberately, not forgotten.
 
 | # | Question | Resolve at |
 |---|---|---|
-| **X1** | Where does EE's conversation layer run — in-app chat, or Claude Code against exported deck state? | `D3` |
 | **A6** | "Hosted, always-on" was recorded as *convention, not fact*. A permanently-online service for one user was never justified | `D3` |
 | **X5** | Where are the docs served from, so the roadmap has an always-current bookmarkable URL? ⚠️ **GitHub Pages is ruled out** — needs a paid plan on a private repo (verified 2026-08-02) | `D3` |
 | **G1–G4** | Generation: how many candidates? How is a no-identity seed handled? Does it propose battlefields? | `S5` |
-| **E2–E7** | EE modelling depth — battlefield abilities, Legend abilities, refutation search depth, hidden cards, multi-unit boards | `S1` |
+| **E2–E7** | EE modelling depth — battlefield abilities, Legend abilities, refutation search depth, hidden cards, multi-unit boards | `S1a` |
+| **X1 / E1** | ✅ **Dissolved** — [D-043](DECISIONS.md#d-043). EE's conversation layer runs in Claude Code; it was never a `D3` question | — |
 | **Q10** | ✅ **Answered** — errata and ban list are prose, so a small hand-maintained overlay | — |
 
-### ⏳ Proposed 2026-08-02, awaiting your decision
-
-Discussed at length but **not recorded as decisions** — none of these is settled.
-
-| # | Proposal | Consequence if accepted |
-|---|---|---|
-| **P1** | **EE is a rules engine with a swappable mouth**, and the mouth is Claude Code against exported state rather than an in-app chat | Deletes `S3`/`S4` as build work; X1 resolves without `D3` |
-| **P2** | **Split `S1`** into `S1a` (combat + legality, no chains) and `S1b` (chains, deferred until `Q-LINE` is missed) | The strategist track starts delivering without waiting on the largest component |
-| **P3** | **Tier by answer-part**, not by answer — grounding restricted to Tier 1/2, lever explicitly opinion | Fixes the contradiction where [D-022](DECISIONS.md#d-022) forbids the advice EE promises. The `D2` prototype currently violates it |
+*The three proposals carried here on 2026-08-02 were all accepted on 2026-08-03 —
+[D-043](DECISIONS.md#d-043), [D-044](DECISIONS.md#d-044), [D-045](DECISIONS.md#d-045).*
 
 ---
 

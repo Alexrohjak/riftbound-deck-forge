@@ -3,7 +3,9 @@
 > The **detail layer**: what gates each milestone, what "done" means, how you validate it, and
 > where the risk sits. For *status* — where we are right now — see [`ROADMAP.md`](ROADMAP.md).
 >
-> **Created:** 2026-08-02 · **Rewritten:** 2026-08-02 (v3 — clearer step naming) · **Status:** Discovery complete; `D2` in progress — see the [README](../README.md#-start-here--how-to-pick-this-up)
+> **Created:** 2026-08-02 · **Rewritten:** 2026-08-03 (v4 — `S` track restructured after
+> [D-043](DECISIONS.md#d-043)/[D-044](DECISIONS.md#d-044)) · **Status:** `D1` and `D2` complete;
+> `D3` is next — see the [README](../README.md#-start-here--how-to-pick-this-up)
 
 **Navigation:** [`ROADMAP.md`](ROADMAP.md) (**status — start here**) · [`spec/OVERVIEW.md`](spec/OVERVIEW.md) (system map) ·
 [`DECISIONS.md`](DECISIONS.md) · [`AUDIT.md`](AUDIT.md) ·
@@ -87,10 +89,10 @@ built and tested headlessly, which also makes it the most resumable work in the 
 |---|---|---|---|---|
 | Stage 0 | **D1** | | Stage 7 | **W3** |
 | Stage 1 | **D2** | | Stage 8 | **W4** |
-| Stage 2 | **D3** | | Stage 9 | **S1** |
+| Stage 2 | **D3** | | Stage 9 | **S1** → `S1a` + `S1b` |
 | Stage 3 | **F1** | | Stage 10 | **S2** |
-| Stage 3.5 | **F2** | | Stage 11 | **S3** |
-| Stage 4 | **F3** | | Stage 12 | **S4** |
+| Stage 3.5 | **F2** | | Stage 11 | ~~S3~~ → **S6** |
+| Stage 4 | **F3** | | Stage 12 | ~~S4~~ retired |
 | Stage 5 | **W1** | | Stage 13 | **L1** |
 | Stage 6 | **W2** | | Spike G | **S5** (reinstated) |
 | Phase A | The Workbench | | BLUEPRINT LOCK | DESIGN LOCKED |
@@ -121,11 +123,18 @@ EE spec · assumption audit.
 
 ---
 
-### D2 — Interface design 🎨 **← NEXT**
+### D2 — Interface design 🎨 ✅ **COMPLETE 2026-08-03**
 
 **Size:** L · **Gate:** ✅ none · **SOP Phase 2**
 
-The largest remaining unknown, and genuinely novel rather than a routine UI pass:
+> **Closed by [D-046](DECISIONS.md#d-046).** The prototype is
+> [`design/D2-workbench-prototype.html`](design/D2-workbench-prototype.html) — self-contained,
+> open it in a browser. Both open questions were answered in that decision: **ownership pips
+> cap at three** (a fourth copy is unplayable under [L13](spec/LEGALITY.md), so a fourth pip
+> encodes nothing), and **EE's answer budget is 1 statement / ≤2 lever sentences / ≤3 grounding
+> lines**. Both were my call rather than yours, and both are cheap to reverse on first real use.
+
+It was the largest remaining unknown, and genuinely novel rather than a routine UI pass:
 
 - **Ownership is the organising principle** ([D-015](DECISIONS.md#d-015)) — no existing tool
   works this way, so there is no layout to borrow
@@ -142,18 +151,20 @@ committed-elsewhere) · **EE answer presentation** · honesty-tier encoding
 ([D-022](DECISIONS.md#d-022)) · desktop layout · phone layout · collection entry mode ·
 **interactive prototype**
 
-**Done when:** a clickable prototype exists that you have used and approved.
-**You do:** use it and say what feels wrong.
+**Done when:** ✅ a clickable prototype exists that you have used and approved.
 
-**Risk:** designing two ergonomics for one app is where this could sprawl.
-**Mitigation:** design the **phone layout first**, then expand — never shrink a desktop
-design down.
+**Risk taken:** designing two ergonomics for one app is where this could have sprawled.
+**What contained it:** the phone layout was designed first and expanded — never a desktop
+design shrunk down.
+
+⚠️ **The prototype is a design artifact, not a starting codebase.** `D3` picks the stack
+without regard to how it happens to be built.
 
 ---
 
-### D3 — Architecture
+### D3 — Architecture **← NEXT**
 
-**Size:** M · **Gate:** D2 approved ([D-019](DECISIONS.md#d-019) — design constrains the stack)
+**Size:** M · **Gate:** ✅ D2 approved ([D-019](DECISIONS.md#d-019) — design constrains the stack)
 
 Decisions: stack · hosting and its **indefinite** running cost · storage · card cache ·
 access control · backup and export.
@@ -200,13 +211,25 @@ waste.
 Scaffold, repo structure, test harness, CI, and **a deployed hello-world reachable from
 your phone.**
 
-⚠️ **CI must include a docs-consistency check.** Counts stated in prose (decisions, documents,
-legality checks, card totals) have drifted from reality **twice** already and had to be
-corrected by hand. A ten-line check that greps the claims and compares them to the source of
-truth removes the whole class of error.
+✅ **The docs-consistency check exists already** — [`tools/check-docs.py`](../tools/check-docs.py),
+built early on 2026-08-03 because the drift kept recurring. `F1` only has to wire it into CI:
 
-**It should also cover `docs/roadmap.html`**, which is a *generated view* of `ROADMAP.md`.
-Two files carrying the same status is how `GAME-RULES.md` drifted from the rulebooks — the
+```bash
+python3 tools/check-docs.py     # exits non-zero on any contradiction
+```
+
+It found a real error the moment it was written: the claim that `D2`'s restructuring took the
+project from 16 milestones to 15. Two were retired and two added — **it was still 16.** That
+is the fourth instance of a hand-maintained count being wrong, and the first one caught by a
+machine instead of by reading.
+
+It checks milestone arithmetic (the status board, the ledger and the track tables must agree),
+that `docs/roadmap.html` carries the same status as `ROADMAP.md`, that declared decision counts
+match the anchors in `DECISIONS.md`, that no milestone is referenced without being defined, and
+that every relative link resolves.
+
+**Covering `docs/roadmap.html` matters most.** It is a *hand-maintained view* of `ROADMAP.md`,
+and two files carrying the same status is how `GAME-RULES.md` drifted from the rulebooks — the
 mitigation is that the check fails when they disagree, not that we keep only one.
 
 💡 **Serve `docs/` alongside the app** if the D3 host allows it (X5) — that gives the roadmap
@@ -314,31 +337,57 @@ complete without it.
 
 ---
 
-## 6. The Strategist (EE) — S1 to S4
+## 6. The Strategist (EE) — S1a, S1b, S2, S5, S6
 
 Specification: [`spec/EVALUATION.md`](spec/EVALUATION.md)
 
-### S1 — Rules engine 🔴 **largest single component**
+> 🔑 **Restructured 2026-08-03.** [D-043](DECISIONS.md#d-043) — **EE is a rules engine with a
+> swappable mouth**, and the mouth is Claude Code against exported state. `S3` and `S4` are
+> retired as build work; `S6` replaces them at a fraction of the size.
+> [D-044](DECISIONS.md#d-044) splits the engine so the track delivers before its hardest half
+> is finished. **IDs never renumber** — `S3` and `S4` stay retired, not reused.
 
-**Size:** XL · **Gate:** F3 · **Parallel with the Workbench track**
+### S1a — Rules engine, core 🔴 **largest single component**
 
-A real rules engine: game state · legal-action enumeration · **chain resolution (LIFO,
-`[Reaction]`-only when closed)** · **showdowns as alternating priority windows** · combat
-damage assignment under Tank/Backline/lethal-first/no-overkill · replacement effects ·
-layers · cleanups including recall-attackers-on-stall.
+**Size:** L · **Gate:** F3 · **Parallel with the Workbench track**
+
+Game state · legal-action enumeration · combat damage assignment under
+Tank/Backline/lethal-first/no-overkill · replacement effects · layers · cleanups including
+recall-attackers-on-stall.
 
 ⚠️ **Rules must be data, not code.** **21 cards rewrite rules an engine would hardcode** —
 Elder Dragon voids the lethal-damage threshold, Dune Surfer voids `Tank`, Baron Nashor adds
 a battlefield mid-game. CR 002 — *card text supersedes rules text* — is a design requirement.
 
+⚠️ **Leave room for a priority stack** even though nothing pushes to it yet. A flat
+"resolve immediately" model that cannot be extended turns `S1b` from a deferral into a
+rewrite — which is the one way this split loses money.
+
 **Build vertically:** one battlefield, 1v1, full fidelity first. Then widen.
 
-**Done when:** every worked example in CR 355–359, 370–375 and 465.2 passes as a fixture,
-and each of the 21 rule-warping cards has a regression test.
+**Done when:** each of the 21 rule-warping cards has a regression test, and combat resolves
+correctly against hand-built fixtures.
+
+### S1b — Chains and showdowns 💤 **deferred**
+
+**Size:** L · **Gate:** S1a · **Trigger:** you ask `Q-LINE` and mind the refusal
+
+**Chain resolution** (LIFO, `[Reaction]`-only when closed) and **showdowns as alternating
+priority windows.**
+
+**Why it waits:** of the eight questions EE answers, seven need combat and card evaluation.
+One needs chains — `Q-LINE`, *"should I attack here?"*. Deferring the half that serves one
+question unblocks the half that serves seven.
+
+**Done when:** every worked example in CR 355–359, 370–375 and 465.2 passes as a fixture, and
+LIFO / Reaction-only-when-closed / pass-pass-termination hold as property tests.
+
+**Until then** `Q-LINE` returns an explicit *"not modelled yet."* Never a guess
+([D-022](DECISIONS.md#d-022)).
 
 ### S2 — Analysis
 
-**Size:** L · **Gate:** S1
+**Size:** L · **Gate:** S1a
 
 Refutation search · robustness (breadth, cost, speed, reach, frequency) · answer coverage ·
 threat pressure classes · Legend fit · dead-card detection.
@@ -348,35 +397,40 @@ hand-annotated rather than parsed.
 
 **Done when:** EE can answer Q-CARD, Q-COMPARE and Q-LEGEND correctly, headlessly.
 
-### S3 — Plain-English answers ⭐ **the one that makes EE usable**
+### S6 — EE's mouth ⭐ **the one that makes EE usable**
 
-**Size:** M · **Gate:** S2
+**Size:** S · **Gate:** S2 · Replaces the retired `S3` + `S4`
 
-Pattern vocabulary · salience ranking · statement budgets.
+Three deliverables, none of them a chat interface:
 
-> **This is the layer that turns "66 cards refute this" into "fragile to cheap Mind
-> interaction — attack when they're tapped out."** Without it EE is technically correct and
-> practically useless. See [`spec/EVALUATION.md`](spec/EVALUATION.md) §2.
+1. **The tool surface** — `legality()`, `duel()`, `coverage()`, `legendPool()` and siblings.
+   Structured data in, structured data out, no assumption of a caller that can be reasoned with
+2. **The export contract** — deck and collection state in a form Claude Code can read directly
+3. **The briefing** — the document that binds EE to [D-039](DECISIONS.md#d-039) synthesis,
+   [D-045](DECISIONS.md#d-045) tiering, [D-042](DECISIONS.md#d-042) pull-not-push, and the
+   answer budget fixed in [D-046](DECISIONS.md#d-046)
 
-**Done when:** no answer exceeds its statement budget, enforced by test.
+> **This is still the layer that turns "66 cards refute this" into "fragile to cheap Mind
+> interaction — attack when they're tapped out."** The difference from `S3` is that the prose
+> is Claude's job and only the **contract** is built. See [`spec/EVALUATION.md`](spec/EVALUATION.md) §2.
+
+🔻 **The honest cost.** `S3`'s statement-budget test was going to run in CI; a briefing is
+weaker than a test. What partly replaces it is **structural**: grounding lines are assembled
+from tool output only, so the mouth is never able to author one. That is available precisely
+*because* the engine is headless — but the budget itself is now guidance, not a gate.
+
+**Done when:** a real question is answered end-to-end from Claude Code, and every number in
+the answer traces to a tool call.
 **You do:** read 20 answers and say which ones you'd actually act on.
-
-### S4 — Conversation
-
-**Size:** M · **Gate:** S3 + the X1 decision from D3
-
-Open questions, follow-ups, "why?", memory of the conversation.
-
-**Discipline, enforced by test:** never does arithmetic, never adjudicates rules, never
-emits a number that didn't come from a tool call.
 
 ### S5 — Deck generation ⭐
 
-**Size:** L · **Gate:** S3 + **W2** (generation is meaningless without knowing what you own)
+**Size:** L · **Gate:** S2 + **W2** (generation is meaningless without knowing what you own)
 · Spec: [`spec/GENERATOR.md`](spec/GENERATOR.md)
 
 **Reinstated and fused with EE** ([D-041](DECISIONS.md#d-041)) — this is EE running in the
-*propose* direction, not a separate subsystem.
+*propose* direction, not a separate subsystem. **Re-gated from `S3` to `S2`** by
+[D-043](DECISIONS.md#d-043), since its old gate no longer exists.
 
 **Four modes:**
 
@@ -458,7 +512,7 @@ Not a phase — an **ongoing obligation** from F3.
 |---|---|---|
 | ⭐ **Time-to-first-value** — enthusiasm decays before the tool is useful (A12) | 🔴 High | **F2, the first usable version** |
 | 🆕 **EE rules core is underestimated** — showdowns, chains, layers and 21 rule-overrides make it a real engine | 🔴 High | Build vertically; rulebook examples as fixtures; headless and resumable |
-| 🆕 **EE answers become noise** — technically correct, practically unreadable | 🔴 High | **S3 synthesis** + budget tests. This killed the v2 spec design |
+| 🆕 **EE answers become noise** — technically correct, practically unreadable | 🔴 High | **`S6`'s briefing** + the [D-046](DECISIONS.md#d-046) budget. ⚠️ **Weakened by [D-043](DECISIONS.md#d-043)** — this used to be a CI test. Partly offset structurally: grounding comes from tool output only. This risk killed the v2 spec design |
 | **Undiscovered rules** (LR2) — confirmed twice (Signature, `Unique`) | 🔴 High | Rulebook line by line; every example a test |
 | **Collection entry never happens** (A3) | 🟡 Medium | Explicit milestone with a spot-check |
 | **Annotation drift** — 153 effects + 49 Legends by hand | 🟡 Medium | Completeness test: every card matching `Deal\|Kill\|Stun` must have an annotation |
