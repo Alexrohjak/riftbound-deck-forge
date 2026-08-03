@@ -21,21 +21,21 @@
 | | |
 |---|---|
 | **Track** | **F — Foundation** |
-| **Progress** | **3 of 16** milestones · `D1`, `D2`, `D3` complete |
-| **🎯 Next** | **Finish `F1`** — **[Forge is live](https://forge.alexander-rohde-jakobsen.workers.dev)** on real D1. Two dashboard steps remain, both yours: connect the repo for automatic deploys, and put Access in front of it |
-| **Active** | **`F1`** — deployed and verified end-to-end: SPA, `/health`, `/collection`, and a D1 write round-trip |
-| **Blocked** | Nothing. ⚠️ The site is **publicly reachable** until Zero Trust Access is configured |
+| **Progress** | **4 of 16** milestones · `D1`–`D3`, `F1` complete |
+| **🎯 Next** | **`F2` — the first usable version.** Open [Forge](https://forge.alexander-rohde-jakobsen.workers.dev) on your phone and put cards into a deck. Deliberately crude |
+| **Active** | Nothing in flight — awaiting `F2` |
+| **Blocked** | Nothing. ⚠️ **X8 — D1 has no backup yet.** Answer it before `W2` puts the real collection in |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
 | **Code** | **The workspace is real.** `packages/engine` (pure TS, 8 of 33 legality checks, 14 tests) · `apps/web` · `apps/cli` · `apps/api` · CI. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
 
 ```
 D ─ Design         ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
-F ─ Foundation     ░░░░░░░░░░░░  0/3   ← you are here
+F ─ Foundation     ▓▓▓▓░░░░░░░░  1/3   ← you are here
 W ─ Workbench      ░░░░░░░░░░░░  0/4
 S ─ Strategist     ░░░░░░░░░░░░  0/5
 L ─ Later          ░░░░░░░░░░░░  0/1
                                  ────
-                                 3/16
+                                 4/16
 ```
 
 > **The count is unchanged; the shape is not.** [D-043](DECISIONS.md#d-043) retired `S3` and
@@ -48,6 +48,7 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 
 | ID | Milestone | What it produced | Date |
 |---|---|---|---|
+| `F1` | **Get it online** | One Worker serving SPA + API on D1, behind Zero Trust Access; `main` deploys itself. [D-050](DECISIONS.md#d-050) — Cloudflare closed Pages to new projects | 2026-08-04 |
 | `D3` | **Architecture** | [`ARCHITECTURE.md`](ARCHITECTURE.md) — one TypeScript rules package with two consumers; static app, one edge function, managed SQLite. **£0/month, verified.** A6 upheld, X5 resolved. [D-047](DECISIONS.md#d-047)–[D-049](DECISIONS.md#d-049) | 2026-08-03 |
 | `D2` | **Interface design** | [Clickable prototype](design/D2-workbench-prototype.html), approved. Ownership visual language, EE's answer shape, and how EE is invoked — all three locked. Four decisions: [D-043](DECISIONS.md#d-043) to [D-046](DECISIONS.md#d-046) | 2026-08-03 |
 | — | **Collection tool** | Keyboard entry over 1,180 printings, live matches with images, JSON export. 21 parser tests | 2026-08-02 |
@@ -120,7 +121,7 @@ new work appends the next free number and **nothing ever renumbers**.
 
 | ID | Milestone | Done when | Status | Depends on |
 |---|---|---|---|---|
-| `F1` | **Get it online** | A trivial page is live, reachable from your phone, deploying automatically | 🟡 **ACTIVE** — deployed and verified; awaiting Git-triggered deploys + Access | `D3` |
+| `F1` | **Get it online** | A trivial page is live, reachable from your phone, deploying automatically | ✅ | `D3` |
 | `F2` | **First usable version** ⭐ | You can open it on your phone and put cards into a deck | ⬜ | `F1` |
 | `F3` | **Card data** | Full pool queryable offline, variants collapsed by name, errata + ban overlay working | ⬜ | `F2` |
 

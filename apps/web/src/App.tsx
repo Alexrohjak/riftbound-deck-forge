@@ -15,6 +15,10 @@ const NAMES: Record<string, string> = {
   "bf-001": "Noxus",
   "bf-002": "Piltover",
   "bf-003": "Ionia",
+  // Twelve distinct filler names — see DEMO_DECK.
+  ...Object.fromEntries(
+    Array.from({ length: 12 }, (_, i) => [`filler-${i + 1}`, `Filler ${i + 1}`]),
+  ),
 };
 
 const DEMO_DECK: Deck = {
@@ -25,7 +29,14 @@ const DEMO_DECK: Deck = {
   chosenChampionCardId: "ogn-202-298",
   slots: [
     { cardId: "ogn-030-298", zone: "MAIN", quantity: 3 },
-    { cardId: "filler", zone: "MAIN", quantity: 36 },
+    // 12 names x 3 = 36, not one name x 36. Padding with a single name breaks the
+    // 3-copy limit (L13), which made the skeleton report a violation that said nothing
+    // about the engine — only about lazy padding.
+    ...Array.from({ length: 12 }, (_, i) => ({
+      cardId: `filler-${i + 1}`,
+      zone: "MAIN" as const,
+      quantity: 3,
+    })),
     { cardId: "rune-fury", zone: "RUNE", quantity: 12 },
     { cardId: "bf-001", zone: "BATTLEFIELD", quantity: 1 },
     { cardId: "bf-002", zone: "BATTLEFIELD", quantity: 1 },
