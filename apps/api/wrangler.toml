@@ -1,15 +1,27 @@
 # One Worker, no idle state (D-048). Deployed by `npm run deploy -w @forge/api`,
 # but only after the Cloudflare half of F1 exists — see docs/ARCHITECTURE.md §9.
-name = "forge-api"
+#
+# This Worker serves the app as well as the API (D-050): Cloudflare stopped taking new
+# Pages projects, and static assets on Workers is the supported replacement. One origin
+# means the app calls /collection relatively — no CORS, no API URL to configure, and one
+# Access application protects everything.
+name = "forge"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
+
+# The built SPA. `run_worker_first` keeps the API paths with the Worker — without it the
+# SPA fallback below would answer /health and /collection with index.html.
+[assets]
+directory = "../web/dist"
+not_found_handling = "single-page-application"
+run_worker_first = ["/health", "/collection"]
 
 # Created with:  npx wrangler d1 create forge
 # then paste the returned database_id here. It is an identifier, not a secret.
 [[d1_databases]]
 binding = "DB"
 database_name = "forge"
-database_id = "REPLACE_ME_AFTER_wrangler_d1_create"
+database_id = "0dd2f27e-30bc-421b-99c1-43c224dd7269"
 
 [observability]
 enabled = true

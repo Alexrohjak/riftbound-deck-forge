@@ -109,6 +109,13 @@ Cloudflare deploys **private** repositories on the free plan, and one account co
 the API, the database, the access control and the docs. **X5 resolves as a side effect** rather
 than as a separate decision.
 
+> ⚠️ **Amended at `F1` by [D-050](DECISIONS.md#d-050).** This section said Pages for the app and
+> a Worker for the API. Cloudflare has since closed Pages to new projects — the dashboard routes
+> every create flow to Workers — so **one Worker serves the SPA and the API from one origin**,
+> via `[assets]` in `wrangler.toml`. The vendor reasoning above is unaffected; both constraints
+> still hold. The gain is that same-origin removes CORS, the build-time API URL, and the second
+> Access application.
+
 ### 4.2 D1, not KV — consistency decides it
 
 The tempting answer was a JSON blob in Workers KV. It is wrong here:
@@ -219,8 +226,8 @@ Deliberately not decided here; none blocks `DESIGN LOCKED`:
 
 | # | Item | Decide at |
 |---|---|---|
-| **X6** | Custom domain, or is `forge.pages.dev` enough? Cosmetic and reversible | `F1` |
-| **X7** | Does the docs site share the app's Pages project or get its own? One build vs one URL | `F1` |
+| **X6** | Custom domain, or is `forge.<subdomain>.workers.dev` enough? Cosmetic and reversible | `F1` |
+| ~~**X7**~~ | ✅ **Answered by [D-050](DECISIONS.md#d-050)** — there is no Pages project, so the docs site is a separate concern; decide it when the docs actually need a URL | — |
 | **X8** | Scheduled D1 → JSON backup: Cron Trigger, or a manual export that is genuinely done | `F1` |
 | **X9** | Whether `apps/cli` gains an MCP wrapper | `S6`, on evidence |
 
