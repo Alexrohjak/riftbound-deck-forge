@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** 🔓 **`DESIGN LOCKED` lifted** — `D1`, `D2` and `D3` are complete, so logic can now be written · 🎯 `F1` (get it online) is next · **the collection tool works and is in use**
+> **Status:** 🔓 **`DESIGN LOCKED` lifted** — the design track is complete and the workspace is scaffolded, tested and building · 🟡 `F1` is active, blocked only on a Cloudflare account · **the collection tool works and is in use**
 
 ---
 
@@ -46,12 +46,13 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 *Last worked on 2026-08-03. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
-**Where things stand.** 🔓 **The whole design track is done and `DESIGN LOCKED` has lifted.**
-Discovery, the interface and the architecture are all settled, so **logic can now be written** —
-for the first time in the project. Forge already has working code: a
-[collection tool](tools/collection/) used for real entry and improved twice from that use.
+**Where things stand.** 🔓 **The whole design track is done and `DESIGN LOCKED` has lifted**,
+and the workspace behind it is scaffolded, tested and building — `packages/engine`,
+`apps/web`, `apps/cli`, `apps/api`, CI. **`F1` is one Cloudflare account away from closing**
+(§4). Forge also still has the [collection tool](tools/collection/), used for real entry and
+improved twice from that use.
 
-### 1 · Run what exists
+### 1 · Run the collection tool
 
 ```bash
 cd ~/code/riftbound && git pull
@@ -80,16 +81,40 @@ reverse: pips cap at three (a fourth copy is unplayable under
 grounding lines; and **editing requires connectivity** — offline you can look but not edit
 ([D-049](docs/DECISIONS.md#d-049)), which is a real limitation at a table with no signal.
 
-### 3 · Next — `F1`, get it online
+### 3 · Run the workspace
 
-🔓 **This is the first milestone where logic gets written.** Read
-[`ARCHITECTURE.md`](docs/ARCHITECTURE.md) first — it says what to scaffold and, just as
-usefully, [what is ruled out](docs/ARCHITECTURE.md#8-what-this-rules-out).
+The scaffold is built and green. `packages/engine` is the real thing — pure TypeScript,
+8 of the 33 legality checks, 14 tests:
 
-- npm workspaces: `packages/engine` (pure TS), `apps/web` (React + Vite), `apps/api` (one Worker)
-- Cloudflare Pages from the private repo, D1 for state, Access in front of both
-- CI runs [`tools/check-docs.py`](tools/check-docs.py) — it already exists
-- **Done when** a trivial page is live and reachable from your phone, deploying on push
+```bash
+npm install
+npm run check      # docs · engine purity · typecheck · tests · build
+npm run dev        # the web app, on http://localhost:5173
+```
+
+**Prove the architecture in one command** — the same package, called headlessly the way
+Claude Code will call it:
+
+```bash
+npm run build -w @forge/cli
+node apps/cli/dist/index.js legality <deck.json> --cards <names.json>
+```
+
+### 4 · ⛔ `F1` is blocked on you — about ten minutes
+
+Everything that can be done without a Cloudflare account is done and merged. **These steps
+are yours**, and `F1` closes when the page loads on your phone:
+
+1. **Create a Cloudflare account** (free) at [dash.cloudflare.com](https://dash.cloudflare.com)
+2. **Pages → connect to Git → this private repo.** Build command `npm run build`, output
+   directory `apps/web/dist`. Private repos work on the free plan — this is the thing GitHub
+   Pages wouldn't do
+3. **Create the database:** `npx wrangler d1 create forge`, then paste the returned
+   `database_id` into [`apps/api/wrangler.toml`](apps/api/wrangler.toml) and run
+   `npm run db:init -w @forge/api`
+4. **Zero Trust → Access** → add an application covering the Pages URL, policy = your email.
+   Free to 50 users, and it means Forge never handles a password
+5. Open the URL on your phone
 
 Then `F2` — the one that actually matters. The first genuinely usable version, deliberately
 crude: open it on your phone and put cards into a deck.
@@ -124,8 +149,13 @@ system map and **where to put a new idea**.
 
 | | |
 |---|---|
+| [**`packages/engine/`**](packages/engine/) | **The rules, as a pure library.** Imported by both the web app and the CLI — one implementation, two consumers ([D-047](docs/DECISIONS.md#d-047)). 8 of 33 legality checks so far; `W1` finishes them |
+| [`apps/web/`](apps/web/) | The workbench. Static React + Vite bundle |
+| [`apps/cli/`](apps/cli/) | **EE's tool surface** — what Claude Code calls. Structured data in, structured data out |
+| [`apps/api/`](apps/api/) | One Cloudflare Worker over D1. No idle state |
 | [**`tools/collection/`**](tools/collection/) | **The collection tool — keyboard entry over all 1,180 printings, live matches with images, JSON export. Working, and in use.** |
 | [`tools/check-docs.py`](tools/check-docs.py) | Fails when the docs contradict themselves — milestone arithmetic, the two status boards, decision counts, links. Run it after editing any planning doc |
+| [`scripts/check-engine-purity.mjs`](scripts/check-engine-purity.mjs) | Fails if the engine imports `fs`, `fetch` or the DOM — that would break one of its two consumers, and it would be the one nobody ran |
 
 ### Specification — what we're building
 

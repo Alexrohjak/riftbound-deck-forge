@@ -1,0 +1,17 @@
+{
+  "name": "@forge/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "One Cloudflare Worker over D1. No idle state (D-048).",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute forge --file=./schema.sql",
+    "db:init:local": "wrangler d1 execute forge --local --file=./schema.sql",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250109.0"
+  }
+}

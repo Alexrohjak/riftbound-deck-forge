@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: npm ci
+
+      # Counts stated in prose have drifted five times, and the fifth was caught by this
+      # script rather than by re-reading. PLAN.md §F1 asked for it in CI; here it is.
+      - name: Docs are self-consistent
+        run: npm run check:docs
+
+      # D-047: the engine must run unchanged in a browser and in Node. A single fetch or
+      # fs import breaks one consumer, and it will be the one nobody ran.
+      - name: Engine is pure
+        run: npm run check:purity
+
+      - name: Card index is reproducible
+        run: |
+          python3 tools/collection/build-index.py
+          git diff --exit-code tools/collection/cards-index.json
+
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build

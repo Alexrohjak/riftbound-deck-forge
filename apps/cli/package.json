@@ -1,0 +1,14 @@
+{
+  "name": "@forge/cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "EE's tool surface. Called by Claude Code, never deployed (D-043, D-047).",
+  "bin": { "forge": "./dist/index.js" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": { "@forge/engine": "*" },
+  "devDependencies": { "@types/node": "^22.10.5" }
+}

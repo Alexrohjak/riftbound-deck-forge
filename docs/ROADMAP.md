@@ -20,13 +20,13 @@
 
 | | |
 |---|---|
-| **Track** | **D — Design** |
+| **Track** | **F — Foundation** |
 | **Progress** | **3 of 16** milestones · `D1`, `D2`, `D3` complete |
-| **🎯 Next** | **`F1` — get it online.** 🔓 `DESIGN LOCKED` has lifted: logic can now be written. Scaffold the workspace, wire [`tools/check-docs.py`](../tools/check-docs.py) into CI, deploy a hello-world reachable from your phone |
-| **Active** | Nothing in flight |
-| **Blocked** | Nothing |
+| **🎯 Next** | **Finish `F1`** — the code half is done and merged; the **Cloudflare half is yours** (account, Pages, D1, Access). ~10 minutes of clicking, and then `F1` closes |
+| **Active** | **`F1`** — workspace scaffolded, engine + CLI + web + API building and tested. ⛔ Blocked on the Cloudflare account only |
+| **Blocked** | `F1`'s deployment — needs you at [dash.cloudflare.com](https://dash.cloudflare.com). Nothing else |
 | **Stack** | TypeScript · React + Vite · Cloudflare Pages + Workers + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
-| **Code** | **[The collection tool](../tools/collection/) is live and in use**, plus [`check-docs.py`](../tools/check-docs.py). 🔓 The gate has lifted — the rules engine is now buildable |
+| **Code** | **The workspace is real.** `packages/engine` (pure TS, 8 of 33 legality checks, 14 tests) · `apps/web` · `apps/cli` · `apps/api` · CI. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
 
 ```
 D ─ Design         ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
@@ -48,6 +48,7 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 
 | ID | Milestone | What it produced | Date |
 |---|---|---|---|
+| `D3` | **Architecture** | [`ARCHITECTURE.md`](ARCHITECTURE.md) — one TypeScript rules package with two consumers; static app, one edge function, managed SQLite. **£0/month, verified.** A6 upheld, X5 resolved. [D-047](DECISIONS.md#d-047)–[D-049](DECISIONS.md#d-049) | 2026-08-03 |
 | `D2` | **Interface design** | [Clickable prototype](design/D2-workbench-prototype.html), approved. Ownership visual language, EE's answer shape, and how EE is invoked — all three locked. Four decisions: [D-043](DECISIONS.md#d-043) to [D-046](DECISIONS.md#d-046) | 2026-08-03 |
 | — | **Collection tool** | Keyboard entry over 1,180 printings, live matches with images, JSON export. 21 parser tests | 2026-08-02 |
 | `D1` | **Discovery** | 19 documents · 42 decisions · both rulebooks read in full · all 935 cards read, 814 main-deck cards classified · 1.3 MB cached card data · 33 legality checks · EE and generation specified | 2026-08-02 |
@@ -119,7 +120,7 @@ new work appends the next free number and **nothing ever renumbers**.
 
 | ID | Milestone | Done when | Status | Depends on |
 |---|---|---|---|---|
-| `F1` | **Get it online** | A trivial page is live, reachable from your phone, deploying automatically | 🎯 **NEXT** | `D3` |
+| `F1` | **Get it online** | A trivial page is live, reachable from your phone, deploying automatically | 🟡 **ACTIVE** — code done, awaiting Cloudflare | `D3` |
 | `F2` | **First usable version** ⭐ | You can open it on your phone and put cards into a deck | ⬜ | `F1` |
 | `F3` | **Card data** | Full pool queryable offline, variants collapsed by name, errata + ban overlay working | ⬜ | `F2` |
 

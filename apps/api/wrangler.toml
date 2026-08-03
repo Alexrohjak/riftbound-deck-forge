@@ -1,0 +1,15 @@
+# One Worker, no idle state (D-048). Deployed by `npm run deploy -w @forge/api`,
+# but only after the Cloudflare half of F1 exists — see docs/ARCHITECTURE.md §9.
+name = "forge-api"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# Created with:  npx wrangler d1 create forge
+# then paste the returned database_id here. It is an identifier, not a secret.
+[[d1_databases]]
+binding = "DB"
+database_name = "forge"
+database_id = "REPLACE_ME_AFTER_wrangler_d1_create"
+
+[observability]
+enabled = true
