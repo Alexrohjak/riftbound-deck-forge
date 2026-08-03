@@ -3,13 +3,14 @@
 > The **detail layer**: what gates each milestone, what "done" means, how you validate it, and
 > where the risk sits. For *status* — where we are right now — see [`ROADMAP.md`](ROADMAP.md).
 >
-> **Created:** 2026-08-02 · **Rewritten:** 2026-08-03 (v4 — `S` track restructured after
-> [D-043](DECISIONS.md#d-043)/[D-044](DECISIONS.md#d-044)) · **Status:** `D1` and `D2` complete;
-> `D3` is next — see the [README](../README.md#-start-here--how-to-pick-this-up)
+> **Created:** 2026-08-02 · **Rewritten:** 2026-08-03 (v5 — `D3` closed, `DESIGN LOCKED` lifted)
+> · **Status:** the design track is **complete**; `F1` is next and the architecture is
+> [`ARCHITECTURE.md`](ARCHITECTURE.md) — see the
+> [README](../README.md#-start-here--how-to-pick-this-up)
 
-**Navigation:** [`ROADMAP.md`](ROADMAP.md) (**status — start here**) · [`spec/OVERVIEW.md`](spec/OVERVIEW.md) (system map) ·
-[`DECISIONS.md`](DECISIONS.md) · [`AUDIT.md`](AUDIT.md) ·
-[`reference/COMPENDIUM.md`](reference/COMPENDIUM.md)
+**Navigation:** [`ROADMAP.md`](ROADMAP.md) (**status — start here**) · [`ARCHITECTURE.md`](ARCHITECTURE.md) (**how it's built**) ·
+[`spec/OVERVIEW.md`](spec/OVERVIEW.md) (system map) · [`DECISIONS.md`](DECISIONS.md) ·
+[`AUDIT.md`](AUDIT.md) · [`reference/COMPENDIUM.md`](reference/COMPENDIUM.md)
 
 ---
 
@@ -162,51 +163,60 @@ without regard to how it happens to be built.
 
 ---
 
-### D3 — Architecture **← NEXT**
+### D3 — Architecture ✅ **COMPLETE 2026-08-03**
 
 **Size:** M · **Gate:** ✅ D2 approved ([D-019](DECISIONS.md#d-019) — design constrains the stack)
 
-Decisions: stack · hosting and its **indefinite** running cost · storage · card cache ·
-access control · backup and export.
+> 📐 **Output: [`ARCHITECTURE.md`](ARCHITECTURE.md)** — stack, hosting, verified cost, and an
+> explicit list of what is now ruled out. Recorded as [D-047](DECISIONS.md#d-047),
+> [D-048](DECISIONS.md#d-048) and [D-049](DECISIONS.md#d-049).
 
-⭐ **New:** **where EE's conversation layer runs** (X1) — in-app chat with an API key and
-per-query cost, or Claude Code against an exported deck state. This materially affects
-hosting and cost.
+**The shape:** one pure TypeScript rules package, imported by both the web app and the CLI
+Claude Code calls. A static React bundle, one edge function and managed SQLite — deployed to
+Cloudflare, behind Cloudflare Access.
 
-🆕 **Also decide: where the docs are served from** (X5). The roadmap should have a real,
-always-current URL you can bookmark on your phone — the same thing you already have for
-Toparchy.
+**The load-bearing argument** ([D-047](DECISIONS.md#d-047)): legality is **live state** on
+screen ([D-042](DECISIONS.md#d-042)) *and* must answer **headlessly** for Claude Code
+([D-043](DECISIONS.md#d-043)). Two implementations of the 33 checks would mean two bodies for
+`W1`, the component everything downstream trusts. **That is why the stack is TypeScript rather
+than Python**, despite the card tooling being Python — Python cannot serve live in-browser
+legality without Pyodide. The Python in `tools/` stays, because it is a build step.
 
-> ⚠️ **GitHub Pages is ruled out.** Verified 2026-08-02 against the API, which replied
-> *"Your current plan does not support GitHub Pages for this repository."* Pages on a
-> **private** repo needs a paid plan, and the repo is private by
-> [D-011](DECISIONS.md#d-011).
+**A6 — upheld.** *"Reachable from anywhere"* and *"a server I keep running"* had been fused and
+are not the same thing. Static files, per-request functions and managed SQLite **have no idle
+state**: nothing runs when Forge isn't being used. The audit's instinct was right; the word it
+caught was *"always-on"*.
 
-| Option | Cost | Note |
-|---|---|---|
-| **Cloudflare Pages / Netlify / Vercel** | Free | All deploy from **private** repos and auto-update on push. **Also plausible hosts for Forge itself**, so the choice isn't wasted — verify current free-tier terms |
-| GitHub Pro | ~$4/mo | Unblocks Pages directly; smallest change |
-| Make the repo public | Free | Works immediately, but reverses [D-011](DECISIONS.md#d-011) |
-| Status quo | Free | Keep the published page, refreshed on request rather than on push |
+**X5 — resolved as a side effect.** One Cloudflare account serves app, API, database, access
+control and docs. `PLAN.md` had asked for exactly this: *one host can serve both, and picking
+twice is waste.* GitHub Pages remains ruled out on a private repo
+([D-011](DECISIONS.md#d-011)); Cloudflare deploys private repos free.
 
-**Decide this together with app hosting** — one host can serve both, and picking twice is
-waste.
+**Cost: £0/month, verified against vendor documentation on 2026-08-03.** Forge sits roughly
+three orders of magnitude below every limit that matters. ⚠️ **The risk is terms changing, not
+usage growing** — mitigated by there being no lock-in: a static bundle, one small function, and
+SQLite that exports to a file.
 
-> ⚠️ The audit flagged "hosted, always-on" as convention rather than fact (A6). A
-> permanently-online service for exactly one user was never separately justified.
-> **Re-examine before accepting.**
+**Done when:** ✅ an architecture document exists with the stack chosen and justified.
 
-**Done when:** an architecture document exists with the stack chosen and justified.
-
-> ### 🔒 DESIGN LOCKED
-> D1–D3 complete. Per the SOP, **no significant logic precedes this point**;
-> afterwards every change maps to a task.
+> ### 🔓 DESIGN LOCKED — LIFTED 2026-08-03
+> D1–D3 complete. **No significant logic preceded this point.** From here every change maps
+> to a task, and every remaining milestone produces running code.
 
 ---
 
-### F1 — Get it online
+### F1 — Get it online **← NEXT**
 
-**Size:** S · **Gate:** design locked
+**Size:** S · **Gate:** ✅ design locked · 📐 Build to [`ARCHITECTURE.md`](ARCHITECTURE.md)
+
+**Scaffold:** npm workspaces — `packages/engine` (pure TypeScript, no I/O),
+`apps/web` (React + Vite), `apps/api` (one Cloudflare Worker over D1). Cloudflare Pages
+deploying from the private repo, with Cloudflare Access in front of app and API.
+
+⚠️ **The engine must not import anything browser- or Node-specific** — a single `fetch` or
+`fs` call in it breaks one of its two consumers, and it will be the one nobody ran
+([D-047](DECISIONS.md#d-047)). Worth a lint rule in this milestone rather than a debugging
+session in `S1a`.
 
 Scaffold, repo structure, test harness, CI, and **a deployed hello-world reachable from
 your phone.**

@@ -81,6 +81,7 @@
 |---|---|
 | [`../ROADMAP.md`](../ROADMAP.md) | **The map** — status board, milestones, dependencies |
 | [`../PLAN.md`](../PLAN.md) | Delivery detail — gates, "done when", validation, risks |
+| [`../ARCHITECTURE.md`](../ARCHITECTURE.md) | **How it's built** — stack, hosting, verified cost, what's ruled out |
 | [`../DECISIONS.md`](../DECISIONS.md) | Append-only decision log with rationale |
 | [`../DISCOVERY.md`](../DISCOVERY.md) | Problem, scope, users, non-goals |
 | [`../AUDIT.md`](../AUDIT.md) | First-principles audit of the project's assumptions |
@@ -101,6 +102,7 @@ Use this table before creating anything. **Most ideas belong in an existing docu
 | A new **entity or lifecycle rule** | `DATA-MODEL.md` | An entity or state transition |
 | A **choice with alternatives and rationale** | `DECISIONS.md` | A new `D-***`, append-only, never rewritten |
 | A **change to scope or sequencing** | `PLAN.md` | A stage edit, plus a `D-***` if it reverses a decision |
+| A **technical choice — stack, hosting, storage** | `ARCHITECTURE.md` | Update the relevant section, plus a `D-***`. Check §8 first: it may already be ruled out |
 | Something that fits **nowhere** | Here, §2 | A new spec document — and a row in this map |
 
 ### The three rules of adding to Forge

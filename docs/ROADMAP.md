@@ -1,10 +1,10 @@
 # Forge — Roadmap
 
-> **Version:** 1.1 · **Updated:** 2026-08-03 — `D2` closed, the `S` track restructured
+> **Version:** 1.2 · **Updated:** 2026-08-03 — `D3` complete, **`DESIGN LOCKED` lifted**
 >
 > 🖥️ **Visual version: [`roadmap.html`](roadmap.html)** — same content, rendered. Open it from
-> disk, or use the published page. A permanent always-current URL is an open question for
-> `D3` (X5) — GitHub Pages is ruled out on a private repo.
+> disk, or use the published page. ✅ **X5 resolved** — the docs ship from the same Cloudflare
+> account as the app ([D-048](DECISIONS.md#d-048)); `F1` wires it up.
 >
 > The map of where we're going. Five tracks, each a set of milestones with **stable IDs**.
 > *Why* it's built this way lives in [`DISCOVERY.md`](DISCOVERY.md) and
@@ -21,20 +21,21 @@
 | | |
 |---|---|
 | **Track** | **D — Design** |
-| **Progress** | **2 of 16** milestones · `D1`, `D2` complete |
-| **🎯 Next** | **`D3` — Architecture.** The last gate before `DESIGN LOCKED`. Stack, hosting and its indefinite cost, storage, backup — plus **X5** (where docs are served from) and **A6** (whether always-on is justified at all) |
+| **Progress** | **3 of 16** milestones · `D1`, `D2`, `D3` complete |
+| **🎯 Next** | **`F1` — get it online.** 🔓 `DESIGN LOCKED` has lifted: logic can now be written. Scaffold the workspace, wire [`tools/check-docs.py`](../tools/check-docs.py) into CI, deploy a hello-world reachable from your phone |
 | **Active** | Nothing in flight |
 | **Blocked** | Nothing |
-| **Code** | **[The collection tool](../tools/collection/) is live and in use.** Carved out ahead of `D3` because the collection is the durable asset and every later milestone needs it. `DESIGN LOCKED` still gates the rules engine |
+| **Stack** | TypeScript · React + Vite · Cloudflare Pages + Workers + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
+| **Code** | **[The collection tool](../tools/collection/) is live and in use**, plus [`check-docs.py`](../tools/check-docs.py). 🔓 The gate has lifted — the rules engine is now buildable |
 
 ```
-D ─ Design         ▓▓▓▓▓▓▓▓░░░░  2/3   ← you are here
-F ─ Foundation     ░░░░░░░░░░░░  0/3
+D ─ Design         ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
+F ─ Foundation     ░░░░░░░░░░░░  0/3   ← you are here
 W ─ Workbench      ░░░░░░░░░░░░  0/4
 S ─ Strategist     ░░░░░░░░░░░░  0/5
 L ─ Later          ░░░░░░░░░░░░  0/1
                                  ────
-                                 2/16
+                                 3/16
 ```
 
 > **The count is unchanged; the shape is not.** [D-043](DECISIONS.md#d-043) retired `S3` and
@@ -62,7 +63,8 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 | [`PLAN.md`](PLAN.md) | **The detail** — gates, "done when", how you validate, risks | Per-milestone |
 | [`spec/`](spec/) | **What we're building** — legality, EE, generation, data model | Deep reference |
 | [`reference/`](reference/) | **Riftbound itself** — rules, cards, Legends, battlefields | External facts |
-| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 46 decisions, append-only | Never rewritten |
+| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 49 decisions, append-only | Never rewritten |
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | **How it's built** — stack, hosting, verified cost, what's ruled out | Changes rarely |
 
 **Milestone IDs are permanent handles.** Format `PREFIX-N` — the letter says *which track*,
 the number is an **identity, not a priority**. Order and state live in the Status column, so
@@ -92,7 +94,7 @@ new work appends the next free number and **nothing ever renumbers**.
 |---|---|---|---|---|
 | `D1` | **Discovery** | Scope, rules, card data, specs and decisions all locked | ✅ | — |
 | `D2` | **Interface design** | A clickable prototype exists that you have used and approved | ✅ | — |
-| `D3` | **Architecture** | Stack chosen and justified, with indefinite running cost understood — **including where the docs are served from** (X5) | 🎯 **NEXT** | `D2` |
+| `D3` | **Architecture** | Stack chosen and justified, with indefinite running cost understood — **including where the docs are served from** (X5) | ✅ | `D2` |
 
 **`D2` designed three things**, all locked in [D-046](DECISIONS.md#d-046):
 1. The **workbench** — gallery, deck zones, The Bench, ownership language
@@ -104,7 +106,10 @@ new work appends the next free number and **nothing ever renumbers**.
 > EE's conversation layer run" was never an architecture question. `D3` now decides the stack,
 > hosting, storage, backup, **X5** and **A6**.
 
-> 🔒 **DESIGN LOCKED** after `D3`. No significant logic before this line.
+> 🔓 **DESIGN LOCKED — LIFTED 2026-08-03.** `D1`–`D3` complete. Logic can now be written, and
+> per the SOP every change from here maps to a task. The architecture is
+> [`ARCHITECTURE.md`](ARCHITECTURE.md): **one TypeScript rules package with two consumers**, a
+> static app, one edge function and managed SQLite — **£0/month, verified**.
 
 ---
 
@@ -114,7 +119,7 @@ new work appends the next free number and **nothing ever renumbers**.
 
 | ID | Milestone | Done when | Status | Depends on |
 |---|---|---|---|---|
-| `F1` | **Get it online** | A trivial page is live, reachable from your phone, deploying automatically | ⬜ | `D3` |
+| `F1` | **Get it online** | A trivial page is live, reachable from your phone, deploying automatically | 🎯 **NEXT** | `D3` |
 | `F2` | **First usable version** ⭐ | You can open it on your phone and put cards into a deck | ⬜ | `F1` |
 | `F3` | **Card data** | Full pool queryable offline, variants collapsed by name, errata + ban overlay working | ⬜ | `F2` |
 
@@ -226,10 +231,14 @@ Carried deliberately, not forgotten.
 
 | # | Question | Resolve at |
 |---|---|---|
-| **A6** | "Hosted, always-on" was recorded as *convention, not fact*. A permanently-online service for one user was never justified | `D3` |
-| **X5** | Where are the docs served from, so the roadmap has an always-current bookmarkable URL? ⚠️ **GitHub Pages is ruled out** — needs a paid plan on a private repo (verified 2026-08-02) | `D3` |
+| **X6** | Custom domain, or is `forge.pages.dev` enough? Cosmetic and reversible | `F1` |
+| **X7** | Does the docs site share the app's Pages project, or get its own? One build vs one URL | `F1` |
+| **X8** | Scheduled D1 → JSON backup: a Cron Trigger, or a manual export that genuinely gets done | `F1` |
+| **X9** | Does `apps/cli` gain an MCP wrapper, or is shelling out enough? | `S6`, on evidence |
 | **G1–G4** | Generation: how many candidates? How is a no-identity seed handled? Does it propose battlefields? | `S5` |
 | **E2–E7** | EE modelling depth — battlefield abilities, Legend abilities, refutation search depth, hidden cards, multi-unit boards | `S1a` |
+| **A6** | ✅ **Upheld** — [D-048](DECISIONS.md#d-048). There is no always-on server: static files, per-request functions and managed SQLite have no idle state | — |
+| **X5** | ✅ **Resolved as a side effect** — [D-048](DECISIONS.md#d-048). One Cloudflare account serves app and docs, so it was never a separate decision | — |
 | **X1 / E1** | ✅ **Dissolved** — [D-043](DECISIONS.md#d-043). EE's conversation layer runs in Claude Code; it was never a `D3` question | — |
 | **Q10** | ✅ **Answered** — errata and ban list are prose, so a small hand-maintained overlay | — |
 

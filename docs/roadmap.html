@@ -234,7 +234,7 @@
     <span class="sub">Roadmap — a personal deckbuilding workbench for Riftbound</span>
   </div>
   <div class="meta mono">
-    <span>Version 1.1</span><span>Updated 2026-08-03</span><span>16 milestones</span><span>5 tracks</span>
+    <span>Version 1.2</span><span>Updated 2026-08-03</span><span>16 milestones</span><span>5 tracks</span>
   </div>
 
   <!-- STATUS BOARD -->
@@ -242,22 +242,23 @@
     <div class="board-head"><span class="dot"></span><h2>Status board — you are here</h2></div>
     <dl class="rows">
       <div class="row"><dt>Track</dt><dd><strong>D — Design</strong></dd></div>
-      <div class="row"><dt>Progress</dt><dd><strong class="mono">2 of 16</strong> milestones · <span class="mono">D1</span>, <span class="mono">D2</span> complete</dd></div>
-      <div class="row"><dt>Next</dt><dd><strong><span class="mono">D3</span> — Architecture.</strong> The last gate before <span class="mono">DESIGN LOCKED</span>. Stack, hosting and its indefinite cost, storage, backup — plus X5 and A6.</dd></div>
+      <div class="row"><dt>Progress</dt><dd><strong class="mono">3 of 16</strong> milestones · <span class="mono">D1</span>, <span class="mono">D2</span>, <span class="mono">D3</span> complete</dd></div>
+      <div class="row"><dt>Next</dt><dd><strong><span class="mono">F1</span> — get it online.</strong> DESIGN LOCKED has lifted: logic can now be written. Scaffold the workspace, wire the docs check into CI, deploy a hello-world reachable from your phone.</dd></div>
       <div class="row"><dt>Active</dt><dd>Nothing in flight</dd></div>
       <div class="row"><dt>Blocked</dt><dd>Nothing</dd></div>
-      <div class="row"><dt>Code</dt><dd><strong>The collection tool is live and in use.</strong> Carved out ahead of <span class="mono">D3</span> because the collection is the durable asset. <span class="mono">DESIGN LOCKED</span> still gates the rules engine.</dd></div>
+      <div class="row"><dt>Stack</dt><dd>TypeScript · React + Vite · Cloudflare Pages, Workers and D1 · <strong>£0/month, verified</strong></dd></div>
+      <div class="row"><dt>Code</dt><dd><strong>The collection tool is live and in use</strong>, plus the docs-consistency check. The <span class="mono">DESIGN LOCKED</span> gate has lifted — the rules engine is now buildable.</dd></div>
     </dl>
   </div>
 
   <!-- LEDGER -->
   <div class="ledger">
-    <div class="lrow here"><span class="key">D</span><span class="nm">Design</span><span class="bar"><span style="width:66.6%"></span></span><span class="cnt">2/3</span></div>
-    <div class="lrow"><span class="key">F</span><span class="nm">Foundation</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/3</span></div>
+    <div class="lrow"><span class="key">D</span><span class="nm">Design</span><span class="bar"><span style="width:100%"></span></span><span class="cnt">3/3</span></div>
+    <div class="lrow here"><span class="key">F</span><span class="nm">Foundation</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/3</span></div>
     <div class="lrow"><span class="key">W</span><span class="nm">Workbench</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/4</span></div>
     <div class="lrow"><span class="key">S</span><span class="nm">Strategist</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/5</span></div>
     <div class="lrow"><span class="key">L</span><span class="nm">Later</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/1</span></div>
-    <div class="lrow ltot"><span class="key">—</span><span class="nm">Total</span><span class="bar"><span style="width:12.5%"></span></span><span class="cnt">2/16</span></div>
+    <div class="lrow ltot"><span class="key">—</span><span class="nm">Total</span><span class="bar"><span style="width:18.75%"></span></span><span class="cnt">3/16</span></div>
   </div>
 
   <!-- TRACK D -->
@@ -274,10 +275,10 @@
         <div class="body"><h4>Interface design</h4><p>Closed 2026-08-03 by D-046. A clickable prototype you have used and approved. Designed three things: the workbench, how EE speaks, and how EE is invoked — advice is pull, never push.</p></div>
         <span class="pill done">Done</span>
       </div>
-      <div class="ms next">
+      <div class="ms done">
         <span class="code">D3</span>
-        <div class="body"><h4>Architecture</h4><p>Stack chosen and justified, with indefinite running cost understood — including where the docs are served from (X5), and whether always-on is justified at all (A6).</p><span class="dep">depends on D2</span></div>
-        <span class="pill next">Next</span>
+        <div class="body"><h4>Architecture</h4><p>Closed 2026-08-03. One TypeScript rules package with two consumers; static app, one edge function, managed SQLite. £0/month, verified. A6 upheld — nothing is always-on. X5 resolved as a side effect.</p></div>
+        <span class="pill done">Done</span>
       </div>
     </div>
   </section>
@@ -292,7 +293,7 @@
   <section class="track">
     <div class="track-head"><span class="id">F</span><h3>Foundation</h3><span class="note">Get something live and fed with data</span></div>
     <div class="lane future">
-      <div class="ms"><span class="code">F1</span><div class="body"><h4>Get it online</h4><p>A trivial page is live, reachable from your phone, deploying automatically.</p><span class="dep">depends on D3</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms next"><span class="code">F1</span><div class="body"><h4>Get it online</h4><p>A trivial page is live, reachable from your phone, deploying automatically.</p><span class="dep">depends on D3</span></div><span class="pill next">Next</span></div>
       <div class="ms"><span class="code">F2</span><div class="body"><h4>First usable version</h4><p>You can open it on your phone and put cards into a deck. Deliberately crude and genuinely usable.</p><span class="dep">depends on F1</span></div><span class="pill todo">Todo</span></div>
       <div class="ms"><span class="code">F3</span><div class="body"><h4>Card data</h4><p>Full pool queryable offline, variants collapsed by name, errata and ban overlay working.</p><span class="dep">depends on F2</span></div><span class="pill todo">Todo</span></div>
     </div>
