@@ -246,9 +246,14 @@ export function App() {
     if (!node) return;
     const io = new IntersectionObserver(
       (entries) => {
-        // ⚠️ Bounded. Without the cap this climbs forever whenever the sentinel sits in
-        // view with nothing left to reveal — an empty result set puts it on screen
-        // permanently, and every increment re-renders to show the same nothing.
+        // ⚠️ Bounded. Unbounded, this climbs past the result count whenever the sentinel
+        // sits in view with nothing left to reveal, re-rendering to show the same nothing.
+        //
+        // Honest correction: an earlier commit blamed this for freezing the tab. It was not
+        // that — `requestAnimationFrame` and long `setTimeout` chains are throttled almost
+        // to a stop in a *backgrounded* tab, so the automation scripts were hanging, not the
+        // app. Measured with the fix in place and 900 printings owned, a keystroke costs
+        // 0–3 ms. The cap is still correct; the diagnosis attached to it was not.
         if (entries[0]?.isIntersecting) {
           setShown((n) => (n >= results.length ? n : n + PAGE));
         }

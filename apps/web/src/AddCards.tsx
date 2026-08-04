@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Card, CardPool } from "./cards.js";
-import { thumb } from "./cards.js";
+import { hd } from "./cards.js";
 
 /**
  * Entering the collection, **inside Forge**.
@@ -107,6 +107,46 @@ interface Step {
   delta: number;
 }
 
+/**
+ * ⚠️ **Unsaved entries survive everything.**
+ *
+ * A card is committed the instant you press Enter and the field clears immediately — which
+ * is right for typing speed and catastrophic if the write then fails. Over a few hours the
+ * Access session can expire, or the wifi drops, and every subsequent Enter would vanish into
+ * an error line you are not looking at because your eyes are on a box of cards.
+ *
+ * So a failed adjustment is *held*, not lost: queued, mirrored to localStorage so a reload
+ * or a crash cannot take it, retried automatically on the next success, and counted in a
+ * banner that does not go away until it is empty.
+ */
+const PENDING_KEY = "forge.collection.pending";
+
+const readPending = (): Step[] => {
+  try {
+    const raw = localStorage.getItem(PENDING_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? (parsed as Step[]) : [];
+  } catch {
+    return [];
+  }
+};
+
+const writePending = (steps: Step[]) => {
+  try {
+    if (steps.length === 0) localStorage.removeItem(PENDING_KEY);
+    else localStorage.setItem(PENDING_KEY, JSON.stringify(steps));
+  } catch {
+    // Storage full or blocked. The in-memory queue still holds them for this session.
+  }
+};
+
+/** Sum repeated adjustments to the same printing — the API takes one delta per card. */
+const merge = (steps: readonly Step[]) => {
+  const out: Record<string, number> = {};
+  for (const s of steps) out[s.cardId] = (out[s.cardId] ?? 0) + s.delta;
+  return out;
+};
+
 export function AddCards({
   pool,
   owned,
@@ -119,6 +159,7 @@ export function AddCards({
   const [set, setSet] = useState(pool.sets[0] ?? "OGN");
   const [text, setText] = useState("");
   const [history, setHistory] = useState<Step[]>([]);
+  const [pending, setPending] = useState<Step[]>(readPending);
   const [problem, setProblem] = useState<string | null>(null);
   const field = useRef<HTMLInputElement | null>(null);
 
@@ -127,32 +168,63 @@ export function AddCards({
 
   const parsed = useMemo(() => parseEntry(text, pool, set), [text, pool, set]);
 
+  /** Send a batch of adjustments. Throws with a readable message; never swallows. */
+  const send = async (steps: readonly Step[]) => {
+    const response = await fetch("/collection", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ adjust: merge(steps) }),
+    });
+    const type = response.headers.get("content-type") ?? "";
+    if (!response.ok || !type.includes("json")) {
+      throw new Error(
+        type.includes("json")
+          ? `Could not save (HTTP ${response.status}).`
+          : "Not saved — the server answered with a page. Sign in again, then press Retry.",
+      );
+    }
+    const body = (await response.json()) as { counts?: Record<string, number>; error?: string };
+    if (body.error) throw new Error(body.error);
+    return body.counts ?? {};
+  };
+
+  const retry = async () => {
+    if (pending.length === 0) return;
+    try {
+      onChanged(await send(pending));
+      setPending([]);
+      writePending([]);
+      setProblem(null);
+    } catch (error) {
+      setProblem(error instanceof Error ? error.message : String(error));
+    }
+    field.current?.focus();
+  };
+
   const commit = async (card: Card, mult: number, sign: 1 | -1) => {
     const printing = printingFor(card, set);
     const delta = mult * sign;
+    const step: Step = { cardId: printing.id, name: card.name, delta };
     setText("");
     setProblem(null);
     field.current?.focus();
     try {
-      const response = await fetch("/collection", {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ adjust: { [printing.id]: delta } }),
-      });
-      const type = response.headers.get("content-type") ?? "";
-      if (!response.ok || !type.includes("json")) {
-        throw new Error(
-          type.includes("json")
-            ? `Could not save (HTTP ${response.status}).`
-            : "The server answered with a page — you may need to sign in again.",
-        );
+      // Anything held from an earlier failure rides along, so recovery needs no ceremony.
+      const batch = [...pending, step];
+      const counts = await send(batch);
+      onChanged(counts);
+      if (pending.length > 0) {
+        setPending([]);
+        writePending([]);
       }
-      const body = (await response.json()) as { counts?: Record<string, number>; error?: string };
-      if (body.error) throw new Error(body.error);
-      onChanged(body.counts ?? {});
-      setHistory((h) => [{ cardId: printing.id, name: card.name, delta }, ...h].slice(0, 40));
+      setHistory((h) => [step, ...h].slice(0, 40));
+      return;
     } catch (error) {
+      const held = [...pending, step];
+      setPending(held);
+      writePending(held);
       setProblem(error instanceof Error ? error.message : String(error));
+      return;
     }
   };
 
@@ -160,14 +232,19 @@ export function AddCards({
     const last = history[0];
     if (!last) return;
     setHistory((h) => h.slice(1));
-    const response = await fetch("/collection", {
-      method: "PATCH",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ adjust: { [last.cardId]: -last.delta } }),
-    }).catch(() => null);
-    if (response?.ok) {
-      const body = (await response.json()) as { counts?: Record<string, number> };
-      onChanged(body.counts ?? {});
+    const reverse: Step = { ...last, delta: -last.delta };
+    try {
+      onChanged(await send([...pending, reverse]));
+      if (pending.length > 0) {
+        setPending([]);
+        writePending([]);
+      }
+    } catch (error) {
+      // An undo that fails is held exactly like an add, or the correction is lost.
+      const held = [...pending, reverse];
+      setPending(held);
+      writePending(held);
+      setProblem(error instanceof Error ? error.message : String(error));
     }
     field.current?.focus();
   };
@@ -225,13 +302,69 @@ export function AddCards({
         <b>66a</b> alt art · <b>ogn 12</b> jumps set
       </p>
 
-      {problem && <p className="fail">{problem}</p>}
+      {/* Does not disappear until the queue is empty. Losing an hour of typing to a line
+          of red text nobody looked at is the failure this exists to prevent. */}
+      {pending.length > 0 && (
+        <p className="held">
+          <b>
+            {pending.length} {pending.length === 1 ? "entry" : "entries"} not saved
+          </b>
+          <span>{problem ?? "They are kept here, and survive a reload."}</span>
+          <button type="button" className="primary" onClick={() => void retry()}>
+            Retry
+          </button>
+        </p>
+      )}
+      {problem && pending.length === 0 && <p className="fail">{problem}</p>}
 
       {parsed?.miss && (
         <p className="empty">No match for {parsed.miss} — check the set, or type part of a name.</p>
       )}
 
-      {parsed && parsed.cands.length > 0 && (
+      {/**
+        * A collector number resolves to exactly one card, which is the overwhelming majority
+        * of entries — so that case gets a **large** preview rather than a row in a list. The
+        * whole job at that moment is confirming you are about to register the card in your
+        * hand, and a thumbnail the size of a favicon cannot do it.
+        */}
+      {parsed && parsed.cands.length === 1 && (
+        <button
+          type="button"
+          className="hit-solo"
+          onClick={() => void commit(parsed.cands[0]!, parsed.mult, parsed.sign)}
+        >
+          {(() => {
+            const card = parsed.cands[0]!;
+            const printing = printingFor(card, set);
+            const wide = card.landscape === true;
+            return (
+              <>
+                <img
+                  className={wide ? "wide" : ""}
+                  src={hd(printing, wide ? 300 : 210)}
+                  alt=""
+                />
+                <span className="solo-mid">
+                  <b>{card.name}</b>
+                  <span className="hit-meta">{printing.code}</span>
+                  <span className="solo-own">
+                    you own <b>{owned[printing.id] ?? 0}</b>
+                  </span>
+                </span>
+                <span className="solo-right">
+                  <span className={parsed.sign < 0 ? "hit-delta dn" : "hit-delta up"}>
+                    {parsed.sign < 0 ? "−" : "+"}
+                    {parsed.mult}
+                  </span>
+                  <span className="hit-key">⏎ enter</span>
+                </span>
+              </>
+            );
+          })()}
+        </button>
+      )}
+
+      {parsed && parsed.cands.length > 1 && (
         <ul className="hits">
           {parsed.cands.map((card, i) => {
             const printing = printingFor(card, set);
@@ -239,7 +372,12 @@ export function AddCards({
             return (
               <li key={card.name}>
                 <button type="button" onClick={() => void commit(card, parsed.mult, parsed.sign)}>
-                  <img src={thumb(printing, 80)} alt="" loading="lazy" />
+                  <img
+                    className={card.landscape === true ? "wide" : ""}
+                    src={hd(printing, 96)}
+                    alt=""
+                    loading="lazy"
+                  />
                   <span className="hit-mid">
                     <b>{card.name}</b>
                     <span className="hit-meta">
