@@ -10,6 +10,7 @@ import {
   type SaveState,
 } from "./deckStore.js";
 import { AddCards } from "./AddCards.js";
+import { watchForUpdates } from "./version.js";
 import { DeckBar, DeckName, useDecks } from "./Decks.js";
 import { Advisor } from "./Advisor.js";
 import { ImportCollection, type Result as ImportResult } from "./ImportCollection.js";
@@ -170,6 +171,9 @@ export function App() {
   const [imported, setImported] = useState<ImportResult | null>(null);
   /** Entering cards is a mode, not a page — the gallery below stays useful while you type. */
   const [adding, setAdding] = useState(false);
+  /** A newer Forge has been deployed under this page. Never acted on without asking. */
+  const [stale, setStale] = useState(false);
+  useEffect(() => watchForUpdates(() => setStale(true)), []);
   /** Re-read after an import, so the Owned view fills in without a refresh. */
   const loadCollection = useCallback(() => {
     fetch("/collection")
@@ -480,6 +484,21 @@ export function App() {
 
   return (
     <div className={`workspace${open ? "" : " solo"}`} style={{ ["--pane" as string]: `${pane}%` }}>
+      {stale && (
+        <p className="stale">
+          <span>
+            A newer Forge is deployed. This page is still running the version it loaded —
+            reload to pick up the change.
+          </span>
+          <button type="button" className="primary" onClick={() => location.reload()}>
+            Reload
+          </button>
+          {/* Dismissible, because mid-entry is exactly when you do not want to. */}
+          <button type="button" className="ghost" onClick={() => setStale(false)}>
+            later
+          </button>
+        </p>
+      )}
       <section className="gallery">
         <div className="toolbar">
           <nav className="tabs">

@@ -1245,3 +1245,19 @@ body.resizing * { pointer-events: none; }
   background: var(--ink); color: var(--ground);
   font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.02em; white-space: nowrap;
 }
+
+/* ── a newer build is available ───────────────────────────────────────────────
+   The API updates the moment a deploy lands; the page's code does not, and nothing said
+   so — which cost an hour of diagnosing a bug that had already been fixed. It offers and
+   never reloads on its own: mid-entry is exactly when this fires and exactly when losing
+   what you have half-typed would be worst. */
+.stale {
+  position: fixed; z-index: 60; left: 50%; bottom: var(--s4); transform: translateX(-50%);
+  display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap;
+  max-width: min(38rem, calc(100vw - 2 * var(--s4)));
+  margin: 0; padding: var(--s3) var(--s4); border-radius: var(--radius);
+  background: var(--panel); border: 1px solid var(--accent); box-shadow: var(--shadow-lift);
+  font-size: 0.82rem; color: var(--ink);
+}
+.stale span { flex: 1; min-width: 12rem; color: var(--dim); }
+.stale .primary { padding: var(--s1) var(--s4); }
