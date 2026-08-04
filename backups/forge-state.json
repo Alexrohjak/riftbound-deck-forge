@@ -1,0 +1,22 @@
+{
+ "schema": "forge.backup/1",
+ "takenAt": "2026-08-04T11:25:25.450Z",
+ "collection": {
+  "schema": "forge.collection/1",
+  "totals": {
+   "printings": 0,
+   "copies": 0
+  },
+  "counts": {}
+ },
+ "decks": [
+  {
+   "id": "main",
+   "name": "First deck",
+   "state": "DRAFT",
+   "legendCardId": "ogn-301-298",
+   "chosenChampionCardId": "ogn-030-298",
+   "slots": []
+  }
+ ]
+}
