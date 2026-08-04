@@ -28,19 +28,31 @@ jobs:
 
       # Counts stated in prose have drifted five times, and the fifth was caught by this
       # script rather than by re-reading. PLAN.md §F1 asked for it in CI; here it is.
+      #
+      # Deliberately NOT part of `npm run build`: a doc-count drift should fail review, not
+      # block a production deploy — and keeping python out of the deploy path means the
+      # build cannot break on a container that happens to lack it.
       - name: Docs are self-consistent
         run: npm run check:docs
-
-      # D-047: the engine must run unchanged in a browser and in Node. A single fetch or
-      # fs import breaks one consumer, and it will be the one nobody ran.
-      - name: Engine is pure
-        run: npm run check:purity
 
       - name: Card index is reproducible
         run: |
           python3 tools/collection/build-index.py
           git diff --exit-code tools/collection/cards-index.json
 
-      - run: npm run typecheck
-      - run: npm run test
-      - run: npm run build
+      # The F2 pool is generated, not authored (D-034). Same guard as the card index:
+      # editing the generator without regenerating would leave the committed file lying.
+      - name: F2 pool is reproducible
+        run: |
+          node scripts/build-f2-pool.mjs
+          git diff --exit-code apps/web/src/data/pool.json
+
+      # ⚠️ This one step is the whole deploy gate, and it is deliberately the EXACT command
+      # Cloudflare runs. Workers Builds deploys on every push to main using its own build
+      # command and does **not** wait for this workflow — so a gate that lived only here
+      # would let a failing test ship to production while GitHub went red beside it.
+      #
+      # `npm run build` therefore runs engine purity (D-047), typecheck and the full test
+      # suite before it emits a single asset. Running it here proves the gate itself works.
+      - name: Deploy gate — engine purity, typecheck, tests, then build
+        run: npm run build

@@ -11,13 +11,15 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "npm run build -w @forge/engine && npm run build -w @forge/web",
+    "build:app": "npm run build -w @forge/engine && npm run build -w @forge/web",
+    "verify": "npm run check:purity && npm run typecheck && npm run test",
+    "build": "npm run verify && npm run build:app",
     "dev": "npm run dev -w @forge/web",
     "test": "vitest run",
     "typecheck": "npm run build -w @forge/engine && npm run typecheck --workspaces --if-present",
     "check:docs": "python3 tools/check-docs.py",
     "check:purity": "node scripts/check-engine-purity.mjs",
-    "check": "npm run check:docs && npm run check:purity && npm run typecheck && npm run test && npm run build"
+    "check": "npm run check:docs && npm run build"
   },
   "devDependencies": {
     "typescript": "^5.7.3",

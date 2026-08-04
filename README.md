@@ -126,11 +126,25 @@ list always says which checks actually ran.
 | **One Worker, one origin** | Serves the SPA *and* the API ([D-050](docs/DECISIONS.md#d-050) — Cloudflare closed Pages to new projects) |
 | **D1** | `forge`, schema applied. Holds one deck; the collection table is still empty until `W2` |
 | **Zero Trust Access** | Self-hosted app, allow-list of one email, 7-day sessions. Verified enforcing |
-| **Automatic deploys** | `main` → build → deploy, via Workers Builds |
+| **Automatic deploys** | `main` → build → deploy, via Workers Builds. **`npm run build` is the gate** — see below |
 
 **Deploying by hand is no longer the way.** Push to `main` and Cloudflare builds it. Preview
 builds for other branches are deliberately **off**: they would inherit the same D1 binding, and
 there is only one database — a branch build would write to the collection.
+
+> 🔒 **The build gates itself, because nothing else can.** Workers Builds deploys on every push
+> to `main` and **does not wait for GitHub Actions** — so a gate that lived only in CI would let
+> a failing test ship while CI went red beside it. `npm run build` therefore runs engine purity,
+> typecheck and the full test suite *before* it emits a single asset: a red test means exit 1 and
+> an empty `dist/`, so there is nothing to deploy. Verified by deliberately failing a test.
+>
+> `npm run check` is that plus the docs check. **The docs check is deliberately outside the
+> build** — a drifted count should fail review, not a production deploy, and keeping `python3`
+> off the deploy path means the build cannot break on a container that lacks it.
+>
+> ⚠️ This holds only while Cloudflare's **Settings → Build → Build command** invokes
+> `npm run build`. That field lives in the dashboard and **cannot** be set from
+> `wrangler.toml` — Workers Builds ignores Wrangler's custom-build config.
 
 **What `F2` asks of you:** use it, and report what feels wrong. That feedback reshapes
 everything after it — which is the entire reason `F2` came before the card pool.
