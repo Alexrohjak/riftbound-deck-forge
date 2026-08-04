@@ -109,7 +109,12 @@ Claude Code will call it:
 ```bash
 npm run build -w @forge/cli
 node apps/cli/dist/index.js legality <deck.json> --cards <cards.json>
+node apps/cli/dist/index.js log <matches.json> --cards <cards.json>
 ```
+
+`log` is the same engine reading the [match record](docs/spec/LOG.md) — and it is where the
+restraint shows: below 10 matches it returns `rate: null` with a `withheld` sentence saying
+why, rather than a percentage from four games.
 
 `--cards` takes either `"<name>"` or `{ "name", "domains", "energy" }` per printing;
 supplying domains is what turns on the Domain Identity checks. The result's `checked`

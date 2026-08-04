@@ -234,13 +234,20 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const GAMES = /^\d{1,2}-\d{1,2}$/;
 
 /**
+ * Bounds on free text. Not security — this is a single-user log behind Access — but an
+ * unbounded field is an unbounded row, and every row here ends up in the nightly backup
+ * that gets committed to a git repository (D-051).
+ */
+const LIMITS = { notes: 2000, opponentNote: 200, deckName: 120, deckHash: 64 } as const;
+
+/**
  * What is wrong with a record, in the order a person would notice it. Empty means valid.
  *
  * ⚠️ Validation happens here rather than in the API so both consumers get it, and so a
  * malformed record is rejected before it reaches storage — a log with junk in it is worse
  * than no log, because you go on trusting it.
  */
-export function validate(m: MatchRecord, today?: string): string[] {
+export function validate(m: MatchRecord, notAfter?: string): string[] {
   const problems: string[] = [];
   if (!m.id || !/^[A-Za-z0-9_-]{1,64}$/.test(m.id)) {
     problems.push("id must be 1-64 characters of [A-Za-z0-9_-].");
@@ -250,15 +257,36 @@ export function validate(m: MatchRecord, today?: string): string[] {
   }
   if (!ISO_DATE.test(m.playedAt ?? "")) {
     problems.push("playedAt must be a YYYY-MM-DD date.");
-  } else if (today && m.playedAt > today) {
+  } else if (notAfter && m.playedAt > notAfter) {
     // A typo'd year silently sorts to the end of the log forever.
+    //
+    // ⚠️ `notAfter` is a *tolerant* boundary, not "today". The client sends its **local**
+    // date and a server computes UTC, so at UTC+8 a match logged at 01:00 local is still
+    // "yesterday" in UTC and a strict comparison rejects it — which it did, between
+    // midnight and 08:00, for exactly the person this was built for. The caller passes
+    // tomorrow-in-UTC: wide enough for any real timezone, still narrow enough to catch
+    // the typo this check exists for.
     problems.push(`playedAt ${m.playedAt} is in the future.`);
   }
   if (m.games != null && m.games !== "" && !GAMES.test(m.games)) {
     problems.push('games must look like "2-1".');
   }
-  for (const s of m.symptoms ?? []) {
-    if (!(SYMPTOMS as readonly string[]).includes(s)) problems.push(`Unknown symptom "${s}".`);
+  // A non-array here used to throw out of `for...of` and surface as a 500 rather than a
+  // 400 — a malformed request crashing the endpoint instead of being told off.
+  if (m.symptoms != null && !Array.isArray(m.symptoms)) {
+    problems.push("symptoms must be an array.");
+  } else {
+    for (const s of m.symptoms ?? []) {
+      if (!(SYMPTOMS as readonly string[]).includes(s)) problems.push(`Unknown symptom "${s}".`);
+    }
   }
+
+  for (const [field, max] of Object.entries(LIMITS)) {
+    const value = m[field as keyof typeof LIMITS];
+    if (typeof value === "string" && value.length > max) {
+      problems.push(`${field} is longer than ${max} characters.`);
+    }
+  }
+
   return problems;
 }

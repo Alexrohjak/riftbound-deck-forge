@@ -117,8 +117,11 @@ Rules, all of which exist because a diagnostic channel that misbehaves is worse 
 
 1. **Never blocks.** Reporting is fire-and-forget. A logging failure must never surface as an
    application failure — the app has to work when the log does not.
-2. **Never carries card or deck data.** It is already in the database, and copying it into
-   crash noise makes the noise big without making it informative.
+2. **Carries no card or deck data of its own.** Context is a fault's *location*, never the
+   state on screen — that is already in the database, and copying it into crash noise makes
+   the noise big without making it informative. ⚠️ The limit worth stating: `message` is
+   whatever a browser or library put in an `Error`, and the reporter cannot see inside it, so
+   a thrown message that embeds a card name will be stored. Bounded, and behind Access.
 3. **Bounded.** The table is trimmed to the newest 500 rows on write. A client error loop is
    a thing that happens, and it must not be able to fill the database.
 4. **Not backed up.** The nightly snapshot ([D-051](../DECISIONS.md#d-051)) carries matches

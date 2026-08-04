@@ -16,6 +16,7 @@ import { readFileSync } from "node:fs";
 import {
   checkLegality,
   diagnose,
+  read as readLog,
   match,
   readArchetype,
   review,
@@ -23,10 +24,11 @@ import {
   suggest,
   type CardEntry,
   type Deck,
+  type MatchRecord,
   type PoolCard,
 } from "@forge/engine";
 
-const USAGE = `forge <legality|review|ask> <deck.json> [--cards <cards.json>] [--note "..."]
+const USAGE = `forge <legality|review|ask|log> <deck.json|matches.json> [--cards <cards.json>] [--note "..."]
 
   deck.json    a Deck — see docs/spec/DATA-MODEL.md §1
   --cards      printing id -> card facts. Either "<name>" or
@@ -40,6 +42,10 @@ const USAGE = `forge <legality|review|ask> <deck.json> [--cards <cards.json>] [-
   legality     is this deck registerable? 33 checks, each with its citation.
   review       what IS this deck? Counts, odds, and what good players would say —
                every judgement carrying its source and how much confidence it earns.
+  log          matches.json — the record, and what it is honest to conclude from it.
+               ⚠️ Rates are WITHHELD below 10 matches (5 per matchup) rather than shown
+               with a caveat. The "withheld" field says why. See docs/spec/LOG.md.
+
   ask          --note "I played into Diana and lost, could not hold battlefields"
                Turns a complaint into a diagnosis and a handful of candidates.
                A complaint is evidence about a CAPABILITY, never about a card.
@@ -71,10 +77,10 @@ function main(argv: string[]): number {
     process.stdout.write(`${USAGE}\n`);
     return 0;
   }
-  if (!["legality", "review", "ask"].includes(command)) {
+  if (!["legality", "review", "ask", "log"].includes(command)) {
     fail(`Unknown command "${command}".\n\n${USAGE}`);
   }
-  if (!deckPath) fail(`${command} needs a deck file.\n\n${USAGE}`);
+  if (!deckPath) fail(`${command} needs an input file.\n\n${USAGE}`);
 
   let cards: Record<string, CardEntry> = {};
   const cardsFlag = rest.indexOf("--cards");
@@ -82,6 +88,31 @@ function main(argv: string[]): number {
     const cardsPath = rest[cardsFlag + 1];
     if (!cardsPath) fail("--cards needs a path.");
     cards = readJson(cardsPath) as Record<string, CardEntry>;
+  }
+
+  if (command === "log") {
+    /**
+     * The second consumer of the log (D-047). The web app renders `read()`; without this
+     * EE could not see the record at all — and the record is the only place a
+     * *longitudinal* fact lives. "You lost to this once" is an anecdote a single deck read
+     * can produce; "five of your seven losses were cannot-hold" is not, and it is the more
+     * useful sentence by a distance.
+     *
+     * ⚠️ Takes matches rather than a deck, so it dispatches above the Deck parse below.
+     */
+    const matches = readJson(deckPath);
+    if (!Array.isArray(matches)) {
+      fail(`${deckPath} does not look like a match log (expected a JSON array).`);
+    }
+    // Names come from --cards when supplied; the engine never learns them itself (D-034).
+    const nameOf = (cardId: string) => {
+      const entry = cards[cardId];
+      return typeof entry === "string" ? entry : entry?.name;
+    };
+    process.stdout.write(
+      `${JSON.stringify(readLog(matches as MatchRecord[], nameOf), null, 2)}\n`,
+    );
+    return 0;
   }
 
   const deck = readJson(deckPath) as Deck;

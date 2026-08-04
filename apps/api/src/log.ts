@@ -12,6 +12,22 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { deckHash, validate, type MatchRecord } from "@forge/engine";
 import type { Deck } from "@forge/engine";
 
+/**
+ * Parse a stored JSON column without letting one bad row take the request with it.
+ *
+ * These columns are written by code in this repo, so malformed content should be
+ * impossible — but "should be impossible" is how a single corrupt row turns the entire
+ * match history into a 500 with no way to reach the other rows and fix it.
+ */
+const parseOr = <T>(raw: string | null, fallback: T): T => {
+  if (!raw) return fallback;
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return fallback;
+  }
+};
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body, null, 2), {
     status,
@@ -82,7 +98,7 @@ export async function readHistory(db: D1Database, deckId: string) {
       seq: row.seq,
       hash: row.hash,
       at: row.at,
-      contents: JSON.parse(row.contents) as unknown,
+      contents: parseOr<unknown>(row.contents, null),
     })),
   };
 }
@@ -114,9 +130,7 @@ const toRecord = (row: MatchRow): MatchRecord => ({
   result: row.result as MatchRecord["result"],
   games: row.games,
   // A row written by an older build may have no symptoms column value at all.
-  symptoms: (row.symptoms ? JSON.parse(row.symptoms) : []) as NonNullable<
-    MatchRecord["symptoms"]
-  >,
+  symptoms: parseOr<NonNullable<MatchRecord["symptoms"]>>(row.symptoms, []),
   notes: row.notes,
 });
 

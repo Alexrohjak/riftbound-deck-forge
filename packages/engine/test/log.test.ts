@@ -218,6 +218,28 @@ describe("rejecting a record before it is stored", () => {
     expect(validate(m({ id: "abc", playedAt: "2062-08-01" }), "2026-08-04")[0]).toContain("future");
   });
 
+  it("accepts a local date that is still 'tomorrow' in UTC", () => {
+    // The browser sends its LOCAL date; a server computes UTC. At UTC+8, 01:00 on the 5th
+    // is 17:00 on the 4th in UTC — and comparing against today rejected a real entry.
+    // The caller passes tomorrow-in-UTC, which is wide enough for any timezone.
+    expect(validate(m({ id: "abc", playedAt: "2026-08-05" }), "2026-08-05")).toEqual([]);
+    expect(validate(m({ id: "abc", playedAt: "2026-08-06" }), "2026-08-05")[0]).toContain(
+      "future",
+    );
+  });
+
+  it("reports a non-array symptoms field instead of throwing out of the endpoint", () => {
+    const bad = { ...m({ id: "abc" }), symptoms: { a: 1 } } as unknown as MatchRecord;
+    expect(() => validate(bad)).not.toThrow();
+    expect(validate(bad)[0]).toContain("array");
+  });
+
+  it("bounds free text, because every row lands in a backup committed to git", () => {
+    expect(validate(m({ id: "abc", notes: "x".repeat(2001) }))[0]).toContain("notes is longer");
+    expect(validate(m({ id: "abc", notes: "x".repeat(2000) }))).toEqual([]);
+    expect(validate(m({ id: "abc", opponentNote: "y".repeat(201) }))[0]).toContain("opponentNote");
+  });
+
   it("accepts a game score and rejects a mangled one", () => {
     expect(validate(m({ id: "abc", games: "2-1" }))).toEqual([]);
     expect(validate(m({ id: "abc", games: "two to one" }))[0]).toContain("2-1");

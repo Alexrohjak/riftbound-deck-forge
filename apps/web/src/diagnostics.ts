@@ -11,8 +11,15 @@
  * 1. **It never blocks and never throws.** Reporting is fire-and-forget, and every failure
  *    path here swallows. An error reporter that raises an error is how a page ends up in a
  *    loop that fills a database.
- * 2. **It never carries deck or card data.** That is already in D1; copying it into crash
- *    noise makes the noise big without making it informative.
+ * 2. **It carries no deck or card data of its own.** Context is the *location* of a fault,
+ *    never the state on screen — that is already in D1, and copying it into crash noise
+ *    makes the noise big without making it informative.
+ *
+ *    ⚠️ The honest limit: `message` is whatever the browser or a library put in an `Error`,
+ *    and this code cannot see inside it. A thrown message that happens to embed a card name
+ *    will be stored. Bounded and behind Access, so the exposure is a longer row rather than
+ *    a leak — but "never carries card data" would be a stronger claim than the code can
+ *    keep, so it is not made.
  * 3. **It is deduplicated and capped per session.** One broken render in a React tree fires
  *    on every frame, and 500 identical rows would push out everything else worth reading.
  *
