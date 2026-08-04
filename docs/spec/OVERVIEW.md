@@ -147,6 +147,7 @@ long before any of it ran, and conflating the two is how a plan starts lying to 
 | DRAFT/BUILT commitment model | `DATA-MODEL.md` | ✅ | 🟡 schema and `L27` exist; no UI yet |
 | Deck legality validation | `LEGALITY.md` | ✅ 33 checks | ✅ **all 33** — `W1`, with the 13 rulebook examples as tests |
 | Deck statistics + rune feasibility | `DECK-STATS.md` | ✅ | 🟡 the energy curve ships; the Tier‑2 probabilities do not |
+| **The log** — matches, deck history, diagnostics | [`LOG.md`](LOG.md) | ✅ | ✅ `W5` — a match names a build by content hash; rates withheld below sample |
 | **EE — the strategist** | `EVALUATION.md` | ✅ | 🟡 the rules core ships — shape, doctrine, feedback, archetype, all with a stated *why* and source. No surface in the app yet |
 | Interface / interaction design | [`design/`](../design/) | ✅ | 🟡 `D2` approved ([D-046](../DECISIONS.md#d-046)); the built gallery has since diverged |
 | Architecture + hosting | [`ARCHITECTURE.md`](../ARCHITECTURE.md) | ✅ | ✅ live on Cloudflare, £0/month verified |

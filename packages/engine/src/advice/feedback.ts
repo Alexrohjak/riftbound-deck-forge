@@ -99,6 +99,26 @@ const DIAGNOSES: Record<Symptom, Omit<Diagnosis, "symptom" | "evidence">> = {
   },
 };
 
+/**
+ * The taxonomy, in the order a form should offer it — roughly early game to late.
+ *
+ * ⚠️ **Single-sourced deliberately.** `log/match.ts` validates recorded symptoms against
+ * this, and the deck-log form renders from it. A second copy is how a symptom gets added
+ * here and silently rejected by validation there.
+ */
+export const SYMPTOMS = [
+  "run-over-early",
+  "cannot-hold",
+  "cannot-remove",
+  "threats-die",
+  "clunky-draws",
+  "out-of-gas",
+  "too-slow",
+] as const satisfies readonly Symptom[];
+
+/** What a symptom means, for a caller that has no deck to diagnose against. */
+export const symptomReading = (symptom: Symptom): string => DIAGNOSES[symptom].reading;
+
 /** Words that point at a symptom. **Not** language understanding — a convenience. */
 const HINTS: Array<[Symptom, RegExp]> = [
   ["run-over-early", /\b(early|turn one|turn 1|turn two|fast start|rushed|aggro)\b/i],

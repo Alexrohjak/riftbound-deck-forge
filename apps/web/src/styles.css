@@ -900,3 +900,95 @@ body.resizing * { pointer-events: none; }
   color: var(--dim); font-size: 0.8rem;
 }
 .rail strong { color: var(--ink); font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* ── the log ──────────────────────────────────────────────────────────────────
+   The record lives beside the deck rather than on a page of its own: what you played is
+   only interesting next to what you are holding. */
+.panel.log h2, .panel h2:has(> .ghost) {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s3);
+}
+
+.standing {
+  display: flex; align-items: baseline; gap: var(--s3);
+  margin-bottom: var(--s3);
+}
+.record { display: inline-flex; align-items: baseline; gap: var(--s2); }
+.record b {
+  font-family: var(--mono); font-size: var(--step-1); font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+/* A withheld rate is stated, not blanked — the reason is the point (LOG §2). */
+.record em {
+  font-style: normal; font-size: var(--step--1); color: var(--faint);
+  border-bottom: 1px dotted var(--line-strong); cursor: help;
+}
+.record strong { font-family: var(--mono); color: var(--accent); }
+
+.notes { margin: 0 0 var(--s3); padding: 0; list-style: none; display: grid; gap: var(--s2); }
+.notes li {
+  padding-left: var(--s3); border-left: 2px solid var(--accent);
+  font-size: 0.82rem; line-height: 1.5; color: var(--dim);
+}
+
+.matchups { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.matchups th {
+  text-align: left; font-weight: 500; color: var(--dim);
+  padding: var(--s1) 0; border-top: 1px solid var(--line);
+}
+.matchups td { text-align: right; padding: var(--s1) 0; border-top: 1px solid var(--line); }
+
+.timeline { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+.timeline li {
+  display: flex; align-items: baseline; gap: var(--s3);
+  padding: var(--s1) var(--s2); border-radius: var(--radius-sm);
+  font-size: 0.78rem; color: var(--dim);
+}
+.timeline li:nth-child(odd) { background: var(--sunk); }
+.timeline code { font-family: var(--mono); color: var(--ink); }
+.timeline span:nth-of-type(1) { font-variant-numeric: tabular-nums; }
+.timeline .dim { margin-left: auto; }
+.timeline em {
+  font-style: normal; padding: 0 var(--s2); border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent); font-size: 0.7rem;
+}
+
+/* ── the log-a-match sheet ──────────────────────────────────────────────────── */
+.scrim {
+  position: fixed; inset: 0; z-index: 40;
+  display: grid; place-items: center; padding: var(--s4);
+  background: rgba(10, 9, 8, 0.55); backdrop-filter: blur(3px);
+}
+.sheet {
+  width: min(30rem, 100%); max-height: 90vh; overflow-y: auto;
+  display: grid; gap: var(--s3);
+  padding: var(--s5); border-radius: var(--radius);
+  background: var(--panel); border: 1px solid var(--line);
+  box-shadow: var(--shadow-lift);
+}
+.sheet h3 { margin: 0; font-size: var(--step-1); letter-spacing: var(--track-tight); }
+.sheet label { display: grid; gap: var(--s1); font-size: 0.76rem; color: var(--dim); }
+.sheet input, .sheet select, .sheet textarea {
+  padding: var(--s2) var(--s3); border-radius: var(--radius-sm);
+  background: var(--sunk); color: var(--ink); border: 1px solid var(--line);
+  font: inherit; font-size: 16px; /* smaller makes iOS zoom the page on focus */
+}
+.sheet textarea { resize: vertical; font-size: 0.85rem; }
+.sheet .row { display: flex; gap: var(--s3); }
+.sheet .row > label { flex: 1; }
+.sheet .row.end { justify-content: flex-end; margin-top: var(--s2); }
+.sheet .results .chip { flex: 1; padding: var(--s2); }
+/* Won/lost/drew are the one place a result colour is unambiguous — no card is involved. */
+.sheet .chip.on.win { background: var(--calm); color: #fff; border-color: transparent; }
+.sheet .chip.on.loss { background: var(--alert); color: #fff; border-color: transparent; }
+.sheet .chip.on.draw { background: var(--line-strong); color: var(--ink); border-color: transparent; }
+.symptoms {
+  display: flex; flex-wrap: wrap; gap: var(--s2);
+  margin: 0; padding: var(--s3); border: 1px solid var(--line); border-radius: var(--radius-sm);
+}
+.symptoms legend { padding: 0 var(--s2); font-size: 0.72rem; color: var(--dim); }
+.primary {
+  padding: var(--s2) var(--s5); border-radius: var(--radius-sm); cursor: pointer;
+  background: var(--accent); color: var(--accent-ink); border: none;
+  font: inherit; font-size: 0.82rem; font-weight: 600;
+}
+.primary:disabled { opacity: 0.6; cursor: progress; }

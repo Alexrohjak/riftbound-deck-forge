@@ -63,6 +63,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-052](#d-052) | **Domain colours come from the rulebook** — corrects four of six in the locked D2 palette; amends D-046 | ✅ |
 | [D-053](#d-053) | **The chrome gets one accent** — brass for interface state only; colour still means domain on cards; amends D-046 | ✅ |
 | [D-054](#d-054) | **The collection is a filter, not a second gallery** — one gallery, an Owned toggle over it | ✅ |
+| [D-055](#d-055) | **A match names a build, not a deck** — and the record withholds any rate it has not earned | ✅ W5 |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -1978,3 +1979,83 @@ one commit earlier would have needed doing twice.
 | A separate `/collection` route | Forks the gallery and everything that will ever be added to it; loses search and filters or duplicates them |
 | An "owned" chip inside the Filters panel | Correct in structure, wrong in prominence. This is the answer to *"show me my cards"* — a question asked constantly, not a refinement |
 | Dim unowned cards instead of hiding them | Considered and worth revisiting for deckbuilding, where knowing a card exists is useful. It is a different feature from *browsing the collection*, which is what was asked for |
+
+
+---
+
+<a id="d-055"></a>
+
+## D-055 — A match names a build, not a deck; and the record withholds what it has not earned
+
+**Date:** 2026-08-04
+**Status:** Accepted · `W5`
+
+### The thing that makes a log worth keeping
+
+A match record that references a **deck id** is nearly worthless. The deck mutates: forty
+edits later, *"4-1 with Ahri"* does not say which Ahri, and the entire reason to keep a
+record is to find out which build was the good one.
+
+So a match names a **content hash of the card list**, and the mechanism that supplies it is
+the same one that supplies deck history. One feature, three answers:
+
+| Question | Answered by |
+|---|---|
+| What did this deck look like on the 4th? | The timeline |
+| Which version went 4-1? | The match's hash, joined to it |
+| Have I tried exactly this list before? | A hash lookup — free, and the interesting one |
+
+A history row is written **only when the hash differs from the previous row**. Autosave fires
+constantly and ten thousand identical rows is not history.
+
+### A match outlives its deck
+
+`matches.deck_id` carries **no foreign key**, and the deck's name is copied onto the row.
+Delete a deck and the games you played with it are still games you played; a cascade would
+destroy the most irreplaceable data in the system to preserve referential tidiness.
+
+The denormalised name is not a [DATA-MODEL §2](spec/DATA-MODEL.md) violation. That rule
+forbids copying **Riot's** card data, which goes stale on the next set. A deck name is the
+user's own, and the name it had when it was played is the historically correct answer —
+refreshing it would be the bug.
+
+### ⚠️ The thresholds are the feature
+
+Counting wins is trivial. **Refusing to turn four games into a percentage is the part worth
+building**, because a win rate is the most inviting way there is to launder a small sample
+into something that looks like knowledge ([D-016](#d-016), [D-022](#d-022)).
+
+- Below **10 matches**, no rate is reported at all. The record is shown; the percentage is
+  withheld *with its reason attached*, so the interface can say why rather than show a blank
+- A per-matchup rate needs **5 games** against that Legend
+- **Draws stay out of the denominator** rather than counting as half. Half a win is a
+  convention, not a fact, and inventing one would put a made-up number in a record
+- A pattern in losses needs **4 losses, 3 occurrences, and a third of them**. Below that it
+  was a bad night
+
+### Three tables, not one with a `kind` column
+
+| | Written by | Retained | Backed up |
+|---|---|---|---|
+| Matches | You | Forever | ✅ irreplaceable |
+| Deck history | The app, on change | Forever | ✅ makes matches mean anything |
+| Diagnostics | The app, on failure | Newest 500 | ❌ expendable by design |
+
+One table would have to take the strictest rule of each: permanent retention for crash noise,
+or expiry for match records. Both are wrong.
+
+Diagnostics are scoped to the **browser** specifically. Cloudflare already logs the Worker;
+what it cannot see is the client, which is where every interface bug in this project has
+lived — a CSS specificity trap, an invalid `sizes` attribute, a grid collapsing to two
+pixels. The endpoint always returns 200, because its caller is an error handler and an error
+handler that gets an error back is how a page ends up in a loop.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Reference the deck id and accept the drift | Makes the log unable to answer the one question it exists for |
+| Store versions in a deduplicated content store | A join on every read to save a kilobyte. The hash already gives the dedupe *query*, which is the part with value |
+| Show a win rate from any sample, with a caveat | Caveats are not read; numbers are. Withholding it is the only version of this that works |
+| Count a draw as half a win | Standard in some formats, but it is a convention rather than a fact, and this project does not invent numbers |
+| Log to Workers Logs only | Cannot see the browser, which is where the bugs are |

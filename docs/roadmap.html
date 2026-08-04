@@ -234,7 +234,7 @@
     <span class="sub">Roadmap — a personal deckbuilding workbench for Riftbound</span>
   </div>
   <div class="meta mono">
-    <span>Version 1.2</span><span>Updated 2026-08-03</span><span>16 milestones</span><span>5 tracks</span>
+    <span>Version 1.2</span><span>Updated 2026-08-04</span><span>17 milestones</span><span>5 tracks</span>
   </div>
 
   <!-- STATUS BOARD -->
@@ -242,7 +242,7 @@
     <div class="board-head"><span class="dot"></span><h2>Status board — you are here</h2></div>
     <dl class="rows">
       <div class="row"><dt>Track</dt><dd><strong>F — Foundation</strong></dd></div>
-      <div class="row"><dt>Progress</dt><dd><strong class="mono">7 of 16</strong> milestones · <span class="mono">D1</span>–<span class="mono">D3</span>, <span class="mono">F1</span>–<span class="mono">F3</span>, <span class="mono">W1</span> complete</dd></div>
+      <div class="row"><dt>Progress</dt><dd><strong class="mono">8 of 17</strong> milestones · <span class="mono">D1</span>–<span class="mono">D3</span>, <span class="mono">F1</span>–<span class="mono">F3</span>, <span class="mono">W1</span>, <span class="mono">W5</span> complete</dd></div>
       <div class="row"><dt>Next</dt><dd><strong><span class="mono">W2</span> — enter the real collection.</strong> The rules are complete; what is missing is your cards.</dd></div>
       <div class="row"><dt>Active</dt><dd>Nothing in flight — <strong>F2 is live and wants using.</strong> Build a deck on your phone and report what feels wrong.</dd></div>
       <div class="row"><dt>Blocked</dt><dd>Nothing. <strong>X8 closed</strong> (D-051) — a nightly cron commits a snapshot to this repo, off Cloudflare. Live and proven in production.</dd></div>
@@ -310,6 +310,7 @@
       <div class="ms"><span class="code">W2</span><div class="body"><h4>Collection entry</h4><p>You have entered the real collection; 20 random names spot-check correct against the boxes.</p><span class="dep">depends on F3</span></div><span class="pill todo">Todo</span></div>
       <div class="ms"><span class="code">W3</span><div class="body"><h4>Deck builder</h4><p>A complete legal deck can be built end-to-end on desktop <em>and</em> phone.</p><span class="dep">depends on W1, W2</span></div><span class="pill todo">Todo</span></div>
       <div class="ms"><span class="code">W4</span><div class="body"><h4>Deck statistics</h4><p>Tier 1 facts and Tier 2 probabilities render with correct visual separation, under 2 s.</p><span class="dep">depends on W3</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">W5</span><div class="body"><h4>The log</h4><p>Matches, deck history and client diagnostics. A match logs in under a minute, and the record refuses to state a win rate it has not earned.</p><span class="dep">depends on F2</span></div><span class="pill done">Done</span></div>
     </div>
     <div class="callout"><strong>W1 is the highest correctness risk in the project.</strong> Everything downstream trusts it — and two rules (<span class="mono">Signature</span>, <span class="mono">Unique</span>) were found only by reading the PDF directly. There are probably more.</div>
     <div class="callout"><strong>W2 is the biggest practical risk.</strong> It's an evening of typing that everything else depends on. From there Forge runs on real data, not fixtures.</div>

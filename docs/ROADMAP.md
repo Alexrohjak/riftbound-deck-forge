@@ -22,21 +22,21 @@
 | | |
 |---|---|
 | **Track** | **F — Foundation** |
-| **Progress** | **7 of 16** milestones · `D1`–`D3`, `F1`–`F3`, `W1` complete |
+| **Progress** | **8 of 17** milestones · `D1`–`D3`, `F1`–`F3`, `W1`, `W5` complete |
 | **🎯 Next** | **`W2` — enter the real collection.** The one that makes Forge yours: the rules are now complete, so what is missing is your cards |
 | **Active** | Nothing in flight — **the full pool is live and wants using.** Build a deck on your phone and report what feels wrong |
 | **Blocked** | Nothing. ✅ **X8 closed** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. **Live and proven in production** |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
-| **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve) · `apps/web` (935 cards, search, alternate arts) · `apps/cli` · `apps/api` (deck + collection + nightly backup) · CI · **72 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
+| **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve) · `apps/web` (935 cards, search, alternate arts) · `apps/cli` · `apps/api` (deck + collection + the log + nightly backup) · CI · **145 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
 
 ```
 D ─ Design         ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
 F ─ Foundation     ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
-W ─ Workbench      ▓▓▓░░░░░░░░░  1/4   ← you are here
+W ─ Workbench      ▓▓▓▓▓░░░░░░░  2/5   ← you are here
 S ─ Strategist     ░░░░░░░░░░░░  0/5
 L ─ Later          ░░░░░░░░░░░░  0/1
                                  ────
-                                 7/16
+                                 8/17
 ```
 
 > **The count is unchanged; the shape is not.** [D-043](DECISIONS.md#d-043) retired `S3` and
@@ -69,7 +69,7 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 | [`PLAN.md`](PLAN.md) | **The detail** — gates, "done when", how you validate, risks | Per-milestone |
 | [`spec/`](spec/) | **What we're building** — legality, EE, generation, data model | Deep reference |
 | [`reference/`](reference/) | **Riftbound itself** — rules, cards, Legends, battlefields | External facts |
-| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 54 decisions, append-only | Never rewritten |
+| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 55 decisions, append-only | Never rewritten |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | **How it's built** — stack, hosting, verified cost, what's ruled out | Changes rarely |
 
 **Milestone IDs are permanent handles.** Format `PREFIX-N` — the letter says *which track*,
@@ -145,6 +145,7 @@ new work appends the next free number and **nothing ever renumbers**.
 | `W2` | **Collection entry** | You have entered the real collection; 20 random names spot-check correct | ⬜ | `F3` |
 | `W3` | **Deck builder** | A complete legal deck can be built end-to-end on desktop **and** phone | ⬜ | `W1`, `W2` |
 | `W4` | **Deck statistics** | Tier 1 + Tier 2 render with correct visual separation, under 2 s | ⬜ | `W3` |
+| `W5` | **The log** | A match logs in under a minute; the record refuses to state a rate it has not earned | ✅ | `F2` |
 
 ⚠️ **`W1` is the highest correctness risk in the project.** Everything downstream trusts it,
 and two rules (`Signature`, `Unique`) were found only by reading the PDF directly — **there

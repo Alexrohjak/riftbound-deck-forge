@@ -42,6 +42,8 @@ export {
   diagnose,
   match,
   suggest,
+  symptomReading,
+  SYMPTOMS,
   type Candidate,
   type Diagnosis,
   type PoolCard,

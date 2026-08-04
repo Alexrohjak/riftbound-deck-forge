@@ -481,13 +481,29 @@ sleeve.
 
 ---
 
+### W5 — The log ✅ **COMPLETE 2026-08-04**
+
+**Size:** M · **Gate:** F2
+
+Three things that sound alike and are not: the **match log** (yours, irreplaceable), **deck
+history** (the app's, and what makes the match log mean anything), and **client diagnostics**
+(expendable). Specified in [`spec/LOG.md`](spec/LOG.md), decided in
+[D-055](DECISIONS.md#d-055).
+
+The load-bearing choice: a match names a **build** by the content hash of its card list, not
+a deck id, because the deck mutates under it. Deck history falls out of the same mechanism.
+
+**Done when:** a match logs in under a minute, and the record refuses to state a rate it has
+not earned. ✅ Both hold — thresholds at 10 matches overall and 5 per matchup, with the reason
+shown in place of the number.
+
 ## 7. L1 — Deferred features
 
 | Feature | Waiting on |
 |---|---|
 | Physical card location (Q6, [D-021](DECISIONS.md#d-021)) | The new organising box |
 | Pack-opening entry mode | Base entry already covers it |
-| Deck version comparison | Emerges from real use |
+| Deck version comparison | Still deferred, but **no longer blocked** — `W5` stores the versions; what a *useful* diff looks like is the open question |
 | Casual (non-tournament) legality mode | Wanted, not just possible |
 | Specific rival-deck modelling for EE | The threat-space model shipping first |
 | Limited (Sealed/Draft) support | A genuinely different validator — COMPENDIUM §II.9 |

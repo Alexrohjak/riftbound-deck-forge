@@ -1,4 +1,4 @@
-import type { Symptom } from "../advice/feedback.js";
+import { SYMPTOMS, type Symptom } from "../advice/feedback.js";
 
 /**
  * Games you actually played, and what the record is allowed to claim about them.
@@ -57,7 +57,11 @@ export interface Standing {
   withheld?: string;
 }
 
-const stand = (matches: readonly MatchRecord[], min: number, unit: string): Standing => {
+const stand = (
+  matches: readonly MatchRecord[],
+  min: number,
+  unit: [one: string, many: string],
+): Standing => {
   let wins = 0;
   let losses = 0;
   let draws = 0;
@@ -80,7 +84,7 @@ const stand = (matches: readonly MatchRecord[], min: number, unit: string): Stan
       withheld:
         decisive === 0
           ? "No decisive games yet."
-          : `${played} ${unit} is too few to read — a rate needs ${min}.`,
+          : `${played} ${played === 1 ? unit[0] : unit[1]} is too few to read — a rate needs ${min}.`,
     };
   }
   return { played, wins, losses, draws, rate: wins / decisive };
@@ -129,19 +133,36 @@ const pct = (n: number) => `${Math.round(n * 100)}%`;
 /** How many statements a reading is allowed to make. Three, and they must earn it. */
 const NOTE_BUDGET = 3;
 
-export function read(matches: readonly MatchRecord[]): LogReading {
-  const overall = stand(matches, MIN_FOR_RATE, "matches");
+/**
+ * Turn a `card_id` into something a person recognises.
+ *
+ * ⚠️ The engine does not know card names and must not start — card data is Riot's and is
+ * never authored here (D-034). The caller already holds the index, so it passes a resolver;
+ * without one the notes fall back to the id, which is ugly but never wrong.
+ */
+export type NameOf = (cardId: string) => string | undefined;
+
+const human = (symptom: Symptom) => symptom.replace(/-/g, " ");
+
+export function read(matches: readonly MatchRecord[], nameOf?: NameOf): LogReading {
+  const overall = stand(matches, MIN_FOR_RATE, ["match", "matches"]);
 
   const matchups: Matchup[] = [...groupBy(matches, (m) => m.opponentLegend ?? null)]
     .map(([legendCardId, ms]) => ({
       legendCardId,
-      standing: stand(ms, MIN_FOR_MATCHUP, "games"),
+      standing: stand(ms, MIN_FOR_MATCHUP, ["game", "games"]),
     }))
-    .sort((a, b) => b.standing.played - a.standing.played);
+    // Games where you did not note the Legend sort last however many there are: "opponent
+    // unknown" is a gap in the record, not the matchup you have tested most.
+    .sort(
+      (a, b) =>
+        Number(a.legendCardId === null) - Number(b.legendCardId === null) ||
+        b.standing.played - a.standing.played,
+    );
 
   const versions = [...groupBy(matches, (m) => m.deckHash ?? "")]
     .filter(([hash]) => hash !== "")
-    .map(([hash, ms]) => ({ hash, standing: stand(ms, MIN_FOR_MATCHUP, "games") }))
+    .map(([hash, ms]) => ({ hash, standing: stand(ms, MIN_FOR_MATCHUP, ["game", "games"]) }))
     .sort((a, b) => b.standing.played - a.standing.played);
 
   // ── patterns in losses ──────────────────────────────────────────────────────
@@ -165,7 +186,7 @@ export function read(matches: readonly MatchRecord[]): LogReading {
   const worst = recurring[0];
   if (worst) {
     notes.push(
-      `${worst.losses} of your ${lost.length} losses were "${worst.symptom}" — ${pct(worst.share)}. ` +
+      `${worst.losses} of your ${lost.length} losses were "${human(worst.symptom)}" — ${pct(worst.share)}. ` +
         `That is a build problem rather than variance, and one game could never have shown it.`,
     );
   }
@@ -190,32 +211,24 @@ export function read(matches: readonly MatchRecord[]): LogReading {
     .sort((a, b) => (a.standing.rate ?? 0) - (b.standing.rate ?? 0))[0];
   if (hardest && (hardest.standing.rate ?? 1) <= 0.34) {
     notes.push(
-      `${hardest.standing.wins}-${hardest.standing.losses} against ${hardest.legendCardId}. ` +
+      `${hardest.standing.wins}-${hardest.standing.losses} against ` +
+        `${nameOf?.(hardest.legendCardId!) ?? hardest.legendCardId}. ` +
         `A matchup this one-sided is usually answered in the sideboard, not the 40.`,
     );
   }
 
   if (notes.length === 0) {
+    // The withheld reason already states the count, so prefixing it with the count again
+    // reads like a stutter.
     notes.push(
       overall.played === 0
         ? "Nothing logged yet."
-        : `${overall.played} logged. ${overall.withheld ?? "Nothing stands out yet — keep playing."}`,
+        : (overall.withheld ?? "Nothing stands out yet — keep playing."),
     );
   }
 
   return { overall, matchups, versions, recurring, notes: notes.slice(0, NOTE_BUDGET) };
 }
-
-/** Symptom codes the engine knows. Kept in step with `advice/feedback.ts`. */
-const SYMPTOMS: readonly string[] = [
-  "run-over-early",
-  "cannot-hold",
-  "cannot-remove",
-  "clunky-draws",
-  "out-of-gas",
-  "too-slow",
-  "threats-die",
-];
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const GAMES = /^\d{1,2}-\d{1,2}$/;
@@ -245,7 +258,7 @@ export function validate(m: MatchRecord, today?: string): string[] {
     problems.push('games must look like "2-1".');
   }
   for (const s of m.symptoms ?? []) {
-    if (!SYMPTOMS.includes(s)) problems.push(`Unknown symptom "${s}".`);
+    if (!(SYMPTOMS as readonly string[]).includes(s)) problems.push(`Unknown symptom "${s}".`);
   }
   return problems;
 }

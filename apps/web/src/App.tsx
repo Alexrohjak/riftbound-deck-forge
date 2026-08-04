@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { checkLegality, energyCurve, zoneCount, type Zone } from "@forge/engine";
+import { checkLegality, deckHash, energyCurve, zoneCount, type Zone } from "@forge/engine";
 import { hd, loadPool, srcSet, zoneFor, type Card, type CardPool, type Printing } from "./cards.js";
 import { useDeck, type SaveState } from "./deckStore.js";
+import { History, LogPanel, useMatches } from "./Log.js";
 import { apply, DOMAIN_LIST, NO_FILTERS, ownedCount, SORTS, TYPES, type Filters, type Tab } from "./filters.js";
 import { filtersFor, runeSlots, stepFor, type Step } from "./buildFlow.js";
 import { Workshop, type Occupant, type Target } from "./Workshop.js";
@@ -190,6 +191,18 @@ export function App() {
   const filters = useMemo(
     () => (pool && guided ? filtersFor(step, deck, pool, base) : base),
     [pool, guided, step, deck, base],
+  );
+
+  const { matches, failed: logFailed, refresh: refreshLog } = useMatches(deck.id);
+  /**
+   * The build currently on screen, by the same pure function the Worker stores history
+   * with (D-047). Computed here rather than read back from the save response so a match
+   * logged mid-edit names what you are actually holding.
+   */
+  const currentHash = useMemo(() => deckHash(deck), [deck]);
+  const playedOn = useMemo(
+    () => new Set((matches ?? []).flatMap((m) => (m.deckHash ? [m.deckHash] : []))),
+    [matches],
   );
 
   const results = useMemo(
@@ -595,6 +608,18 @@ export function App() {
                 <h2>Energy curve</h2>
                 <EnergyCurve {...curve} />
               </section>
+
+              <LogPanel
+                deckId={deck.id}
+                deckName={deck.name}
+                deckHash={currentHash}
+                pool={pool}
+                matches={matches}
+                failed={logFailed}
+                onRefresh={refreshLog}
+              />
+
+              <History deckId={deck.id} playedOn={playedOn} />
               <p className="caveat">⚠️ {legality.coverage.caveat}</p>
             </Workshop>
           </aside>

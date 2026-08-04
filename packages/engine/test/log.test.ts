@@ -144,6 +144,12 @@ describe("reading the log", () => {
     expect(r.matchups.map((x) => x.legendCardId)).toContain(null);
   });
 
+  it("sorts unrecorded opponents last — a gap in the record is not a tested matchup", () => {
+    const r = read([...series(1, 1, { opponentLegend: "ogn-002-298" }), ...series(5, 0)]);
+    expect(r.matchups[0]?.legendCardId).toBe("ogn-002-298");
+    expect(r.matchups[r.matchups.length - 1]?.legendCardId).toBeNull();
+  });
+
   it("splits the record by build, so 'which version went 4-1' is answerable", () => {
     const r = read([
       ...series(4, 1, { deckHash: "aaaaaaaaaaaaaaaa" }),
@@ -165,6 +171,28 @@ describe("reading the log", () => {
       ...series(0, 5, { opponentLegend: "ogn-002-298" }),
     ];
     expect(read(noisy).notes.length).toBeLessThanOrEqual(3);
+  });
+
+  it("counts one match as a match — the plural read as broken in the panel", () => {
+    expect(read([m({ id: "a" })]).notes[0]).toContain("1 match is");
+    expect(read(series(1, 1)).notes[0]).toContain("2 matches is");
+  });
+
+  it("does not repeat the count either side of the reason", () => {
+    // "1 logged. 1 matches is too few…" — the reason already states the count.
+    expect(read([m({ id: "a" })]).notes[0]).toBe(read([m({ id: "a" })]).overall.withheld);
+  });
+
+  it("names the opponent through the caller's index rather than printing a card id", () => {
+    const matches = series(1, 5, { opponentLegend: "ogn-302-298" });
+    expect(read(matches).notes.join(" ")).toContain("ogn-302-298");
+    expect(read(matches, () => "Hand of Noxus").notes.join(" ")).toContain("Hand of Noxus");
+  });
+
+  it("writes a symptom as words, not as its code", () => {
+    const r = read(series(0, 5, { symptoms: ["cannot-hold"] }));
+    expect(r.notes[0]).toContain("cannot hold");
+    expect(r.notes[0]).not.toContain("cannot-hold");
   });
 
   it("says so plainly when there is nothing to say", () => {
