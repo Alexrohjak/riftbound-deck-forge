@@ -28,6 +28,20 @@ const OUT = join(ROOT, "apps/web/public/cards.json");
 const cards = JSON.parse(readFileSync(join(ROOT, "data/cards.json"), "utf8"));
 const banlist = JSON.parse(readFileSync(join(ROOT, "data/banlist.json"), "utf8"));
 
+/**
+ * Release order, per COMPENDIUM §"The five sets". This is the order the gallery sorts in,
+ * because it is the order the cards exist in the world — collector numbers only mean
+ * anything within a set, and alphabetical order means nothing to anyone.
+ *
+ * `OGS` is the Origins supplemental in Proving Grounds, so it sits directly behind `OGN`.
+ */
+const SET_ORDER = ["OGN", "OGS", "SFD", "UNL", "VEN"];
+const releaseRank = (card) => {
+  const set = SET_ORDER.indexOf(card.set);
+  if (set === -1) throw new Error(`Set "${card.set}" is not in SET_ORDER — add it, in release order.`);
+  return set * 100000 + card.collectorNumber;
+};
+
 // ── the ban list ─────────────────────────────────────────────────────────────
 // Matching goes through the alias map, never string equality: the official list does not
 // always use the printed name ("Dreaming Tree" is printed "The Dreaming Tree").
@@ -70,6 +84,8 @@ const entries = [...byName].map(([name, group]) => {
 
   const entry = {
     name,
+    // Where this card sits in the sequence of everything ever printed.
+    release: releaseRank(base),
     energy: base.energy,
     power: base.power,
     might: base.might,
@@ -94,7 +110,9 @@ const entries = [...byName].map(([name, group]) => {
   return entry;
 });
 
-entries.sort((a, b) => a.name.localeCompare(b.name));
+// Release order is the gallery's order, so the file ships in it — the app never re-sorts
+// 935 entries on load just to display them the way they are meant to be displayed.
+entries.sort((a, b) => a.release - b.release);
 
 // ── L32: the champion tag, derived from Signature cards ──────────────────────
 const signatureTags = new Set(

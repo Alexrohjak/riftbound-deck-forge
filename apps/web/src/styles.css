@@ -1,21 +1,24 @@
-/* F2 — crude on purpose, but usable one-handed on a phone. The locked D2 interface lands
-   with the real card pool; this is the version whose job is to be *used*, so the only
-   thing it optimises for is tap targets and a legality verdict you can see while you
-   scroll. */
+/* The workbench: a gallery of cards, and the deck beside it.
+   Wide screens get both at once — building a deck is a two-handed job, you look at the
+   pool and the list together. Narrow screens stack them, gallery first. */
 :root {
   --ground: #eef1f4;
   --surface: #fff;
+  --sunken: #e6eaef;
   --ink: #0f151c;
   --muted: #5c6874;
   --line: #dce2e8;
   --pass: #146334;
   --fail: #9a2c2c;
   --accent: #2a4b7c;
+  --tile: 9.5rem;
+  --pane: 22rem;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --ground: #0d1117;
     --surface: #151b22;
+    --sunken: #0a0e13;
     --ink: #e8eff6;
     --muted: #93a1af;
     --line: #232c35;
@@ -29,172 +32,177 @@ body {
   margin: 0;
   background: var(--ground);
   color: var(--ink);
-  font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
 }
-code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.9em; }
-
-main {
-  max-width: 40rem;
-  margin: 0 auto;
-  padding: 1rem 0.75rem calc(3rem + env(safe-area-inset-bottom));
-  display: grid;
-  gap: 0.75rem;
-}
-
-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
 h1 {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 1.5rem; margin: 0; letter-spacing: -0.02em;
+  font-size: 1.2rem; margin: 0; letter-spacing: -0.02em;
 }
-h2 { font-size: 0.95rem; margin: 0 0 0.6rem; display: flex; gap: 0.5rem; align-items: baseline; }
-.sub { color: var(--muted); margin: 0.15rem 0 0; font-size: 0.8rem; }
+h2 {
+  font-size: 0.8rem; margin: 0 0 0.5rem; display: flex; gap: 0.4rem; align-items: baseline;
+  text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted);
+}
 .of { color: var(--muted); font-weight: 400; }
+.empty, .fail { color: var(--muted); font-size: 0.85rem; margin: 0; }
+.fail { color: var(--fail); }
+.boot { max-width: 30rem; margin: 4rem auto; padding: 0 1rem; display: grid; gap: 0.75rem; }
 
-.save { font-size: 0.75rem; color: var(--muted); white-space: nowrap; padding-top: 0.4rem; }
+/* ── the two panes ─────────────────────────────────────────────────────────── */
+.workspace { display: grid; grid-template-columns: 1fr var(--pane); min-height: 100vh; }
+@media (max-width: 60rem) {
+  :root { --pane: auto; }
+  .workspace { grid-template-columns: 1fr; }
+}
+
+/* ── gallery ───────────────────────────────────────────────────────────────── */
+.gallery { min-width: 0; padding: 0 0 4rem; }
+.toolbar {
+  position: sticky; top: 0; z-index: 3;
+  display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+  padding: 0.6rem 0.9rem;
+  background: color-mix(in srgb, var(--ground) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.tabs { display: flex; gap: 0.2rem; flex-wrap: wrap; }
+.tab {
+  padding: 0.4rem 0.7rem; border-radius: 4px; cursor: pointer;
+  background: transparent; border: 1px solid transparent;
+  color: var(--muted); font-size: 0.8rem; white-space: nowrap;
+}
+.tab:hover { color: var(--ink); }
+.tab.on { background: var(--surface); border-color: var(--line); color: var(--ink); font-weight: 600; }
+.search {
+  flex: 1 1 12rem; min-width: 0;
+  padding: 0.45rem 0.6rem; border-radius: 4px;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--line);
+  font-size: 16px; /* anything smaller makes iOS zoom the page on focus */
+}
+.count { color: var(--muted); font-size: 0.75rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.grid {
+  display: grid; gap: 0.6rem; padding: 0.9rem;
+  grid-template-columns: repeat(auto-fill, minmax(var(--tile), 1fr));
+}
+@media (max-width: 30rem) { :root { --tile: 7rem; } }
+
+/* A tile is the card. Nothing is written on top of it that the card already says —
+   the aspect ratio is the real card's, so the grid never reflows as images arrive. */
+.tile { position: relative; aspect-ratio: 744 / 1039; }
+.face {
+  display: block; width: 100%; height: 100%; padding: 0; cursor: pointer;
+  background: var(--sunken); border: 0; border-radius: 6px; overflow: hidden;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.face:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 18px -6px rgba(0, 0, 0, 0.5); }
+.face:disabled { cursor: default; }
+/* Three copies is the limit, so a fourth click is not offered — dimming says why. */
+.face:disabled img { opacity: 0.45; }
+.tile.in .face { box-shadow: 0 0 0 2px var(--accent); }
+
+.qty {
+  position: absolute; top: -0.35rem; left: -0.35rem;
+  min-width: 1.5rem; height: 1.5rem; padding: 0 0.3rem;
+  display: grid; place-items: center;
+  background: var(--accent); color: var(--surface);
+  border-radius: 999px; font-size: 0.8rem; font-weight: 700;
+  font-variant-numeric: tabular-nums; pointer-events: none;
+}
+.less {
+  position: absolute; top: -0.35rem; right: -0.35rem;
+  width: 1.5rem; height: 1.5rem; display: grid; place-items: center;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 999px;
+  font-size: 1rem; line-height: 1; cursor: pointer; padding: 0;
+}
+.less:hover { border-color: var(--fail); color: var(--fail); }
+
+.flag {
+  position: absolute; bottom: 0.4rem; left: 50%; transform: translateX(-50%);
+  background: var(--fail); color: #fff;
+  font-size: 0.55rem; font-weight: 700; font-style: normal; letter-spacing: 0.1em;
+  padding: 0.1rem 0.35rem; border-radius: 2px; pointer-events: none;
+}
+
+.sentinel { padding: 1.5rem 0.9rem 3rem; text-align: center; color: var(--muted); font-size: 0.8rem; }
+
+/* ── deck pane ─────────────────────────────────────────────────────────────── */
+.deckpane {
+  background: var(--surface); border-left: 1px solid var(--line);
+  padding: 0.75rem 0.85rem calc(3rem + env(safe-area-inset-bottom));
+  display: grid; gap: 0.7rem; align-content: start;
+  position: sticky; top: 0; max-height: 100vh; overflow-y: auto;
+}
+@media (max-width: 60rem) {
+  .deckpane { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--line); }
+}
+.deckpane header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.save { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
 .save.saved { color: var(--pass); }
 .save.offline { color: var(--fail); font-weight: 600; }
 
-/* The scoreboard. Sticky, because the whole point is watching 40/12/3 fill up while your
-   thumb is somewhere down the card list. */
-.tally {
-  position: sticky; top: 0; z-index: 2;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
-  background: var(--line); border: 1px solid var(--line); border-radius: 4px;
-  overflow: hidden;
+.chosen { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+.pick {
+  display: grid; gap: 0.05rem; text-align: left; min-height: 3.2rem;
+  background: var(--ground); border: 1px solid var(--line); border-radius: 4px;
+  padding: 0.45rem 0.55rem; color: var(--ink); font: inherit;
 }
-.slot { background: var(--surface); padding: 0.5rem 0.4rem; text-align: center; }
-.slot b { display: block; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
-.slot span { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+button.pick { cursor: pointer; }
+button.pick:disabled { opacity: 0.5; cursor: default; }
+.pick .label { font-size: 0.58rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.09em; }
+.pick b { font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick small { color: var(--muted); font-size: 0.65rem; }
+
+.champions { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.25rem; max-height: 14rem; overflow-y: auto; }
+.champions button {
+  display: flex; align-items: center; gap: 0.5rem; width: 100%; cursor: pointer;
+  background: var(--ground); border: 1px solid var(--line); border-radius: 4px;
+  padding: 0.3rem; color: var(--ink); font-size: 0.78rem; text-align: left;
+}
+.champions img { width: 1.8rem; height: 1.8rem; object-fit: cover; object-position: 50% 20%; border-radius: 3px; }
+
+.tally {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  background: var(--line); border: 1px solid var(--line); border-radius: 4px; overflow: hidden;
+}
+.slot { background: var(--surface); padding: 0.4rem 0.3rem; text-align: center; }
+.slot b { display: block; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+.slot span { font-size: 0.55rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
 .slot.done b { color: var(--pass); }
 .verdict.pass b { color: var(--pass); }
 .verdict.fail b { color: var(--fail); }
 
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0.9rem; }
-
 .violations {
-  margin: 0; padding: 0.75rem 0.9rem 0.75rem 2rem;
-  background: var(--surface); border: 1px solid var(--line);
-  border-left: 3px solid var(--fail); border-radius: 4px;
-  color: var(--muted); font-size: 0.85rem;
+  margin: 0; padding: 0.5rem 0.6rem 0.5rem 1.6rem;
+  background: var(--ground); border-left: 3px solid var(--fail); border-radius: 4px;
+  color: var(--muted); font-size: 0.72rem;
 }
-.violations li + li { margin-top: 0.5rem; }
+.violations li + li { margin-top: 0.35rem; }
 .violations b { color: var(--fail); }
-.cite { font-family: ui-monospace, monospace; font-size: 0.8em; }
+.cite { font-family: ui-monospace, monospace; font-size: 0.9em; }
 
-/* Energy curve — bars, never a mean. */
-.curve { display: flex; align-items: flex-end; gap: 0.35rem; height: 7rem; }
+.panel { background: var(--ground); border: 1px solid var(--line); border-radius: 4px; padding: 0.6rem; }
+
+.curve { display: flex; align-items: flex-end; gap: 0.25rem; height: 5rem; }
 .bar { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; }
-.bar .count { font-size: 0.7rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar .count { font-size: 0.62rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .bar .stem { width: 100%; min-height: 2px; margin-top: auto; background: var(--accent); border-radius: 2px 2px 0 0; }
-.bar .tick { font-size: 0.7rem; color: var(--muted); padding-top: 0.2rem; }
-.empty { color: var(--muted); font-size: 0.85rem; margin: 0; }
+.bar .tick { font-size: 0.62rem; color: var(--muted); padding-top: 0.15rem; }
 
-/* The card list. One row, one thumb. */
-.pool { list-style: none; margin: 0; padding: 0; }
-.row {
-  display: grid; grid-template-columns: 2rem 1fr auto;
-  gap: 0.6rem; align-items: center;
-  padding: 0.4rem 0; border-top: 1px solid var(--line);
-}
-.row:first-child { border-top: 0; }
-.row.in { background: color-mix(in srgb, var(--accent) 7%, transparent); }
-.cost {
-  display: grid; place-items: center;
-  width: 2rem; height: 2rem; border-radius: 50%;
-  background: var(--ground); border: 1px solid var(--line);
-  font-size: 0.85rem; font-variant-numeric: tabular-nums;
-}
-.who { display: grid; min-width: 0; }
-.who b { font-weight: 600; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.who small { color: var(--muted); font-size: 0.72rem; display: flex; align-items: center; gap: 0.3rem; }
+.deckrows { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.15rem; }
+.deckrows li { display: grid; grid-template-columns: 1.2rem 1fr auto auto; gap: 0.4rem; align-items: center; font-size: 0.78rem; }
+.deckrows .n { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+.deckrows .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; gap: 0.3rem; align-items: center; }
+.deckrows .flag { position: static; transform: none; }
+.own { font-style: normal; font-size: 0.6rem; color: var(--muted); border: 1px solid var(--line); border-radius: 2px; padding: 0 0.2rem; }
+.deckrows .less { position: static; width: 1.3rem; height: 1.3rem; font-size: 0.85rem; }
 
-.domains { display: inline-flex; gap: 0.15rem; }
-.dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; display: inline-block; }
-.dot.fury { background: #d4453a; }
-.dot.calm { background: #3f8fbf; }
-.dot.mind { background: #9a6fd0; }
-.dot.body { background: #4f9a55; }
-.dot.chaos { background: #d07f2a; }
-.dot.order { background: #d9c04a; }
-.dot.colorless { background: var(--muted); }
-
-.stepper { display: flex; align-items: center; gap: 0.15rem; }
-.stepper b { min-width: 2.4rem; text-align: center; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
-.stepper button {
-  width: 2.5rem; height: 2.5rem;      /* a real tap target, not a decoration */
-  border: 1px solid var(--line); border-radius: 4px;
-  background: var(--ground); color: var(--ink);
-  font-size: 1.25rem; line-height: 1; cursor: pointer;
-  touch-action: manipulation;
-}
-.stepper button:disabled { opacity: 0.35; cursor: default; }
-.stepper button:active:not(:disabled) { background: var(--accent); color: var(--surface); }
-
-footer { color: var(--muted); font-size: 0.8rem; display: grid; gap: 0.5rem; }
-footer p { margin: 0; }
-.caveat { padding: 0.75rem; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; }
-.clear {
-  padding: 0.5rem 0.9rem; border: 1px solid var(--line); border-radius: 4px;
-  background: var(--surface); color: var(--muted); cursor: pointer; font-size: 0.8rem;
-}
-
-/* ── F3: the whole pool ──────────────────────────────────────────────────────
-   935 cards means the list is no longer the interface — the search box is. Card
-   images earn their place here in a way they did not at F2: at 30 cards you read
-   names, at 935 you recognise art. */
-
-.chosen { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-.pick {
-  display: grid; gap: 0.1rem; text-align: left;
-  background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
-  padding: 0.6rem 0.7rem; color: var(--ink); cursor: pointer; min-height: 3.6rem;
-}
-.pick:disabled { opacity: 0.5; cursor: default; }
-.pick .label { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-.pick b { font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pick small { color: var(--muted); font-size: 0.7rem; display: flex; align-items: center; gap: 0.3rem; }
-
-.picker h2 { justify-content: space-between; }
-.close {
-  background: none; border: 1px solid var(--line); border-radius: 4px;
-  color: var(--muted); font-size: 0.7rem; padding: 0.2rem 0.5rem; cursor: pointer;
-}
-.picker .pool { max-height: 24rem; overflow-y: auto; }
-.picker .row button {
-  background: var(--ground); border: 1px solid var(--line); border-radius: 4px;
-  color: var(--ink); padding: 0.5rem 0.75rem; font-size: 0.75rem; cursor: pointer;
-}
-
-.search {
-  width: 100%; padding: 0.7rem 0.75rem; margin-bottom: 0.5rem;
-  background: var(--ground); color: var(--ink);
-  border: 1px solid var(--line); border-radius: 4px; font-size: 16px; /* 16px stops iOS zooming on focus */
-}
-.search::placeholder { color: var(--muted); }
-
-/* The card thumbnail replaces F2's cost circle: at this scale the art is the fastest
-   identifier, and the cost is in the line beneath it anyway. */
-.thumb {
-  width: 2.6rem; height: 2.6rem; object-fit: cover; object-position: 50% 22%;
-  border-radius: 3px; background: var(--ground); border: 1px solid var(--line);
-}
-
-.banned {
-  font-style: normal; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em;
-  background: var(--fail); color: var(--surface);
-  padding: 0.05rem 0.3rem; border-radius: 2px; vertical-align: 0.1em;
-}
-
-/* Alternate arts, stacked behind the card they belong to. */
-.arts { display: flex; gap: 0.2rem; margin-top: 0.25rem; }
-.art {
-  width: 1.6rem; height: 1.6rem; padding: 0; overflow: hidden; cursor: pointer;
-  border: 1px solid var(--line); border-radius: 3px; background: var(--ground);
-}
-.art img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; display: block; }
+.arts { display: flex; gap: 0.15rem; }
+.art { width: 1.2rem; height: 1.2rem; padding: 0; overflow: hidden; cursor: pointer; border: 1px solid var(--line); border-radius: 2px; background: var(--ground); }
+.art img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; display: block; }
 .art.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 
-.row { grid-template-columns: 2.6rem 1fr auto; }
-.stepper b { min-width: 1.6rem; }
+.caveat { color: var(--muted); font-size: 0.68rem; margin: 0; padding-top: 0.5rem; border-top: 1px solid var(--line); }
