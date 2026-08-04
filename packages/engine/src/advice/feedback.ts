@@ -174,6 +174,16 @@ export interface Candidate {
   cardId: string;
   name: string;
   why: string;
+  /**
+   * ⚠️ Copies you actually hold, summed across printings of the name.
+   *
+   * `0` means *you would have to acquire this*. Forge exists to answer **what can I build
+   * from what I own** (D-015), so a suggestion you cannot sleeve tonight is a different kind
+   * of answer and must not look like the same kind. It is still offered — hiding good advice
+   * because of a gap in a box would be its own dishonesty — but it is offered *labelled*,
+   * and it never outranks a card already in your hands.
+   */
+  owned: number;
 }
 
 export interface PoolCard {
@@ -195,10 +205,24 @@ export function suggest(
   diagnosis: Diagnosis,
   pool: readonly PoolCard[],
   limit = 5,
+  /**
+   * What you own, keyed on printing (DATA-MODEL §2). Optional: without it every candidate
+   * reports `owned: 0`, which is honest — *unknown* and *none* are the same instruction to
+   * the reader here, namely "check your boxes".
+   */
+  collection: Readonly<Record<string, number>> = {},
 ): Candidate[] {
   const identity = cards.domainsOf?.(deck.legendCardId);
   const held = new Map<string, number>();
   for (const e of countedEntries(deck, cards)) held.set(e.name, (held.get(e.name) ?? 0) + e.quantity);
+
+  // Copies per NAME, because three copies across three arts is three cards you own — the
+  // same collapse L26 makes.
+  const ownedByName = new Map<string, number>();
+  for (const [cardId, n] of Object.entries(collection)) {
+    const name = cards.nameOf(cardId);
+    if (name) ownedByName.set(name, (ownedByName.get(name) ?? 0) + n);
+  }
 
   const seen = new Set<string>();
   const scored: Array<{ c: Candidate; score: number }> = [];
@@ -225,12 +249,18 @@ export function suggest(
       score += 1;
     }
 
+    const owned = ownedByName.get(facts.name) ?? 0;
+    // Owning it is worth more than any tag match, so a card in your box always outranks a
+    // theoretically better one you would have to go and buy.
+    if (owned > 0) score += 10;
+
     seen.add(facts.name);
     scored.push({
       c: {
         cardId,
         name: facts.name,
         why: `${matches.join(" and ")}${typeof energy === "number" ? ` at ${energy} Energy` : ""}`,
+        owned,
       },
       score,
     });

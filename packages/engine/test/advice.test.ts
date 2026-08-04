@@ -275,3 +275,64 @@ describe("archetype, and admitting when it cannot tell", () => {
     expect(read.evidence.join(" ")).toMatch(/units/);
   });
 });
+
+
+/**
+ * ⚠️ Forge answers *what can I build from what I own*. A suggestion you cannot sleeve
+ * tonight is a different kind of answer, and must never outrank one you can.
+ */
+describe("suggestions know what is in your boxes", () => {
+  it("puts a card you own above a card you would have to buy", () => {
+    const facts = {
+      "own-1": { name: "Owned Trick", types: ["spell"], domains: ["fury"], energy: 2, produces: ["pump"] },
+      "buy-1": { name: "Better Trick", types: ["spell"], domains: ["fury"], energy: 2, produces: ["pump", "ready"] },
+    };
+    const index = staticCardIndex(facts);
+    const pool = Object.entries(facts).map(([cardId, f]) => ({ cardId, facts: f }));
+    const deck = {
+      id: "d", name: "t", state: "DRAFT" as const,
+      legendCardId: "", chosenChampionCardId: "", slots: [],
+    };
+    const d = diagnose(deck, index, "cannot-hold");
+
+    // Without a collection, the better tag match wins on merit.
+    expect(suggest(deck, index, d, pool, 5)[0]?.name).toBe("Better Trick");
+
+    // With one, the card in your hands wins — and both say which is which.
+    const withBoxes = suggest(deck, index, d, pool, 5, { "own-1": 2 });
+    expect(withBoxes[0]?.name).toBe("Owned Trick");
+    expect(withBoxes[0]?.owned).toBe(2);
+    expect(withBoxes[1]?.owned).toBe(0);
+  });
+
+  it("counts copies across arts, as ownership does everywhere else", () => {
+    const facts = {
+      "art-a": { name: "Split Trick", types: ["spell"], domains: ["fury"], energy: 2, produces: ["pump"] },
+      "art-b": { name: "Split Trick", types: ["spell"], domains: ["fury"], energy: 2, produces: ["pump"] },
+    };
+    const index = staticCardIndex(facts);
+    const pool = Object.entries(facts).map(([cardId, f]) => ({ cardId, facts: f }));
+    const deck = {
+      id: "d", name: "t", state: "DRAFT" as const,
+      legendCardId: "", chosenChampionCardId: "", slots: [],
+    };
+    const d = diagnose(deck, index, "cannot-hold");
+    expect(suggest(deck, index, d, pool, 5, { "art-a": 1, "art-b": 2 })[0]?.owned).toBe(3);
+  });
+
+  it("still offers what you do not own — hiding good advice is its own dishonesty", () => {
+    const facts = {
+      "buy-1": { name: "Unowned Trick", types: ["spell"], domains: ["fury"], energy: 2, produces: ["pump"] },
+    };
+    const index = staticCardIndex(facts);
+    const pool = Object.entries(facts).map(([cardId, f]) => ({ cardId, facts: f }));
+    const deck = {
+      id: "d", name: "t", state: "DRAFT" as const,
+      legendCardId: "", chosenChampionCardId: "", slots: [],
+    };
+    const d = diagnose(deck, index, "cannot-hold");
+    const out = suggest(deck, index, d, pool, 5, {});
+    expect(out).toHaveLength(1);
+    expect(out[0]?.owned).toBe(0);
+  });
+});

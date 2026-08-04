@@ -1170,3 +1170,13 @@ body.resizing * { pointer-events: none; }
 .held b { font-family: var(--mono); }
 .held span { color: var(--dim); flex: 1; }
 .held .primary { padding: var(--s1) var(--s3); font-size: 0.76rem; }
+
+/* Owned candidates read as advice; unowned read as a shopping list. Never the same. */
+.candidates li { display: flex; align-items: baseline; gap: var(--s2); flex-wrap: wrap; }
+.candidates li em {
+  font-style: normal; margin-left: auto; font-size: 0.68rem;
+  padding: 0 var(--s2); border-radius: 999px; white-space: nowrap;
+}
+.candidates li.have em { background: color-mix(in srgb, var(--calm) 18%, transparent); color: var(--calm); }
+.candidates li.havent { opacity: 0.72; }
+.candidates li.havent em { border: 1px dashed var(--line-strong); color: var(--faint); }

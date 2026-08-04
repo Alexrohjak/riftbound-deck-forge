@@ -701,7 +701,7 @@ export function App() {
                     <h2>Energy curve</h2>
                     <EnergyCurve {...curve} />
                   </section>
-                  <Advisor deck={deck} pool={pool} />
+                  <Advisor deck={deck} pool={pool} owned={owned} />
                 </>
               )}
 

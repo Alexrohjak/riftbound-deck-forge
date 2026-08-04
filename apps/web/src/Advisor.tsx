@@ -82,7 +82,16 @@ function Claim({ note }: { note: Note }) {
   );
 }
 
-export function Advisor({ deck, pool }: { deck: Deck; pool: CardPool }) {
+export function Advisor({
+  deck,
+  pool,
+  owned,
+}: {
+  deck: Deck;
+  pool: CardPool;
+  /** What you hold, keyed on printing — so EE leads with cards you can sleeve tonight. */
+  owned: Readonly<Record<string, number>>;
+}) {
   const [note, setNote] = useState("");
   const [symptom, setSymptom] = useState<Symptom | null>(null);
 
@@ -100,8 +109,8 @@ export function Advisor({ deck, pool }: { deck: Deck; pool: CardPool }) {
   const answer = useMemo(() => {
     if (!symptom) return null;
     const d = diagnose(deck, pool.index, symptom);
-    return { d, candidates: suggest(deck, pool.index, d, pool.pool, 5) };
-  }, [symptom, deck, pool]);
+    return { d, candidates: suggest(deck, pool.index, d, pool.pool, 6, owned) };
+  }, [symptom, deck, pool, owned]);
 
   const nameOf = (cardId: string) => pool.byPrinting.get(cardId)?.name ?? cardId;
 
@@ -176,9 +185,12 @@ export function Advisor({ deck, pool }: { deck: Deck; pool: CardPool }) {
               {answer.candidates.length > 0 && (
                 <ul className="candidates">
                   {answer.candidates.map((c) => (
-                    <li key={c.cardId}>
+                    <li key={c.cardId} className={c.owned > 0 ? "have" : "havent"}>
                       <b>{nameOf(c.cardId)}</b>
                       <span className="dim"> — {c.why}</span>
+                      {/* The difference between advice you can act on tonight and a
+                          shopping list. Never the same typography. */}
+                      <em>{c.owned > 0 ? `you have ${c.owned}` : "not in your boxes"}</em>
                     </li>
                   ))}
                 </ul>
