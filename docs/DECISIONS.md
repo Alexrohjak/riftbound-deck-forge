@@ -60,6 +60,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-049](#d-049) | **Editing requires connectivity; offline is read-only** — corrects D-018 | ✅ |
 | [D-050](#d-050) | **App ships as static assets on the Worker** — Pages is closed to new projects; amends D-048 | ✅ X7 |
 | [D-051](#d-051) | **Backups leave Cloudflare** — nightly cron commits a JSON snapshot to the repo, not R2 | ✅ X8 |
+| [D-052](#d-052) | **Domain colours come from the rulebook** — corrects four of six in the locked D2 palette; amends D-046 | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -1820,3 +1821,63 @@ be; it is Riot's, cached in `data/`, and regenerable ([D-034](#d-034)).
 | A manual export when the collection changes | X8's own alternative. Depends on remembering, and gets skipped exactly when things are busy |
 | Commit to `main` | Redeploys the Worker nightly via watch paths, and buries the code history under backup commits |
 | A dated file per night | Thousands of near-identical blobs, and no diff. Git already stores history better than a filename convention does |
+
+<a id="d-052"></a>
+
+## D-052 — Domain colours come from the rulebook, correcting the locked `D2` palette ⚠️ AMENDS D-046
+
+**Date:** 2026-08-04
+**Status:** Accepted — corrects a factual error in the [`D2` prototype](design/D2-workbench-prototype.html)
+
+### What was wrong
+
+`D2`'s thesis is that **the interface is greyscale so that colour always means domain**
+([D-046](#d-046)). It is a good thesis and it is now implemented. But the prototype's six
+domain colours were **four-sixths wrong**, and the first build inherited the same error:
+
+| Domain | Rulebook | `D2` prototype | First build |
+|---|---|---|---|
+| Fury | red | ✅ red | ✅ red |
+| **Calm** | **green** | ❌ blue | ❌ blue |
+| **Mind** | **blue** | ❌ purple | ❌ purple |
+| **Body** | **orange** | ❌ green | ❌ green |
+| **Chaos** | **purple** | ❌ magenta | ❌ orange |
+| Order | yellow | ✅ amber | ✅ yellow |
+
+**Decided:** the domain colours are Riot's, taken from
+[COMPENDIUM §1](reference/COMPENDIUM.md) — Fury red, Calm green, Mind blue, Body orange,
+Chaos purple, Order yellow — and the interface follows the game rather than the prototype.
+
+### Why this is worth a decision rather than a quiet fix
+
+Because it is the **one thing `D2` says colour is for**. A design whose central claim is
+"colour always means domain" and which then shows Calm as blue is not merely inconsistent —
+it is misinformation dressed as decoration, and the more faithfully the rest of the thesis
+is implemented the more confidently it misleads.
+
+**The mapping is confirmed three times over.** Riot's own Primer states it; the COMPENDIUM's
+domain-identity table restates it with each domain's strategic role; and all three community
+deckbuilding videos supplied on 2026-08-04 describe the same associations independently —
+green for counterspells and fortification, blue for card draw and utility, orange for big
+stats and ramp, purple for bounce and trash tricks, yellow for tokens and sacrifice. Three
+independent sources agreeing is as close to certain as this project gets.
+
+**What is kept from `D2`.** Everything else, and it is most of the design: greyscale chrome,
+legality carried by **form** rather than red and green (which would collide with Fury and
+Body), have/need counts instead of percentages or grades, ownership as a first-class
+headline, and the deck never leaving the screen. Those are implemented in `tokens.css` and
+`styles.css`.
+
+**What deliberately diverges.** The gallery is **art-forward** — full card images in release
+order — where `D2` drew text-forward cards carrying stat lines and ownership pips. That
+change came from using the thing: the transcribed stats duplicated what is already printed
+on every card. The pips remain the right answer for ownership and arrive with `W2`, when
+there is a collection to show.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Keep the `D2` palette for fidelity to the locked design | Locks in a factual error about the game, in the one place the design says colour carries meaning |
+| Drop domain colour entirely, go fully greyscale | Throws away the most useful signal in deckbuilding — Domain Identity is the most constraining rule there is |
+| Re-do the prototype to match | The prototype is a dated design artefact, not a live document. Correcting the built interface and recording why is cheaper and more honest than editing history |

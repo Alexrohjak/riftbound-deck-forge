@@ -1,0 +1,103 @@
+/* Forge's design tokens.
+   ────────────────────────────────────────────────────────────────────────────
+   **The interface is greyscale, so colour always means domain.** This is `D2`'s thesis
+   (D-046) and it is load-bearing: Riftbound already has a six-colour language, and Domain
+   Identity is the most constraining rule in deckbuilding. Colour spent on the interface
+   competes with the only colour that carries meaning — which is why legality is carried by
+   **form** here (weight, dashed rule, strike) rather than by red and green, two hues that
+   would collide with Fury and Body anyway.
+
+   ⚠️ **The domain colours are the rulebook's, not a palette choice.** COMPENDIUM §1:
+   Fury red · Calm GREEN · Mind BLUE · Body ORANGE · Chaos PURPLE · Order yellow. Four of
+   these were wrong in both the first build and the D2 prototype — see D-052. A dot that
+   says "blue" when the game says "green" is misinformation dressed as decoration. */
+
+:root {
+  color-scheme: light dark;
+
+  /* ── neutrals: the entire interface ─────────────────────────────────────── */
+  --ground: #f3f4f7;
+  --panel: #ffffff;
+  --sunk: #e9ebf0;
+  --line: #d8dbe3;
+  --line-strong: #c2c7d2;
+  --ink: #191b21;
+  --dim: #787e8d;
+  --faint: #a3a8b5;
+
+  /* ── the six domains. The only colour Forge is allowed to spend. ────────── */
+  --fury: #c8452f;
+  --calm: #3f8f52;
+  --mind: #2f6fc0;
+  --body: #cc7722;
+  --chaos: #7a4bc4;
+  --order: #b98722;
+  --none: #9aa0ad;
+
+  /* Reserved for a genuine failure. Never for "this zone is not full yet". */
+  --alert: #b3261e;
+
+  /* ── type ───────────────────────────────────────────────────────────────── */
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* ── spacing: one scale, so rhythm is a choice rather than an accident ──── */
+  --s1: 0.25rem;
+  --s2: 0.5rem;
+  --s3: 0.75rem;
+  --s4: 1rem;
+  --s5: 1.5rem;
+  --s6: 2rem;
+  --radius: 6px;
+  --radius-sm: 4px;
+
+  /* ── motion ─────────────────────────────────────────────────────────────── */
+  /* Two durations and one curve. Everything that moves uses these, so the whole
+     interface accelerates and settles the same way instead of each part having its
+     own personality. */
+  --fast: 120ms;
+  --slow: 260ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  --shadow: 0 1px 2px rgba(20, 22, 30, 0.08), 0 8px 24px -12px rgba(20, 22, 30, 0.18);
+  --shadow-lift: 0 2px 6px rgba(20, 22, 30, 0.1), 0 16px 32px -16px rgba(20, 22, 30, 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ground: #101116;
+    --panel: #191b21;
+    --sunk: #15161c;
+    --line: #282b34;
+    --line-strong: #3a3e4a;
+    --ink: #e8e9ed;
+    --dim: #858b99;
+    --faint: #5d636f;
+
+    --fury: #e2664f;
+    --calm: #5fb073;
+    --mind: #5a92e0;
+    --body: #e0954a;
+    --chaos: #a086e0;
+    --order: #d6a445;
+    --none: #767c89;
+
+    --alert: #e5705f;
+
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
+    --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.5), 0 16px 32px -16px rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* Motion is decoration for some people and nausea for others. Everything below turns
+   off together, and nothing depends on a transition having run to be usable. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

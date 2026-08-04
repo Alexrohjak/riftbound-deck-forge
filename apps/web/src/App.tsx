@@ -113,6 +113,9 @@ function Tile({
 }) {
   const printing = card.printings[0];
   const atLimit = !card.types.includes("rune") && held >= MAX_COPIES;
+  // A cold CDN transform takes about a second. Without this the grid fills in as a series
+  // of hard pops; with it, cards arrive.
+  const [ready, setReady] = useState(false);
   return (
     <div className={held > 0 ? "tile in" : "tile"}>
       <button type="button" className="face" onClick={onAdd} disabled={atLimit} title={card.name}>
@@ -123,6 +126,8 @@ function Tile({
           decoding="async"
           width={400}
           height={559}
+          className={ready ? "ready" : ""}
+          onLoad={() => setReady(true)}
         />
       </button>
       {card.banned && <span className="flag">BANNED</span>}
@@ -418,8 +423,11 @@ export function App() {
             {(["MAIN", "RUNE", "BATTLEFIELD"] as Zone[]).map((zone) => {
               const count = zone === "MAIN" ? mainDeckCount(deck) : zoneCount(deck, zone);
               const target = zone === "MAIN" ? 40 : CAPACITY[zone];
+              // Met / short / over, carried by a solid rule, a dashed one and a strike —
+              // never by red and green, which would collide with Fury and Body (D2).
+              const state = count === target ? "done" : count > target ? "over" : "short";
               return (
-                <div key={zone} className={count === target ? "stat done" : "stat"}>
+                <div key={zone} className={`stat ${state}`}>
                   <b>
                     {count}
                     <span className="of">/{target}</span>

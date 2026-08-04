@@ -1,259 +1,299 @@
-/* The workbench: a gallery of cards, and the deck beside it.
-   Wide screens get both at once — building a deck is a two-handed job, you look at the
-   pool and the list together. Narrow screens stack them, gallery first. */
-:root {
-  --ground: #eef1f4;
-  --surface: #fff;
-  --sunken: #e6eaef;
-  --ink: #0f151c;
-  --muted: #5c6874;
-  --line: #dce2e8;
-  --pass: #146334;
-  --fail: #9a2c2c;
-  --accent: #2a4b7c;
-  --tile: 13rem;      /* overridden per-grid by the size control */
-  --pane: 27rem;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ground: #0d1117;
-    --surface: #151b22;
-    --sunken: #0a0e13;
-    --ink: #e8eff6;
-    --muted: #93a1af;
-    --line: #232c35;
-    --pass: #46c46a;
-    --fail: #f08a8a;
-    --accent: #7aa2d8;
-  }
-}
+@import "./tokens.css";
+
+/* The workbench: a gallery of cards, and a workshop holding the deck being built.
+   Colour is reserved for domain (see tokens.css); everything the interface says about
+   itself is said in weight, form and space. */
+
 * { box-sizing: border-box; }
+
 body {
   margin: 0;
   background: var(--ground);
   color: var(--ink);
-  font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 14px/1.5 var(--sans);
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
 }
-h1 {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 1.2rem; margin: 0; letter-spacing: -0.02em;
-}
+
+h1 { font-family: var(--mono); font-size: 1.15rem; margin: 0; letter-spacing: -0.02em; }
 h2 {
-  font-size: 0.8rem; margin: 0 0 0.5rem; display: flex; gap: 0.4rem; align-items: baseline;
-  text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.7rem; margin: 0 0 var(--s2);
+  display: flex; gap: var(--s2); align-items: baseline;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim);
 }
-.of { color: var(--muted); font-weight: 400; }
-.empty, .fail { color: var(--muted); font-size: 0.85rem; margin: 0; }
-.fail { color: var(--fail); }
-.boot { max-width: 30rem; margin: 4rem auto; padding: 0 1rem; display: grid; gap: 0.75rem; }
+.of { color: var(--dim); font-weight: 400; font-variant-numeric: tabular-nums; }
+.empty, .fail { color: var(--dim); font-size: 0.85rem; margin: 0; }
+.fail { color: var(--alert); }
+.boot { max-width: 30rem; margin: 20vh auto; padding: 0 var(--s4); display: grid; gap: var(--s3); }
+
+/* Anything focusable gets the same ring, once. */
+:where(button, input, a):focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
 
 /* ── the two panes ─────────────────────────────────────────────────────────── */
-.workspace { display: grid; grid-template-columns: 1fr var(--pane); min-height: 100vh; }
-/* Collapsed: the gallery takes the whole window. */
-.workspace.solo { grid-template-columns: 1fr; }
+.workspace {
+  display: grid;
+  grid-template-columns: 1fr var(--pane, 27rem);
+  min-height: 100vh;
+  transition: grid-template-columns var(--slow) var(--ease);
+}
+.workspace.solo { grid-template-columns: 1fr 0rem; }
 @media (max-width: 60rem) {
-  :root { --pane: auto; }
-  .workspace { grid-template-columns: 1fr; }
+  .workspace, .workspace.solo { grid-template-columns: 1fr; }
 }
 
 /* ── gallery ───────────────────────────────────────────────────────────────── */
-.gallery { min-width: 0; padding: 0 0 4rem; }
+.gallery { min-width: 0; padding-bottom: var(--s6); }
+
 .toolbar {
   position: sticky; top: 0; z-index: 3;
-  display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
-  padding: 0.6rem 0.9rem;
-  background: color-mix(in srgb, var(--ground) 92%, transparent);
-  backdrop-filter: blur(8px);
+  display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center;
+  padding: var(--s3) var(--s4);
+  background: color-mix(in srgb, var(--ground) 88%, transparent);
+  backdrop-filter: blur(12px) saturate(1.4);
   border-bottom: 1px solid var(--line);
 }
-.tabs { display: flex; gap: 0.2rem; flex-wrap: wrap; }
+.tabs, .sizes { display: flex; gap: 2px; flex-wrap: wrap; }
+
 .tab {
-  padding: 0.4rem 0.7rem; border-radius: 4px; cursor: pointer;
+  position: relative;
+  padding: var(--s2) var(--s3);
+  border-radius: var(--radius-sm); cursor: pointer;
   background: transparent; border: 1px solid transparent;
-  color: var(--muted); font-size: 0.8rem; white-space: nowrap;
+  color: var(--dim); font: inherit; font-size: 0.8rem; white-space: nowrap;
+  transition: color var(--fast) var(--ease), background var(--fast) var(--ease);
 }
-.tab:hover { color: var(--ink); }
-.tab.on { background: var(--surface); border-color: var(--line); color: var(--ink); font-weight: 600; }
+.tab:hover { color: var(--ink); background: var(--sunk); }
+.tab.on { color: var(--ink); font-weight: 600; }
+/* The active tab is marked by a rule, not a colour — form carries state. */
+.tab.on::after {
+  content: ""; position: absolute; left: var(--s3); right: var(--s3); bottom: 2px;
+  height: 2px; background: var(--ink); border-radius: 2px;
+}
+.sizes .tab { padding: var(--s2); font-family: var(--mono); font-size: 0.72rem; }
+
 .search {
   flex: 1 1 12rem; min-width: 0;
-  padding: 0.45rem 0.6rem; border-radius: 4px;
-  background: var(--surface); color: var(--ink); border: 1px solid var(--line);
-  font-size: 16px; /* anything smaller makes iOS zoom the page on focus */
+  padding: var(--s2) var(--s3); border-radius: var(--radius-sm);
+  background: var(--panel); color: var(--ink); border: 1px solid var(--line);
+  font: inherit; font-size: 16px; /* smaller makes iOS zoom the page on focus */
+  transition: border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
 }
-.count { color: var(--muted); font-size: 0.75rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
-
-.grid {
-  display: grid; gap: 0.6rem; padding: 0.9rem;
-  grid-template-columns: repeat(auto-fill, minmax(var(--tile), 1fr));
-}
-/* On a phone two columns is the floor — one giant card per row is a worse gallery. */
-@media (max-width: 30rem) { .grid { --tile: min(9rem, 42vw); } }
-
-.sizes { display: flex; gap: 0.15rem; }
-.sizes .tab { padding: 0.35rem 0.5rem; font-variant-numeric: tabular-nums; }
+.search:focus { border-color: var(--line-strong); box-shadow: 0 0 0 3px var(--sunk); outline: none; }
+.search::placeholder { color: var(--faint); }
+.count { color: var(--dim); font-size: 0.75rem; font-family: var(--mono); white-space: nowrap; }
 .toggle { margin-left: auto; }
 
-/* A tile is the card. Nothing is written on top of it that the card already says —
-   the aspect ratio is the real card's, so the grid never reflows as images arrive. */
+.grid {
+  display: grid; gap: var(--s3); padding: var(--s4);
+  grid-template-columns: repeat(auto-fill, minmax(var(--tile), 1fr));
+}
+@media (max-width: 30rem) { .grid { --tile: min(9rem, 42vw); } }
+
+/* ── a tile is the card, and nothing the card already says ─────────────────── */
 .tile { position: relative; aspect-ratio: 744 / 1039; }
 .face {
   display: block; width: 100%; height: 100%; padding: 0; cursor: pointer;
-  background: var(--sunken); border: 0; border-radius: 6px; overflow: hidden;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  background: var(--sunk); border: 0; border-radius: var(--radius); overflow: hidden;
+  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
 }
-.face img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.face:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 18px -6px rgba(0, 0, 0, 0.5); }
+.face img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  /* Cold CDN transforms take about a second. Fading in beats popping in. */
+  opacity: 0; transition: opacity var(--slow) var(--ease);
+}
+.face img.ready { opacity: 1; }
+.face:hover:not(:disabled) { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+.face:active:not(:disabled) { transform: translateY(-1px); transition-duration: 60ms; }
 .face:disabled { cursor: default; }
-/* Three copies is the limit, so a fourth click is not offered — dimming says why. */
-.face:disabled img { opacity: 0.45; }
-.tile.in .face { box-shadow: 0 0 0 2px var(--accent); }
+.face:disabled img { opacity: 0.4; }
 
-.qty {
-  position: absolute; top: -0.35rem; left: -0.35rem;
-  min-width: 1.5rem; height: 1.5rem; padding: 0 0.3rem;
+/* In the deck: a ring, in ink rather than a colour. */
+.tile.in .face { box-shadow: 0 0 0 2px var(--ink); }
+
+.qty, .less {
+  position: absolute; top: -6px;
+  height: 1.45rem; min-width: 1.45rem;
   display: grid; place-items: center;
-  background: var(--accent); color: var(--surface);
-  border-radius: 999px; font-size: 0.8rem; font-weight: 700;
-  font-variant-numeric: tabular-nums; pointer-events: none;
+  border-radius: 999px; font-family: var(--mono); font-size: 0.75rem; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.qty {
+  left: -6px; padding: 0 var(--s1);
+  background: var(--ink); color: var(--panel); pointer-events: none;
+  animation: pop var(--slow) var(--ease);
 }
 .less {
-  position: absolute; top: -0.35rem; right: -0.35rem;
-  width: 1.5rem; height: 1.5rem; display: grid; place-items: center;
-  background: var(--surface); color: var(--ink);
-  border: 1px solid var(--line); border-radius: 999px;
-  font-size: 1rem; line-height: 1; cursor: pointer; padding: 0;
+  right: -6px; padding: 0; cursor: pointer;
+  background: var(--panel); color: var(--dim);
+  border: 1px solid var(--line); font-size: 0.95rem; line-height: 1;
+  opacity: 0; transition: opacity var(--fast) var(--ease), color var(--fast) var(--ease);
 }
-.less:hover { border-color: var(--fail); color: var(--fail); }
+/* Revealed on hover for pointers, always present for touch — where hover does not exist. */
+.tile:hover .less, .less:focus-visible { opacity: 1; }
+@media (hover: none) { .less { opacity: 1; } }
+.less:hover { color: var(--alert); border-color: var(--alert); }
+
+@keyframes pop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 .flag {
-  position: absolute; bottom: 0.4rem; left: 50%; transform: translateX(-50%);
-  background: var(--fail); color: #fff;
-  font-size: 0.55rem; font-weight: 700; font-style: normal; letter-spacing: 0.1em;
-  padding: 0.1rem 0.35rem; border-radius: 2px; pointer-events: none;
+  position: absolute; bottom: var(--s2); left: 50%; translate: -50% 0;
+  background: var(--alert); color: #fff;
+  font-family: var(--mono); font-size: 0.55rem; font-weight: 700; font-style: normal;
+  letter-spacing: 0.12em; padding: 1px var(--s1); border-radius: 2px; pointer-events: none;
 }
 
-.sentinel { padding: 1.5rem 0.9rem 3rem; text-align: center; color: var(--muted); font-size: 0.8rem; }
+.sentinel { padding: var(--s5) var(--s4) var(--s6); text-align: center; color: var(--dim); font-size: 0.8rem; }
 
-/* ── deck pane ─────────────────────────────────────────────────────────────── */
+/* ── workshop ──────────────────────────────────────────────────────────────── */
 .workshop {
-  background: var(--surface); border-left: 1px solid var(--line);
-  padding: 0.75rem 0.85rem calc(3rem + env(safe-area-inset-bottom));
-  display: grid; gap: 0.7rem; align-content: start;
-  position: sticky; top: 0; max-height: 100vh; overflow-y: auto;
+  background: var(--panel); border-left: 1px solid var(--line);
+  padding: var(--s3) var(--s3) calc(var(--s6) + env(safe-area-inset-bottom));
+  display: grid; gap: var(--s3); align-content: start;
+  position: sticky; top: 0; max-height: 100vh; overflow-y: auto; overflow-x: hidden;
 }
 @media (max-width: 60rem) {
   .workshop { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--line); }
 }
-.workshop header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-.save { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
-.save.saved { color: var(--pass); }
-.save.offline { color: var(--fail); font-weight: 600; }
+.workshop header { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); }
+.save { font-family: var(--mono); font-size: 0.68rem; color: var(--dim); white-space: nowrap; }
+.save.offline { color: var(--alert); font-weight: 600; }
 
-.chosen { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
-.pick {
-  display: grid; gap: 0.05rem; text-align: left; min-height: 3.2rem;
-  background: var(--ground); border: 1px solid var(--line); border-radius: 4px;
-  padding: 0.45rem 0.55rem; color: var(--ink); font: inherit;
-}
-button.pick { cursor: pointer; }
-button.pick:disabled { opacity: 0.5; cursor: default; }
-.pick .label { font-size: 0.58rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.09em; }
-.pick b { font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pick small { color: var(--muted); font-size: 0.65rem; }
-
-.champions { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.25rem; max-height: 14rem; overflow-y: auto; }
-.champions button {
-  display: flex; align-items: center; gap: 0.5rem; width: 100%; cursor: pointer;
-  background: var(--ground); border: 1px solid var(--line); border-radius: 4px;
-  padding: 0.3rem; color: var(--ink); font-size: 0.78rem; text-align: left;
-}
-.champions img { width: 1.8rem; height: 1.8rem; object-fit: cover; object-position: 50% 20%; border-radius: 3px; }
-
+/* ── the tally: counts are have/need, never a percentage or a grade ────────── */
 .tally {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
-  background: var(--line); border: 1px solid var(--line); border-radius: 4px; overflow: hidden;
-  /* ⚠️ Without this the row collapses to 2px. `overflow: hidden` makes this a scroll
-     container, whose automatic minimum size is zero — so the outer grid sizes its row to
-     the borders alone and clips the contents away entirely. */
+  background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  overflow: hidden;
+  /* Without this the row collapses: `overflow: hidden` makes it a scroll container, whose
+     automatic minimum size is zero, so the outer grid sizes the row to its borders alone. */
   min-height: fit-content;
 }
-.stat { background: var(--surface); padding: 0.4rem 0.3rem; text-align: center; }
-.stat b { display: block; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
-.stat span { font-size: 0.55rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-.stat.done b { color: var(--pass); }
-.verdict.pass b { color: var(--pass); }
-.verdict.fail b { color: var(--fail); }
-
-.violations {
-  margin: 0; padding: 0.5rem 0.6rem 0.5rem 1.6rem;
-  background: var(--ground); border-left: 3px solid var(--fail); border-radius: 4px;
-  color: var(--muted); font-size: 0.72rem;
+.stat {
+  background: var(--panel); padding: var(--s2) var(--s1); text-align: center;
+  border-bottom: 2px solid transparent;
+  transition: border-color var(--slow) var(--ease);
 }
-.violations li + li { margin-top: 0.35rem; }
-.violations b { color: var(--fail); }
-.cite { font-family: ui-monospace, monospace; font-size: 0.9em; }
+.stat b { display: block; font-family: var(--mono); font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+.stat span {
+  font-family: var(--mono); font-size: 0.52rem; color: var(--dim);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+/* Satisfied is stated by weight and a solid rule; short, by a dashed one. No red, no green. */
+.stat.done { border-bottom-color: var(--ink); }
+.stat.done b { font-weight: 700; }
+.stat.short { border-bottom: 2px dashed var(--line-strong); }
+.stat.over b { text-decoration: line-through; }
+.verdict.fail b { color: var(--alert); }
 
-.panel { background: var(--ground); border: 1px solid var(--line); border-radius: 4px; padding: 0.6rem; }
+.violations, .warnings {
+  margin: 0; padding: var(--s2) var(--s3) var(--s2) var(--s5);
+  border-radius: var(--radius-sm); font-size: 0.72rem; color: var(--dim);
+  background: var(--sunk);
+}
+.violations { border-left: 3px solid var(--alert); }
+/* Warnings are not failures: same shape, neutral rule. A legal deck you cannot build is legal. */
+.warnings { border-left: 3px solid var(--line-strong); }
+.violations li + li, .warnings li + li { margin-top: var(--s1); }
+.violations b { color: var(--alert); }
+.warnings b { color: var(--ink); }
+.cite { font-family: var(--mono); font-size: 0.9em; color: var(--faint); }
 
-.curve { display: flex; align-items: flex-end; gap: 0.25rem; height: 5rem; }
+.panel { background: var(--sunk); border-radius: var(--radius-sm); padding: var(--s3); }
+
+/* ── energy curve ──────────────────────────────────────────────────────────── */
+.curve { display: flex; align-items: flex-end; gap: var(--s1); height: 5rem; }
 .bar { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; }
-.bar .count { font-size: 0.62rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-.bar .stem { width: 100%; min-height: 2px; margin-top: auto; background: var(--accent); border-radius: 2px 2px 0 0; }
-.bar .tick { font-size: 0.62rem; color: var(--muted); padding-top: 0.15rem; }
-
-.deckrows { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.15rem; }
-.deckrows li { display: grid; grid-template-columns: 1.2rem 1fr auto auto; gap: 0.4rem; align-items: center; font-size: 0.78rem; }
-.deckrows .n { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
-.deckrows .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; gap: 0.3rem; align-items: center; }
-.deckrows .flag { position: static; transform: none; }
-.own { font-style: normal; font-size: 0.6rem; color: var(--muted); border: 1px solid var(--line); border-radius: 2px; padding: 0 0.2rem; }
-.deckrows .less { position: static; width: 1.3rem; height: 1.3rem; font-size: 0.85rem; }
-
-.arts { display: flex; gap: 0.15rem; }
-.art { width: 1.2rem; height: 1.2rem; padding: 0; overflow: hidden; cursor: pointer; border: 1px solid var(--line); border-radius: 2px; background: var(--ground); }
-.art img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; display: block; }
-.art.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-
-.caveat { color: var(--muted); font-size: 0.68rem; margin: 0; padding-top: 0.5rem; border-top: 1px solid var(--line); }
-
-
-/* ── the workshop: a slot for every card the deck needs ────────────────────── */
-.bay h2 { justify-content: flex-start; }
-.bay h2 .of { margin-left: auto; font-variant-numeric: tabular-nums; }
-.bay h2 .of.done { color: var(--pass); }
-.bay + .bay { margin-top: 0.4rem; }
-.singles { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-
-.slots {
-  display: grid; gap: 0.25rem;
-  grid-template-columns: repeat(auto-fill, minmax(3.1rem, 1fr));
+.bar .count { font-family: var(--mono); font-size: 0.6rem; color: var(--dim); }
+.bar .stem {
+  width: 100%; min-height: 2px; margin-top: auto;
+  background: var(--ink); border-radius: 2px 2px 0 0;
+  transition: height var(--slow) var(--ease);
 }
+.bar .tick { font-family: var(--mono); font-size: 0.6rem; color: var(--faint); padding-top: 2px; }
+
+/* ── the slots: one card-shaped space per card the deck needs ──────────────── */
+.bay h2 { justify-content: flex-start; }
+.bay h2 .of { margin-left: auto; }
+.singles { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); }
+
+.slots { display: grid; gap: var(--s1); grid-template-columns: repeat(auto-fill, minmax(3.1rem, 1fr)); }
 .singles .slots { grid-template-columns: minmax(4.4rem, 1fr); }
 
-/* A slot is card-shaped whether or not anything is in it — that is what makes the gap
-   read as "a card is missing here" rather than as blank space. */
 .slot {
   position: relative; aspect-ratio: 744 / 1039; padding: 0; overflow: hidden;
-  border-radius: 4px; cursor: pointer; background: var(--ground);
+  border-radius: var(--radius-sm); cursor: pointer; background: var(--ground);
+  transition: border-color var(--fast) var(--ease), transform var(--fast) var(--ease);
 }
-.slot.filled { border: 1px solid var(--line); }
+.slot.filled { border: 1px solid var(--line); animation: settle var(--slow) var(--ease); }
 .slot.filled img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.slot.filled:hover { border-color: var(--fail); }
+.slot.filled:hover { border-color: var(--alert); transform: scale(0.96); }
 .slot.empty {
-  border: 1px dashed var(--line); color: var(--muted);
-  display: grid; place-items: center; font-size: 0.9rem; line-height: 1;
+  border: 1px dashed var(--line-strong); color: var(--faint);
+  display: grid; place-items: center; font-size: 0.85rem; line-height: 1;
 }
-.slot.empty:hover { border-color: var(--accent); color: var(--accent); }
-.slot .flag { bottom: 0.1rem; font-size: 0.45rem; padding: 0 0.2rem; letter-spacing: 0.05em; }
+.slot.empty:hover { border-color: var(--ink); color: var(--ink); }
+.slot .flag { bottom: 1px; font-size: 0.45rem; letter-spacing: 0.06em; }
 
-/* Ownership warnings. Deliberately not styled like violations — a deck you cannot afford
-   to build is still legal, and the interface must never blur the two. */
-.warnings {
-  margin: 0; padding: 0.5rem 0.6rem 0.5rem 1.6rem;
-  background: var(--ground); border-left: 3px solid var(--muted); border-radius: 4px;
-  color: var(--muted); font-size: 0.72rem;
+@keyframes settle { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* ── Legend / Champion ─────────────────────────────────────────────────────── */
+.chosen { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); }
+.pick {
+  display: grid; gap: 1px; text-align: left; min-height: 3rem;
+  background: var(--ground); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: var(--s2); color: var(--ink); font: inherit;
+  transition: border-color var(--fast) var(--ease);
 }
-.warnings li + li { margin-top: 0.35rem; }
-.warnings b { color: var(--ink); }
+button.pick { cursor: pointer; }
+button.pick:hover:not(:disabled) { border-color: var(--line-strong); }
+button.pick:disabled { opacity: 0.5; cursor: default; }
+.pick .label {
+  font-family: var(--mono); font-size: 0.52rem; color: var(--dim);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.pick b { font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick small { color: var(--dim); font-size: 0.64rem; }
+
+.champions { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; max-height: 14rem; overflow-y: auto; }
+.champions button {
+  display: flex; align-items: center; gap: var(--s2); width: 100%; cursor: pointer;
+  background: var(--ground); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: var(--s1); color: var(--ink); font: inherit; font-size: 0.76rem; text-align: left;
+  transition: border-color var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.champions button:hover { border-color: var(--line-strong); background: var(--sunk); }
+.champions img { width: 1.8rem; height: 1.8rem; object-fit: cover; object-position: 50% 20%; border-radius: 3px; }
+
+/* ── domain dots: the one place colour is allowed to mean something ────────── */
+.domains { display: inline-flex; gap: 2px; }
+.dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; display: inline-block; }
+.dot.fury { background: var(--fury); }
+.dot.calm { background: var(--calm); }
+.dot.mind { background: var(--mind); }
+.dot.body { background: var(--body); }
+.dot.chaos { background: var(--chaos); }
+.dot.order { background: var(--order); }
+.dot.colorless { background: var(--none); }
+
+.arts { display: flex; gap: 2px; }
+.art {
+  width: 1.2rem; height: 1.2rem; padding: 0; overflow: hidden; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 2px; background: var(--ground);
+  transition: border-color var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+.art img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; display: block; }
+.art:hover { transform: scale(1.15); }
+.art.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+
+.deckrows { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.deckrows li { display: grid; grid-template-columns: 1fr auto; gap: var(--s2); align-items: center; font-size: 0.76rem; }
+.deckrows .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.caveat {
+  color: var(--dim); font-size: 0.66rem; margin: 0;
+  padding-top: var(--s2); border-top: 1px solid var(--line);
+}
