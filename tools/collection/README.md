@@ -2,6 +2,12 @@
 
 Enter and browse the cards you actually own. **This is the first working piece of Forge.**
 
+> ⚠️ **The export is keyed by printing id** (`ogn-030-298`), which is what D1, the Owned view
+> and the `L26` ownership check all use. It was keyed by public code (`OGN-030/298`) until
+> 2026-08-04 — the API accepted that happily and Forge could then see none of it. If you have
+> an older export or older browser storage, both are converted on load; you do not need to do
+> anything. `build-index.py` now fails if the two key spaces ever drift again.
+
 > **Deliberately disposable.** No framework, no build step, no dependencies — one HTML file and a
 > JSON index. The durable thing here is `collection.json`, which you export; the interface around it
 > is meant to be thrown away when [`D3`](../../docs/ROADMAP.md) picks a real stack.

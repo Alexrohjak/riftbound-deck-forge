@@ -64,6 +64,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-053](#d-053) | **The chrome gets one accent** — brass for interface state only; colour still means domain on cards; amends D-046 | ✅ |
 | [D-054](#d-054) | **The collection is a filter, not a second gallery** — one gallery, an Owned toggle over it | ✅ |
 | [D-055](#d-055) | **A match names a build, not a deck** — and the record withholds any rate it has not earned | ✅ W5 |
+| [D-056](#d-056) | **One key space: the printing id** — the collection tool exported public codes that Forge could not read | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -2059,3 +2060,58 @@ handler that gets an error back is how a page ends up in a loop.
 | Show a win rate from any sample, with a caveat | Caveats are not read; numbers are. Withholding it is the only version of this that works |
 | Count a draw as half a win | Standard in some formats, but it is a convention rather than a fact, and this project does not invent numbers |
 | Log to Workers Logs only | Cannot see the browser, which is where the bugs are |
+
+
+---
+
+<a id="d-056"></a>
+
+## D-056 — One key space for a printing, and a build that fails when it drifts
+
+**Date:** 2026-08-04
+**Status:** Accepted — unblocks `W2`
+
+### The failure this prevents
+
+The collection tool exported its counts keyed by **public code** — `"OGN-001/298"`. D1's
+`collection.card_id`, the app's Owned view and the [`L26`](spec/LEGALITY.md) ownership check
+all key on the **printing id** — `"ogn-001-298"`.
+
+Nothing anywhere reported a problem. Proven against the real API before it was fixed:
+
+```
+PUT /collection  →  {"ok": true, "printings": 2}
+cards the Owned view would show:        0
+copies the legality check would count:  0
+```
+
+`W2` is *"you sit down with your boxes and enter the actual collection"* — an evening of
+typing that everything downstream depends on. The outcome would have been a success message
+and an empty gallery, with no error to explain it and no obvious way to tell whether the
+typing or the tool was at fault.
+
+### Decided
+
+**The printing id is the only key.** The tool stores it, exports it, and its index carries it
+straight from `data/cards.json` — never derived from the public code, because a derivation
+would match on almost every card and diverge silently on the ones it did not.
+
+- **Both key spaces are accepted on import**, and browser storage converts on load. The one
+  file here holds work nobody can reproduce, so it migrates rather than warns.
+- **`build-index.py` fails** when any id is absent from the app's index. Verified by
+  corrupting one id and watching it exit 1.
+
+### Why the check, and not just the fix
+
+This is the second time in one day that a comment failed to prevent the thing it warned
+about — `wrangler.toml` documented the `run_worker_first` trap and the log routes fell into
+it anyway. Both are now build-time failures. **A comment describes a rule; only a failing
+build enforces one.**
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Translate codes → ids in the Worker | The API deliberately holds no card data ([D-034](#d-034)); giving it a card index to fix a key-space bug is a large concession to a small problem |
+| A one-off conversion script | Converts today's data and leaves the trap armed for the next export |
+| Key everything on public code instead | The code is Riot's presentation format and changes shape across 17 known variants; the id is stable and is already what the database stores |

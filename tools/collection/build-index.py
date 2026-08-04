@@ -52,12 +52,48 @@ def image_id(url):
     return url[len(IMG_PREFIX):].split("?")[0]
 
 
+def check_key_space(entries):
+    """Fail if this index and the app's disagree about how a printing is named.
+
+    The two are built by different scripts in different languages from the same source, and
+    the collection is worthless the moment they drift: it is stored under one key space and
+    read under the other, with a success message either way.
+    """
+    app_index = os.path.join(ROOT, "apps", "web", "public", "cards.json")
+    if not os.path.exists(app_index):
+        print("  note: app index not built; key-space check skipped")
+        return
+
+    with open(app_index, encoding="utf-8") as fh:
+        app = json.load(fh)
+    app_ids = {p["id"] for card in app["cards"] for p in card["printings"]}
+    ours = {e["id"] for e in entries}
+
+    missing = ours - app_ids
+    if missing:
+        sys.exit(f"FATAL: {len(missing)} printing ids are not in the app's index "
+                 f"({sorted(missing)[:3]}) — a collection entered here would be invisible "
+                 f"to Forge.")
+    print(f"  ✓ key space agrees with the app on all {len(ours)} printings")
+
+
 def build():
     with open(SRC, encoding="utf-8") as fh:
         src = json.load(fh)
 
     out = [
         {
+            # ⚠️ The KEY the collection is stored under, everywhere in Forge — D1's
+            # `collection.card_id`, the app's Owned view, and the L26 ownership check all
+            # use this. It comes straight from the source data and is NEVER derived here:
+            # a lookalike computed from the public code would match on almost every card
+            # and diverge silently on the ones it did not.
+            #
+            # This tool used to export keyed by `publicCode` instead. The API accepted it
+            # cheerfully — `{"ok": true, "printings": 2}` — and nothing in Forge could then
+            # see a single card. An evening of typing would have produced an empty gallery
+            # with no error anywhere. See `check_key_space()` below.
+            "id": c["id"],
             "c": c["publicCode"],
             "n": c["name"],
             "s": c["set"],
@@ -91,6 +127,8 @@ def build():
     if clashes:
         sys.exit(f"FATAL: {len(clashes)} set+number pairs have >1 base printing: "
                  f"{list(clashes)[:3]} — bare-number entry would be ambiguous.")
+
+    check_key_space(out)
 
     with open(OUT, "w", encoding="utf-8") as fh:
         json.dump(out, fh, separators=(",", ":"), ensure_ascii=False)
