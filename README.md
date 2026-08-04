@@ -88,8 +88,8 @@ grounding lines; and **editing requires connectivity** — offline you can look 
 
 ### 3 · Run the workspace
 
-`packages/engine` is the real thing — pure TypeScript, **13 of the 33 legality checks**,
-the energy curve, 27 tests:
+`packages/engine` is the real thing — pure TypeScript, ⚖️ **all 33 legality checks**,
+the energy curve, 72 tests:
 
 ```bash
 npm install
@@ -123,7 +123,7 @@ list always says which checks actually ran.
 |---|---|
 | **The deckbuilder** | **All 935 cards** behind a search box. Pick any of the 49 Legends and an eligible Champion, tap to add and remove, saved to D1 as you go |
 | **Alternate arts** | Collapsed behind each card; pick which printing a deck slot uses. Thumbnails are served at `w=96` — the full scans are ~1 MB each |
-| **Live legality** | **13 of 33 checks**, Domain Identity among them. Violations name the check *and* the rulebook citation, and the page always says what it did **not** check |
+| **Live legality** | ⚖️ **All 33 checks**, including the ban list, the Signature cap and `[Unique]`. Violations name the check *and* its rulebook citation. Ownership appears as a **warning**, never a violation |
 | **The energy curve** | A histogram, never a mean ([DECK-STATS §6](docs/spec/DECK-STATS.md)). Cards with no cost data are kept out of the buckets rather than folded into zero |
 | **One Worker, one origin** | Serves the SPA *and* the API ([D-050](docs/DECISIONS.md#d-050) — Cloudflare closed Pages to new projects) |
 | **D1** | `forge`, schema applied. Holds one deck; the collection table is still empty until `W2` |
@@ -231,7 +231,7 @@ system map and **where to put a new idea**.
 
 | | |
 |---|---|
-| [**`packages/engine/`**](packages/engine/) | **The rules, as a pure library.** Imported by both the web app and the CLI — one implementation, two consumers ([D-047](docs/DECISIONS.md#d-047)). 13 of 33 legality checks and the energy curve so far; `W1` finishes the checks |
+| [**`packages/engine/`**](packages/engine/) | **The rules, as a pure library.** Imported by both the web app and the CLI — one implementation, two consumers ([D-047](docs/DECISIONS.md#d-047)). all 33 legality checks and the energy curve; the rulebook's own 13 worked examples are tests |
 | [`apps/web/`](apps/web/) | The workbench. Static React + Vite bundle |
 | [`apps/cli/`](apps/cli/) | **EE's tool surface** — what Claude Code calls. Structured data in, structured data out |
 | [`apps/api/`](apps/api/) | One Cloudflare Worker over D1. No idle state |

@@ -247,3 +247,13 @@ button.pick:disabled { opacity: 0.5; cursor: default; }
 }
 .slot.empty:hover { border-color: var(--accent); color: var(--accent); }
 .slot .flag { bottom: 0.1rem; font-size: 0.45rem; padding: 0 0.2rem; letter-spacing: 0.05em; }
+
+/* Ownership warnings. Deliberately not styled like violations — a deck you cannot afford
+   to build is still legal, and the interface must never blur the two. */
+.warnings {
+  margin: 0; padding: 0.5rem 0.6rem 0.5rem 1.6rem;
+  background: var(--ground); border-left: 3px solid var(--muted); border-radius: 4px;
+  color: var(--muted); font-size: 0.72rem;
+}
+.warnings li + li { margin-top: 0.35rem; }
+.warnings b { color: var(--ink); }

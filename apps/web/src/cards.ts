@@ -1,4 +1,4 @@
-import { staticCardIndex, type CardIndex, type Domain, type Zone } from "@forge/engine";
+import { staticCardIndex, type CardFacts, type CardIndex, type Domain, type Zone } from "@forge/engine";
 
 /**
  * `F3` — the full card pool: 935 cards, 1,180 printings.
@@ -63,7 +63,7 @@ interface RawIndex {
 export function buildPool(raw: RawIndex): CardPool {
   const byPrinting = new Map<string, Card>();
   const byName = new Map<string, Card>();
-  const facts: Record<string, { name: string; domains: Domain[]; energy: number | null }> = {};
+  const facts: Record<string, CardFacts> = {};
 
   for (const card of raw.cards) {
     byName.set(card.name, card);
@@ -71,7 +71,23 @@ export function buildPool(raw: RawIndex): CardPool {
       byPrinting.set(printing.id, card);
       // Every printing of a name resolves to the same facts — which is the point of the
       // collapse, and what makes copy limits count correctly across alternate arts.
-      facts[printing.id] = { name: card.name, domains: card.domains, energy: card.energy };
+      //
+      // ⚠️ Supply everything the engine can use. Omitting a field does not weaken a check,
+      // it *disables* it — a name-only index silently skips the ban list, the Signature cap
+      // and Unique, and reports a smaller `checked` list rather than a wrong verdict.
+      facts[printing.id] = {
+        name: card.name,
+        types: card.types,
+        superTypes: card.superTypes,
+        tags: card.tags,
+        text: card.text,
+        domains: card.domains,
+        energy: card.energy,
+        // Always present, never conditional: absent would read as "unknown", and the
+        // format checks would switch themselves off for a pool with nothing banned in it.
+        banned: card.banned === true,
+        ...(card.championTag ? { championTag: card.championTag } : {}),
+      };
     }
   }
 

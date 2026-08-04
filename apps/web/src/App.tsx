@@ -216,7 +216,12 @@ export function App() {
     return () => io.disconnect();
   }, [results.length]);
 
-  const legality = useMemo(() => (pool ? checkLegality(deck, pool.index) : null), [deck, pool]);
+  const legality = useMemo(
+    // Ownership is passed in so L26/L27 run — they produce warnings, and can never make a
+    // deck illegal. That distinction is the point of the whole tool (LEGALITY.md).
+    () => (pool ? checkLegality(deck, pool.index, { ownership: { collection: owned } }) : null),
+    [deck, pool, owned],
+  );
   const curve = useMemo(() => (pool ? energyCurve(deck, pool.index) : null), [deck, pool]);
 
   if (failed) {
@@ -440,6 +445,17 @@ export function App() {
               {legality.violations.map((v) => (
                 <li key={`${v.check}-${v.message}`}>
                   <b>{v.check}</b> <span className="cite">{v.citation}</span> {v.message}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {/* Separate list, separate colour: these never make the deck illegal. */}
+          {legality.warnings.length > 0 && (
+            <ul className="warnings">
+              {legality.warnings.map((w) => (
+                <li key={`${w.check}-${w.message}`}>
+                  <b>{w.check}</b> {w.message}
                 </li>
               ))}
             </ul>

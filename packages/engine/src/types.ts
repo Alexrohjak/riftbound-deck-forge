@@ -39,9 +39,28 @@ export interface Deck {
   slots: DeckSlot[];
 }
 
-/** What the engine needs to know about one printing. Everything beyond `name` is optional. */
+/**
+ * What the engine needs to know about one printing. Everything beyond `name` is optional,
+ * and a check that lacks its data **does not run** rather than guessing — `checked` on the
+ * result always says which ones did.
+ */
 export interface CardFacts {
   name: string;
+  /** `unit`, `spell`, `gear`, `rune`, `battlefield`, `legend`. */
+  types?: readonly string[];
+  /** `champion`, `signature`, `token`, `basic`. */
+  superTypes?: readonly string[];
+  /** ⚠️ Mixes champion tags with species and region tags — see `championTag` (L32). */
+  tags?: readonly string[];
+  /** Rules text, searched for `[Unique]` (L28). */
+  text?: string;
+  /** Banned in Constructed 1v1 (L23, L30). Resolved through the ban list's alias map. */
+  banned?: boolean;
+  /**
+   * Legends only: the champion tag, **derived from the Legend's Signature cards** (L32).
+   * Not `tags`, which would wrongly admit 13 Yordles under Heart of the Tempest.
+   */
+  championTag?: string;
   /**
    * ⚠️ **Omitting this is not the same as an empty list.** Absent means *the caller has
    * no domain data*, and the identity checks are skipped rather than guessed; `[]` would
@@ -70,6 +89,51 @@ export interface CardIndex {
   domainsOf?(cardId: string): readonly Domain[] | undefined;
   /** `undefined` when unsupplied, `null` when the card genuinely has no Energy cost. */
   energyOf?(cardId: string): number | null | undefined;
+  /**
+   * Everything else the checks need. `undefined` means the caller supplied no detail for
+   * this printing — the checks that need it are then skipped, not guessed.
+   */
+  factsOf?(cardId: string): CardFacts | undefined;
+  /**
+   * What this index can actually answer, derived from the data it was built with.
+   *
+   * ⚠️ **This exists because absence is ambiguous.** A card with no `banned` field could be
+   * legal or could be unknown, and guessing "legal" would make Forge quietly pass a banned
+   * deck. So a check runs only when its index *demonstrably* carries the data, and
+   * `LegalityResult.checked` reports the difference.
+   */
+  capabilities?: IndexCapabilities;
+}
+
+/** Per-field completeness of a `CardIndex`. True only when **every** entry carries it. */
+export interface IndexCapabilities {
+  /** `types` and `superTypes` — needed by the Champion, Signature and Rune checks. */
+  types: boolean;
+  /** Rules text — needed to see `[Unique]`. */
+  text: boolean;
+  /** Ban status — needed before any deck can be called format-legal. */
+  bans: boolean;
+}
+
+/**
+ * An ownership problem. **Deliberately not a `Violation`.**
+ *
+ * LEGALITY.md is explicit: *"a deck can be perfectly legal and unbuildable, and these must
+ * never be conflated — the distinction is the point of the whole tool."* So these travel in
+ * their own array and can never turn `legal` false.
+ */
+export interface Warning {
+  /** `L26` or `L27`. */
+  check: string;
+  message: string;
+}
+
+/** What you physically own, and what is already spoken for (D-017). */
+export interface OwnershipContext {
+  /** Printing id → copies in the box. */
+  collection: Readonly<Record<string, number>>;
+  /** Printing id → copies already sleeved into a `BUILT` deck (DATA-MODEL §3). */
+  committed?: Readonly<Record<string, number>>;
 }
 
 /** One failed rule, carrying the citation so a verdict can always be traced. */
@@ -84,6 +148,11 @@ export interface Violation {
 export interface LegalityResult {
   legal: boolean;
   violations: Violation[];
+  /**
+   * Ownership problems (L26, L27). ⚠️ **Never folded into `violations`** — a legal deck you
+   * cannot physically build is legal. Empty unless an `OwnershipContext` was supplied.
+   */
+  warnings: Warning[];
   /**
    * ⚠️ Which checks actually ran. `legal: true` means **these** checks passed —
    * not that the deck is tournament-legal. See `coverage`.

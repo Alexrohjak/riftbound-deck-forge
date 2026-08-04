@@ -22,21 +22,21 @@
 | | |
 |---|---|
 | **Track** | **F — Foundation** |
-| **Progress** | **6 of 16** milestones · `D1`–`D3`, `F1`–`F3` complete · **the Foundation track is done** |
-| **🎯 Next** | **`W1` and `W2`, now both unblocked.** `W2` — enter the real collection — is the one that makes Forge yours; `W1` finishes the remaining 20 legality checks |
+| **Progress** | **7 of 16** milestones · `D1`–`D3`, `F1`–`F3`, `W1` complete |
+| **🎯 Next** | **`W2` — enter the real collection.** The one that makes Forge yours: the rules are now complete, so what is missing is your cards |
 | **Active** | Nothing in flight — **the full pool is live and wants using.** Build a deck on your phone and report what feels wrong |
 | **Blocked** | Nothing. ✅ **X8 closed** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. **Live and proven in production** |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
-| **Code** | **The workspace is real.** `packages/engine` (pure TS, **13 of 33 legality checks**, the energy curve) · `apps/web` (935 cards, search, alternate arts) · `apps/cli` · `apps/api` (deck + collection + nightly backup) · CI · **50 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
+| **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve) · `apps/web` (935 cards, search, alternate arts) · `apps/cli` · `apps/api` (deck + collection + nightly backup) · CI · **72 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
 
 ```
 D ─ Design         ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
 F ─ Foundation     ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
-W ─ Workbench      ░░░░░░░░░░░░  0/4   ← you are here
+W ─ Workbench      ▓▓▓░░░░░░░░░  1/4   ← you are here
 S ─ Strategist     ░░░░░░░░░░░░  0/5
 L ─ Later          ░░░░░░░░░░░░  0/1
                                  ────
-                                 6/16
+                                 7/16
 ```
 
 > **The count is unchanged; the shape is not.** [D-043](DECISIONS.md#d-043) retired `S3` and
@@ -49,6 +49,7 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 
 | ID | Milestone | What it produced | Date |
 |---|---|---|---|
+| `W1` | **Legality checking** ⚠️ | **All 33 checks**, and the rulebook's own 13 worked examples as tests. Ownership is a *warning*, never a violation. Coverage is reported per verdict, so an index that cannot see the ban list says so | 2026-08-04 |
 | `F3` | **Card data** | All **935 cards / 1,180 printings**, alternate arts collapsed behind each card, champion tags derived from Signature cards (L32, 49/49), ban list overlaid. 95 KB gzipped, fetched not bundled | 2026-08-04 |
 | `F2` | **First usable version** ⭐ | A working deckbuilder on a phone: 30-name static pool under one Legend, add/remove, live legality (**13 of 33 checks** — Domain Identity now among them), the energy curve, saved to D1 | 2026-08-04 |
 | `F1` | **Get it online** | One Worker serving SPA + API on D1, behind Zero Trust Access; `main` deploys itself. [D-050](DECISIONS.md#d-050) — Cloudflare closed Pages to new projects | 2026-08-04 |
@@ -140,7 +141,7 @@ new work appends the next free number and **nothing ever renumbers**.
 
 | ID | Milestone | Done when | Status | Depends on |
 |---|---|---|---|---|
-| `W1` | **Legality checking** ⚠️ | All 33 checks implemented, 13 rulebook tests passing | ⬜ | `F3` |
+| `W1` | **Legality checking** ⚠️ | All 33 checks implemented, 13 rulebook tests passing | ✅ | `F3` |
 | `W2` | **Collection entry** | You have entered the real collection; 20 random names spot-check correct | ⬜ | `F3` |
 | `W3` | **Deck builder** | A complete legal deck can be built end-to-end on desktop **and** phone | ⬜ | `W1`, `W2` |
 | `W4` | **Deck statistics** | Tier 1 + Tier 2 render with correct visual separation, under 2 s | ⬜ | `W3` |

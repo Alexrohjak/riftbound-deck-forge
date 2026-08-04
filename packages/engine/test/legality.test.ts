@@ -322,12 +322,12 @@ describe("coverage honesty", () => {
     // the coverage field exists to prevent.
     const result = checkLegality(legalDeck(), cards);
     expect(result.checked).not.toContain("L9");
-    expect(result.coverage.implemented).toBe(8);
+    expect(result.coverage.implemented).toBe(9); // shape 5 + copies 4
   });
 
   it("claims Domain Identity once domains are supplied", () => {
     const result = checkLegality(furyChaosDeck(), withDomains);
     expect(result.checked).toContain("L9");
-    expect(result.coverage.implemented).toBe(13);
+    expect(result.coverage.implemented).toBe(14); // + the 5 Domain Identity checks
   });
 });
