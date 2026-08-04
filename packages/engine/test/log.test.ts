@@ -240,6 +240,15 @@ describe("rejecting a record before it is stored", () => {
     expect(validate(m({ id: "abc", opponentNote: "y".repeat(201) }))[0]).toContain("opponentNote");
   });
 
+  it("bounds every free-form string on the row, not just the obvious ones", () => {
+    // The stated reason is "every row lands in a backup committed to git" — which was not
+    // true while deckId and opponentLegend were unbounded.
+    expect(validate(m({ id: "abc", deckId: "d".repeat(65) }))[0]).toContain("deckId");
+    expect(validate(m({ id: "abc", opponentLegend: "o".repeat(65) }))[0]).toContain(
+      "opponentLegend",
+    );
+  });
+
   it("accepts a game score and rejects a mangled one", () => {
     expect(validate(m({ id: "abc", games: "2-1" }))).toEqual([]);
     expect(validate(m({ id: "abc", games: "two to one" }))[0]).toContain("2-1");

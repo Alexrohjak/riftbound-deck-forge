@@ -17,6 +17,7 @@ import {
   checkLegality,
   diagnose,
   read as readLog,
+  validate as validateMatch,
   match,
   readArchetype,
   review,
@@ -104,6 +105,19 @@ function main(argv: string[]): number {
     if (!Array.isArray(matches)) {
       fail(`${deckPath} does not look like a match log (expected a JSON array).`);
     }
+
+    /**
+     * ⚠️ **Validate before reading.** `read()` trusts its input — a non-array `symptoms`
+     * or a null entry throws out of it, and an uncaught throw exits Node with code 1, which
+     * this file reserves for "violations found". A caller reading exit codes would take a
+     * crash for a result, which is the exact confusion the exit-code contract exists to
+     * prevent. The API path already answers 400 here; this path must not be laxer.
+     */
+    const bad = matches.flatMap((record, i) => {
+      if (!record || typeof record !== "object") return [`match ${i}: not an object.`];
+      return validateMatch(record as MatchRecord).map((p) => `match ${i}: ${p}`);
+    });
+    if (bad.length > 0) fail(`${deckPath} has invalid records:\n  ${bad.join("\n  ")}`);
     // Names come from --cards when supplied; the engine never learns them itself (D-034).
     const nameOf = (cardId: string) => {
       const entry = cards[cardId];

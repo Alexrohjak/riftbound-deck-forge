@@ -337,7 +337,8 @@ interface Version {
   seq: number;
   hash: string;
   at: string;
-  contents: { slots?: Array<{ quantity: number }> };
+  /** Optional: a row that failed to parse server-side arrives as `{}`. */
+  contents?: { slots?: Array<{ quantity?: number }> };
 }
 
 /**
@@ -352,8 +353,10 @@ export function History({ deckId, playedOn }: { deckId: string; playedOn: Set<st
   useEffect(() => {
     if (!open) return;
     fetch(`/decks/${encodeURIComponent(deckId)}/history`)
-      .then((r) => r.json())
-      .then((body: { versions: Version[] }) => setVersions(body.versions))
+      // Without the `ok` check a 400 parses into `versions: undefined`, which matches
+      // neither empty nor non-empty below and leaves the panel reading forever.
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((body: { versions?: Version[] }) => setVersions(body.versions ?? []))
       .catch(() => setVersions([]));
   }, [deckId, open]);
 
@@ -372,7 +375,8 @@ export function History({ deckId, playedOn }: { deckId: string; playedOn: Set<st
       {open && versions && versions.length > 0 && (
         <ol className="timeline">
           {versions.map((v) => {
-            const cards = (v.contents.slots ?? []).reduce((n, s) => n + s.quantity, 0);
+            // Optional all the way down: one malformed row must cost a row, not the page.
+            const cards = (v.contents?.slots ?? []).reduce((n, s) => n + (s?.quantity ?? 0), 0);
             return (
               <li key={v.seq}>
                 <code>{v.hash.slice(0, 7)}</code>

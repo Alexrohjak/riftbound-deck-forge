@@ -98,7 +98,11 @@ export async function readHistory(db: D1Database, deckId: string) {
       seq: row.seq,
       hash: row.hash,
       at: row.at,
-      contents: parseOr<unknown>(row.contents, null),
+      // ⚠️ `{}` rather than `null`. Falling back to null moved the failure from the server
+      // (where the client's .catch already degraded to "no versions") into the client's
+      // render, where `contents.slots` throws and — with no error boundary — unmounts the
+      // whole app. Hardening a read path is worthless if it relocates the crash.
+      contents: parseOr<{ slots?: unknown[] }>(row.contents, {}),
     })),
   };
 }

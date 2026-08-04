@@ -49,6 +49,19 @@ interface SlotRow {
   quantity: number;
 }
 
+/**
+ * `decodeURIComponent` throws `URIError` on a malformed escape — `/decks/%/history` is
+ * enough. Every id guard in this router ran *after* the decode, so a bad escape produced an
+ * unhandled 500 instead of the JSON 400 the guard exists to give.
+ */
+const decode = (raw: string): string | null => {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return null;
+  }
+};
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body, null, 2), {
     status,
@@ -294,8 +307,8 @@ export default {
     }
 
     if (pathname.startsWith("/matches/")) {
-      const id = decodeURIComponent(pathname.slice(9));
-      if (!/^[A-Za-z0-9_-]{1,64}$/.test(id)) {
+      const id = decode(pathname.slice(9));
+      if (id === null || !/^[A-Za-z0-9_-]{1,64}$/.test(id)) {
         return json({ error: "Match id must be 1-64 characters of [A-Za-z0-9_-]." }, 400);
       }
       if (request.method === "DELETE") return deleteMatch(env.DB, id);
@@ -310,17 +323,17 @@ export default {
 
     const historyFor = /^\/decks\/([^/]+)\/history$/.exec(pathname);
     if (historyFor) {
-      const id = decodeURIComponent(historyFor[1]!);
-      if (!/^[A-Za-z0-9_-]{1,64}$/.test(id)) {
+      const id = decode(historyFor[1]!);
+      if (id === null || !/^[A-Za-z0-9_-]{1,64}$/.test(id)) {
         return json({ error: "Deck id must be 1-64 characters of [A-Za-z0-9_-]." }, 400);
       }
       if (request.method !== "GET") return json({ error: "Use GET." }, 405);
       return readHistory(env.DB, id).then((r) => json(r));
     }
 
-    const deckId = pathname.startsWith("/decks/") ? decodeURIComponent(pathname.slice(7)) : null;
-    if (deckId) {
-      if (!/^[A-Za-z0-9_-]{1,64}$/.test(deckId)) {
+    const deckId = pathname.startsWith("/decks/") ? decode(pathname.slice(7)) : null;
+    if (pathname.startsWith("/decks/")) {
+      if (deckId === null || !/^[A-Za-z0-9_-]{1,64}$/.test(deckId)) {
         return json({ error: "Deck id must be 1-64 characters of [A-Za-z0-9_-]." }, 400);
       }
       if (request.method === "GET") return readDeck(env, deckId).then(json);

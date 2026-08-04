@@ -238,7 +238,16 @@ const GAMES = /^\d{1,2}-\d{1,2}$/;
  * unbounded field is an unbounded row, and every row here ends up in the nightly backup
  * that gets committed to a git repository (D-051).
  */
-const LIMITS = { notes: 2000, opponentNote: 200, deckName: 120, deckHash: 64 } as const;
+const LIMITS = {
+  notes: 2000,
+  opponentNote: 200,
+  deckName: 120,
+  deckHash: 64,
+  // Bounded too: these are equally free-form, land on the same row, and reach the same
+  // backup. Omitting them left the stated invariant false rather than merely incomplete.
+  deckId: 64,
+  opponentLegend: 64,
+} as const;
 
 /**
  * What is wrong with a record, in the order a person would notice it. Empty means valid.
