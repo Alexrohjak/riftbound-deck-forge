@@ -862,3 +862,41 @@ body.resizing * { pointer-events: none; }
 
 /* Legend and Champion are one card each. */
 .singles .slots { grid-template-columns: minmax(0, 1fr); }
+
+/* ── owned ────────────────────────────────────────────────────────────────── */
+/* Copies in the box, distinct from copies in this deck. Bottom-left so the two counts
+   never sit on top of each other, and outlined rather than filled so ownership reads as
+   a fact about the card rather than as a state of the deck. */
+.own {
+  position: absolute; left: -8px; bottom: -8px;
+  min-width: 1.7rem; height: 1.7rem; padding: 0 var(--s1);
+  display: grid; place-items: center; pointer-events: none;
+  background: var(--panel); color: var(--ink);
+  border: 2px solid var(--line-strong); border-radius: 999px;
+  font-family: var(--mono); font-size: 0.76rem; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.tab.owned { font-weight: 600; }
+.sentinel code {
+  font-family: var(--mono); background: var(--sunk);
+  padding: 0 var(--s1); border-radius: 3px;
+}
+
+/* The Owned toggle is a *mode*, not one of the mutually exclusive type tabs, so it cannot
+   wear their underline — that would claim membership in a group it does not belong to. It
+   takes the one interface accent instead (D-053): brass never appears on a card or beside a
+   domain dot, so it cannot be misread as a domain. */
+.tab.owned.on {
+  background: var(--accent); color: var(--accent-ink);
+}
+.tab.owned.on::after { display: none; }
+.tab.owned.on:hover { background: var(--accent); color: var(--accent-ink); }
+
+.rail {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
+  flex-wrap: wrap; margin: 0 0 var(--s3);
+  padding: var(--s2) var(--s3); border-radius: var(--radius-sm);
+  background: var(--accent-soft); border: 1px solid var(--line);
+  color: var(--dim); font-size: 0.8rem;
+}
+.rail strong { color: var(--ink); font-family: var(--mono); font-variant-numeric: tabular-nums; }

@@ -62,6 +62,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-051](#d-051) | **Backups leave Cloudflare** — nightly cron commits a JSON snapshot to the repo, not R2 | ✅ X8 |
 | [D-052](#d-052) | **Domain colours come from the rulebook** — corrects four of six in the locked D2 palette; amends D-046 | ✅ |
 | [D-053](#d-053) | **The chrome gets one accent** — brass for interface state only; colour still means domain on cards; amends D-046 | ✅ |
+| [D-054](#d-054) | **The collection is a filter, not a second gallery** — one gallery, an Owned toggle over it | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -1928,3 +1929,52 @@ interface felt cold next to saturated, warm card art — the palette was fightin
 | Keep strict greyscale | Twice reported as dull. A principle that produces an interface nobody wants to look at has failed at its job |
 | Use a domain colour as the accent | Exactly what D-046 forbids, and for good reason: an amber button beside an Order card is ambiguous |
 | Accent per Domain Identity — the chrome takes the Legend's colours | Tempting and wrong. The chrome would change meaning between decks, and a red interface next to Fury cards is the collision the thesis exists to prevent |
+
+
+---
+
+<a id="d-054"></a>
+
+## D-054 — The collection is a filter over the gallery, not a second gallery
+
+**Date:** 2026-08-04
+**Status:** Accepted
+
+**Asked for:** *"a clear button or filter or something, whatever you prefer, that takes to a
+different page or view where the gallery is only made up of the owned, registered cards and
+the respective number of each."*
+
+**Decided:** an **Owned** toggle in the existing toolbar. One gallery, one set of filters, one
+grid — ownership narrows it the same way a domain or a type does.
+
+### Why not a separate page
+
+A second page would have to re-implement search, the type tabs, the domain and cost filters,
+the sort, the size control and the click-to-add behaviour — or do without them. Both outcomes
+are bad, and the second is worse: *"which of my Fury units cost 2 or less"* is the actual
+question a collection view exists to answer, and it needs the filters that already exist.
+
+Forking the gallery would also fork every future change to it. The battlefield-orientation fix
+one commit earlier would have needed doing twice.
+
+### What the toggle carries with it
+
+- **Counts are summed across printings.** Ownership is keyed on printing, the gallery is keyed
+  on name ([DATA-MODEL §2](spec/DATA-MODEL.md)) — three copies is three copies whether or not
+  they are three different arts. Getting this wrong would hide cards you own.
+- **A `Copies held` sort**, offered *only* while the toggle is on. Everywhere else every card
+  is zero, and a sort that orders the pool by a column of zeroes is a trap. Turning the toggle
+  off reverts the sort rather than leaving it meaninglessly active.
+- **Brass, not the tab underline.** The type tabs are mutually exclusive; Owned is orthogonal
+  and composes with them. Giving it their underline would claim membership in a group it does
+  not belong to, so it takes the one chrome accent instead ([D-053](#d-053)).
+- **An honest empty state.** Until `W2` it says so and names the tool that fills it, rather
+  than rendering an empty grid that looks like a bug ([D-022](#d-022) — omit rather than fake).
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| A separate `/collection` route | Forks the gallery and everything that will ever be added to it; loses search and filters or duplicates them |
+| An "owned" chip inside the Filters panel | Correct in structure, wrong in prominence. This is the answer to *"show me my cards"* — a question asked constantly, not a refinement |
+| Dim unowned cards instead of hiding them | Considered and worth revisiting for deckbuilding, where knowing a card exists is useful. It is a different feature from *browsing the collection*, which is what was asked for |

@@ -11,7 +11,7 @@ import { isDeckable, search, zoneFor, type Card } from "./cards.js";
 
 export type Tab = "all" | "legend" | "main" | "battlefield" | "rune";
 
-export type SortKey = "release" | "cost" | "might" | "name";
+export type SortKey = "release" | "cost" | "might" | "name" | "copies";
 export interface Sort {
   key: SortKey;
   /** `release` ascending is the order the cards were printed, which is the sane default. */
@@ -21,6 +21,15 @@ export interface Sort {
 export interface Filters {
   tab: Tab;
   query: string;
+  /**
+   * Show only cards you physically own.
+   *
+   * ⚠️ **Ownership is per printing; this filter is per name.** You own three copies of a
+   * card whether they are three of the same art or three different ones, so the count is
+   * summed across a card's printings — the same collapse the gallery already does
+   * (DATA-MODEL §2).
+   */
+  owned: boolean;
   /** Empty means "any". Otherwise a card must sit entirely inside the chosen domains. */
   domains: Domain[];
   /** Empty means "any". `unit`, `spell`, `gear`, `battlefield`, `rune`. */
@@ -35,6 +44,7 @@ export interface Filters {
 export const NO_FILTERS: Filters = {
   tab: "all",
   query: "",
+  owned: false,
   domains: [],
   types: [],
   sort: { key: "release", desc: false },
@@ -52,9 +62,21 @@ const inTab = (card: Card, tab: Tab): boolean => {
 const insideIdentity = (card: Card, identity: readonly Domain[]): boolean =>
   card.domains.every((d) => d === "colorless" || identity.includes(d));
 
-const compare = (a: Card, b: Card, sort: Sort): number => {
+const compare = (
+  a: Card,
+  b: Card,
+  sort: Sort,
+  collection: Readonly<Record<string, number>>,
+): number => {
   const dir = sort.desc ? -1 : 1;
   switch (sort.key) {
+    // Deepest holdings first. Only offered inside the Owned view, where it is the one
+    // ordering the gallery cannot already express — everywhere else every card is 0.
+    case "copies":
+      return (
+        dir * (ownedCount(b, collection) - ownedCount(a, collection)) ||
+        a.name.localeCompare(b.name)
+      );
     case "cost":
       // Cards with no cost sort last either way rather than pretending to be free.
       return dir * ((a.energy ?? 99) - (b.energy ?? 99)) || a.release - b.release;
@@ -67,8 +89,17 @@ const compare = (a: Card, b: Card, sort: Sort): number => {
   }
 };
 
-export function apply(cards: Card[], f: Filters): Card[] {
+/** Copies owned of a card, summed across every printing of that name. */
+export const ownedCount = (card: Card, collection: Readonly<Record<string, number>>): number =>
+  card.printings.reduce((n, p) => n + (collection[p.id] ?? 0), 0);
+
+export function apply(
+  cards: Card[],
+  f: Filters,
+  collection: Readonly<Record<string, number>> = {},
+): Card[] {
   const picked = cards.filter((card) => {
+    if (f.owned && ownedCount(card, collection) === 0) return false;
     if (!inTab(card, f.tab)) return false;
     if (f.identity && !insideIdentity(card, f.identity)) return false;
     if (f.championTag) {
@@ -85,7 +116,7 @@ export function apply(cards: Card[], f: Filters): Card[] {
 
   // Search ranks by relevance, so it decides the order when there is a query at all.
   const found = f.query.trim() ? search(picked, f.query) : picked;
-  return f.query.trim() ? found : [...found].sort((a, b) => compare(a, b, f.sort));
+  return f.query.trim() ? found : [...found].sort((a, b) => compare(a, b, f.sort, collection));
 }
 
 export const SORTS: Array<{ key: SortKey; label: string }> = [
@@ -93,6 +124,8 @@ export const SORTS: Array<{ key: SortKey; label: string }> = [
   { key: "cost", label: "Energy" },
   { key: "might", label: "Might" },
   { key: "name", label: "Name" },
+  // ⚠️ Only meaningful with the Owned filter on; the toolbar hides it otherwise.
+  { key: "copies", label: "Copies held" },
 ];
 
 export const TYPES = ["unit", "spell", "gear", "battlefield", "rune"];

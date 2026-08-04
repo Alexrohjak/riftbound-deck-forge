@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { checkLegality, energyCurve, zoneCount, type Zone } from "@forge/engine";
 import { hd, loadPool, srcSet, zoneFor, type Card, type CardPool, type Printing } from "./cards.js";
 import { useDeck, type SaveState } from "./deckStore.js";
-import { apply, DOMAIN_LIST, NO_FILTERS, SORTS, TYPES, type Filters, type Tab } from "./filters.js";
+import { apply, DOMAIN_LIST, NO_FILTERS, ownedCount, SORTS, TYPES, type Filters, type Tab } from "./filters.js";
 import { filtersFor, runeSlots, stepFor, type Step } from "./buildFlow.js";
 import { Workshop, type Occupant, type Target } from "./Workshop.js";
 import { CardDetail } from "./CardDetail.js";
@@ -82,6 +82,7 @@ function EnergyCurve({ counts, unknown, counted }: ReturnType<typeof energyCurve
 function Tile({
   card,
   held,
+  owned,
   index,
   sizes,
   onAdd,
@@ -89,6 +90,8 @@ function Tile({
 }: {
   card: Card;
   held: number;
+  /** Copies in the box. A different fact from `held`, which is copies in this deck. */
+  owned: number;
   index: number;
   /** ⚠️ A literal length. `sizes` is parsed before CSS, so `var(--tile)` silently
       falls back to 100vw — which had the gallery fetching 2492px images to draw at 208. */
@@ -131,6 +134,7 @@ function Tile({
         )}
       </button>
       {held > 0 && <span className="held">{held}</span>}
+      {owned > 0 && <span className="own" title={`${owned} in your collection`}>{owned}</span>}
     </div>
   );
 }
@@ -188,7 +192,22 @@ export function App() {
     [pool, guided, step, deck, base],
   );
 
-  const results = useMemo(() => (pool ? apply(pool.cards, filters) : []), [pool, filters]);
+  const results = useMemo(
+    () => (pool ? apply(pool.cards, filters, owned) : []),
+    [pool, filters, owned],
+  );
+
+  /**
+   * The collection in one line. **Names, not printings** — you own a card once however many
+   * arts it came in, and printings is the number that would make a collection sound bigger
+   * than it plays (DATA-MODEL §2).
+   */
+  const holdings = useMemo(() => {
+    if (!pool) return { names: 0, copies: 0 };
+    let names = 0;
+    for (const card of pool.cards) if (ownedCount(card, owned) > 0) names += 1;
+    return { names, copies: Object.values(owned).reduce((n, q) => n + q, 0) };
+  }, [pool, owned]);
   useEffect(() => setShown(PAGE), [filters]);
 
   useEffect(() => {
@@ -365,6 +384,22 @@ export function App() {
 
           <button
             type="button"
+            className={base.owned ? "tab owned on" : "tab owned"}
+            onClick={() => {
+              setGuided(false);
+              setBase((f) => ({
+                ...f,
+                owned: !f.owned,
+                sort: !f.owned || f.sort.key !== "copies" ? f.sort : { key: "release", desc: false },
+              }));
+            }}
+            title="Show only cards you physically own"
+          >
+            Owned
+          </button>
+
+          <button
+            type="button"
             className={showFilters || activeFilters ? "tab on" : "tab"}
             onClick={() => setShowFilters((s) => !s)}
           >
@@ -416,7 +451,7 @@ export function App() {
             </div>
             <div className="fgroup">
               <span className="flabel">Sort</span>
-              {SORTS.map((s) => (
+              {SORTS.filter((s) => s.key !== "copies" || base.owned).map((s) => (
                 <button
                   key={s.key}
                   type="button"
@@ -461,6 +496,23 @@ export function App() {
           </p>
         )}
 
+        {base.owned && holdings.names > 0 && (
+          <p className="rail">
+            <span>
+              <strong>{holdings.names}</strong> cards registered,{" "}
+              <strong>{holdings.copies}</strong> copies
+              {results.length < holdings.names && ` · ${results.length} match the filters`}
+            </span>
+            <button
+              type="button"
+              className="ghost"
+              onClick={() => setBase((f) => ({ ...f, owned: false }))}
+            >
+              show every card
+            </button>
+          </p>
+        )}
+
         <div className="grid" style={{ ["--tile" as string]: SIZES[size] }}>
           {results.slice(0, shown).map((card, i) => (
             <Tile
@@ -468,6 +520,7 @@ export function App() {
               index={i % PAGE}
               sizes={SIZES[size]}
               card={card}
+              owned={ownedCount(card, owned)}
               held={card.types.includes("legend") ? 0 : copiesOfName(card)}
               onAdd={() => add(card)}
               onRemove={() => removeOne(card)}
@@ -477,7 +530,16 @@ export function App() {
 
         <div ref={sentinel} className="sentinel">
           {shown < results.length ? `${results.length - shown} more…` : ""}
-          {results.length === 0 && <span className="empty">Nothing matches those filters.</span>}
+          {results.length === 0 &&
+            (base.owned && Object.keys(owned).length === 0 ? (
+              <span className="empty">
+                Nothing registered yet. Enter your cards with the collection tool in
+                <code> tools/collection/</code> — until then Forge knows every card that exists
+                and none that you have.
+              </span>
+            ) : (
+              <span className="empty">Nothing matches those filters.</span>
+            ))}
         </div>
       </section>
 
