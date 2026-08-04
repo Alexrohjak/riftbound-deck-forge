@@ -110,7 +110,17 @@ Claude Code will call it:
 npm run build -w @forge/cli
 node apps/cli/dist/index.js legality <deck.json> --cards <cards.json>
 node apps/cli/dist/index.js log <matches.json> --cards <cards.json>
+
+# S5 — deck generation. The engine states the constraints; the caller chooses the cards.
+node apps/cli/dist/index.js brief --legend <cardId> --pool apps/web/public/cards.json
+node apps/cli/dist/index.js validate <proposal.json> --legend <cardId> --pool apps/web/public/cards.json
 ```
+
+`brief` returns the Legend's ability text, every card legal under its identity, the targets
+and what you own. `validate` returns **instructions rather than complaints** — *"add 3 more
+Main Deck cards"*, not *"found 37"* — and catches card ids that do not exist, which no
+legality check can: an unknown printing falls back to its own id as a name, so forty invented
+cards would pass every count.
 
 `log` is the same engine reading the [match record](docs/spec/LOG.md) — and it is where the
 restraint shows: below 10 matches it returns `rate: null` with a `withheld` sentence saying

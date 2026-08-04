@@ -14,10 +14,12 @@
  */
 import { readFileSync } from "node:fs";
 import {
+  buildBrief,
   checkLegality,
   diagnose,
   read as readLog,
   validate as validateMatch,
+  validateProposal,
   match,
   readArchetype,
   review,
@@ -27,11 +29,16 @@ import {
   type Deck,
   type MatchRecord,
   type PoolCard,
+  type Proposal,
 } from "@forge/engine";
 
-const USAGE = `forge <legality|review|ask|log> <deck.json|matches.json> [--cards <cards.json>] [--note "..."]
+const USAGE = `forge <legality|review|ask|log|brief|validate> <file.json> [options]
 
   deck.json    a Deck — see docs/spec/DATA-MODEL.md §1
+  --pool       apps/web/public/cards.json — the generated index. Easier than --cards:
+               it already holds every printing with domains, energy, might and rules text.
+  --collection printing id -> quantity, as PUT /collection takes. Optional everywhere;
+               supplying it makes suggestions and warnings ownership-aware.
   --cards      printing id -> card facts. Either "<name>" or
                { "name": ..., "domains": [...], "energy": n } per printing.
 
@@ -43,6 +50,17 @@ const USAGE = `forge <legality|review|ask|log> <deck.json|matches.json> [--cards
   legality     is this deck registerable? 33 checks, each with its citation.
   review       what IS this deck? Counts, odds, and what good players would say —
                every judgement carrying its source and how much confidence it earns.
+  brief        --legend <cardId> [--around a,b] [--exclude "Name,Name"]
+               The constraint set a deck proposal has to satisfy: the Legend's ability
+               text, every card legal under its identity, the targets, and what you own.
+               S5 — the model proposes, the engine disposes.
+
+  validate     proposal.json --legend <cardId>
+               Runs a proposal through all 33 checks plus ownership and returns
+               *instructions*, not complaints: "add 3 more Main Deck cards", not
+               "found 37". Also catches card ids that do not exist, which no legality
+               check can — an unknown printing looks like an ordinary card nobody owns.
+
   log          matches.json — the record, and what it is honest to conclude from it.
                ⚠️ Rates are WITHHELD below 10 matches (5 per matchup) rather than shown
                with a caveat. The "withheld" field says why. See docs/spec/LOG.md.
@@ -72,24 +90,111 @@ function readJson(path: string): unknown {
 }
 
 function main(argv: string[]): number {
-  const [command, deckPath, ...rest] = argv;
+  const [command, ...args] = argv;
+  // ⚠️ The file argument is positional and optional — `brief` takes only flags. Treating
+  // `argv[1]` as a path unconditionally made `forge brief --legend X` read "--legend" as
+  // the filename and then report the flag as missing, which is a maddening way to be told
+  // the arguments are fine.
+  const deckPath = args[0] && !args[0].startsWith("--") ? args[0] : undefined;
+  const rest = deckPath ? args.slice(1) : args;
 
   if (!command || command === "--help" || command === "-h") {
     process.stdout.write(`${USAGE}\n`);
     return 0;
   }
-  if (!["legality", "review", "ask", "log"].includes(command)) {
+  if (!["legality", "review", "ask", "log", "brief", "validate"].includes(command)) {
     fail(`Unknown command "${command}".\n\n${USAGE}`);
   }
-  if (!deckPath) fail(`${command} needs an input file.\n\n${USAGE}`);
+  // `brief` takes flags rather than a file — there is no document to hand it.
+  if (!deckPath && command !== "brief") fail(`${command} needs an input file.\n\n${USAGE}`);
+
+  const flag = (name: string): string | undefined => {
+    const at = rest.indexOf(name);
+    if (at === -1) return undefined;
+    const value = rest[at + 1];
+    if (!value) fail(`${name} needs a value.`);
+    return value;
+  };
 
   let cards: Record<string, CardEntry> = {};
-  const cardsFlag = rest.indexOf("--cards");
-  if (cardsFlag !== -1) {
-    const cardsPath = rest[cardsFlag + 1];
-    if (!cardsPath) fail("--cards needs a path.");
-    cards = readJson(cardsPath) as Record<string, CardEntry>;
+  const cardsPath = flag("--cards");
+  if (cardsPath) cards = readJson(cardsPath) as Record<string, CardEntry>;
+
+  /**
+   * `--pool` reads the index the app already generates, which carries every printing with
+   * domains, energy, might and rules text. Hand-assembling `--cards` for 1,180 printings to
+   * ask one question was the friction that kept this surface unused.
+   */
+  const poolPath = flag("--pool");
+  if (poolPath) {
+    const raw = readJson(poolPath) as {
+      cards?: Array<Record<string, unknown> & { printings?: Array<{ id: string }> }>;
+    };
+    if (!Array.isArray(raw.cards)) fail(`${poolPath} does not look like the generated card index.`);
+    for (const card of raw.cards) {
+      for (const printing of card.printings ?? []) {
+        cards[printing.id] = {
+          name: card.name as string,
+          types: card.types as string[],
+          superTypes: card.superTypes as string[],
+          tags: card.tags as string[],
+          text: (card.text as string) ?? "",
+          domains: card.domains as never,
+          energy: (card.energy as number) ?? null,
+          might: (card.might as number) ?? null,
+          banned: card.banned === true,
+          ...(card.produces ? { produces: card.produces as string[] } : {}),
+          ...(card.consumes ? { consumes: card.consumes as string[] } : {}),
+          ...(card.championTag ? { championTag: card.championTag as string } : {}),
+        } as CardEntry;
+      }
+    }
   }
+
+  const collectionPath = flag("--collection");
+  const collection = collectionPath
+    ? ((readJson(collectionPath) as { counts?: Record<string, number> }).counts ??
+      (readJson(collectionPath) as Record<string, number>))
+    : {};
+
+  const cardIndex = staticCardIndex(cards);
+
+  if (command === "brief" || command === "validate") {
+    const legendCardId = flag("--legend");
+    if (!legendCardId) fail(`${command} needs --legend <cardId>.`);
+    const pool: PoolCard[] = Object.entries(cards).map(([cardId, entry]) => ({
+      cardId,
+      facts: typeof entry === "string" ? { name: entry } : entry,
+    }));
+    if (pool.length === 0) fail("No card data. Pass --pool apps/web/public/cards.json.");
+
+    const brief = buildBrief(
+      {
+        legendCardId,
+        aroundCardIds: flag("--around")?.split(",").map((s) => s.trim()).filter(Boolean) ?? [],
+        excludeNames: flag("--exclude")?.split(",").map((s) => s.trim()).filter(Boolean) ?? [],
+      },
+      cardIndex,
+      pool,
+      collection,
+    );
+
+    if (command === "brief") {
+      process.stdout.write(`${JSON.stringify(brief, null, 2)}\n`);
+      return 0;
+    }
+
+    if (!deckPath) fail("validate needs a proposal.json.");
+    const proposal = readJson(deckPath) as Proposal;
+    const verdict = validateProposal(proposal, brief, cardIndex, collection);
+    process.stdout.write(`${JSON.stringify(verdict, null, 2)}\n`);
+    // ⚠️ Exit 1 means "the deck has problems", the same as `legality`. A repair loop reads
+    // this, so it must not differ from the command it mirrors.
+    return verdict.usable ? 0 : 1;
+  }
+
+  // Everything below reads a file; `brief` was the only command that does not.
+  if (!deckPath) fail(`${command} needs an input file.\n\n${USAGE}`);
 
   if (command === "log") {
     /**
@@ -134,7 +239,7 @@ function main(argv: string[]): number {
     fail(`${deckPath} does not look like a Deck (no slots array).`);
   }
 
-  const index = staticCardIndex(cards);
+  const index = cardIndex;
 
   if (command === "ask") {
     const noteFlag = rest.indexOf("--note");

@@ -86,3 +86,4 @@ export {
   type Seed,
   type Targets,
 } from "./generate/brief.js";
+export { validateProposal, type Repair, type Verdict } from "./generate/validate.js";

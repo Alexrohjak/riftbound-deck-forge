@@ -66,6 +66,16 @@ export interface Brief {
   targets: Targets;
   /** Every card legal under this Legend — the whole search space, nothing pre-filtered. */
   pool: BriefCard[];
+  /**
+   * ⚠️ **Every legal printing id, not just the one shown per name.**
+   *
+   * `pool` collapses to one entry per name, because a proposal should choose cards rather
+   * than pictures. But a *different* printing of a pool card is equally legal — it is the
+   * same card — and validating against the collapsed list reported real cards as invented.
+   * Fury Rune came back as "not in the supplied pool" because the brief happened to list a
+   * different art of it.
+   */
+  legalCardIds: string[];
   /** The cards the builder asked for, resolved and checked against identity. */
   around: BriefCard[];
   /** ⚠️ Asked for but **not legal** under this Legend. Silence here would be a trap. */
@@ -123,14 +133,18 @@ export function buildBrief(
 
   const seen = new Set<string>();
   const legal: BriefCard[] = [];
+  const legalCardIds: string[] = [];
   for (const { cardId, facts } of pool) {
-    if (seen.has(facts.name) || excluded.has(facts.name)) continue;
+    if (excluded.has(facts.name)) continue;
     if (facts.banned) continue;
     if (facts.types?.includes("legend")) continue;
     if (facts.superTypes?.includes("token")) continue;
     // L9/L10 — a card outside the Legend's identity cannot be registered, so offering it
     // would be offering an illegal deck.
     if (identity.length > 0 && !insideIdentity(facts.domains, identity)) continue;
+    // Every legal printing is acceptable in a slot; only the *listing* collapses by name.
+    legalCardIds.push(cardId);
+    if (seen.has(facts.name)) continue;
     seen.add(facts.name);
     legal.push(describe(cardId, facts));
   }
@@ -183,6 +197,7 @@ export function buildBrief(
       official: OFFICIAL,
     },
     pool: legal,
+    legalCardIds,
     around,
     aroundRejected,
     excludeNames,
