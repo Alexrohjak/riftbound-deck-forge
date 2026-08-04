@@ -1149,11 +1149,17 @@ body.resizing * { pointer-events: none; }
 .solo-right .hit-delta { font-size: 1.8rem; }
 
 /* On a phone the preview stacks rather than squeezing the art to nothing. */
-@media (max-width: 640px) {
+@media (max-width: 40rem) {
   .hit-solo { flex-wrap: wrap; gap: var(--s3); padding: var(--s3); }
   .hit-solo img { width: 140px; }
   .hit-solo img.wide { width: 200px; }
   .addfield { font-size: 1.15rem; }
+  /* The ⏎ hint is desk advice; on a phone you tap the row. */
+  .hits .hit-key { display: none; }
+  .hits button { gap: var(--s3); padding: var(--s2); }
+  .hits img { width: 72px; }
+  .hits img.wide { width: 104px; }
+  .adder { padding: var(--s2); }
 }
 
 .tab.add.on { background: var(--accent); color: var(--accent-ink); }
@@ -1215,7 +1221,13 @@ body.resizing * { pointer-events: none; }
   padding: 2px var(--s2); border-radius: var(--radius-sm); cursor: pointer;
   background: var(--alert); color: #fff; border: none; font: inherit; font-size: 0.72rem;
 }
-.deckactions { display: flex; gap: var(--s2); padding: var(--s2); border-top: 1px solid var(--line); margin-top: var(--s2); }
+/* Three buttons, one of them "Duplicate this one". They must wrap rather than squeeze:
+   the deck list is full-width on a phone, which is ~390px for all three. */
+.deckactions {
+  display: flex; flex-wrap: wrap; gap: var(--s2); padding: var(--s2);
+  border-top: 1px solid var(--line); margin-top: var(--s2);
+}
+.deckactions > * { flex: 1 1 auto; white-space: nowrap; }
 .deckactions .primary { flex: 1; }
 .deckfoot { margin: 0; padding: 0 var(--s2) var(--s1); font-size: 0.68rem; color: var(--faint); }
 .rename { font-size: 0.72rem; }

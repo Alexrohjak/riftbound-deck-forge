@@ -65,6 +65,7 @@ export function DeckBar({
   const legendName = (id: string | null) =>
     (id && pool.byPrinting.get(id)?.name) || "no Legend yet";
 
+  /** Create an empty deck and open it. Shared by "New deck" and by deleting the last one. */
   const startNew = async () => {
     setBusy(true);
     const id = newDeckId();
@@ -106,11 +107,19 @@ export function DeckBar({
     setBusy(false);
     setConfirming(null);
     onRefresh();
+    if (id !== deck.id) return;
+
     // Deleting the deck you are looking at leaves nothing open, so fall to another.
-    if (id === deck.id) {
-      const next = (decks ?? []).find((d) => d.id !== id);
-      if (next) onOpen(next.id);
+    const next = (decks ?? []).find((d) => d.id !== id);
+    if (next) {
+      onOpen(next.id);
+      return;
     }
+    // ⚠️ Deleting your *last* deck left the app still pointing at the deleted id. The store
+    // reads `{ deck: null }`, falls back to an empty deck, and the next edit writes it
+    // straight back — so the deck you deleted reappears the moment you touch anything.
+    // Forge should always have a real deck open.
+    await startNew();
   };
 
   return (
