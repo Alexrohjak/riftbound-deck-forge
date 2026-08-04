@@ -773,3 +773,61 @@ body.resizing * { pointer-events: none; }
 .gallery { background: var(--ground); }
 .workshop { background: var(--panel); }
 .toolbar { background: color-mix(in srgb, var(--ground) 90%, transparent); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Workshop at a comfortable size
+
+   Everything in the tray was scaled for a narrow panel that no longer exists — the panel
+   is draggable and defaults to a third of the window. These are the sizes that panel can
+   actually afford, roughly a third up across the board.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.workshop { padding: var(--s5); gap: var(--s4); font-size: var(--step-0); }
+.workshop header {
+  margin: calc(var(--s5) * -1) calc(var(--s5) * -1) 0;
+  padding: var(--s4) var(--s5);
+}
+.workshop header h1 { font-size: var(--step-2); }
+.save { font-size: 0.8rem; }
+.ghost { font-size: 0.82rem; padding: var(--s2) var(--s3); }
+
+/* Cards you can identify without leaning in. */
+.slots { grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); gap: var(--s2); }
+
+/* The two cards that define the deck, sized to match that role. */
+.singles, .bay.singles { grid-template-columns: repeat(2, minmax(0, 14rem)); gap: var(--s4); }
+
+/* Headers read as headers rather than as captions. */
+.bay { padding: var(--s4); }
+.bay h2 {
+  margin: calc(var(--s4) * -1) calc(var(--s4) * -1) var(--s4);
+  padding: var(--s3) var(--s4);
+  font-size: 0.8rem;
+}
+.bay h2 .of { font-size: 0.95rem; }
+
+/* The tally is the one thing you glance at mid-build; it should read from a distance. */
+.tally { padding: var(--s1) 0; }
+.stat { padding: var(--s3) var(--s2); }
+.stat b { font-size: 1.7rem; }
+.stat b .of { font-size: 0.9rem; }
+.stat span { font-size: 0.62rem; }
+
+/* Prose was set for a sidebar. It is a panel. */
+.violations, .warnings { font-size: 0.82rem; padding: var(--s3) var(--s4) var(--s3) var(--s5); }
+.violations li + li, .warnings li + li { margin-top: var(--s2); }
+.caveat { font-size: 0.76rem; padding-top: var(--s3); }
+.identity-line { font-size: 0.68rem; }
+.steps li { font-size: 0.66rem; padding: var(--s2) 0 var(--s2); }
+
+.panel { padding: var(--s4); }
+.curve { height: 6.5rem; gap: var(--s1); }
+.bar .count, .bar .tick { font-size: 0.68rem; }
+.bar .stem { max-width: 2.8rem; }
+
+/* A bigger tray deserves a bigger look. */
+.peek { width: 19rem; }
+
+/* Champion list, when picking one. */
+.champions button { font-size: 0.85rem; padding: var(--s2); }
+.champions img { width: 2.4rem; height: 2.4rem; }
