@@ -37,6 +37,11 @@ export interface Card {
   domains: Domain[];
   tags: string[];
   text: string;
+  /** Derived classification, present for the 814 main-deck cards. */
+  role?: string;
+  timing?: string;
+  produces?: string[];
+  consumes?: string[];
   printings: Printing[];
   /** Present only when true. Banned cards are shown, never hidden — just marked. */
   banned?: boolean;
@@ -83,6 +88,10 @@ export function buildPool(raw: RawIndex): CardPool {
         superTypes: card.superTypes,
         tags: card.tags,
         text: card.text,
+        ...(card.role ? { role: card.role } : {}),
+        ...(card.timing ? { timing: card.timing } : {}),
+        ...(card.produces ? { produces: card.produces } : {}),
+        ...(card.consumes ? { consumes: card.consumes } : {}),
         domains: card.domains,
         energy: card.energy,
         // Always present, never conditional: absent would read as "unknown", and the

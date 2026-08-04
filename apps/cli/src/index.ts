@@ -13,9 +13,9 @@
  * "couldn't tell" matters: a caller must never read a crash as a pass.
  */
 import { readFileSync } from "node:fs";
-import { checkLegality, staticCardIndex, type CardEntry, type Deck } from "@forge/engine";
+import { checkLegality, review, staticCardIndex, type CardEntry, type Deck } from "@forge/engine";
 
-const USAGE = `forge legality <deck.json> [--cards <cards.json>]
+const USAGE = `forge <legality|review> <deck.json> [--cards <cards.json>]
 
   deck.json    a Deck — see docs/spec/DATA-MODEL.md §1
   --cards      printing id -> card facts. Either "<name>" or
@@ -26,7 +26,16 @@ const USAGE = `forge legality <deck.json> [--cards <cards.json>]
                merging distinct cards. Supplying "domains" additionally enables the Domain
                Identity checks — the result's "checked" list always says which ones ran.
 
-Prints a LegalityResult as JSON. Exit 0 legal, 1 violations, 2 bad input.`;
+  legality     is this deck registerable? 33 checks, each with its citation.
+  review       what IS this deck? Counts, odds, and what good players would say —
+               every judgement carrying its source and how much confidence it earns.
+
+⚠️ review returns three kinds of claim and they are not interchangeable:
+   fact        counted from the list; not arguable
+   probability computed, correct GIVEN the assumption in its attribution
+   doctrine    what good players advise — and they disagree, so it is attributed
+
+Prints JSON. Exit 0 legal, 1 violations, 2 bad input.`;
 
 function fail(message: string): never {
   process.stderr.write(`${message}\n`);
@@ -48,8 +57,10 @@ function main(argv: string[]): number {
     process.stdout.write(`${USAGE}\n`);
     return 0;
   }
-  if (command !== "legality") fail(`Unknown command "${command}".\n\n${USAGE}`);
-  if (!deckPath) fail(`legality needs a deck file.\n\n${USAGE}`);
+  if (command !== "legality" && command !== "review") {
+    fail(`Unknown command "${command}".\n\n${USAGE}`);
+  }
+  if (!deckPath) fail(`${command} needs a deck file.\n\n${USAGE}`);
 
   let cards: Record<string, CardEntry> = {};
   const cardsFlag = rest.indexOf("--cards");
@@ -64,7 +75,16 @@ function main(argv: string[]): number {
     fail(`${deckPath} does not look like a Deck (no slots array).`);
   }
 
-  const result = checkLegality(deck, staticCardIndex(cards));
+  const index = staticCardIndex(cards);
+
+  if (command === "review") {
+    // Deliberately not a score. A deck is a set of trade-offs and a number hides which
+    // ones were chosen (D-016).
+    process.stdout.write(`${JSON.stringify(review(deck, index), null, 2)}\n`);
+    return 0;
+  }
+
+  const result = checkLegality(deck, index);
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
   return result.legal ? 0 : 1;
 }

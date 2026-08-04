@@ -29,6 +29,18 @@ const cards = JSON.parse(readFileSync(join(ROOT, "data/cards.json"), "utf8"));
 const banlist = JSON.parse(readFileSync(join(ROOT, "data/banlist.json"), "utf8"));
 
 /**
+ * The synergy graph, keyed by name: what a card **produces** (pump, kill, draw, token…) and
+ * what it **consumes** (gear_matters, token_matters, trash_matters…).
+ *
+ * This is what lets EE answer "your deck has no removal" or "you have eleven cards that care
+ * about gear and four gear" without anyone hand-writing a rule per card. Covers the 814
+ * main-deck cards; runes, battlefields and tokens have no entry and need none.
+ */
+const classification = new Map(
+  JSON.parse(readFileSync(join(ROOT, "data/classification.json"), "utf8")).map((c) => [c.name, c]),
+);
+
+/**
  * Release order, per COMPENDIUM §"The five sets". This is the order the gallery sorts in,
  * because it is the order the cards exist in the world — collector numbers only mean
  * anything within a set, and alphabetical order means nothing to anyone.
@@ -94,6 +106,16 @@ const entries = [...byName].map(([name, group]) => {
     domains: base.domains,
     tags: base.tags,
     text: base.text,
+    ...(() => {
+      const c = classification.get(name);
+      if (!c) return {};
+      return {
+        ...(c.role && c.role !== "-" ? { role: c.role } : {}),
+        ...(c.timing && c.timing !== "-" ? { timing: c.timing } : {}),
+        ...(c.produces?.length ? { produces: c.produces } : {}),
+        ...(c.consumes?.length ? { consumes: c.consumes } : {}),
+      };
+    })(),
     printings: ordered.map((card) => ({
       id: card.id,
       code: card.publicCode,
@@ -144,6 +166,7 @@ const index = {
     printings: cards.length,
     legends: resolved,
     banned: entries.filter((e) => e.banned).length,
+    classified: entries.filter((e) => e.role).length,
   },
   cards: entries,
 };
@@ -156,5 +179,6 @@ const kb = (n) => `${(n / 1024).toFixed(0)} KB`;
 console.log(
   `✓ ${OUT.replace(`${ROOT}/`, "")} — ${index.counts.names} names / ` +
     `${index.counts.printings} printings, ${index.counts.legends} Legends tagged, ` +
-    `${index.counts.banned} banned · ${kb(json.length)} raw, ${kb(gzipSync(json).length)} gzip`,
+    `${index.counts.banned} banned, ${index.counts.classified} classified · ` +
+    `${kb(json.length)} raw, ${kb(gzipSync(json).length)} gzip`,
 );

@@ -16,5 +16,27 @@ export * from "./legality/index.js";
 /** Statistics. Tier 1 only so far — facts about the list, with no assumptions in them. */
 export { energyCurve, type EnergyCurve } from "./stats/energyCurve.js";
 
+/**
+ * EE's analytical surface — what a deck *is*, and what good players would say about it.
+ * Every judgement carries its source and confidence; nothing composites into a score.
+ */
+export {
+  deckShape,
+  atLeastOne,
+  CARDS_SEEN_BY_TURN_ONE,
+  MAIN_DECK_SIZE,
+  type DeckShape,
+} from "./advice/shape.js";
+export {
+  review,
+  capabilities,
+  COMMUNITY,
+  OFFICIAL,
+  type Capabilities,
+  type Confidence,
+  type Note,
+  type Source,
+} from "./advice/doctrine.js";
+
 /** In-memory `CardIndex`, sufficient for tests and for the static `F2` pool. */
 export { staticCardIndex, type CardEntry } from "./cardIndex.js";

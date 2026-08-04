@@ -54,6 +54,14 @@ export interface CardFacts {
   tags?: readonly string[];
   /** Rules text, searched for `[Unique]` (L28). */
   text?: string;
+  /** Derived classification — `body`, `combat-trick`, `removal-kill`, `card-draw`… */
+  role?: string;
+  /** When it can be played — `Action`, `Reaction`, `-`. */
+  timing?: string;
+  /** What it does: `pump`, `kill`, `draw`, `token`, `move`, `trashplay`… */
+  produces?: readonly string[];
+  /** What it needs to be good: `gear_matters`, `token_matters`, `trash_matters`… */
+  consumes?: readonly string[];
   /** Banned in Constructed 1v1 (L23, L30). Resolved through the ban list's alias map. */
   banned?: boolean;
   /**
