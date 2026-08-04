@@ -61,6 +61,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-050](#d-050) | **App ships as static assets on the Worker** — Pages is closed to new projects; amends D-048 | ✅ X7 |
 | [D-051](#d-051) | **Backups leave Cloudflare** — nightly cron commits a JSON snapshot to the repo, not R2 | ✅ X8 |
 | [D-052](#d-052) | **Domain colours come from the rulebook** — corrects four of six in the locked D2 palette; amends D-046 | ✅ |
+| [D-053](#d-053) | **The chrome gets one accent** — brass for interface state only; colour still means domain on cards; amends D-046 | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -1881,3 +1882,49 @@ there is a collection to show.
 | Keep the `D2` palette for fidelity to the locked design | Locks in a factual error about the game, in the one place the design says colour carries meaning |
 | Drop domain colour entirely, go fully greyscale | Throws away the most useful signal in deckbuilding — Domain Identity is the most constraining rule there is |
 | Re-do the prototype to match | The prototype is a dated design artefact, not a live document. Correcting the built interface and recording why is cheaper and more honest than editing history |
+
+<a id="d-053"></a>
+
+## D-053 — The chrome gets one accent; colour still means domain on cards ⚠️ AMENDS D-046
+
+**Date:** 2026-08-04
+**Status:** Accepted — amends the greyscale half of [D-046](#d-046)
+
+### What went wrong with strict greyscale
+
+[D-046](#d-046)'s thesis — *the interface is greyscale, so colour always means domain* — is
+sound reasoning and produced a **dull** interface. Used on real card art, an all-neutral
+chrome does not read as restraint; it reads as unfinished. That is a design failure whatever
+the argument behind it, and it was reported twice: *"the forge looks the exact same"*, then
+*"the whole page is a bit dull."*
+
+**Decided:** the interface keeps **one accent — brass** — used strictly for *chrome state*:
+the active tab, a section header, a primary action, a satisfied count. Never on a card, never
+adjacent to a domain dot, never to encode legality.
+
+### Why this does not break the thesis
+
+The thesis protects a specific thing: that when you see colour **on or beside a card**, it
+tells you a domain. That still holds absolutely.
+
+- Brass appears only where no card is being described — tab bars, panel headers, the masthead
+- The six domain colours remain the rulebook's, untouched ([D-052](#d-052))
+- **Legality is still carried by form** — a solid rule when satisfied, dashed when short, a
+  strike when over. Never red-and-green, which would collide with Fury and Body
+
+Brass is also the only hue not effectively claimed: the domains own red, green, blue, orange,
+purple and yellow. It sits closest to Order-yellow, which is why it is restricted to chrome
+where no domain reading is possible. It happens to suit a thing called Forge.
+
+### What else changed with it
+
+The neutrals moved from blue-grey to **warm charcoal**. The blue cast was most of why the
+interface felt cold next to saturated, warm card art — the palette was fighting the content.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Keep strict greyscale | Twice reported as dull. A principle that produces an interface nobody wants to look at has failed at its job |
+| Use a domain colour as the accent | Exactly what D-046 forbids, and for good reason: an amber button beside an Order card is ambiguous |
+| Accent per Domain Identity — the chrome takes the Legend's colours | Tempting and wrong. The chrome would change meaning between decks, and a red interface next to Fury cards is the collision the thesis exists to prevent |

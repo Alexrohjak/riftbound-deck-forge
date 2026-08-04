@@ -1,31 +1,40 @@
 /* Forge's design tokens.
    ────────────────────────────────────────────────────────────────────────────
-   **The interface is greyscale, so colour always means domain.** This is `D2`'s thesis
-   (D-046) and it is load-bearing: Riftbound already has a six-colour language, and Domain
-   Identity is the most constraining rule in deckbuilding. Colour spent on the interface
-   competes with the only colour that carries meaning — which is why legality is carried by
-   **form** here (weight, dashed rule, strike) rather than by red and green, two hues that
-   would collide with Fury and Body anyway.
+   **Colour means domain — on and around cards.** That is `D2`'s thesis (D-046) and it still
+   holds where it matters: Riftbound has a six-colour language, Domain Identity is the most
+   constraining rule in deckbuilding, and a card-level palette competing with it would be
+   noise dressed as decoration.
+
+   ⚠️ **Amended: the chrome gets one accent.** Strict greyscale everywhere made the interface
+   read as unfinished rather than as restrained. Brass is used *only* for interface state —
+   the active tab, a section header, a primary action — never on a card, never next to a
+   domain dot, and never to encode legality. It cannot be mistaken for a domain because it
+   never appears where a domain would be. See D-053.
 
    ⚠️ **The domain colours are the rulebook's, not a palette choice.** COMPENDIUM §1:
-   Fury red · Calm GREEN · Mind BLUE · Body ORANGE · Chaos PURPLE · Order yellow. Four of
-   these were wrong in both the first build and the D2 prototype — see D-052. A dot that
-   says "blue" when the game says "green" is misinformation dressed as decoration. */
+   Fury red · Calm GREEN · Mind BLUE · Body ORANGE · Chaos PURPLE · Order yellow (D-052). */
 
 :root {
   color-scheme: light dark;
 
-  /* ── neutrals: the entire interface ─────────────────────────────────────── */
-  --ground: #f3f4f7;
+  /* ── neutrals: warm charcoal rather than blue-grey. The blue cast was most of why the
+     interface felt cold and unfinished. ─────────────────────────────────────── */
+  --ground: #f4f3f1;
   --panel: #ffffff;
-  --sunk: #e9ebf0;
-  --line: #d8dbe3;
-  --line-strong: #c2c7d2;
-  --ink: #191b21;
-  --dim: #787e8d;
-  --faint: #a3a8b5;
+  --sunk: #eceae7;
+  --line: #dbd8d3;
+  --line-strong: #c4c0b9;
+  --ink: #1a1917;
+  --dim: #74716c;
+  --faint: #a5a19a;
 
-  /* ── the six domains. The only colour Forge is allowed to spend. ────────── */
+  /* ── the one interface accent. Brass: a forge colour, and the only hue not already
+     spoken for by a domain at the saturation the chrome uses. ────────────────── */
+  --accent: #a8730f;
+  --accent-ink: #ffffff;
+  --accent-soft: #f6ecd9;
+
+  /* ── the six domains. The only colour allowed to sit on a card. ─────────────── */
   --fury: #c8452f;
   --calm: #3f8f52;
   --mind: #2f6fc0;
@@ -37,36 +46,26 @@
   /* Reserved for a genuine failure. Never for "this zone is not full yet". */
   --alert: #b3261e;
 
-  /* ── type ───────────────────────────────────────────────────────────────── */
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
-  /* ── spacing: one scale, so rhythm is a choice rather than an accident ──── */
   --s1: 0.25rem;
   --s2: 0.5rem;
   --s3: 0.75rem;
   --s4: 1rem;
   --s5: 1.5rem;
   --s6: 2rem;
-  --radius: 6px;
-  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-sm: 5px;
 
-  /* ── motion ─────────────────────────────────────────────────────────────── */
-  /* Two durations and one curve. Everything that moves uses these, so the whole
-     interface accelerates and settles the same way instead of each part having its
-     own personality. */
   --fast: 120ms;
   --slow: 260ms;
   --ease: cubic-bezier(0.2, 0, 0, 1);
 
-  --shadow: 0 1px 2px rgba(20, 22, 30, 0.08), 0 8px 24px -12px rgba(20, 22, 30, 0.18);
-  --shadow-lift: 0 4px 10px rgba(20, 22, 30, 0.12), 0 24px 48px -20px rgba(20, 22, 30, 0.35);
-  /* A card lifted off the table throws a real shadow. This is what makes the grid feel
-     like objects rather than a wall of pictures. */
-  --shadow-card: 0 12px 28px -8px rgba(20, 22, 30, 0.35), 0 2px 6px rgba(20, 22, 30, 0.15);
+  --shadow: 0 1px 2px rgba(26, 25, 23, 0.07), 0 8px 24px -12px rgba(26, 25, 23, 0.18);
+  --shadow-lift: 0 4px 10px rgba(26, 25, 23, 0.12), 0 24px 48px -20px rgba(26, 25, 23, 0.35);
+  --shadow-card: 0 12px 28px -8px rgba(26, 25, 23, 0.3), 0 2px 6px rgba(26, 25, 23, 0.12);
 
-  /* Type. No webfont — the personality comes from scale and tracking, which cost nothing
-     to download and cannot fail to load. */
   --step--1: 0.72rem;
   --step-0: 0.875rem;
   --step-1: 1.05rem;
@@ -78,14 +77,19 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --ground: #101116;
-    --panel: #191b21;
-    --sunk: #15161c;
-    --line: #282b34;
-    --line-strong: #3a3e4a;
-    --ink: #e8e9ed;
-    --dim: #858b99;
-    --faint: #5d636f;
+    /* Warm near-black. Card art is saturated and warm; a blue-grey ground fought it. */
+    --ground: #100f0e;
+    --panel: #1a1917;
+    --sunk: #151412;
+    --line: #2a2825;
+    --line-strong: #3d3a35;
+    --ink: #f0ede8;
+    --dim: #948f87;
+    --faint: #625d56;
+
+    --accent: #d9a441;
+    --accent-ink: #17150f;
+    --accent-soft: #2a2214;
 
     --fury: #e2664f;
     --calm: #5fb073;
@@ -97,14 +101,14 @@
 
     --alert: #e5705f;
 
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
-    --shadow-lift: 0 4px 12px rgba(0, 0, 0, 0.55), 0 24px 48px -20px rgba(0, 0, 0, 0.9);
-    --shadow-card: 0 14px 34px -8px rgba(0, 0, 0, 0.75), 0 2px 8px rgba(0, 0, 0, 0.5);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px -12px rgba(0, 0, 0, 0.8);
+    --shadow-lift: 0 4px 12px rgba(0, 0, 0, 0.6), 0 24px 48px -20px rgba(0, 0, 0, 0.9);
+    --shadow-card: 0 14px 34px -8px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(0, 0, 0, 0.55);
   }
 }
 
-/* Motion is decoration for some people and nausea for others. Everything below turns
-   off together, and nothing depends on a transition having run to be usable. */
+/* Motion is decoration for some people and nausea for others. Everything turns off
+   together, and nothing depends on a transition having run to be usable. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

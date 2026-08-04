@@ -1,5 +1,6 @@
 import type { Deck, LegalityResult, Zone } from "@forge/engine";
 import { mainDeckCount, zoneCount } from "@forge/engine";
+import { useState } from "react";
 import { hd, srcSet, type Card, type CardPool } from "./cards.js";
 import { STEPS, type Step } from "./buildFlow.js";
 
@@ -48,6 +49,32 @@ export interface Target extends Occupant {
   role: Role;
 }
 
+/**
+ * A full-size look at whatever the pointer is over.
+ *
+ * ⚠️ Fixed-position rather than a scaled-up tile: the tray scrolls, so a card that grew
+ * inside it would be clipped by its own container at exactly the moment you wanted to read it.
+ */
+function Peek({ card, at }: { card: Card; at: { x: number; y: number } }) {
+  const printing = card.printings[0];
+  if (!printing) return null;
+  // Flip to the left of the pointer when there is no room to the right.
+  const flip = at.x > window.innerWidth - 300;
+  return (
+    <img
+      className="peek"
+      src={hd(printing, 260)}
+      srcSet={srcSet(printing)}
+      sizes="16rem"
+      alt=""
+      style={{
+        left: flip ? at.x - 272 : at.x + 16,
+        top: Math.min(at.y - 40, window.innerHeight - 380),
+      }}
+    />
+  );
+}
+
 function Slots({
   held,
   blanks,
@@ -62,10 +89,18 @@ function Slots({
   onRemove: (o: Occupant) => void;
   onSeek: () => void;
 }) {
+  const [peek, setPeek] = useState<{ card: Card; at: { x: number; y: number } } | null>(null);
+
   return (
-    <div className="slots">
+    <div className="slots" onMouseLeave={() => setPeek(null)}>
+      {peek && <Peek card={peek.card} at={peek.at} />}
       {held.map((o, i) => (
-        <div className="tray" key={`${o.cardId}-${i}`}>
+        <div
+          className="tray"
+          key={`${o.cardId}-${i}`}
+          onMouseMove={(e) => setPeek({ card: o.card, at: { x: e.clientX, y: e.clientY } })}
+          onMouseLeave={() => setPeek(null)}
+        >
           <button
             type="button"
             className="slot filled"

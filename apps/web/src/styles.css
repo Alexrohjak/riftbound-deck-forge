@@ -705,3 +705,71 @@ body.resizing * { pointer-events: none; }
   padding: var(--s3);
 }
 .singles > div > h2 { border-bottom: 1px solid var(--line); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Brass, and the polish it carries
+   Chrome only: an active tab, a section header, a primary action. Never on a card.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── the active tab reads as selected, not merely lighter ─────────────────── */
+.tabs .tab.on, .sizes .tab.on {
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+  box-shadow: none;
+}
+.tabs .tab.on::after, .sizes .tab.on::after { display: none; }
+.tab:focus-visible { outline-color: var(--accent); }
+
+/* ── section headers: a tinted bar rather than a line of small caps floating ── */
+.bay h2 {
+  margin: calc(var(--s3) * -1) calc(var(--s3) * -1) var(--s3);
+  padding: var(--s2) var(--s3);
+  border-bottom: 1px solid var(--line);
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: linear-gradient(180deg, var(--accent-soft), transparent);
+  color: var(--accent);
+  letter-spacing: var(--track-wide);
+}
+.bay h2 .of { color: var(--dim); }
+.bay h2 .of.met { color: var(--accent); font-weight: 700; }
+
+/* The tally's satisfied state is the accent, so "done" reads at a glance without
+   borrowing green — which belongs to Calm. */
+.stat.done { border-bottom-color: var(--accent); }
+.stat.done b { color: var(--accent); font-weight: 700; }
+.tile.in .face { box-shadow: 0 0 0 2px var(--accent); }
+.held { background: var(--accent); color: var(--accent-ink); }
+.slot.filled:hover { border-color: var(--accent); }
+.art.on, .artpick.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.steps li.now { color: var(--accent); border-bottom-color: var(--accent); }
+.chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+/* ── a masthead, so the panel has a top rather than starting mid-air ───────── */
+.workshop header {
+  margin: calc(var(--s4) * -1) calc(var(--s4) * -1) 0;
+  padding: var(--s3) var(--s4);
+  border-bottom: 1px solid var(--line);
+  background: var(--sunk);
+  position: sticky; top: 0; z-index: 4;
+}
+.workshop header h1 { color: var(--ink); }
+.workshop header h1::first-letter { color: var(--accent); }
+
+.ghost:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ── the tray's hover preview ──────────────────────────────────────────────── */
+/* The panel scrolls, so a scaled-up card would be clipped by its own container. The
+   preview is therefore fixed-position and positioned from JS. */
+.peek {
+  position: fixed; z-index: 60; pointer-events: none;
+  width: 16rem; border-radius: var(--radius);
+  box-shadow: var(--shadow-lift), var(--shadow-card);
+  animation: rise var(--fast) var(--ease);
+}
+
+/* ── depth: the two panes read as different surfaces ──────────────────────── */
+.gallery { background: var(--ground); }
+.workshop { background: var(--panel); }
+.toolbar { background: color-mix(in srgb, var(--ground) 90%, transparent); }
