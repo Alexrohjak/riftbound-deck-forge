@@ -74,6 +74,17 @@ export function ImportDeck({
       const name =
         typeof body.name === "string" && body.name.trim() ? body.name.trim() : "Imported deck";
 
+      // ⚠️ Nothing recognised is a bad file, not an empty deck. Creating one silently gives
+      // you a deck named after a proposal with nothing in it and no reason why.
+      if (slots.length === 0) {
+        throw new Error(
+          unknown > 0
+            ? `${unknown === 1 ? "The only card" : `None of the ${unknown} cards`} in that file ` +
+              `${unknown === 1 ? "is" : "are"} in this card pool.`
+            : "That file has no usable cards.",
+        );
+      }
+
       const id = newDeckId();
       const deck: Deck = {
         id,

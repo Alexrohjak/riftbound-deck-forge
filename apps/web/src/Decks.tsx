@@ -180,11 +180,14 @@ export function DeckBar({
               pool={pool}
               onImported={(id, result) => {
                 setImported(result);
-                if (result.kind === "ok") {
-                  onRefresh();
-                  onOpen(id);
-                  setOpen(false);
-                }
+                if (result.kind !== "ok") return;
+                onRefresh();
+                onOpen(id);
+                // ⚠️ Stay open when something was skipped. The report renders inside this
+                // panel, so closing it throws the message away — which is exactly the bug
+                // the collection importer had, made twice in one day. A clean import has
+                // nothing to say, so that one closes.
+                if (result.unknown === 0) setOpen(false);
               }}
             />
           </div>

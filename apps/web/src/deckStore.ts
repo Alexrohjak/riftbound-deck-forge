@@ -115,7 +115,11 @@ export function useDeck(deckId: string) {
     pending.current = null;
     setSave({ status: "saving" });
     try {
-      const response = await fetch(`/decks/${encodeURIComponent(deckId)}`, {
+      // ⚠️ **The deck says which deck it is.** Writing to the closure's `deckId` meant a
+      // save could land on whatever deck happened to be open when the timer fired. Using
+      // `next.id` makes a pending edit self-addressing, which is what lets it be flushed
+      // *after* you have switched away.
+      const response = await fetch(`/decks/${encodeURIComponent(next.id)}`, {
         method: "PUT",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(next),
@@ -127,15 +131,24 @@ export function useDeck(deckId: string) {
       // unsaved, which is the truthful state — see D-049.
       setSave({ status: "offline", detail: (error as Error).message });
     }
-  }, [deckId]);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
-    // ⚠️ Reset before the fetch, not after. Without this, switching decks leaves `loaded`
-    // true from the *previous* deck, so an edit made while the new one is still arriving
-    // would pass the guard in `push` and write the old deck's contents over it.
+    // ⚠️ **Flush before switching, do not discard.** An unsaved edit belongs to the deck it
+    // was made on. Clearing `pending` here stopped the old deck's contents landing on the
+    // new one — and silently threw the edit away: add a card, switch deck inside the 600ms
+    // debounce, and it was simply gone. `push` addresses the write by `next.id`, so the
+    // pending edit still reaches the deck it was made on.
+    if (timer.current) {
+      clearTimeout(timer.current);
+      timer.current = null;
+    }
+    if (pending.current) void push();
+
+    // Only then is it safe to say nothing is loaded: `push` checks this flag, and the flush
+    // above has to happen while it still refers to the deck being left.
     loaded.current = false;
-    pending.current = null;
     setSave({ status: "loading" });
     (async () => {
       try {
@@ -157,10 +170,7 @@ export function useDeck(deckId: string) {
     return () => {
       cancelled = true;
     };
-    // ⚠️ Switching decks must reset `loaded`, or the guard in `push` would let an edit to
-    // the newly opened deck save before its contents had arrived — writing the previous
-    // deck's state over it.
-  }, [deckId]);
+  }, [deckId, push]);
 
   const edit = useCallback(
     (change: (current: Deck) => Deck) => {
