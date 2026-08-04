@@ -175,7 +175,14 @@ export function useDeck() {
     [edit],
   );
 
+  /** Replace the whole slot list — used when picking a Legend refills the runes in one move. */
+  const setSlots = useCallback(
+    (change: (slots: DeckSlot[]) => DeckSlot[]) =>
+      edit((current) => ({ ...current, slots: change(current.slots) })),
+    [edit],
+  );
+
   const clear = useCallback(() => edit((current) => ({ ...current, slots: [] })), [edit]);
 
-  return { deck, save, setQuantity, replacePrinting, setLegend, setChampion, clear };
+  return { deck, save, setQuantity, replacePrinting, setLegend, setChampion, setSlots, clear };
 }

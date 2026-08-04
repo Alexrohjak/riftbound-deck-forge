@@ -115,37 +115,24 @@ h2 {
 /* In the deck: a ring, in ink rather than a colour. */
 .tile.in .face { box-shadow: 0 0 0 2px var(--ink); }
 
-.qty, .less {
-  position: absolute; top: -6px;
-  height: 1.45rem; min-width: 1.45rem;
+ /* ⚠️ The old version put a 20px minus in the corner: hard to hit on purpose and easy to
+    hit by accident. Removal is now right-click — the whole card is the target — and the
+    badge is purely a readout. */
+.held {
+  position: absolute; top: -8px; left: -8px;
+  min-width: 1.9rem; height: 1.9rem; padding: 0 var(--s1);
   display: grid; place-items: center;
-  border-radius: 999px; font-family: var(--mono); font-size: 0.75rem; font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-.qty {
-  left: -6px; padding: 0 var(--s1);
-  background: var(--ink); color: var(--panel); pointer-events: none;
+  border-radius: 999px; border: 2px solid var(--panel);
+  background: var(--ink); color: var(--panel);
+  font-family: var(--mono); font-size: 0.9rem; font-weight: 700;
+  font-variant-numeric: tabular-nums; pointer-events: none;
   animation: pop var(--slow) var(--ease);
+  box-shadow: var(--shadow);
 }
-.less {
-  right: -6px; padding: 0; cursor: pointer;
-  background: var(--panel); color: var(--dim);
-  border: 1px solid var(--line); font-size: 0.95rem; line-height: 1;
-  opacity: 0; transition: opacity var(--fast) var(--ease), color var(--fast) var(--ease);
-}
-/* Revealed on hover for pointers, always present for touch — where hover does not exist. */
-.tile:hover .less, .less:focus-visible { opacity: 1; }
-@media (hover: none) { .less { opacity: 1; } }
-.less:hover { color: var(--alert); border-color: var(--alert); }
+/* At the copy limit the card steps back rather than shouting — nothing more to add here. */
+.tile.maxed .face { filter: saturate(0.5); }
 
 @keyframes pop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-.flag {
-  position: absolute; bottom: var(--s2); left: 50%; translate: -50% 0;
-  background: var(--alert); color: #fff;
-  font-family: var(--mono); font-size: 0.55rem; font-weight: 700; font-style: normal;
-  letter-spacing: 0.12em; padding: 1px var(--s1); border-radius: 2px; pointer-events: none;
-}
 
 .sentinel { padding: var(--s5) var(--s4) var(--s6); text-align: center; color: var(--dim); font-size: 0.8rem; }
 
@@ -240,7 +227,6 @@ h2 {
   display: grid; place-items: center; font-size: 0.85rem; line-height: 1;
 }
 .slot.empty:hover { border-color: var(--ink); color: var(--ink); }
-.slot .flag { bottom: 1px; font-size: 0.45rem; letter-spacing: 0.06em; }
 
 @keyframes settle { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
@@ -406,3 +392,171 @@ h2 {
   font-family: var(--mono); font-size: 0.6rem; color: var(--dim);
   text-transform: uppercase; letter-spacing: var(--track-wide);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Resizable panel · guided flow · filters · card detail
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── the grip ──────────────────────────────────────────────────────────────── */
+.workspace { position: relative; }
+.grip {
+  position: absolute; top: 0; bottom: 0;
+  right: var(--pane); width: 10px; margin-right: -5px;
+  cursor: col-resize; z-index: 5;
+  display: grid; place-items: center;
+}
+.grip::before {
+  content: ""; width: 2px; height: 2.5rem; border-radius: 2px;
+  background: var(--line-strong);
+  transition: background var(--fast) var(--ease), height var(--fast) var(--ease);
+}
+.grip:hover::before { background: var(--ink); height: 5rem; }
+/* While dragging, stop the pointer selecting text or hovering everything it crosses. */
+body.resizing { cursor: col-resize; user-select: none; }
+body.resizing * { pointer-events: none; }
+@media (max-width: 60rem) { .grip { display: none; } }
+
+/* The pane transition must not fight the drag — only animate the collapse. */
+.workspace { transition: none; }
+.workspace.solo { grid-template-columns: 1fr 0; }
+
+/* ── toolbar: bigger, calmer, and grouped ──────────────────────────────────── */
+.toolbar { gap: var(--s3); padding: var(--s3) var(--s4); }
+.tabs {
+  gap: 0; padding: 3px; border-radius: var(--radius);
+  background: var(--sunk); border: 1px solid var(--line);
+}
+.tabs .tab { padding: var(--s2) var(--s4); font-size: 0.82rem; border-radius: var(--radius-sm); }
+.tabs .tab.on { background: var(--panel); box-shadow: var(--shadow); }
+.tabs .tab.on::after { display: none; }
+.sizes { padding: 3px; border-radius: var(--radius); background: var(--sunk); border: 1px solid var(--line); }
+.sizes .tab { padding: var(--s2) var(--s3); border-radius: var(--radius-sm); }
+.sizes .tab.on { background: var(--panel); box-shadow: var(--shadow); }
+.sizes .tab.on::after { display: none; }
+.pipcount {
+  margin-left: var(--s1); font-style: normal; font-family: var(--mono); font-size: 0.65rem;
+  background: var(--ink); color: var(--panel); border-radius: 999px; padding: 0 0.3rem;
+}
+
+/* ── filters ───────────────────────────────────────────────────────────────── */
+.filterbar {
+  display: flex; flex-wrap: wrap; gap: var(--s4);
+  padding: var(--s3) var(--s4);
+  background: var(--sunk); border-bottom: 1px solid var(--line);
+  animation: slidedown var(--slow) var(--ease);
+}
+@keyframes slidedown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.fgroup { display: flex; align-items: center; gap: var(--s1); flex-wrap: wrap; }
+.flabel {
+  font-family: var(--mono); font-size: 0.58rem; color: var(--dim);
+  text-transform: uppercase; letter-spacing: var(--track-wide); margin-right: var(--s1);
+}
+.chip {
+  display: inline-flex; align-items: center; gap: var(--s1);
+  padding: var(--s1) var(--s2); border-radius: 999px; cursor: pointer;
+  background: var(--panel); border: 1px solid var(--line); color: var(--dim);
+  font: inherit; font-size: 0.74rem; text-transform: capitalize;
+  transition: border-color var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.chip:hover { color: var(--ink); border-color: var(--line-strong); }
+.chip.on { color: var(--panel); background: var(--ink); border-color: var(--ink); }
+.chip em { font-style: normal; font-family: var(--mono); }
+.chip.clear { border-style: dashed; }
+
+/* ── guided flow ───────────────────────────────────────────────────────────── */
+.guiderail {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
+  margin: 0; padding: var(--s3) var(--s4);
+  background: var(--sunk); border-bottom: 1px solid var(--line);
+  font-size: 0.82rem;
+}
+.ghost {
+  background: none; border: 1px solid var(--line); border-radius: var(--radius-sm);
+  color: var(--dim); font: inherit; font-size: 0.72rem; padding: var(--s1) var(--s2);
+  cursor: pointer; white-space: nowrap;
+  transition: color var(--fast) var(--ease), border-color var(--fast) var(--ease);
+}
+.ghost:hover { color: var(--ink); border-color: var(--line-strong); }
+
+.steps {
+  display: flex; gap: var(--s1); list-style: none; margin: 0; padding: 0;
+  font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase;
+  letter-spacing: var(--track-wide);
+}
+.steps li {
+  flex: 1; text-align: center; padding: var(--s1) 0 var(--s2);
+  color: var(--faint); border-bottom: 2px solid var(--line);
+  transition: color var(--slow) var(--ease), border-color var(--slow) var(--ease);
+}
+.steps li.done { color: var(--dim); border-bottom-color: var(--line-strong); }
+.steps li.now { color: var(--ink); border-bottom-color: var(--ink); font-weight: 700; }
+
+/* ── workshop, roomier ─────────────────────────────────────────────────────── */
+.workshop { padding: var(--s4); gap: var(--s4); }
+.workshop header { align-items: baseline; }
+.headtools { display: flex; align-items: center; gap: var(--s2); }
+.bay h2 .of.met { color: var(--ink); font-weight: 700; }
+.slots { gap: var(--s1); grid-template-columns: repeat(auto-fill, minmax(3.6rem, 1fr)); }
+.singles .slots { grid-template-columns: 1fr; }
+.slot.tall { aspect-ratio: 744 / 1039; }
+.slot.filled:hover { border-color: var(--ink); transform: translateY(-2px); }
+.slot.filled:active { transform: scale(0.97); }
+
+/* ── card detail ───────────────────────────────────────────────────────────── */
+.scrim {
+  position: fixed; inset: 0; z-index: 50;
+  background: color-mix(in srgb, #000 62%, transparent);
+  backdrop-filter: blur(3px);
+  display: grid; place-items: center; padding: var(--s4);
+  animation: fade var(--fast) var(--ease);
+}
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.detail {
+  display: grid; grid-template-columns: minmax(0, 20rem) minmax(0, 24rem);
+  gap: var(--s5); max-height: 90vh; overflow: auto;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: var(--s5); box-shadow: var(--shadow-lift);
+  animation: rise var(--slow) var(--ease);
+}
+@keyframes rise { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: none; } }
+@media (max-width: 48rem) { .detail { grid-template-columns: 1fr; gap: var(--s3); padding: var(--s3); } }
+.detail-art { width: 100%; height: auto; border-radius: var(--radius); box-shadow: var(--shadow-card); }
+.detail-body { display: grid; gap: var(--s3); align-content: start; min-width: 0; }
+.detail-body header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s3); }
+.detail-body h3 { margin: 0; font-size: var(--step-1); letter-spacing: var(--track-tight); }
+.detail-body h4 {
+  margin: 0 0 var(--s1); font-family: var(--mono); font-size: 0.62rem;
+  text-transform: uppercase; letter-spacing: var(--track-wide); color: var(--dim);
+}
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: var(--s2); margin: 0; }
+.facts dt {
+  font-family: var(--mono); font-size: 0.55rem; color: var(--dim);
+  text-transform: uppercase; letter-spacing: var(--track-wide);
+}
+.facts dd { margin: 0; font-size: 0.85rem; display: flex; align-items: center; gap: var(--s1); text-transform: capitalize; }
+.rules {
+  margin: 0; padding: var(--s3); border-radius: var(--radius-sm);
+  background: var(--sunk); font-size: 0.85rem; line-height: 1.6;
+}
+.hint { margin: 0 0 var(--s2); font-size: 0.7rem; color: var(--dim); }
+.artgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr)); gap: var(--s2); }
+.artpick {
+  display: grid; gap: var(--s1); padding: var(--s1); cursor: pointer;
+  background: var(--ground); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  color: var(--dim); font-family: var(--mono); font-size: 0.55rem;
+  transition: border-color var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+.artpick img { width: 100%; border-radius: 3px; display: block; }
+.artpick:hover { border-color: var(--line-strong); transform: translateY(-2px); }
+.artpick.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); color: var(--ink); }
+.detail-body footer {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
+  padding-top: var(--s3); border-top: 1px solid var(--line);
+  font-family: var(--mono); font-size: 0.65rem; color: var(--dim);
+}
+.danger {
+  background: none; border: 1px solid var(--alert); border-radius: var(--radius-sm);
+  color: var(--alert); font: inherit; font-size: 0.75rem; padding: var(--s2) var(--s3);
+  cursor: pointer; transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.danger:hover { background: var(--alert); color: #fff; }

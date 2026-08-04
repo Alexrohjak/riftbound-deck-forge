@@ -8,6 +8,7 @@ import { buildPool, isDeckable, search, thumb, zoneFor, type Card } from "../src
  */
 
 const card = (over: Partial<Card> & { name: string }): Card => ({
+  release: 1,
   energy: 3,
   power: null,
   might: 4,

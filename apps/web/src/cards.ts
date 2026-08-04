@@ -27,6 +27,8 @@ export interface Printing {
 
 export interface Card {
   name: string;
+  /** Position in the sequence of everything ever printed — set order, then collector number. */
+  release: number;
   energy: number | null;
   power: number | null;
   might: number | null;
@@ -112,6 +114,19 @@ export async function loadPool(): Promise<CardPool> {
 export const thumb = (printing: Printing, width: number): string =>
   `${printing.img}&w=${width}&q=75&fm=webp`;
 
+/**
+ * The same, but sharp on the screen it lands on.
+ *
+ * ⚠️ **Pass the CSS size, not the pixel size.** A 3rem slot on a 2× display needs a ~200px
+ * image; asking for 96 gives you the soft, muddy card that made the workshop look cheap.
+ * Capped at 3× because beyond that the bytes buy nothing the eye can see, and quality is
+ * lifted to 82 — card text is fine detail and 75 was visibly mushing it.
+ */
+export const hd = (printing: Printing, cssWidth: number): string => {
+  const ratio = Math.min(typeof devicePixelRatio === "number" ? devicePixelRatio : 1, 3);
+  return `${printing.img}&w=${Math.round(cssWidth * ratio)}&q=82&fm=webp`;
+};
+
 /** Where a card belongs, from its type. Runes and battlefields are registered separately. */
 export function zoneFor(card: Card): Zone {
   if (card.types.includes("rune")) return "RUNE";
@@ -152,4 +167,21 @@ export function search(cards: Card[], query: string): Card[] {
   return scored
     .sort((a, b) => a.rank - b.rank || a.card.name.localeCompare(b.card.name))
     .map((s) => s.card);
+}
+
+/**
+ * Card text carries Riot's symbol tokens — `:rb_might:`, `:rb_energy_3:`, `:rb_rune_fury:`.
+ * There are 19 of them in the pool and they are unreadable raw, so they render as the thing
+ * they stand for. Energy is a number in a ring; runes are named by domain, which is the one
+ * place text is allowed to carry domain because a coloured pip inside a sentence would be
+ * smaller than the full stop next to it.
+ */
+export function symbols(text: string): string {
+  return text
+    .replace(/:rb_energy_(\d+):/g, "($1)")
+    .replace(/:rb_rune_rainbow:/g, "[any rune]")
+    .replace(/:rb_rune_([a-z]+):/g, (_m, d: string) => `[${d} rune]`)
+    .replace(/:rb_exhaust:/g, "[exhaust]")
+    .replace(/:rb_might:/g, "Might")
+    .replace(/:([a-z0-9_]+):/g, "");
 }
