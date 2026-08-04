@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Card, CardPool } from "./cards.js";
+import type { Card, CardPool, Printing } from "./cards.js";
 import { hd } from "./cards.js";
 
 /**
@@ -18,8 +18,21 @@ import { hd } from "./cards.js";
  * cannot (D-049).
  */
 
+/**
+ * A match, resolved all the way down to the printing.
+ *
+ * ⚠️ **The printing is the point.** Returning only the card meant `197a` found Teemo and
+ * then registered `OGN-197` — the base art — because the caller had to re-derive a printing
+ * and picked the first one in the set. Typing the suffix and getting the other card is the
+ * exact mistake the suffix exists to prevent, and it is invisible: both are real entries.
+ */
+export interface Match {
+  card: Card;
+  printing: Printing;
+}
+
 export interface Parsed {
-  cands: Card[];
+  cands: Match[];
   /** How many to add. `12 x3` adds three. */
   mult: number;
   /** `-1` when the input ends in `-`, for correcting a miscount. */
@@ -72,14 +85,14 @@ export function parseEntry(raw: string, pool: CardPool, currentSet: string): Par
     const number = Number(collector[1]);
     const suffix = collector[2] ?? "";
     const padded = String(number).padStart(3, "0");
-    const hit = pool.cards.find((card) =>
-      card.printings.some(
-        (p) => p.set === set && p.n === number && p.code.startsWith(`${set}-${padded}${suffix}/`),
-      ),
-    );
-    return hit
-      ? { cands: [hit], mult, sign }
-      : { cands: [], miss: `${set} ${number}${suffix}`, mult, sign };
+    // The exact printing, not merely the card that has one. `197` and `197a` are different
+    // objects on a shelf and the whole reason the suffix is typed at all.
+    const wanted = `${set}-${padded}${suffix}/`;
+    for (const card of pool.cards) {
+      const printing = card.printings.find((p) => p.set === set && p.code.startsWith(wanted));
+      if (printing) return { cands: [{ card, printing }], mult, sign };
+    }
+    return { cands: [], miss: `${set} ${number}${suffix}`, mult, sign };
   }
 
   const query = rest.toLowerCase();
@@ -94,10 +107,17 @@ export function parseEntry(raw: string, pool: CardPool, currentSet: string): Par
     };
     return rank(a) - rank(b) || a.name.localeCompare(b.name);
   });
-  return { cands: hits.slice(0, 6), total: hits.length, mult, sign };
+  // A name cannot name an art, so a name match takes the set's base printing. Type the
+  // collector number with its suffix when you want a specific one.
+  return {
+    cands: hits.slice(0, 6).map((card) => ({ card, printing: printingFor(card, set) })),
+    total: hits.length,
+    mult,
+    sign,
+  };
 }
 
-/** Which printing a name-match should land on, given the set you are working through. */
+/** Which printing a *name* match lands on, given the set you are working through. */
 const printingFor = (card: Card, set: string) =>
   card.printings.find((p) => p.set === set) ?? card.printings[0]!;
 
@@ -201,8 +221,7 @@ export function AddCards({
     field.current?.focus();
   };
 
-  const commit = async (card: Card, mult: number, sign: 1 | -1) => {
-    const printing = printingFor(card, set);
+  const commit = async ({ card, printing }: Match, mult: number, sign: 1 | -1) => {
     const delta = mult * sign;
     const step: Step = { cardId: printing.id, name: card.name, delta };
     setText("");
@@ -334,8 +353,7 @@ export function AddCards({
           onClick={() => void commit(parsed.cands[0]!, parsed.mult, parsed.sign)}
         >
           {(() => {
-            const card = parsed.cands[0]!;
-            const printing = printingFor(card, set);
+            const { card, printing } = parsed.cands[0]!;
             const wide = card.landscape === true;
             return (
               <>
@@ -366,12 +384,12 @@ export function AddCards({
 
       {parsed && parsed.cands.length > 1 && (
         <ul className="hits">
-          {parsed.cands.map((card, i) => {
-            const printing = printingFor(card, set);
+          {parsed.cands.map((match, i) => {
+            const { card, printing } = match;
             const have = owned[printing.id] ?? 0;
             return (
-              <li key={card.name}>
-                <button type="button" onClick={() => void commit(card, parsed.mult, parsed.sign)}>
+              <li key={printing.id}>
+                <button type="button" onClick={() => void commit(match, parsed.mult, parsed.sign)}>
                   <img
                     className={card.landscape === true ? "wide" : ""}
                     src={hd(printing, 96)}

@@ -55,16 +55,29 @@ const parse = (raw: string, set = "OGN") => parseEntry(raw, pool, set);
 
 describe("typing a collector number", () => {
   it("finds the card in the set you are working through", () => {
-    expect(parse("12")?.cands[0]?.name).toBe("Noxus Hopeful");
+    expect(parse("12")?.cands[0]?.card.name).toBe("Noxus Hopeful");
   });
 
   it("keeps the sets apart — the same number is a different card in each", () => {
-    expect(parse("12", "VEN")?.cands[0]?.name).toBe("Venture Forth");
+    expect(parse("12", "VEN")?.cands[0]?.card.name).toBe("Venture Forth");
   });
 
-  it("takes a suffix for alternate art", () => {
-    const hit = parse("1a");
-    expect(hit?.cands[0]?.name).toBe("Blazing Scorcher");
+  it("⚠️ takes a suffix for alternate art — and returns THAT printing", () => {
+    // `197a` used to find Teemo and then register OGN-197, the base art, because the
+    // caller re-derived a printing and took the first in the set. Typing the suffix and
+    // getting the other card is the exact mistake the suffix exists to prevent, and it is
+    // invisible: both are perfectly real entries.
+    const base = parse("1");
+    expect(base?.cands[0]?.printing.code).toBe("OGN-001/298");
+
+    const alt = parse("1a");
+    expect(alt?.cands[0]?.card.name).toBe("Blazing Scorcher");
+    expect(alt?.cands[0]?.printing.code).toBe("OGN-001a/298");
+    expect(alt?.cands[0]?.printing.id).toBe("ogn-001a-298");
+  });
+
+  it("a name match takes the set's base printing — a name cannot name an art", () => {
+    expect(parse("blazing")?.cands[0]?.printing.code).toBe("OGN-001/298");
   });
 
   it("says which number missed rather than silently matching something else", () => {
@@ -73,12 +86,12 @@ describe("typing a collector number", () => {
   });
 
   it("jumps set inline, so you can enter one stray card without leaving the row", () => {
-    expect(parse("ven 12")?.cands[0]?.name).toBe("Venture Forth");
+    expect(parse("ven 12")?.cands[0]?.card.name).toBe("Venture Forth");
   });
 
   it("ignores a set prefix that is not a set, treating it as a name", () => {
     // "jin x" must not be read as set "jin" — it is someone typing a name.
-    expect(parse("jinx")?.cands[0]?.name).toBe("Jinx, Demolitionist");
+    expect(parse("jinx")?.cands[0]?.card.name).toBe("Jinx, Demolitionist");
   });
 });
 
@@ -92,7 +105,7 @@ describe("quantities", () => {
   it("subtracts on a trailing minus — miscounting is constant", () => {
     const back = parse("12-");
     expect(back?.sign).toBe(-1);
-    expect(back?.cands[0]?.name).toBe("Noxus Hopeful");
+    expect(back?.cands[0]?.card.name).toBe("Noxus Hopeful");
   });
 
   it("combines a multiplier with a subtraction", () => {
@@ -113,7 +126,7 @@ describe("typing a name", () => {
   });
 
   it("ranks an exact name above a partial one", () => {
-    expect(parse("noxus hopeful")?.cands[0]?.name).toBe("Noxus Hopeful");
+    expect(parse("noxus hopeful")?.cands[0]?.card.name).toBe("Noxus Hopeful");
   });
 
   it("reports how many matched, so 'keep typing' is a fact rather than a nag", () => {
