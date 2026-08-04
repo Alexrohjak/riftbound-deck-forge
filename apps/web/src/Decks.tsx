@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { Deck } from "@forge/engine";
 import { newDeckId, type DeckSummary } from "./deckStore.js";
 import type { CardPool } from "./cards.js";
+import { ImportDeck, type DeckImport } from "./ImportDeck.js";
 
 /**
  * `W3` — more than one deck.
@@ -59,6 +60,7 @@ export function DeckBar({
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [confirming, setConfirming] = useState<string | null>(null);
+  const [imported, setImported] = useState<DeckImport | null>(null);
 
   const legendName = (id: string | null) =>
     (id && pool.byPrinting.get(id)?.name) || "no Legend yet";
@@ -165,7 +167,25 @@ export function DeckBar({
             <button type="button" className="ghost" disabled={busy} onClick={() => void duplicate()}>
               Duplicate this one
             </button>
+            <ImportDeck
+              pool={pool}
+              onImported={(id, result) => {
+                setImported(result);
+                if (result.kind === "ok") {
+                  onRefresh();
+                  onOpen(id);
+                  setOpen(false);
+                }
+              }}
+            />
           </div>
+          {imported?.kind === "ok" && (
+            <p className="ok">
+              Imported <b>{imported.name}</b> — {imported.cards} cards.
+              {imported.unknown > 0 && ` ${imported.unknown} unrecognised skipped.`}
+            </p>
+          )}
+          {imported?.kind === "fail" && <p className="fail">{imported.message}</p>}
           {/* Deleting a deck keeps its matches: a game you played is not the deck's to
               take with it (LOG §2). */}
           <p className="deckfoot">Deleting a deck keeps the matches you logged with it.</p>
