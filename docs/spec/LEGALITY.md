@@ -164,8 +164,20 @@ possible defence against misreading the rules.
 
 ## 5. Definition of done
 
-- All checks **L1–L33** implemented
-- All tests **T1–T13** passing
+> ✅ **Met by `W1`, 2026-08-04.** `packages/engine` implements all 33 and the 13 rulebook
+> examples are tests in `test/rulebook.test.ts`. Two things worth knowing about how:
+>
+> **Ownership is reported as a warning, never a violation.** L26 and L27 travel in their own
+> array and cannot make `legal` false — the distinction this document insists on is enforced
+> by the type, not by convention.
+>
+> **Coverage is per verdict, and gated on capabilities derived from the caller's data.** An
+> index that cannot see the ban list runs 25 checks and says so, rather than running 31 and
+> being wrong about six. Absence is ambiguous, and assuming "legal" is how a banned deck
+> passes quietly.
+
+- ✅ All checks **L1–L33** implemented
+- ✅ All tests **T1–T13** passing
 - ✅ ~~LR1 resolved~~ — official gallery supplies tags, domains and supertypes
 - ✅ ~~CR 103 and TR 601 read in full~~ — **done 2026-08-02**; both rulebooks read cover to
   cover, yielding L28–L33. See [COMPENDIUM](../reference/COMPENDIUM.md)

@@ -86,6 +86,33 @@ if board:
         check(f'<span class="code">{rid}</span>' not in html,
               f"{rid} is retired in ROADMAP.md but still a live card in roadmap.html")
 
+# ── the legality spec and the engine must agree on how many checks exist ──────
+# The spec numbers its checks L1..L33; the engine hard-codes 33 as the denominator every
+# verdict is reported against. If a rule is ever added to one and not the other, Forge
+# starts quoting a coverage fraction that is quietly wrong — which is exactly the
+# silent-wrongness W1 exists to prevent, so it is worth a machine check rather than care.
+legality = read("docs", "spec", "LEGALITY.md")
+engine = read("packages", "engine", "src", "legality", "index.ts")
+
+spec_ids = {int(n) for n in re.findall(r"^\| \*{0,2}L(\d+)\*{0,2} \|", legality, re.M)}
+check(spec_ids == set(range(1, 34)),
+      f"LEGALITY.md should define L1-L33; missing {sorted(set(range(1, 34)) - spec_ids)}, "
+      f"unexpected {sorted(spec_ids - set(range(1, 34)))}")
+
+declared = re.search(r"SPECIFIED_CHECK_COUNT = (\d+)", engine)
+check(declared is not None, "packages/engine has no SPECIFIED_CHECK_COUNT")
+if declared and spec_ids:
+    check(int(declared.group(1)) == len(spec_ids),
+          f"engine reports {declared.group(1)} specified checks; LEGALITY.md defines "
+          f"{len(spec_ids)}")
+
+# Every rulebook example the spec lists must exist as a test.
+rulebook = read("packages", "engine", "test", "rulebook.test.ts")
+for t_id in re.findall(r"^\| \*{0,2}(T\d+)\*{0,2} \|", legality, re.M):
+    check(re.search(rf'it\("{t_id} ', rulebook) is not None,
+          f"LEGALITY.md lists {t_id} but no test in rulebook.test.ts starts with it")
+
+
 # ── decision count ────────────────────────────────────────────────────────────
 anchors = re.findall(r'<a id="(d-\d+)">', decisions)
 check(len(anchors) == len(set(anchors)), "duplicate decision anchors in DECISIONS.md")

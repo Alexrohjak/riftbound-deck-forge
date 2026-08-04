@@ -137,16 +137,19 @@ These are decided and load-bearing. Changing one means writing a `D-***`.
 
 ## 5. Feature status at a glance
 
-| Feature | Spec | Status |
-|---|---|---|
-| Collection entry by collector number | `DATA-MODEL.md` | ✅ specified |
-| DRAFT/BUILT commitment model | `DATA-MODEL.md` | ✅ specified |
-| Deck legality validation | `LEGALITY.md` | ✅ specified — 33 checks |
-| Deck statistics + rune feasibility | `DECK-STATS.md` | ✅ specified |
-| **EE — the strategist** | `EVALUATION.md` | 🟡 specified; rules core is the open work |
-| Interface / interaction design | — | 🔴 **D2 — next, not yet started** |
-| Architecture + hosting | — | 🔴 D3 — not started |
-| **Deck generation** | `GENERATOR.md` | ✅ specified — reinstated and fused with EE ([D-041](../DECISIONS.md#d-041)) |
+**Specified** and **built** are different columns on purpose — everything here was specified
+long before any of it ran, and conflating the two is how a plan starts lying to itself.
+
+| Feature | Spec | Specified | Built |
+|---|---|---|---|
+| Collection entry by collector number | `DATA-MODEL.md` | ✅ | 🟡 the [collection tool](../../tools/collection/) works; `W2` puts the real cards in |
+| DRAFT/BUILT commitment model | `DATA-MODEL.md` | ✅ | 🟡 schema and `L27` exist; no UI yet |
+| Deck legality validation | `LEGALITY.md` | ✅ 33 checks | ✅ **all 33** — `W1`, with the 13 rulebook examples as tests |
+| Deck statistics + rune feasibility | `DECK-STATS.md` | ✅ | 🟡 the energy curve ships; the Tier‑2 probabilities do not |
+| **EE — the strategist** | `EVALUATION.md` | ✅ | ⬜ the rules core is the open work |
+| Interface / interaction design | [`design/`](../design/) | ✅ | 🟡 `D2` approved ([D-046](../DECISIONS.md#d-046)); the built gallery has since diverged |
+| Architecture + hosting | [`ARCHITECTURE.md`](../ARCHITECTURE.md) | ✅ | ✅ live on Cloudflare, £0/month verified |
+| **Deck generation** | `GENERATOR.md` | ✅ | ⬜ fused with EE ([D-041](../DECISIONS.md#d-041)) |
 
 ---
 
@@ -156,8 +159,8 @@ Questions that don't belong to one spec.
 
 | # | Question | Affects |
 |---|---|---|
-| **X1** | Where does EE's conversation layer run — in-app chat, or Claude Code against exported deck state? | D3, EE §11 E1 |
-| **X2** | How much of the rules engine does F2 need before EE says anything useful? | PLAN sequencing |
+| ~~**X1**~~ | ✅ **Dissolved** — [D-043](../DECISIONS.md#d-043). EE's conversation layer runs in Claude Code; it was never an architecture question | — |
+| ~~**X2**~~ | ✅ **Answered by building it.** `F2` shipped useful legality with 13 of 33 checks and no rules core at all; the answer was "less than expected" | — |
 | **X3** | Do EE answers get cached per (deck, format version), or recomputed live? | Performance, <2 s target |
 | **X4** | Does the interface present EE as a panel, a chat, or both? | D2 |
-| **X5** | Where are the docs served from, so the roadmap has an always-current URL? GitHub Pages is ruled out — paid plan required on a private repo | D3 |
+| ~~**X5**~~ | ✅ **Resolved** — [D-048](../DECISIONS.md#d-048). One Cloudflare account serves the app and the docs | — |

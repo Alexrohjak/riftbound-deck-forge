@@ -270,7 +270,7 @@ Ugly, incomplete, and **genuinely usable.**
 **You do:** use it and report what feels wrong — that feedback reshapes everything after.
 
 > ✅ **Shipped 2026-08-04.** Loose Cannon (Jinx, Fury + Chaos), a 30-name static pool
-> generated from the official data by `scripts/build-f2-pool.mjs`, add/remove capped at
+> generated from the official data (by a script `F3` has since replaced), add/remove capped at
 > what you own, live legality at **13 of 33 checks** (the five Domain Identity checks
 > landed here) and the energy curve. The deck is stored in D1 at `/decks/main`.
 >

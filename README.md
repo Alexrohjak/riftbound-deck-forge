@@ -52,7 +52,8 @@ to `main`, and **is now a deckbuilder you can actually use** (§4). Forge also s
 [collection tool](tools/collection/), used for real entry and improved twice from that use.
 
 **🎯 Next is `W2`** — an evening entering the real collection, which is when Forge stops
-being a demo. `W1` (the remaining 20 legality checks) is unblocked and can run in parallel. ✅ **`X8` is closed** ([D-051](docs/DECISIONS.md#d-051)):
+being a demo. ⚖️ **`W1` is done**: all 33 legality checks, with the rulebook's own 13 worked
+examples as tests. ✅ **`X8` is closed** ([D-051](docs/DECISIONS.md#d-051)):
 a nightly cron commits a JSON snapshot to this repo rather than to R2, because a backup in
 the same Cloudflare account does not survive losing the account. **Live and proven in
 production** — §5.
@@ -201,11 +202,15 @@ curl -X PUT https://forge.alexander-rohde-jakobsen.workers.dev/collection \
 > file to cover a risk that was already covered. Full reasoning in
 > [D-051](docs/DECISIONS.md#d-051).
 
-> ⚠️ **The design phase is over — stop writing documents.** The project has ~66,000 words of
-> docs against a few hundred lines of code. Every remaining milestone produces **running code**,
-> and [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) is the last document the plan called for.
-> If a doc must change, update its existing home and run
-> [`tools/check-docs.py`](tools/check-docs.py). **Prefer building over writing.**
+> 📄 **Write a document when there is something to record, not to feel productive.**
+> This replaces the blanket "stop writing documents" rule, which had done its job: it was
+> written when the project had ~66,000 words of docs against a few hundred lines of code,
+> and that ratio has since corrected itself. A new document now needs an **explicit need** —
+> knowledge that has nowhere else to live and would be lost or re-derived without it.
+>
+> Everything else still holds: update a doc's **existing home** rather than starting a
+> rival, and run [`tools/check-docs.py`](tools/check-docs.py) afterwards, which fails when
+> the docs contradict each other. Prose that merely restates the code is still a liability.
 
 ---
 
