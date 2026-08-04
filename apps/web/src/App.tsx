@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { checkLegality, deckHash, energyCurve, zoneCount, type Zone } from "@forge/engine";
 import { hd, loadPool, srcSet, zoneFor, type Card, type CardPool, type Printing } from "./cards.js";
 import { useDeck, type SaveState } from "./deckStore.js";
+import { AddCards } from "./AddCards.js";
 import { Advisor } from "./Advisor.js";
 import { ImportCollection, type Result as ImportResult } from "./ImportCollection.js";
 import { History, LogPanel, useMatches } from "./Log.js";
@@ -148,6 +149,8 @@ export function App() {
   const [owned, setOwned] = useState<Record<string, number>>({});
   /** Survives the import that unmounts the button which produced it. */
   const [imported, setImported] = useState<ImportResult | null>(null);
+  /** Entering cards is a mode, not a page — the gallery below stays useful while you type. */
+  const [adding, setAdding] = useState(false);
   /** Re-read after an import, so the Owned view fills in without a refresh. */
   const loadCollection = useCallback(() => {
     fetch("/collection")
@@ -243,7 +246,12 @@ export function App() {
     if (!node) return;
     const io = new IntersectionObserver(
       (entries) => {
-        if (entries[0]?.isIntersecting) setShown((n) => n + PAGE);
+        // ⚠️ Bounded. Without the cap this climbs forever whenever the sentinel sits in
+        // view with nothing left to reveal — an empty result set puts it on screen
+        // permanently, and every increment re-renders to show the same nothing.
+        if (entries[0]?.isIntersecting) {
+          setShown((n) => (n >= results.length ? n : n + PAGE));
+        }
       },
       { rootMargin: "800px" },
     );
@@ -412,6 +420,19 @@ export function App() {
 
           <button
             type="button"
+            className={adding ? "tab add on" : "tab add"}
+            onClick={() => {
+              setAdding((v) => !v);
+              // Entering cards and seeing what you own are the same activity.
+              if (!adding) setBase((f) => ({ ...f, owned: true }));
+            }}
+            title="Type collector numbers to register cards you own"
+          >
+            + Add cards
+          </button>
+
+          <button
+            type="button"
             className={base.owned ? "tab owned on" : "tab owned"}
             onClick={() => {
               setGuided(false);
@@ -522,6 +543,10 @@ export function App() {
               browse freely
             </button>
           </p>
+        )}
+
+        {adding && (
+          <AddCards pool={pool} owned={owned} onChanged={setOwned} />
         )}
 
         {base.owned && holdings.names > 0 && (

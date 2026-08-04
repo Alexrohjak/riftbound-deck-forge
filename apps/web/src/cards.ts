@@ -63,6 +63,8 @@ export interface CardPool {
   byName: Map<string, Card>;
   /** Public collector code → printing id. The bridge for importing an older export. */
   byCode: Map<string, string>;
+  /** Set codes in release order — the entry field works one set at a time. */
+  sets: string[];
   /** What the engine needs: name, domains and energy per printing id. */
   index: CardIndex;
   /**
@@ -115,13 +117,23 @@ export function buildPool(raw: RawIndex): CardPool {
   }
 
   const byCode = new Map<string, string>();
-  for (const card of raw.cards) for (const p of card.printings) byCode.set(p.code, p.id);
+  const setOrder = new Map<string, number>();
+  for (const card of raw.cards) {
+    for (const p of card.printings) {
+      byCode.set(p.code, p.id);
+      // Earliest release wins, so the set chips read in the order the game shipped them.
+      const seen = setOrder.get(p.set);
+      if (seen === undefined || card.release < seen) setOrder.set(p.set, card.release);
+    }
+  }
+  const sets = [...setOrder].sort((a, b) => a[1] - b[1]).map(([code]) => code);
 
   return {
     cards: raw.cards,
     byPrinting,
     byName,
     byCode,
+    sets,
     index: staticCardIndex(facts),
     pool: Object.entries(facts).map(([cardId, f]) => ({ cardId, facts: f })),
   };

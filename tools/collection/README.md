@@ -1,6 +1,13 @@
-# Collection tool
+# Collection tool — the offline fallback
 
-Enter and browse the cards you actually own. **This is the first working piece of Forge.**
+> ⚠️ **Entry lives in Forge now.** Open the app and use **+ Add cards**: same keyboard flow,
+> saved straight to D1, on any device, nothing to start ([D-059](../../docs/DECISIONS.md#d-059)).
+>
+> **This tool is kept for one reason: it works with no signal.** Forge needs connectivity to
+> edit ([D-049](../../docs/DECISIONS.md#d-049)), and a card shop with bad reception is a real
+> place. Use it there, export, and import the file when you are back.
+
+Enter and browse the cards you actually own. **This was the first working piece of Forge.**
 
 > ⚠️ **The export is keyed by printing id** (`ogn-030-298`), which is what D1, the Owned view
 > and the `L26` ownership check all use. It was keyed by public code (`OGN-030/298`) until

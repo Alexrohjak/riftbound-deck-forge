@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ **The Foundation track is complete.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · now with **[the log](docs/spec/LOG.md)** and **EE on screen** — ask it to look a deck over, tell it what went wrong in a game, and every claim carries its source and how much confidence it earns · 🎯 `W2` next — enter the real collection · **nightly backups run off-vendor**
+> **Status:** ✅ **The Foundation track is complete.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · now with **card entry built in** (`+ Add cards`), **[the log](docs/spec/LOG.md)** and **EE on screen** — ask it to look a deck over, tell it what went wrong in a game, and every claim carries its source and how much confidence it earns · 🎯 `W2` next — enter the real collection · **nightly backups run off-vendor**
 
 ---
 
@@ -236,7 +236,7 @@ system map and **where to put a new idea**.
 | [`docs/roadmap.html`](docs/roadmap.html) | The same roadmap, rendered. Download and open in a browser |
 | [**`docs/spec/OVERVIEW.md`**](docs/spec/OVERVIEW.md) | **System map — how everything relates, and where new ideas go. Read before adding a feature.** |
 | [`docs/PLAN.md`](docs/PLAN.md) | The detail layer — gates, "done when", validation and risks |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 58 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 59 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
 | [**`docs/ARCHITECTURE.md`**](docs/ARCHITECTURE.md) | **How it's built — stack, hosting, verified £0/month cost, and what's ruled out. Read before writing code.** |
 | [`docs/AUDIT.md`](docs/AUDIT.md) | First-principles audit of the project's own assumptions |

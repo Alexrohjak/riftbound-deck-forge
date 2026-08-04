@@ -1078,3 +1078,54 @@ body.resizing * { pointer-events: none; }
   padding: var(--s2) var(--s3); border-radius: var(--radius-sm);
   border: 1px solid var(--line); background: var(--panel);
 }
+
+/* ── entering the collection ──────────────────────────────────────────────────
+   The disposable tool's ergonomics, in the app: the field keeps focus so it is
+   number → Enter → number → Enter, and matches appear before you commit. */
+.adder {
+  display: grid; gap: var(--s2); margin-bottom: var(--s4);
+  padding: var(--s3); border-radius: var(--radius);
+  background: var(--panel); border: 1px solid var(--line-strong); box-shadow: var(--shadow);
+}
+.setbar { display: flex; align-items: center; gap: var(--s1); flex-wrap: wrap; }
+.setchip {
+  padding: 2px var(--s3); border-radius: 999px; cursor: pointer;
+  background: transparent; border: 1px solid var(--line); color: var(--dim);
+  font-family: var(--mono); font-size: 0.7rem;
+}
+.setchip.on { background: var(--ink); color: var(--ground); border-color: var(--ink); font-weight: 600; }
+.addtotals { margin-left: auto; font-size: 0.74rem; color: var(--dim); }
+.addtotals b { font-family: var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+
+.addfield {
+  width: 100%; padding: var(--s3); border-radius: var(--radius-sm);
+  background: var(--sunk); color: var(--ink); border: 1.5px solid var(--line-strong);
+  font-family: var(--mono); font-size: 1.3rem; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.addfield:focus { border-color: var(--accent); outline: none; }
+.addfield::placeholder { font-family: var(--sans); font-size: 0.85rem; font-weight: 400; }
+.addhint { margin: 0; font-size: 0.7rem; color: var(--faint); line-height: 1.7; }
+.addhint b { font-family: var(--mono); color: var(--dim); font-weight: 600; }
+
+.hits { margin: 0; padding: 0; list-style: none; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+.hits li + li { border-top: 1px solid var(--line); }
+.hits button {
+  display: flex; align-items: center; gap: var(--s3); width: 100%; padding: var(--s2) var(--s3);
+  background: none; border: 0; cursor: pointer; text-align: left; color: inherit; font: inherit;
+}
+.hits button:hover { background: var(--sunk); }
+.hits img { width: 34px; border-radius: 3px; background: var(--sunk); }
+.hit-mid { flex: 1; min-width: 0; }
+.hit-mid b { display: block; font-size: 0.84rem; }
+.hit-meta { font-family: var(--mono); font-size: 0.66rem; color: var(--dim); }
+.hit-delta { font-family: var(--mono); font-weight: 600; }
+.hit-delta.up { color: var(--calm); }
+.hit-delta.dn { color: var(--alert); }
+.hit-key {
+  font-family: var(--mono); font-size: 0.66rem; color: var(--faint);
+  border: 1px solid var(--line); border-radius: 3px; padding: 0 4px;
+}
+.hit-more { padding: var(--s2) var(--s3); font-size: 0.7rem; color: var(--faint); background: var(--sunk); }
+.tab.add.on { background: var(--accent); color: var(--accent-ink); }
+.tab.add.on::after { display: none; }

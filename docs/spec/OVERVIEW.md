@@ -142,7 +142,7 @@ long before any of it ran, and conflating the two is how a plan starts lying to 
 
 | Feature | Spec | Specified | Built |
 |---|---|---|---|
-| Collection entry by collector number | `DATA-MODEL.md` | ✅ | 🟡 the [collection tool](../../tools/collection/) works; `W2` puts the real cards in |
+| Collection entry by collector number | `DATA-MODEL.md` | ✅ | ✅ **in the app** — `+ Add cards`, saving straight to D1 ([D-059](../DECISIONS.md#d-059)). The [standalone tool](../../tools/collection/) remains for offline entry. `W2` puts the real cards in |
 | Browsing what you own | `DATA-MODEL.md` §2 | ✅ | ✅ the **Owned** view — filters the gallery to your cards, counts summed across printings. Empty until `W2` |
 | DRAFT/BUILT commitment model | `DATA-MODEL.md` | ✅ | 🟡 schema and `L27` exist; no UI yet |
 | Deck legality validation | `LEGALITY.md` | ✅ 33 checks | ✅ **all 33** — `W1`, with the 13 rulebook examples as tests |

@@ -67,6 +67,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-056](#d-056) | **One key space: the printing id** — the collection tool exported public codes that Forge could not read | ✅ |
 | [D-057](#d-057) | **EE's analytical surface reaches the app before `S6`** — the mouth stays Claude Code; the app renders engine output verbatim | ✅ |
 | [D-058](#d-058) | **The collection is imported from inside the app** — `curl` cannot get past Access, and looks like it worked | ✅ |
+| [D-059](#d-059) | **Card entry moves into Forge** — a workflow you have to rehearse is one you stop using | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -2248,3 +2249,60 @@ browser tab. The credential is the cost; the browser is free.
 | Cloudflare Access service token | A permanent credential on disk to work around a session that already exists |
 | Bypass Access on `/collection` | Opens the one write endpoint that owns the irreplaceable data |
 | `cloudflared access curl` | Works, but it is a per-machine tool install to paper over a missing button |
+
+
+---
+
+<a id="d-059"></a>
+
+## D-059 — Entering cards belongs in Forge, not in a tool you have to remember to start
+
+**Date:** 2026-08-04
+**Status:** Accepted — amends [D-013](#d-013)'s *delivery*, not its entry model
+
+### The objection that settled it
+
+Adding a card meant: `cd tools/collection`, start a Python server, open a second URL, type,
+export a file, come back to Forge, import it. That works. It is also six steps to record one
+card, and *"how will I remember to do all those things every time"* is the correct response
+to it. **A workflow you have to rehearse is one you stop using**, and a collection tool you
+stop using leaves the collection wrong — which is worse than not having one, because the
+shortfall warnings then lie in the reassuring direction.
+
+**Decided:** an **+ Add cards** mode in Forge's toolbar. Adding a card is now the same act as
+opening Forge, on any device, behind the same Access login, saving straight to D1.
+
+### What was kept, and what it cost
+
+The entry *model* is unchanged and was copied deliberately rather than redesigned — it was
+the good part of the disposable tool ([D-013](#d-013)):
+
+- **The field keeps focus**, so it is number → Enter → number → Enter without the mouse
+- **Matches appear before you commit**, with the card image, so you catch the wrong card
+  while it is still a keystroke rather than a correction
+- `12 x3` for a playset · `12-` to take one back · `66a` for alternate art · `ogn 12` to jump
+  set without leaving the row
+
+**`PATCH /collection` was added for it.** `PUT` replaces the whole collection, which is wrong
+for typing: sending nine hundred rows per keystroke is merely wasteful, but a stale tab
+would silently undo everything a phone had just added — last write wins over data it never
+saw. A delta only touches the printing you named.
+
+⚠️ The `quantity > 0` CHECK made the obvious upsert wrong. `INSERT ... VALUES (?, MAX(?, 0))
+ON CONFLICT DO UPDATE` fails the constraint on the *proposed* row before the conflict clause
+can rescue it, so subtracting from a card you do not own crashed the endpoint. Removal and
+adjustment are separate statements now, removal first.
+
+### The standalone tool stays
+
+For exactly one reason: **it works with no signal.** Forge cannot ([D-049](#d-049) — editing
+requires connectivity), and a card shop with bad reception is a real place. It is no longer
+the way in, and both READMEs now say so.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Keep the tool as the only entry path | The objection above. Six steps per card is a tool you abandon |
+| Retire the tool entirely | Loses offline entry, which is the one thing the app genuinely cannot do |
+| Rebuild entry from scratch in the app | The tool's ergonomics were already right; redesigning them would have been change for its own sake |

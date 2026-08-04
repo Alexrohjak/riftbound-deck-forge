@@ -128,6 +128,77 @@ async function writeCollection(env: Env, request: Request) {
 }
 
 /**
+ * Adjust individual printings by a delta — what *entering cards* needs.
+ *
+ * ⚠️ **`PUT` replaces the whole collection, which is wrong for typing cards in.** Sending
+ * nine hundred rows on every keystroke is wasteful, but the real problem is that a stale tab
+ * would silently undo everything a phone had just added: last write wins over data it never
+ * saw. A delta only ever touches the printing you named.
+ *
+ * Clamped at zero rather than going negative, and a row that reaches zero is deleted —
+ * absence is how "none" is stored (DATA-MODEL §1).
+ */
+async function adjustCollection(env: Env, request: Request) {
+  let body: { adjust?: Record<string, unknown> };
+  try {
+    body = (await request.json()) as typeof body;
+  } catch {
+    return json({ error: "Body must be JSON." }, 400);
+  }
+
+  const adjust = body?.adjust;
+  if (!adjust || typeof adjust !== "object" || Array.isArray(adjust)) {
+    return json({ error: 'Expected { "adjust": { "<card_id>": <delta> } }.' }, 400);
+  }
+
+  const deltas = Object.entries(adjust);
+  if (deltas.length === 0) return json({ ok: true, changed: 0 });
+  if (deltas.length > 200) {
+    return json({ error: "At most 200 printings per adjustment." }, 400);
+  }
+  for (const [cardId, delta] of deltas) {
+    if (!Number.isInteger(delta) || Math.abs(delta as number) > 99) {
+      return json({ error: `Delta for ${cardId} must be a whole number within ±99.` }, 400);
+    }
+  }
+
+  // ⚠️ `quantity` has a CHECK (> 0), so nothing may ever *touch* zero — not even
+  // transiently inside an upsert. An `INSERT ... VALUES (?, MAX(?, 0)) ON CONFLICT DO
+  // UPDATE` looks right and fails the constraint on the proposed row before the conflict
+  // clause can rescue it. Subtracting from a printing you do not own crashed the endpoint.
+  //
+  // So the two directions are separate statements, and the removal comes first: delete the
+  // rows this delta would take to zero, then adjust the ones that survive.
+  await env.DB.batch(
+    deltas.flatMap(([cardId, raw]) => {
+      const delta = raw as number;
+      if (delta > 0) {
+        return [
+          env.DB.prepare(
+            `INSERT INTO collection (card_id, quantity) VALUES (?, ?)
+             ON CONFLICT(card_id) DO UPDATE SET quantity = collection.quantity + ?`,
+          ).bind(cardId, delta, delta),
+        ];
+      }
+      if (delta < 0) {
+        return [
+          env.DB.prepare("DELETE FROM collection WHERE card_id = ? AND quantity + ? <= 0").bind(
+            cardId,
+            delta,
+          ),
+          env.DB.prepare(
+            "UPDATE collection SET quantity = quantity + ? WHERE card_id = ? AND quantity + ? > 0",
+          ).bind(delta, cardId, delta),
+        ];
+      }
+      return [];
+    }),
+  );
+
+  return readCollection(env).then(json);
+}
+
+/**
  * A deck, in the shape `@forge/engine` validates — so the browser can hand what it reads
  * straight to `checkLegality` with no adapter in between. The `Deck` type lives in the
  * engine; duplicating it here would be a second definition of the thing D-047 exists to
@@ -282,7 +353,15 @@ export default {
     if (pathname === "/collection") {
       if (request.method === "GET") return readCollection(env).then(json);
       if (request.method === "PUT") return writeCollection(env, request);
-      return json({ error: "Use GET or PUT." }, 405);
+      if (request.method === "PATCH") {
+        // A storage error here would otherwise reach the client as an unhandled 500 with a
+        // stack trace — unreadable, and indistinguishable from being logged out.
+        return adjustCollection(env, request).catch((error: unknown) => {
+          console.error("collection adjust failed", error);
+          return json({ error: "Could not save that change." }, 500);
+        });
+      }
+      return json({ error: "Use GET, PUT or PATCH." }, 405);
     }
 
     // ── the log ───────────────────────────────────────────────────────────────
