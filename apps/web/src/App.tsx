@@ -1,104 +1,231 @@
-import { checkLegality, staticCardIndex, type Deck } from "@forge/engine";
+import { useMemo } from "react";
+import { checkLegality, energyCurve, mainDeckCount, zoneCount, type Zone } from "@forge/engine";
+import {
+  CARDS,
+  CHAMPION_CARD_ID,
+  COLLECTION,
+  LEGEND_CARD_ID,
+  OWNED_IDS,
+  cardIndex,
+  cardOf,
+  zoneFor,
+  type PoolCard,
+} from "./pool.js";
+import { quantityOf, useDeck, type SaveState } from "./deckStore.js";
 
 /**
- * The `F1` walking skeleton (D-027): prove the deployed page runs the real engine.
+ * `F2` — the first genuinely usable version.
  *
- * There is no card data here yet — that arrives at `F3` — so this uses a fixed deck
- * and a small name map. What it demonstrates is the thing `F1` exists to demonstrate:
- * **the same package that answers Claude Code is running in the browser** (D-047).
+ * **Deliberately crude** (PLAN.md §4): one hardcoded Legend, a static ~30-name pool, and
+ * one statistic. It exists because the audit named time-to-first-value as the project's
+ * dominant risk (A12) — four milestones of infrastructure before anything was usable was
+ * the plan this replaces.
+ *
+ * The locked `D2` interface is **not** what this is. That arrives with the real card pool
+ * and the ownership visual language; dressing this up would invite mistaking it for the
+ * finished thing.
  */
-const NAMES: Record<string, string> = {
-  "legend-jinx": "Jinx, the Loose Cannon",
-  "ogn-202-298": "Jinx, Rebel",
-  "ogn-030-298": "Punching Poro",
-  "rune-fury": "Fury Rune",
-  "bf-001": "Noxus",
-  "bf-002": "Piltover",
-  "bf-003": "Ionia",
-  // Twelve distinct filler names — see DEMO_DECK.
-  ...Object.fromEntries(
-    Array.from({ length: 12 }, (_, i) => [`filler-${i + 1}`, `Filler ${i + 1}`]),
-  ),
+
+const ZONE_LABEL: Record<Zone, string> = {
+  MAIN: "Main Deck",
+  RUNE: "Rune Deck",
+  BATTLEFIELD: "Battlefields",
+  SIDEBOARD: "Sideboard",
 };
 
-const DEMO_DECK: Deck = {
-  id: "demo",
-  name: "Skeleton",
-  state: "DRAFT",
-  legendCardId: "legend-jinx",
-  chosenChampionCardId: "ogn-202-298",
-  slots: [
-    { cardId: "ogn-030-298", zone: "MAIN", quantity: 3 },
-    // 12 names x 3 = 36, not one name x 36. Padding with a single name breaks the
-    // 3-copy limit (L13), which made the skeleton report a violation that said nothing
-    // about the engine — only about lazy padding.
-    ...Array.from({ length: 12 }, (_, i) => ({
-      cardId: `filler-${i + 1}`,
-      zone: "MAIN" as const,
-      quantity: 3,
-    })),
-    { cardId: "rune-fury", zone: "RUNE", quantity: 12 },
-    { cardId: "bf-001", zone: "BATTLEFIELD", quantity: 1 },
-    { cardId: "bf-002", zone: "BATTLEFIELD", quantity: 1 },
-    { cardId: "bf-003", zone: "BATTLEFIELD", quantity: 1 },
-  ],
-};
+/** What each zone must hold when the deck is legal (L3, L4, L5). */
+const ZONE_TARGET: Partial<Record<Zone, number>> = { MAIN: 40, RUNE: 12, BATTLEFIELD: 3 };
+
+function Domains({ card }: { card: PoolCard }) {
+  return (
+    <span className="domains">
+      {card.domains.map((domain) => (
+        <i key={domain} className={`dot ${domain}`} title={domain} />
+      ))}
+    </span>
+  );
+}
+
+function SaveBadge({ save }: { save: SaveState }) {
+  if (save.status === "offline") {
+    return (
+      <span className="save offline" title={save.detail}>
+        not saved — no connection
+      </span>
+    );
+  }
+  const label = { loading: "loading…", saving: "saving…", saved: "saved" }[save.status];
+  return <span className={`save ${save.status}`}>{label}</span>;
+}
+
+/** The one statistic F2 ships. A histogram, never a mean (DECK-STATS §6). */
+function EnergyCurve({ counts, unknown }: { counts: number[]; unknown: number }) {
+  const peak = Math.max(1, ...counts);
+  if (counts.length === 0) return <p className="empty">Add a card to see the curve.</p>;
+
+  return (
+    <div className="curve">
+      {counts.map((count, energy) => (
+        <div className="bar" key={energy}>
+          <span className="count">{count || ""}</span>
+          <span className="stem" style={{ height: `${(count / peak) * 100}%` }} />
+          <span className="tick">{energy}</span>
+        </div>
+      ))}
+      {unknown > 0 && <p className="empty">{unknown} card(s) with no cost data — not shown.</p>}
+    </div>
+  );
+}
 
 export function App() {
-  const result = checkLegality(DEMO_DECK, staticCardIndex(NAMES));
+  const { deck, save, setQuantity, clear } = useDeck();
+
+  const legality = useMemo(() => checkLegality(deck, cardIndex), [deck]);
+  const curve = useMemo(() => energyCurve(deck, cardIndex), [deck]);
+
+  const legend = cardOf(LEGEND_CARD_ID);
+  const champion = cardOf(CHAMPION_CARD_ID);
+
+  const tally: Array<{ zone: Zone; held: number; target: number }> = (
+    ["MAIN", "RUNE", "BATTLEFIELD"] as Zone[]
+  ).map((zone) => ({
+    zone,
+    // The Champion sits inside the 40 without being a slot (L3), so MAIN is counted the
+    // way the rules count it, not the way the slots array looks.
+    held: zone === "MAIN" ? mainDeckCount(deck) : zoneCount(deck, zone),
+    target: ZONE_TARGET[zone] ?? 0,
+  }));
+
+  const groups = (["MAIN", "RUNE", "BATTLEFIELD"] as Zone[]).map((zone) => ({
+    zone,
+    ids: OWNED_IDS.filter((id) => {
+      const card = cardOf(id);
+      return card ? zoneFor(card) === zone : false;
+    }),
+  }));
 
   return (
     <main>
       <header>
-        <h1>Forge</h1>
-        <p className="sub">Walking skeleton · F1</p>
+        <div>
+          <h1>Forge</h1>
+          <p className="sub">
+            {legend ? legend.name : LEGEND_CARD_ID} · {legend?.domains.join(" + ")} ·{" "}
+            {champion?.name}
+          </p>
+        </div>
+        <SaveBadge save={save} />
       </header>
 
-      <section className="card">
-        <h2>The engine is running in your browser</h2>
-        <p>
-          This page imports <code>@forge/engine</code> — the same package{" "}
-          <code>apps/cli</code> exposes to Claude Code. One implementation, two consumers.
-        </p>
-
-        <dl className="rows">
-          <div>
-            <dt>Deck</dt>
-            <dd>{DEMO_DECK.name}</dd>
+      <section className="tally">
+        {tally.map(({ zone, held, target }) => (
+          <div key={zone} className={held === target ? "slot done" : "slot"}>
+            <b>
+              {held}
+              <span className="of">/{target}</span>
+            </b>
+            <span>{ZONE_LABEL[zone]}</span>
           </div>
-          <div>
-            <dt>Implemented checks</dt>
-            <dd>
-              {result.coverage.implemented} of {result.coverage.specified}
-            </dd>
-          </div>
-          <div>
-            <dt>Verdict</dt>
-            <dd className={result.legal ? "pass" : "fail"}>
-              {result.legal ? "passes every implemented check" : `${result.violations.length} violation(s)`}
-            </dd>
-          </div>
-        </dl>
-
-        {result.violations.length > 0 && (
-          <ul className="violations">
-            {result.violations.map((v) => (
-              <li key={`${v.check}-${v.message}`}>
-                <b>{v.check}</b> <span className="cite">{v.citation}</span>
-                <br />
-                {v.message}
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {/* Omit rather than fake (D-022) applies to our own confidence too. */}
-        <p className="caveat">⚠️ {result.coverage.caveat}</p>
+        ))}
+        <div className={legality.legal ? "slot verdict pass" : "slot verdict fail"}>
+          <b>{legality.legal ? "✓" : legality.violations.length}</b>
+          <span>
+            {legality.legal ? "checks pass" : legality.violations.length === 1 ? "problem" : "problems"}
+          </span>
+        </div>
       </section>
 
+      {legality.violations.length > 0 && (
+        <ul className="violations">
+          {legality.violations.map((v) => (
+            <li key={`${v.check}-${v.message}`}>
+              <b>{v.check}</b> <span className="cite">{v.citation}</span>
+              <br />
+              {v.message}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <section className="card">
+        <h2>Energy curve</h2>
+        <EnergyCurve counts={curve.counts} unknown={curve.unknown} />
+      </section>
+
+      {groups.map(({ zone, ids }) => (
+        <section className="card" key={zone}>
+          <h2>
+            {ZONE_LABEL[zone]}{" "}
+            <span className="of">
+              {zone === "MAIN" ? mainDeckCount(deck) : zoneCount(deck, zone)}
+              {ZONE_TARGET[zone] ? ` of ${ZONE_TARGET[zone]}` : ""}
+            </span>
+          </h2>
+
+          <ul className="pool">
+            {ids.map((id) => {
+              const card = cardOf(id);
+              if (!card) return null;
+              const owned = COLLECTION[id] ?? 0;
+              const held = quantityOf(deck, id, zone);
+              const isChampion = id === CHAMPION_CARD_ID;
+
+              return (
+                <li key={id} className={held > 0 ? "row in" : "row"}>
+                  <span className="cost">{card.energy ?? "–"}</span>
+                  <span className="who">
+                    <b>{card.name}</b>
+                    <small>
+                      <Domains card={card} />
+                      {card.might !== null && ` ${card.might} Might`}
+                      {card.power ? ` · ${card.power} Power` : ""}
+                      {isChampion && " · your Chosen Champion, counted as +1"}
+                    </small>
+                  </span>
+                  <span className="stepper">
+                    <button
+                      type="button"
+                      aria-label={`Remove ${card.name}`}
+                      disabled={held === 0}
+                      onClick={() => setQuantity(id, zone, held - 1)}
+                    >
+                      –
+                    </button>
+                    <b>
+                      {held}
+                      <span className="of">/{owned}</span>
+                    </b>
+                    <button
+                      type="button"
+                      aria-label={`Add ${card.name}`}
+                      // Capped at what you physically own — you cannot sleeve a card that
+                      // is not in the box. The 3-copy limit is a separate matter, and the
+                      // engine reports it: ownership and legality are never conflated
+                      // (LEGALITY.md L26/L27).
+                      disabled={held >= owned}
+                      onClick={() => setQuantity(id, zone, held + 1)}
+                    >
+                      +
+                    </button>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
+
       <footer>
-        Not a deckbuilder yet — that is <code>F2</code>. This exists to prove the pipeline:
-        push, deploy, open on a phone.
+        <p className="caveat">⚠️ {legality.coverage.caveat}</p>
+        <p>
+          <button type="button" className="clear" onClick={clear}>
+            Empty the deck
+          </button>
+        </p>
+        <p>
+          <code>F2</code> — one Legend, {OWNED_IDS.length} owned printings, one statistic. The
+          full pool arrives at <code>F3</code>.
+        </p>
       </footer>
     </main>
   );

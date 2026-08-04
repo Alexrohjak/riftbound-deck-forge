@@ -10,11 +10,12 @@ main = "src/index.ts"
 compatibility_date = "2025-01-01"
 
 # The built SPA. `run_worker_first` keeps the API paths with the Worker — without it the
-# SPA fallback below would answer /health and /collection with index.html.
+# SPA fallback below would answer /health, /collection and /decks/* with index.html, and
+# a deck save would silently "succeed" against an HTML page.
 [assets]
 directory = "../web/dist"
 not_found_handling = "single-page-application"
-run_worker_first = ["/health", "/collection"]
+run_worker_first = ["/health", "/collection", "/decks/*"]
 
 # Created with:  npx wrangler d1 create forge
 # then paste the returned database_id here. It is an identifier, not a secret.

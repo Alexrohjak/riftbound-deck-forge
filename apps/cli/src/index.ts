@@ -13,14 +13,18 @@
  * "couldn't tell" matters: a caller must never read a crash as a pass.
  */
 import { readFileSync } from "node:fs";
-import { checkLegality, staticCardIndex, type Deck } from "@forge/engine";
+import { checkLegality, staticCardIndex, type CardEntry, type Deck } from "@forge/engine";
 
-const USAGE = `forge legality <deck.json> [--cards <names.json>]
+const USAGE = `forge legality <deck.json> [--cards <cards.json>]
 
   deck.json    a Deck — see docs/spec/DATA-MODEL.md §1
-  --cards      printing id -> card name map. Legality keys on NAME (DATA-MODEL §2);
-               without it, every printing is treated as its own name and copy limits
-               under-count rather than silently merging distinct cards.
+  --cards      printing id -> card facts. Either "<name>" or
+               { "name": ..., "domains": [...], "energy": n } per printing.
+
+               Legality keys on NAME (DATA-MODEL §2); without this file every printing is
+               treated as its own name and copy limits under-count rather than silently
+               merging distinct cards. Supplying "domains" additionally enables the Domain
+               Identity checks — the result's "checked" list always says which ones ran.
 
 Prints a LegalityResult as JSON. Exit 0 legal, 1 violations, 2 bad input.`;
 
@@ -47,12 +51,12 @@ function main(argv: string[]): number {
   if (command !== "legality") fail(`Unknown command "${command}".\n\n${USAGE}`);
   if (!deckPath) fail(`legality needs a deck file.\n\n${USAGE}`);
 
-  let names: Record<string, string> = {};
+  let cards: Record<string, CardEntry> = {};
   const cardsFlag = rest.indexOf("--cards");
   if (cardsFlag !== -1) {
     const cardsPath = rest[cardsFlag + 1];
     if (!cardsPath) fail("--cards needs a path.");
-    names = readJson(cardsPath) as Record<string, string>;
+    cards = readJson(cardsPath) as Record<string, CardEntry>;
   }
 
   const deck = readJson(deckPath) as Deck;
@@ -60,7 +64,7 @@ function main(argv: string[]): number {
     fail(`${deckPath} does not look like a Deck (no slots array).`);
   }
 
-  const result = checkLegality(deck, staticCardIndex(names));
+  const result = checkLegality(deck, staticCardIndex(cards));
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
   return result.legal ? 0 : 1;
 }

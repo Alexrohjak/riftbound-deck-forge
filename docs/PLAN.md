@@ -269,6 +269,16 @@ Ugly, incomplete, and **genuinely usable.**
 **Done when:** you can open it on your phone and put cards into a deck.
 **You do:** use it and report what feels wrong — that feedback reshapes everything after.
 
+> ✅ **Shipped 2026-08-04.** Loose Cannon (Jinx, Fury + Chaos), a 30-name static pool
+> generated from the official data by `scripts/build-f2-pool.mjs`, add/remove capped at
+> what you own, live legality at **13 of 33 checks** (the five Domain Identity checks
+> landed here) and the energy curve. The deck is stored in D1 at `/decks/main`.
+>
+> **One thing was added beyond the sketch:** `LegalityResult.checked` is now computed per
+> call rather than fixed, because the domain checks only run when the caller's card index
+> carries domains. A fixed list would have let a name-only lookup claim it had validated
+> Domain Identity — the silent-wrongness failure `W1` is flagged for.
+
 ---
 
 ### F3 — Card data

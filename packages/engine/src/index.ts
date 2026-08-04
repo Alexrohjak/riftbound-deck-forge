@@ -13,5 +13,8 @@
 export * from "./types.js";
 export * from "./legality/index.js";
 
-/** In-memory `CardIndex`, sufficient for tests and for the `F1` skeleton. */
-export { staticCardIndex } from "./cardIndex.js";
+/** Statistics. Tier 1 only so far — facts about the list, with no assumptions in them. */
+export { energyCurve, type EnergyCurve } from "./stats/energyCurve.js";
+
+/** In-memory `CardIndex`, sufficient for tests and for the static `F2` pool. */
+export { staticCardIndex, type CardEntry } from "./cardIndex.js";

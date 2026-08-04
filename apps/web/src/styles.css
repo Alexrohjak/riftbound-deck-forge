@@ -1,5 +1,7 @@
-/* Deliberately minimal. The locked D2 design lands at F2 — this is a skeleton (D-027),
-   and dressing it up would invite mistaking it for the real interface. */
+/* F2 — crude on purpose, but usable one-handed on a phone. The locked D2 interface lands
+   with the real card pool; this is the version whose job is to be *used*, so the only
+   thing it optimises for is tap targets and a legality verdict you can see while you
+   scroll. */
 :root {
   --ground: #eef1f4;
   --surface: #fff;
@@ -8,6 +10,7 @@
   --line: #dce2e8;
   --pass: #146334;
   --fail: #9a2c2c;
+  --accent: #2a4b7c;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -18,6 +21,7 @@
     --line: #232c35;
     --pass: #46c46a;
     --fail: #f08a8a;
+    --accent: #7aa2d8;
   }
 }
 * { box-sizing: border-box; }
@@ -25,24 +29,113 @@ body {
   margin: 0;
   background: var(--ground);
   color: var(--ink);
-  font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
 }
 code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.9em; }
-main { max-width: 42rem; margin: 0 auto; padding: 2rem 1rem 4rem; display: grid; gap: 1.5rem; }
-h1 { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 1.9rem; margin: 0; letter-spacing: -0.02em; }
-h2 { font-size: 1.05rem; margin: 0 0 0.5rem; }
-.sub { color: var(--muted); margin: 0.25rem 0 0; font-size: 0.85rem; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 1.25rem; }
-.card > p { color: var(--muted); margin: 0 0 1rem; }
-.rows { display: grid; gap: 0; margin: 0; }
-.rows > div { display: grid; grid-template-columns: 11rem 1fr; gap: 1rem; padding: 0.6rem 0; border-top: 1px solid var(--line); }
-dt { color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; }
-dd { margin: 0; }
-.pass { color: var(--pass); font-weight: 600; }
-.fail { color: var(--fail); font-weight: 600; }
-.violations { margin: 1rem 0 0; padding-left: 1.1rem; color: var(--muted); font-size: 0.9rem; }
+
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem 0.75rem calc(3rem + env(safe-area-inset-bottom));
+  display: grid;
+  gap: 0.75rem;
+}
+
+header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+h1 {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1.5rem; margin: 0; letter-spacing: -0.02em;
+}
+h2 { font-size: 0.95rem; margin: 0 0 0.6rem; display: flex; gap: 0.5rem; align-items: baseline; }
+.sub { color: var(--muted); margin: 0.15rem 0 0; font-size: 0.8rem; }
+.of { color: var(--muted); font-weight: 400; }
+
+.save { font-size: 0.75rem; color: var(--muted); white-space: nowrap; padding-top: 0.4rem; }
+.save.saved { color: var(--pass); }
+.save.offline { color: var(--fail); font-weight: 600; }
+
+/* The scoreboard. Sticky, because the whole point is watching 40/12/3 fill up while your
+   thumb is somewhere down the card list. */
+.tally {
+  position: sticky; top: 0; z-index: 2;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  background: var(--line); border: 1px solid var(--line); border-radius: 4px;
+  overflow: hidden;
+}
+.slot { background: var(--surface); padding: 0.5rem 0.4rem; text-align: center; }
+.slot b { display: block; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.slot span { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.slot.done b { color: var(--pass); }
+.verdict.pass b { color: var(--pass); }
+.verdict.fail b { color: var(--fail); }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0.9rem; }
+
+.violations {
+  margin: 0; padding: 0.75rem 0.9rem 0.75rem 2rem;
+  background: var(--surface); border: 1px solid var(--line);
+  border-left: 3px solid var(--fail); border-radius: 4px;
+  color: var(--muted); font-size: 0.85rem;
+}
+.violations li + li { margin-top: 0.5rem; }
+.violations b { color: var(--fail); }
 .cite { font-family: ui-monospace, monospace; font-size: 0.8em; }
-.caveat { margin: 1rem 0 0; padding-top: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.85rem; }
-footer { color: var(--muted); font-size: 0.85rem; }
-@media (max-width: 32rem) { .rows > div { grid-template-columns: 1fr; gap: 0.15rem; } }
+
+/* Energy curve — bars, never a mean. */
+.curve { display: flex; align-items: flex-end; gap: 0.35rem; height: 7rem; }
+.bar { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; }
+.bar .count { font-size: 0.7rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar .stem { width: 100%; min-height: 2px; margin-top: auto; background: var(--accent); border-radius: 2px 2px 0 0; }
+.bar .tick { font-size: 0.7rem; color: var(--muted); padding-top: 0.2rem; }
+.empty { color: var(--muted); font-size: 0.85rem; margin: 0; }
+
+/* The card list. One row, one thumb. */
+.pool { list-style: none; margin: 0; padding: 0; }
+.row {
+  display: grid; grid-template-columns: 2rem 1fr auto;
+  gap: 0.6rem; align-items: center;
+  padding: 0.4rem 0; border-top: 1px solid var(--line);
+}
+.row:first-child { border-top: 0; }
+.row.in { background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.cost {
+  display: grid; place-items: center;
+  width: 2rem; height: 2rem; border-radius: 50%;
+  background: var(--ground); border: 1px solid var(--line);
+  font-size: 0.85rem; font-variant-numeric: tabular-nums;
+}
+.who { display: grid; min-width: 0; }
+.who b { font-weight: 600; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.who small { color: var(--muted); font-size: 0.72rem; display: flex; align-items: center; gap: 0.3rem; }
+
+.domains { display: inline-flex; gap: 0.15rem; }
+.dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; display: inline-block; }
+.dot.fury { background: #d4453a; }
+.dot.calm { background: #3f8fbf; }
+.dot.mind { background: #9a6fd0; }
+.dot.body { background: #4f9a55; }
+.dot.chaos { background: #d07f2a; }
+.dot.order { background: #d9c04a; }
+.dot.colorless { background: var(--muted); }
+
+.stepper { display: flex; align-items: center; gap: 0.15rem; }
+.stepper b { min-width: 2.4rem; text-align: center; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.stepper button {
+  width: 2.5rem; height: 2.5rem;      /* a real tap target, not a decoration */
+  border: 1px solid var(--line); border-radius: 4px;
+  background: var(--ground); color: var(--ink);
+  font-size: 1.25rem; line-height: 1; cursor: pointer;
+  touch-action: manipulation;
+}
+.stepper button:disabled { opacity: 0.35; cursor: default; }
+.stepper button:active:not(:disabled) { background: var(--accent); color: var(--surface); }
+
+footer { color: var(--muted); font-size: 0.8rem; display: grid; gap: 0.5rem; }
+footer p { margin: 0; }
+.caveat { padding: 0.75rem; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; }
+.clear {
+  padding: 0.5rem 0.9rem; border: 1px solid var(--line); border-radius: 4px;
+  background: var(--surface); color: var(--muted); cursor: pointer; font-size: 0.8rem;
+}

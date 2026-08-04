@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** 🔓 **`DESIGN LOCKED` lifted** — the design track is complete and the workspace is scaffolded, tested and building · 🟡 `F1` is active, blocked only on a Cloudflare account · **the collection tool works and is in use**
+> **Status:** ✅ **`F2` is done — [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev)**: open it on your phone, put cards into a deck, watch legality and the energy curve update as you go · 🎯 `F3` next — the full card pool · **the collection tool works and is in use**
 
 ---
 
@@ -43,14 +43,18 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here — how to pick this up
 
-*Last worked on 2026-08-03. This section is the recipe; the live status board is
+*Last worked on 2026-08-04. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
-**Where things stand.** 🔓 **The whole design track is done and `DESIGN LOCKED` has lifted**,
-and the workspace behind it is scaffolded, tested and building — `packages/engine`,
-`apps/web`, `apps/cli`, `apps/api`, CI. **`F1` is one Cloudflare account away from closing**
-(§4). Forge also still has the [collection tool](tools/collection/), used for real entry and
-improved twice from that use.
+**Where things stand.** 🔓 The whole design track is done and `DESIGN LOCKED` has lifted.
+✅ **`F1` and `F2` are both closed** — Forge is live, private, deploys itself on every push
+to `main`, and **is now a deckbuilder you can actually use** (§4). Forge also still has the
+[collection tool](tools/collection/), used for real entry and improved twice from that use.
+
+**🎯 Next is `F3`** — the full 1,180-printing card pool, which replaces `F2`'s 30-name
+static file and unblocks both build tracks. ⚠️ **`X8` is the open question that matters**:
+D1 now holds a deck and has no backup of its own beyond Cloudflare's 7-day Time Travel,
+and `W2` is the evening you type ~1,000 real cards in.
 
 ### 1 · Run the collection tool
 
@@ -83,13 +87,18 @@ grounding lines; and **editing requires connectivity** — offline you can look 
 
 ### 3 · Run the workspace
 
-The scaffold is built and green. `packages/engine` is the real thing — pure TypeScript,
-8 of the 33 legality checks, 14 tests:
+`packages/engine` is the real thing — pure TypeScript, **13 of the 33 legality checks**,
+the energy curve, 27 tests:
 
 ```bash
 npm install
 npm run check      # docs · engine purity · typecheck · tests · build
-npm run dev        # the web app, on http://localhost:5173
+npm run dev        # the web app alone, on http://localhost:5173
+
+# The whole thing — Worker, SPA and a local D1 — on http://127.0.0.1:8787
+npm run build
+npm run db:init:local -w @forge/api    # first run only
+npm run dev -w @forge/api
 ```
 
 **Prove the architecture in one command** — the same package, called headlessly the way
@@ -97,27 +106,37 @@ Claude Code will call it:
 
 ```bash
 npm run build -w @forge/cli
-node apps/cli/dist/index.js legality <deck.json> --cards <names.json>
+node apps/cli/dist/index.js legality <deck.json> --cards <cards.json>
 ```
 
-### 4 · `F1` — Forge is live and private
+`--cards` takes either `"<name>"` or `{ "name", "domains", "energy" }` per printing;
+supplying domains is what turns on the Domain Identity checks. The result's `checked`
+list always says which checks actually ran.
+
+### 4 · `F2` — Forge is a deckbuilder, live and private
 
 **[forge.alexander-rohde-jakobsen.workers.dev](https://forge.alexander-rohde-jakobsen.workers.dev)**
 — sign in with your email; nobody else gets in.
 
 | Piece | State |
 |---|---|
+| **The deckbuilder** | One Legend (**Loose Cannon** — Jinx, Fury + Chaos), a 30-name owned pool, tap to add and remove, saved to D1 as you go |
+| **Live legality** | **13 of 33 checks**, Domain Identity among them. Violations name the check *and* the rulebook citation, and the page always says what it did **not** check |
+| **The energy curve** | A histogram, never a mean ([DECK-STATS §6](docs/spec/DECK-STATS.md)). Cards with no cost data are kept out of the buckets rather than folded into zero |
 | **One Worker, one origin** | Serves the SPA *and* the API ([D-050](docs/DECISIONS.md#d-050) — Cloudflare closed Pages to new projects) |
-| **D1** | `forge`, schema applied, write round-trip verified. Empty until `W2` |
+| **D1** | `forge`, schema applied. Holds one deck; the collection table is still empty until `W2` |
 | **Zero Trust Access** | Self-hosted app, allow-list of one email, 7-day sessions. Verified enforcing |
-| **Automatic deploys** | `main` → build → deploy, via Workers Builds. `npm run build`, then `npx wrangler deploy --config apps/api/wrangler.toml` |
+| **Automatic deploys** | `main` → build → deploy, via Workers Builds |
 
 **Deploying by hand is no longer the way.** Push to `main` and Cloudflare builds it. Preview
 builds for other branches are deliberately **off**: they would inherit the same D1 binding, and
 there is only one database — a branch build would write to the collection.
 
-Then `F2` — the one that actually matters. The first genuinely usable version, deliberately
-crude: open it on your phone and put cards into a deck.
+**What `F2` asks of you:** use it, and report what feels wrong. That feedback reshapes
+everything after it — which is the entire reason `F2` came before the card pool.
+
+Then `F3` — the full 1,180-printing pool, replacing the static 30-name file that
+[`scripts/build-f2-pool.mjs`](scripts/build-f2-pool.mjs) generates today.
 
 > ⚠️ **The design phase is over — stop writing documents.** The project has ~66,000 words of
 > docs against a few hundred lines of code. Every remaining milestone produces **running code**,
@@ -149,7 +168,7 @@ system map and **where to put a new idea**.
 
 | | |
 |---|---|
-| [**`packages/engine/`**](packages/engine/) | **The rules, as a pure library.** Imported by both the web app and the CLI — one implementation, two consumers ([D-047](docs/DECISIONS.md#d-047)). 8 of 33 legality checks so far; `W1` finishes them |
+| [**`packages/engine/`**](packages/engine/) | **The rules, as a pure library.** Imported by both the web app and the CLI — one implementation, two consumers ([D-047](docs/DECISIONS.md#d-047)). 13 of 33 legality checks and the energy curve so far; `W1` finishes the checks |
 | [`apps/web/`](apps/web/) | The workbench. Static React + Vite bundle |
 | [`apps/cli/`](apps/cli/) | **EE's tool surface** — what Claude Code calls. Structured data in, structured data out |
 | [`apps/api/`](apps/api/) | One Cloudflare Worker over D1. No idle state |
@@ -225,7 +244,7 @@ and explains each; it never hands you one finished list and never ranks them.
 
 1. ✅ **Discovery** — lock the spec before writing logic (`D1`)
 2. ✅ **Visualization** — prototype for early UX validation (`D2`, closed 2026-08-03)
-3. 🟡 **Development** — every change maps to a task ← *`D3` first, then `DESIGN LOCKED` lifts*
+3. 🟡 **Development** — every change maps to a milestone in [`ROADMAP.md`](docs/ROADMAP.md) ← *you are here*
 4. **Human QA** — the final gate
 
 ---

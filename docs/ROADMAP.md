@@ -1,10 +1,11 @@
 # Forge — Roadmap
 
-> **Version:** 1.2 · **Updated:** 2026-08-03 — `D3` complete, **`DESIGN LOCKED` lifted**
+> **Version:** 1.3 · **Updated:** 2026-08-04 — `F1` and `F2` complete, **Forge is a usable
+> deckbuilder**
 >
 > 🖥️ **Visual version: [`roadmap.html`](roadmap.html)** — same content, rendered. Open it from
 > disk, or use the published page. ✅ **X5 resolved** — the docs ship from the same Cloudflare
-> account as the app ([D-048](DECISIONS.md#d-048)); `F1` wires it up.
+> account as the app ([D-048](DECISIONS.md#d-048)); `F1` wired it up.
 >
 > The map of where we're going. Five tracks, each a set of milestones with **stable IDs**.
 > *Why* it's built this way lives in [`DISCOVERY.md`](DISCOVERY.md) and
@@ -21,21 +22,21 @@
 | | |
 |---|---|
 | **Track** | **F — Foundation** |
-| **Progress** | **4 of 16** milestones · `D1`–`D3`, `F1` complete |
-| **🎯 Next** | **`F2` — the first usable version.** Open [Forge](https://forge.alexander-rohde-jakobsen.workers.dev) on your phone and put cards into a deck. Deliberately crude |
-| **Active** | Nothing in flight — awaiting `F2` |
-| **Blocked** | Nothing. ⚠️ **X8 — D1 has no backup yet.** Answer it before `W2` puts the real collection in |
+| **Progress** | **5 of 16** milestones · `D1`–`D3`, `F1`, `F2` complete |
+| **🎯 Next** | **`F3` — card data.** The full 1,180-printing pool, replacing `F2`'s 30-name static file. Unblocks `W1` and `W2` |
+| **Active** | Nothing in flight — **`F2` is live and wants using.** Build a deck on your phone and report what feels wrong |
+| **Blocked** | Nothing. ⚠️ **X8 — D1 now holds a deck, and still has no backup beyond Cloudflare's 7-day Time Travel.** Answer it before `W2` puts the real collection in |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
-| **Code** | **The workspace is real.** `packages/engine` (pure TS, 8 of 33 legality checks, 14 tests) · `apps/web` · `apps/cli` · `apps/api` · CI. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
+| **Code** | **The workspace is real.** `packages/engine` (pure TS, **13 of 33 legality checks**, the energy curve, 27 tests) · `apps/web` · `apps/cli` · `apps/api` · CI. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
 
 ```
 D ─ Design         ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
-F ─ Foundation     ▓▓▓▓░░░░░░░░  1/3   ← you are here
+F ─ Foundation     ▓▓▓▓▓▓▓▓░░░░  2/3   ← you are here
 W ─ Workbench      ░░░░░░░░░░░░  0/4
 S ─ Strategist     ░░░░░░░░░░░░  0/5
 L ─ Later          ░░░░░░░░░░░░  0/1
                                  ────
-                                 4/16
+                                 5/16
 ```
 
 > **The count is unchanged; the shape is not.** [D-043](DECISIONS.md#d-043) retired `S3` and
@@ -48,6 +49,7 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 
 | ID | Milestone | What it produced | Date |
 |---|---|---|---|
+| `F2` | **First usable version** ⭐ | A working deckbuilder on a phone: 30-name static pool under one Legend, add/remove, live legality (**13 of 33 checks** — Domain Identity now among them), the energy curve, saved to D1 | 2026-08-04 |
 | `F1` | **Get it online** | One Worker serving SPA + API on D1, behind Zero Trust Access; `main` deploys itself. [D-050](DECISIONS.md#d-050) — Cloudflare closed Pages to new projects | 2026-08-04 |
 | `D3` | **Architecture** | [`ARCHITECTURE.md`](ARCHITECTURE.md) — one TypeScript rules package with two consumers; static app, one edge function, managed SQLite. **£0/month, verified.** A6 upheld, X5 resolved. [D-047](DECISIONS.md#d-047)–[D-049](DECISIONS.md#d-049) | 2026-08-03 |
 | `D2` | **Interface design** | [Clickable prototype](design/D2-workbench-prototype.html), approved. Ownership visual language, EE's answer shape, and how EE is invoked — all three locked. Four decisions: [D-043](DECISIONS.md#d-043) to [D-046](DECISIONS.md#d-046) | 2026-08-03 |
@@ -122,7 +124,7 @@ new work appends the next free number and **nothing ever renumbers**.
 | ID | Milestone | Done when | Status | Depends on |
 |---|---|---|---|---|
 | `F1` | **Get it online** | A trivial page is live, reachable from your phone, deploying automatically | ✅ | `D3` |
-| `F2` | **First usable version** ⭐ | You can open it on your phone and put cards into a deck | ⬜ | `F1` |
+| `F2` | **First usable version** ⭐ | You can open it on your phone and put cards into a deck | ✅ | `F1` |
 | `F3` | **Card data** | Full pool queryable offline, variants collapsed by name, errata + ban overlay working | ⬜ | `F2` |
 
 > ⭐ **`F2` is the most important sequencing decision in the plan.** The audit found
