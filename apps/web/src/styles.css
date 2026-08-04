@@ -560,3 +560,63 @@ body.resizing * { pointer-events: none; }
   cursor: pointer; transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
 }
 .danger:hover { background: var(--alert); color: #fff; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Final pass: proportion, and a tray you can take in at a glance
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* The Legend and Champion were rendering at 550px each — half the panel's height for two
+   cards, pushing the 39 that need attention below the fold. They are important, not large.
+   Capped so the whole deck is visible at once, which is the entire point of a tray. */
+.singles { grid-template-columns: repeat(2, minmax(0, 10rem)); justify-content: start; gap: var(--s3); }
+.slot.tall { max-width: 10rem; }
+
+/* Section headers you can scan: the label left, the count right, a rule between. */
+.bay h2 {
+  align-items: baseline; gap: var(--s2); margin-bottom: var(--s2);
+  padding-bottom: var(--s1); border-bottom: 1px solid var(--line);
+}
+.bay h2::after {
+  content: ""; flex: 1; order: 1;
+}
+.bay h2 .of { order: 2; margin-left: 0; font-size: 0.72rem; }
+
+/* Runes are twelve copies of two cards. Showing twelve full slots wastes the space the
+   Main Deck needs, so they sit smaller — the count is what matters, not the art. */
+.bay:has(> h2:first-child) .slots { grid-template-columns: repeat(auto-fill, minmax(3.2rem, 1fr)); }
+
+.workshop { gap: var(--s3); }
+.workshop header h1 { font-size: var(--step-1); }
+
+/* Violations and warnings were competing with the deck for attention. Same information,
+   quieter until it matters. */
+.violations, .warnings { font-size: 0.7rem; line-height: 1.5; }
+
+/* The identity line belongs with the Legend, not floating under it. */
+.identity-line {
+  margin-top: var(--s1); font-size: 0.55rem; gap: var(--s1);
+}
+
+/* A skeleton while the pool loads, rather than an empty page that looks broken. */
+.boot .empty::after {
+  content: ""; display: block; margin-top: var(--s3);
+  height: 3px; width: 8rem; border-radius: 2px;
+  background: linear-gradient(90deg, var(--line), var(--ink), var(--line));
+  background-size: 200% 100%;
+  animation: sweep 1.2s linear infinite;
+}
+@keyframes sweep { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+/* The curve was drawing near-white slabs the width of the panel — visually the loudest
+   thing in the tray, for a statistic that is context rather than a headline. Narrow bars,
+   muted fill, and the count above only where there is one. */
+.curve { height: 4.5rem; gap: 3px; align-items: flex-end; padding-top: var(--s3); }
+.bar .stem {
+  background: var(--line-strong);
+  border-radius: 2px 2px 0 0;
+  max-width: 2.2rem; margin-inline: auto;
+  transition: height var(--slow) var(--ease), background var(--fast) var(--ease);
+}
+.bar:hover .stem { background: var(--ink); }
+.bar .count { font-size: 0.58rem; }
+.bar .tick { font-size: 0.58rem; opacity: 0.7; }

@@ -17,6 +17,26 @@ import { deckEntries } from "./entries.js";
 
 export const OWNERSHIP_CHECKS = ["L26", "L27"] as const;
 
+/** Names shown before the count takes over. */
+const NAMED = 3;
+
+/**
+ * ⚠️ **Synthesise, never enumerate** (D-039). A deck missing 33 cards across 11 names
+ * produced a paragraph naming every one — true, unreadable, and precisely the failure the
+ * project's own principle exists to prevent. The number is the fact; a few names are the
+ * grounding; the rest belongs behind a "show me" the caller can build from `counts`.
+ */
+function summarise(kind: "short" | "committed", names: string[], copies: number): string {
+  const sample = names.slice(0, NAMED).join(", ");
+  const rest = names.length - NAMED;
+  const tail = rest > 0 ? `${sample} and ${rest} more` : sample;
+  return kind === "short"
+    ? `${copies} ${copies === 1 ? "copy" : "copies"} short across ` +
+        `${names.length} ${names.length === 1 ? "name" : "names"} — ${tail}.`
+    : `${copies} ${copies === 1 ? "copy" : "copies"} already sleeved into a built deck, across ` +
+        `${names.length} ${names.length === 1 ? "name" : "names"} — ${tail}.`;
+}
+
 export function checkOwnership(
   deck: Deck,
   cards: CardIndex,
@@ -34,6 +54,8 @@ export function checkOwnership(
 
   const short: string[] = [];
   const conflicted: string[] = [];
+  let shortCopies = 0;
+  let conflictedCopies = 0;
 
   for (const [cardId, want] of [...needed].sort(([a], [b]) => a.localeCompare(b))) {
     const owned = collection[cardId] ?? 0;
@@ -41,24 +63,22 @@ export function checkOwnership(
     const name = cards.nameOf(cardId) ?? cardId;
 
     // L26 — do you own enough copies at all?
-    if (want > owned) short.push(`${name} (need ${want}, own ${owned})`);
+    if (want > owned) {
+      short.push(name);
+      shortCopies += want - owned;
+    }
     // L27 — of the ones you own, are some already sleeved into a BUILT deck? (D-017)
     else if (want > owned - spokenFor) {
-      conflicted.push(`${name} (need ${want}, ${spokenFor} already in a built deck)`);
+      conflicted.push(name);
+      conflictedCopies += want - (owned - spokenFor);
     }
   }
 
   if (short.length > 0) {
-    warnings.push({
-      check: "L26",
-      message: `Not enough copies owned: ${short.join("; ")}.`,
-    });
+    warnings.push({ check: "L26", message: summarise("short", short, shortCopies) });
   }
   if (conflicted.length > 0) {
-    warnings.push({
-      check: "L27",
-      message: `Owned, but committed elsewhere: ${conflicted.join("; ")}.`,
-    });
+    warnings.push({ check: "L27", message: summarise("committed", conflicted, conflictedCopies) });
   }
 
   return warnings;

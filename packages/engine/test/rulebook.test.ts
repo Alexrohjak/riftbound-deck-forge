@@ -374,3 +374,27 @@ describe("the 33 are exactly accounted for", () => {
     expect([...all].sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)))).toEqual(expected);
   });
 });
+
+describe("ownership warnings synthesise (D-039)", () => {
+  it("states the count and names a few, rather than listing every card", () => {
+    // A full deck you own none of once produced a paragraph naming all 18 names. True,
+    // unreadable, and the exact failure "synthesise, never enumerate" exists to prevent.
+    // 55 = 39 Main + Champion + 12 Runes + 3 Battlefields.
+    const result = checkLegality(deck(), cards, { ownership: { collection: {} } });
+    const l26 = result.warnings.find((w) => w.check === "L26");
+
+    expect(l26?.message).toMatch(/^55 copies short across 18 names — /);
+    expect(l26?.message).toMatch(/and 15 more\.$/);
+    // Three names is grounding; fourteen is a wall.
+    expect(l26?.message.split(",").length).toBeLessThanOrEqual(3);
+  });
+
+  it("does not say 'and 0 more' when everything fits in the sample", () => {
+    const owned = Object.fromEntries(Object.keys(CARDS).map((id) => [id, 12]));
+    const result = checkLegality(deck(), cards, {
+      ownership: { collection: { ...owned, "filler-0": 0 } },
+    });
+    const l26 = result.warnings.find((w) => w.check === "L26");
+    expect(l26?.message).toBe("3 copies short across 1 name — Filler 0.");
+  });
+});
