@@ -4,7 +4,7 @@ import { hd, loadPool, zoneFor, type Card, type CardPool, type Printing } from "
 import { useDeck, type SaveState } from "./deckStore.js";
 import { apply, DOMAIN_LIST, NO_FILTERS, SORTS, TYPES, type Filters, type Tab } from "./filters.js";
 import { filtersFor, runeSlots, stepFor, type Step } from "./buildFlow.js";
-import { Workshop, type Occupant } from "./Workshop.js";
+import { Workshop, type Occupant, type Target } from "./Workshop.js";
 import { CardDetail } from "./CardDetail.js";
 
 /**
@@ -137,7 +137,7 @@ export function App() {
   const [open, setOpen] = useState(true);
   const [guided, setGuided] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [detail, setDetail] = useState<{ o: Occupant; zone: Zone } | null>(null);
+  const [detail, setDetail] = useState<Target | null>(null);
   const [pane, setPane] = useState(() => Number(store.get("forge.pane", "34")) || 34);
 
   const sentinel = useRef<HTMLDivElement | null>(null);
@@ -279,6 +279,26 @@ export function App() {
   const removeOne = (card: Card) => {
     const existing = slotFor(card);
     if (existing) setQuantity(existing.cardId, existing.zone, existing.quantity - 1);
+  };
+
+  /**
+   * Take one out. ⚠️ Routed by **role**, because the Legend and the Chosen Champion are
+   * singular fields rather than slots — searching `deck.slots` for them finds nothing and
+   * fails silently, which is exactly the bug this replaced. Clearing a Legend also clears
+   * the Champion, because a Champion without its Legend can never satisfy L18.
+   */
+  const removeTarget = (t: Target) => {
+    if (t.role === "legend") {
+      setLegend("");
+      setChampion("");
+      return;
+    }
+    if (t.role === "champion") {
+      setChampion("");
+      return;
+    }
+    const slot = deck.slots.find((s) => s.cardId === t.cardId && s.zone === t.zone);
+    if (slot) setQuantity(t.cardId, t.zone, slot.quantity - 1);
   };
 
   const occupants = (zone: Zone): Occupant[] =>
@@ -484,11 +504,8 @@ export function App() {
               step={step}
               guided={guided}
               occupants={occupants}
-              onOpen={(o, zone) => setDetail({ o, zone })}
-              onRemove={(o, zone) => {
-                const slot = deck.slots.find((s) => s.cardId === o.cardId && s.zone === zone);
-                if (slot) setQuantity(o.cardId, zone, slot.quantity - 1);
-              }}
+              onOpen={setDetail}
+              onRemove={removeTarget}
               onSeek={(zone) => {
                 setGuided(false);
                 setBase((f) => ({
@@ -509,19 +526,18 @@ export function App() {
 
       {detail && (
         <CardDetail
-          card={detail.o.card}
-          cardId={detail.o.cardId}
-          zone={detail.zone}
-          owned={detail.o.card.printings.reduce((n, p) => n + (owned[p.id] ?? 0), 0)}
+          card={detail.card}
+          cardId={detail.cardId}
+          role={detail.role}
+          owned={detail.card.printings.reduce((n, p) => n + (owned[p.id] ?? 0), 0)}
           onPickArt={(p: Printing) => {
-            if (detail.o.cardId === deck.legendCardId) setLegend(p.id);
-            else if (detail.o.cardId === deck.chosenChampionCardId) setChampion(p.id);
-            else replacePrinting(detail.o.cardId, detail.zone, p.id);
+            if (detail.role === "legend") setLegend(p.id);
+            else if (detail.role === "champion") setChampion(p.id);
+            else replacePrinting(detail.cardId, detail.zone, p.id);
             setDetail(null);
           }}
           onRemove={() => {
-            const slot = deck.slots.find((s) => s.cardId === detail.o.cardId && s.zone === detail.zone);
-            if (slot) setQuantity(detail.o.cardId, detail.zone, slot.quantity - 1);
+            removeTarget(detail);
             setDetail(null);
           }}
           onClose={() => setDetail(null)}

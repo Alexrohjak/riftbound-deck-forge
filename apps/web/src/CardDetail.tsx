@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import type { Zone } from "@forge/engine";
 import { hd, symbols, type Card, type Printing } from "./cards.js";
+import type { Role } from "./Workshop.js";
 
 /**
  * The card, full size, with everything the gallery deliberately does not say.
@@ -13,7 +13,7 @@ import { hd, symbols, type Card, type Printing } from "./cards.js";
 export function CardDetail({
   card,
   cardId,
-  zone,
+  role,
   owned,
   onPickArt,
   onRemove,
@@ -22,7 +22,7 @@ export function CardDetail({
   card: Card;
   /** The printing currently in the deck, so the right art is marked. */
   cardId: string;
-  zone: Zone;
+  role: Role;
   owned: number;
   onPickArt: (printing: Printing) => void;
   onRemove: () => void;
@@ -138,7 +138,11 @@ export function CardDetail({
           <footer>
             <span className="of">{current?.code}</span>
             <button type="button" className="danger" onClick={onRemove}>
-              Remove one from {zone === "MAIN" ? "the deck" : zone.toLowerCase()}
+              {role === "legend"
+                ? "Clear Legend"
+                : role === "champion"
+                  ? "Clear Champion"
+                  : "Remove one copy"}
             </button>
           </footer>
         </div>

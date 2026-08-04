@@ -30,6 +30,22 @@ export interface Occupant {
   cardId: string;
 }
 
+/**
+ * What was clicked, and in what capacity.
+ *
+ * ⚠️ **The Legend and the Chosen Champion are singular fields, not slots** (DATA-MODEL §1).
+ * Removing them means clearing a field; removing anything else means decrementing a slot.
+ * The first version of this searched `deck.slots` for the Legend, found nothing, and
+ * silently did nothing — so the role is now stated rather than inferred from the id, which
+ * also settles the case where the Chosen Champion is *also* in the Main Deck.
+ */
+export type Role = "legend" | "champion" | "slot";
+
+export interface Target extends Occupant {
+  zone: Zone;
+  role: Role;
+}
+
 function Slots({
   held,
   capacity,
@@ -53,6 +69,7 @@ function Slots({
           key={`${o.cardId}-${i}`}
           type="button"
           className="slot filled"
+          aria-label={`${o.card.name} — details`}
           title={`${o.card.name} — click for details, right-click to remove`}
           onClick={() => onOpen(o)}
           onContextMenu={(e) => {
@@ -94,8 +111,8 @@ export function Workshop({
   step: Step;
   guided: boolean;
   occupants: (zone: Zone) => Occupant[];
-  onOpen: (o: Occupant, zone: Zone) => void;
-  onRemove: (o: Occupant, zone: Zone) => void;
+  onOpen: (t: Target) => void;
+  onRemove: (t: Target) => void;
   onSeek: (zone: Zone) => void;
   children?: React.ReactNode;
 }) {
@@ -117,8 +134,8 @@ export function Workshop({
         <Slots
           held={held}
           capacity={capacity}
-          onOpen={(o) => onOpen(o, zone)}
-          onRemove={(o) => onRemove(o, zone)}
+          onOpen={(o) => onOpen({ ...o, zone, role: "slot" })}
+          onRemove={(o) => onRemove({ ...o, zone, role: "slot" })}
           onSeek={() => onSeek(zone)}
         />
       </section>
@@ -195,13 +212,25 @@ export function Workshop({
               <button
                 type="button"
                 className="slot filled tall"
-                title={`${legend.name} — click for details`}
-                onClick={() => onOpen({ card: legend, cardId: deck.legendCardId }, "MAIN")}
+                aria-label={`Legend: ${legend.name} — details`}
+                title={`${legend.name} — click for details, right-click to clear`}
+                onClick={() =>
+                  onOpen({ card: legend, cardId: deck.legendCardId, zone: "MAIN", role: "legend" })
+                }
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  onRemove({ card: legend, cardId: deck.legendCardId, zone: "MAIN", role: "legend" });
+                }}
               >
                 <img src={legend.printings[0] ? hd(legend.printings[0], 160) : ""} alt={legend.name} />
               </button>
             ) : (
-              <button type="button" className="slot empty tall" onClick={() => onSeek("MAIN")} />
+              <button
+                type="button"
+                className="slot empty tall"
+                aria-label="Choose a Legend"
+                onClick={() => onSeek("MAIN")}
+              />
             )}
           </div>
           {legend && (
@@ -224,13 +253,35 @@ export function Workshop({
               <button
                 type="button"
                 className="slot filled tall"
-                title={`${champion.name} — click for details`}
-                onClick={() => onOpen({ card: champion, cardId: deck.chosenChampionCardId }, "MAIN")}
+                aria-label={`Chosen Champion: ${champion.name} — details`}
+                title={`${champion.name} — click for details, right-click to clear`}
+                onClick={() =>
+                  onOpen({
+                    card: champion,
+                    cardId: deck.chosenChampionCardId,
+                    zone: "MAIN",
+                    role: "champion",
+                  })
+                }
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  onRemove({
+                    card: champion,
+                    cardId: deck.chosenChampionCardId,
+                    zone: "MAIN",
+                    role: "champion",
+                  });
+                }}
               >
                 <img src={champion.printings[0] ? hd(champion.printings[0], 160) : ""} alt={champion.name} />
               </button>
             ) : (
-              <button type="button" className="slot empty tall" onClick={() => onSeek("MAIN")} />
+              <button
+                type="button"
+                className="slot empty tall"
+                aria-label="Choose a Legend"
+                onClick={() => onSeek("MAIN")}
+              />
             )}
           </div>
           {champion && <p className="identity-line">counted inside the 40</p>}
