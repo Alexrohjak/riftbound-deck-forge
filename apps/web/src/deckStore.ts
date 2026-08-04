@@ -57,10 +57,25 @@ export function useDeck() {
   // rather than the one captured when the timer was set.
   const pending = useRef<Deck | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** True once the server's answer is known — see the guard in `push`. */
+  const loaded = useRef(false);
 
   const push = useCallback(async () => {
     const next = pending.current;
     if (!next) return;
+
+    // ⚠️ **Never save over a deck we failed to read.** If the initial GET fails, `deck` is
+    // still the empty default — and a single edit would then PUT that emptiness over a
+    // real, saved deck. The edit stays on screen and stays unsaved, which is the only
+    // honest state (D-049); reloading once the connection is back recovers it.
+    if (!loaded.current) {
+      setSave({
+        status: "offline",
+        detail: "Your saved deck could not be loaded, so nothing is being written over it.",
+      });
+      return;
+    }
+
     pending.current = null;
     setSave({ status: "saving" });
     try {
@@ -88,6 +103,9 @@ export function useDeck() {
         if (cancelled) return;
         // A deck that does not exist yet is not an error — it is the first run.
         setDeck(body.deck ? { ...emptyDeck(), ...body.deck } : emptyDeck());
+        // A deck that does not exist yet still counts as loaded: we know the server has
+        // nothing, so writing the first one over it destroys nothing.
+        loaded.current = true;
         setSave({ status: "saved" });
       } catch (error) {
         if (cancelled) return;

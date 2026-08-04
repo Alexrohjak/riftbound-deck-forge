@@ -8,21 +8,19 @@ import {
   zoneFor,
   type Card,
   type CardPool,
-  type Printing,
 } from "./cards.js";
 import { useDeck, type SaveState } from "./deckStore.js";
 
 /**
- * The workbench: a gallery of cards, and the deck beside it.
+ * The workbench: a gallery of cards, and a workshop that holds the deck being built.
  *
  * **The card is the information.** Cost, might, domains and rules text are all printed on
- * the card itself, so a row of transcribed stats beside a thumbnail was duplication that
- * pushed the actual card down to a postage stamp. Big art, no chrome — you recognise a
- * card by its art far faster than you read it by its name.
+ * the card, so a tile is the card and nothing else — no transcribed stats, no chrome.
  *
- * **Release order, not alphabetical.** Collector numbers only mean anything inside a set,
- * and alphabetical order means nothing to anyone. The index ships pre-sorted (`release`),
- * and neither filtering nor searching reorders it.
+ * **The workshop is a set of slots, not a list.** A registered deck is a fixed shape: one
+ * Legend, one Chosen Champion, 3 Battlefields, 12 Runes, 39 more Main Deck cards. Showing
+ * that shape as empty slots makes what is missing visible at a glance — a list of what you
+ * have cannot show you what you lack.
  */
 
 const ZONE_LABEL: Record<Zone, string> = {
@@ -31,11 +29,23 @@ const ZONE_LABEL: Record<Zone, string> = {
   BATTLEFIELD: "Battlefields",
   SIDEBOARD: "Sideboard",
 };
-const ZONE_TARGET: Partial<Record<Zone, number>> = { MAIN: 40, RUNE: 12, BATTLEFIELD: 3 };
+
+/**
+ * Slots per zone. **`MAIN` is 39, not 40** — the Chosen Champion is the fortieth and has
+ * its own slot above (L3, TR 601.1.b). Counting it twice here would show a full deck as
+ * one card short.
+ */
+const CAPACITY: Record<Zone, number> = { MAIN: 39, RUNE: 12, BATTLEFIELD: 3, SIDEBOARD: 10 };
+
 /** L13 — a fourth copy is never legal, so the gallery does not offer one. */
 const MAX_COPIES = 3;
 /** Tiles per page. More arrive as you scroll; 935 card images at once is ~16 MB. */
 const PAGE = 60;
+
+/** Gallery tile widths. Stored per browser — a display preference, not deck state. */
+const SIZES = { S: "9rem", M: "13rem", L: "18rem" } as const;
+type Size = keyof typeof SIZES;
+const SIZE_KEY = "forge.tileSize";
 
 type Filter = "all" | "legend" | "main" | "battlefield" | "rune";
 
@@ -107,12 +117,12 @@ function Tile({
     <div className={held > 0 ? "tile in" : "tile"}>
       <button type="button" className="face" onClick={onAdd} disabled={atLimit} title={card.name}>
         <img
-          src={printing ? thumb(printing, 280) : ""}
+          src={printing ? thumb(printing, 400) : ""}
           alt={card.name}
           loading="lazy"
           decoding="async"
-          width={280}
-          height={391}
+          width={400}
+          height={559}
         />
       </button>
       {card.banned && <span className="flag">BANNED</span>}
@@ -133,6 +143,31 @@ function Tile({
   );
 }
 
+/** A filled slot in the workshop. Clicking it takes that copy back out. */
+function Filled({ card, onClear }: { card: Card; onClear: () => void }) {
+  const printing = card.printings[0];
+  return (
+    <button
+      type="button"
+      className="slot filled"
+      title={`${card.name} — click to remove`}
+      onClick={onClear}
+    >
+      <img src={printing ? thumb(printing, 160) : ""} alt={card.name} loading="lazy" />
+      {card.banned && <span className="flag">BAN</span>}
+    </button>
+  );
+}
+
+/** An empty slot. Clicking it points the gallery at the cards that could fill it. */
+function Empty({ hint, onSeek }: { hint: string; onSeek: () => void }) {
+  return (
+    <button type="button" className="slot empty" onClick={onSeek} title={hint}>
+      <span>+</span>
+    </button>
+  );
+}
+
 export function App() {
   const [pool, setPool] = useState<CardPool | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
@@ -141,6 +176,10 @@ export function App() {
   const [filter, setFilter] = useState<Filter>("all");
   const [shown, setShown] = useState(PAGE);
   const [picking, setPicking] = useState(false);
+  const [open, setOpen] = useState(true);
+  const [size, setSize] = useState<Size>(
+    () => (localStorage.getItem(SIZE_KEY) as Size | null) ?? "M",
+  );
   const sentinel = useRef<HTMLDivElement | null>(null);
   const { deck, save, setQuantity, replacePrinting, setLegend, setChampion } = useDeck();
 
@@ -152,6 +191,8 @@ export function App() {
       .catch(() => setOwned({}));
   }, []);
 
+  useEffect(() => localStorage.setItem(SIZE_KEY, size), [size]);
+
   const results = useMemo(() => {
     if (!pool) return [];
     return search(
@@ -160,10 +201,8 @@ export function App() {
     );
   }, [pool, filter, query]);
 
-  // A new list means starting at the top of it — showing page 15 of a fresh search is noise.
   useEffect(() => setShown(PAGE), [query, filter]);
 
-  // Reveal more as you approach the end, rather than mounting 935 images up front.
   useEffect(() => {
     const node = sentinel.current;
     if (!node) return;
@@ -223,17 +262,12 @@ export function App() {
       : [];
 
   const add = (card: Card) => {
-    // A Legend is not added to a deck — it *is* the deck's identity, so clicking one in
-    // the Legends tab selects it.
     if (card.types.includes("legend")) {
       const id = card.printings[0]?.id;
       if (!id) return;
       setLegend(id);
-
-      // ⚠️ The Chosen Champion must carry the new Legend's champion tag (L18). Leaving the
-      // old one would put the deck in a state the rules forbid — and L18 is not among the
-      // 13 checks implemented, so nothing downstream would catch it. Every Legend has
-      // between 2 and 4 eligible champion units, so there is always one to fall back to.
+      // ⚠️ The Chosen Champion must carry the new Legend's champion tag (L18), which is not
+      // among the 13 checks implemented — so nothing downstream would catch a stale one.
       const keeps = champion && card.championTag && champion.tags.includes(card.championTag);
       if (!keeps) {
         const replacement = championsFor(card.championTag)[0]?.printings[0]?.id;
@@ -251,18 +285,65 @@ export function App() {
     if (existing) setQuantity(existing.cardId, existing.zone, existing.quantity - 1);
   };
 
-  const zoneRows = (zone: Zone) =>
+  /**
+   * One entry per physical card in a zone — three copies occupy three slots, because that
+   * is what they occupy in the deck.
+   */
+  const occupants = (zone: Zone): Array<{ card: Card; cardId: string }> =>
     deck.slots
       .filter((s) => s.zone === zone)
-      .map((slot) => ({ slot, card: pool.byPrinting.get(slot.cardId) }))
-      .filter((r): r is { slot: (typeof deck.slots)[number]; card: Card } => Boolean(r.card))
-      .sort(
-        (a, b) =>
-          (a.card.energy ?? 99) - (b.card.energy ?? 99) || a.card.name.localeCompare(b.card.name),
-      );
+      .flatMap((s) => {
+        const card = pool.byPrinting.get(s.cardId);
+        return card
+          ? Array.from({ length: s.quantity }, () => ({ card, cardId: s.cardId }))
+          : [];
+      })
+      .sort((a, b) => (a.card.energy ?? 99) - (b.card.energy ?? 99) || a.card.name.localeCompare(b.card.name));
+
+  const takeOne = (cardId: string, zone: Zone) => {
+    const slot = deck.slots.find((s) => s.cardId === cardId && s.zone === zone);
+    if (slot) setQuantity(cardId, zone, slot.quantity - 1);
+  };
+
+  const SEEK: Record<Zone, Filter> = {
+    MAIN: "main",
+    RUNE: "rune",
+    BATTLEFIELD: "battlefield",
+    SIDEBOARD: "main",
+  };
+
+  const bay = (zone: Zone) => {
+    const held = occupants(zone);
+    const capacity = CAPACITY[zone];
+    const blanks = Math.max(0, capacity - held.length);
+    return (
+      <div className="bay" key={zone}>
+        <h2>
+          {ZONE_LABEL[zone]}
+          <span className={held.length === capacity ? "of done" : "of"}>
+            {held.length} / {capacity}
+          </span>
+          {zone === "MAIN" && <span className="of">+ Champion = 40</span>}
+          {zone === "SIDEBOARD" && <span className="of">optional</span>}
+        </h2>
+        <div className="slots">
+          {held.map((o, i) => (
+            <Filled key={`${o.cardId}-${i}`} card={o.card} onClear={() => takeOne(o.cardId, zone)} />
+          ))}
+          {Array.from({ length: blanks }, (_, i) => (
+            <Empty
+              key={`blank-${i}`}
+              hint={`Add a card to the ${ZONE_LABEL[zone]}`}
+              onSeek={() => setFilter(SEEK[zone])}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className="workspace">
+    <div className={open ? "workspace" : "workspace solo"}>
       <section className="gallery">
         <div className="toolbar">
           <div className="tabs">
@@ -284,10 +365,26 @@ export function App() {
             placeholder="Search name, rules text or tag"
             onChange={(e) => setQuery(e.target.value)}
           />
-          <span className="count">{results.length} cards</span>
+          <div className="sizes">
+            {(Object.keys(SIZES) as Size[]).map((s) => (
+              <button
+                key={s}
+                type="button"
+                className={size === s ? "tab on" : "tab"}
+                onClick={() => setSize(s)}
+                title={`${s === "S" ? "Small" : s === "M" ? "Medium" : "Large"} cards`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+          <span className="count">{results.length}</span>
+          <button type="button" className="tab toggle" onClick={() => setOpen((o) => !o)}>
+            {open ? "Hide workshop ›" : "‹ Workshop"}
+          </button>
         </div>
 
-        <div className="grid">
+        <div className="grid" style={{ ["--tile" as string]: SIZES[size] }}>
           {results.slice(0, shown).map((card) => (
             <Tile
               key={card.name}
@@ -305,150 +402,172 @@ export function App() {
         </div>
       </section>
 
-      <aside className="deckpane">
-        <header>
-          <h1>Forge</h1>
-          <SaveBadge save={save} />
-        </header>
+      {open && (
+        <aside className="workshop">
+          <header>
+            <h1>Forge</h1>
+            <SaveBadge save={save} />
+          </header>
 
-        <div className="chosen">
-          <div className="pick">
-            <span className="label">Legend</span>
-            <b>{legend?.name ?? "none"}</b>
-            <small>{legend ? legend.championTag : "pick one in the Legends tab"}</small>
+          <div className="tally">
+            {(["MAIN", "RUNE", "BATTLEFIELD"] as Zone[]).map((zone) => {
+              const count = zone === "MAIN" ? mainDeckCount(deck) : zoneCount(deck, zone);
+              const target = zone === "MAIN" ? 40 : CAPACITY[zone];
+              return (
+                <div key={zone} className={count === target ? "stat done" : "stat"}>
+                  <b>
+                    {count}
+                    <span className="of">/{target}</span>
+                  </b>
+                  <span>{ZONE_LABEL[zone]}</span>
+                </div>
+              );
+            })}
+            <div className={legality.legal ? "stat verdict pass" : "stat verdict fail"}>
+              <b>{legality.legal ? "✓" : legality.violations.length}</b>
+              <span>
+                {legality.legal
+                  ? "checks pass"
+                  : legality.violations.length === 1
+                    ? "problem"
+                    : "problems"}
+              </span>
+            </div>
           </div>
-          <button
-            type="button"
-            className="pick"
-            onClick={() => setPicking((p) => !p)}
-            disabled={!legend}
-          >
-            <span className="label">Champion</span>
-            <b>{champion?.name ?? "Choose…"}</b>
-            <small>{champion ? "counted inside the 40" : "—"}</small>
-          </button>
-        </div>
 
-        {picking && (
-          <ul className="champions">
-            {championsFor(legend?.championTag).map((c) => (
-              <li key={c.name}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const id = c.printings[0]?.id;
-                    if (id) setChampion(id);
-                    setPicking(false);
-                  }}
-                >
-                  <img src={c.printings[0] ? thumb(c.printings[0], 96) : ""} alt="" loading="lazy" />
-                  <span>{c.name}</span>
-                </button>
-              </li>
-            ))}
-            {championsFor(legend?.championTag).length === 0 && (
-              <li className="empty">No champion units carry this Legend's tag.</li>
-            )}
-          </ul>
-        )}
+          {legality.violations.length > 0 && (
+            <ul className="violations">
+              {legality.violations.map((v) => (
+                <li key={`${v.check}-${v.message}`}>
+                  <b>{v.check}</b> <span className="cite">{v.citation}</span> {v.message}
+                </li>
+              ))}
+            </ul>
+          )}
 
-        <div className="tally">
-          {(["MAIN", "RUNE", "BATTLEFIELD"] as Zone[]).map((zone) => {
-            const held = zone === "MAIN" ? mainDeckCount(deck) : zoneCount(deck, zone);
-            const target = ZONE_TARGET[zone] ?? 0;
-            return (
-              <div key={zone} className={held === target ? "slot done" : "slot"}>
-                <b>
-                  {held}
-                  <span className="of">/{target}</span>
-                </b>
-                <span>{ZONE_LABEL[zone]}</span>
-              </div>
-            );
-          })}
-          <div className={legality.legal ? "slot verdict pass" : "slot verdict fail"}>
-            <b>{legality.legal ? "✓" : legality.violations.length}</b>
-            <span>
-              {legality.legal
-                ? "checks pass"
-                : legality.violations.length === 1
-                  ? "problem"
-                  : "problems"}
-            </span>
-          </div>
-        </div>
-
-        {legality.violations.length > 0 && (
-          <ul className="violations">
-            {legality.violations.map((v) => (
-              <li key={`${v.check}-${v.message}`}>
-                <b>{v.check}</b> <span className="cite">{v.citation}</span> {v.message}
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <div className="panel">
-          <h2>Energy curve</h2>
-          <EnergyCurve {...curve} />
-        </div>
-
-        {(["MAIN", "RUNE", "BATTLEFIELD", "SIDEBOARD"] as Zone[]).map((zone) => {
-          const rows = zoneRows(zone);
-          if (rows.length === 0) return null;
-          return (
-            <div className="panel" key={zone}>
+          <div className="bay singles">
+            <div>
               <h2>
-                {ZONE_LABEL[zone]}{" "}
-                <span className="of">
-                  {zoneCount(deck, zone)}
-                  {ZONE_TARGET[zone] ? ` / ${ZONE_TARGET[zone]}` : ""}
-                </span>
+                Legend<span className="of">{legend ? "1 / 1" : "0 / 1"}</span>
               </h2>
+              <div className="slots">
+                {legend ? (
+                  <button
+                    type="button"
+                    className="slot filled"
+                    title={`${legend.name} — pick another in the Legends tab`}
+                    onClick={() => setFilter("legend")}
+                  >
+                    <img
+                      src={legend.printings[0] ? thumb(legend.printings[0], 160) : ""}
+                      alt={legend.name}
+                    />
+                  </button>
+                ) : (
+                  <Empty hint="Choose a Legend" onSeek={() => setFilter("legend")} />
+                )}
+              </div>
+            </div>
+            <div>
+              <h2>
+                Champion<span className="of">{champion ? "1 / 1" : "0 / 1"}</span>
+              </h2>
+              <div className="slots">
+                {champion ? (
+                  <button
+                    type="button"
+                    className="slot filled"
+                    title={`${champion.name} — click to change`}
+                    onClick={() => setPicking((p) => !p)}
+                  >
+                    <img
+                      src={champion.printings[0] ? thumb(champion.printings[0], 160) : ""}
+                      alt={champion.name}
+                    />
+                  </button>
+                ) : (
+                  <Empty hint="Choose a Champion" onSeek={() => setPicking(true)} />
+                )}
+              </div>
+            </div>
+          </div>
+
+          {picking && (
+            <ul className="champions">
+              {championsFor(legend?.championTag).map((c) => (
+                <li key={c.name}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const id = c.printings[0]?.id;
+                      if (id) setChampion(id);
+                      setPicking(false);
+                    }}
+                  >
+                    <img src={c.printings[0] ? thumb(c.printings[0], 96) : ""} alt="" loading="lazy" />
+                    <span>{c.name}</span>
+                  </button>
+                </li>
+              ))}
+              {championsFor(legend?.championTag).length === 0 && (
+                <li className="empty">No champion units carry this Legend's tag.</li>
+              )}
+            </ul>
+          )}
+
+          {bay("MAIN")}
+          {bay("RUNE")}
+          {bay("BATTLEFIELD")}
+          {bay("SIDEBOARD")}
+
+          <div className="panel">
+            <h2>Energy curve</h2>
+            <EnergyCurve {...curve} />
+          </div>
+
+          {/* Alternate arts live here rather than on the slots: which coat a card wears is a
+              per-printing choice, and the slots deliberately show physical copies. */}
+          {deck.slots.some((s) => (pool.byPrinting.get(s.cardId)?.printings.length ?? 0) > 1) && (
+            <div className="panel">
+              <h2>Alternate arts</h2>
               <ul className="deckrows">
-                {rows.map(({ slot, card }) => {
-                  const own = card.printings.reduce((n, p) => n + (owned[p.id] ?? 0), 0);
-                  return (
-                    <li key={`${zone}-${slot.cardId}`}>
-                      <span className="n">{slot.quantity}</span>
-                      <span className="nm">
-                        {card.name}
-                        {card.banned && <em className="flag">BANNED</em>}
-                        {own > 0 && <em className="own">own {own}</em>}
+                {deck.slots
+                  .map((slot) => ({ slot, card: pool.byPrinting.get(slot.cardId) }))
+                  .filter(
+                    (r): r is { slot: (typeof deck.slots)[number]; card: Card } =>
+                      Boolean(r.card) && (r.card?.printings.length ?? 0) > 1,
+                  )
+                  .map(({ slot, card }) => (
+                    <li key={`${slot.zone}-${slot.cardId}`}>
+                      <span className="nm">{card.name}</span>
+                      <span className="arts">
+                        {card.printings.map((p) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            className={p.id === slot.cardId ? "art on" : "art"}
+                            title={p.code}
+                            onClick={() => replacePrinting(slot.cardId, slot.zone, p.id)}
+                          >
+                            <img src={thumb(p, 64)} alt="" loading="lazy" />
+                          </button>
+                        ))}
                       </span>
-                      {card.printings.length > 1 && (
-                        <span className="arts">
-                          {card.printings.map((p: Printing) => (
-                            <button
-                              key={p.id}
-                              type="button"
-                              className={p.id === slot.cardId ? "art on" : "art"}
-                              title={p.code}
-                              onClick={() => replacePrinting(slot.cardId, zone, p.id)}
-                            >
-                              <img src={thumb(p, 64)} alt="" loading="lazy" />
-                            </button>
-                          ))}
-                        </span>
-                      )}
-                      <button
-                        type="button"
-                        className="less"
-                        aria-label={`Remove ${card.name}`}
-                        onClick={() => setQuantity(slot.cardId, zone, slot.quantity - 1)}
-                      >
-                        –
-                      </button>
                     </li>
-                  );
-                })}
+                  ))}
               </ul>
             </div>
-          );
-        })}
+          )}
 
-        <p className="caveat">⚠️ {legality.coverage.caveat}</p>
-      </aside>
+          {Object.keys(owned).length > 0 && (
+            <p className="caveat">
+              Ownership is a warning, never a legality failure — a deck can be perfectly legal
+              and unbuildable.
+            </p>
+          )}
+          <p className="caveat">⚠️ {legality.coverage.caveat}</p>
+        </aside>
+      )}
     </div>
   );
 }

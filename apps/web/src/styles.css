@@ -11,8 +11,8 @@
   --pass: #146334;
   --fail: #9a2c2c;
   --accent: #2a4b7c;
-  --tile: 9.5rem;
-  --pane: 22rem;
+  --tile: 13rem;      /* overridden per-grid by the size control */
+  --pane: 27rem;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -51,6 +51,8 @@ h2 {
 
 /* ── the two panes ─────────────────────────────────────────────────────────── */
 .workspace { display: grid; grid-template-columns: 1fr var(--pane); min-height: 100vh; }
+/* Collapsed: the gallery takes the whole window. */
+.workspace.solo { grid-template-columns: 1fr; }
 @media (max-width: 60rem) {
   :root { --pane: auto; }
   .workspace { grid-template-columns: 1fr; }
@@ -86,7 +88,12 @@ h2 {
   display: grid; gap: 0.6rem; padding: 0.9rem;
   grid-template-columns: repeat(auto-fill, minmax(var(--tile), 1fr));
 }
-@media (max-width: 30rem) { :root { --tile: 7rem; } }
+/* On a phone two columns is the floor — one giant card per row is a worse gallery. */
+@media (max-width: 30rem) { .grid { --tile: min(9rem, 42vw); } }
+
+.sizes { display: flex; gap: 0.15rem; }
+.sizes .tab { padding: 0.35rem 0.5rem; font-variant-numeric: tabular-nums; }
+.toggle { margin-left: auto; }
 
 /* A tile is the card. Nothing is written on top of it that the card already says —
    the aspect ratio is the real card's, so the grid never reflows as images arrive. */
@@ -130,16 +137,16 @@ h2 {
 .sentinel { padding: 1.5rem 0.9rem 3rem; text-align: center; color: var(--muted); font-size: 0.8rem; }
 
 /* ── deck pane ─────────────────────────────────────────────────────────────── */
-.deckpane {
+.workshop {
   background: var(--surface); border-left: 1px solid var(--line);
   padding: 0.75rem 0.85rem calc(3rem + env(safe-area-inset-bottom));
   display: grid; gap: 0.7rem; align-content: start;
   position: sticky; top: 0; max-height: 100vh; overflow-y: auto;
 }
 @media (max-width: 60rem) {
-  .deckpane { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--line); }
+  .workshop { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--line); }
 }
-.deckpane header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.workshop header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .save { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
 .save.saved { color: var(--pass); }
 .save.offline { color: var(--fail); font-weight: 600; }
@@ -167,11 +174,15 @@ button.pick:disabled { opacity: 0.5; cursor: default; }
 .tally {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
   background: var(--line); border: 1px solid var(--line); border-radius: 4px; overflow: hidden;
+  /* ⚠️ Without this the row collapses to 2px. `overflow: hidden` makes this a scroll
+     container, whose automatic minimum size is zero — so the outer grid sizes its row to
+     the borders alone and clips the contents away entirely. */
+  min-height: fit-content;
 }
-.slot { background: var(--surface); padding: 0.4rem 0.3rem; text-align: center; }
-.slot b { display: block; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
-.slot span { font-size: 0.55rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-.slot.done b { color: var(--pass); }
+.stat { background: var(--surface); padding: 0.4rem 0.3rem; text-align: center; }
+.stat b { display: block; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 0.55rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.stat.done b { color: var(--pass); }
 .verdict.pass b { color: var(--pass); }
 .verdict.fail b { color: var(--fail); }
 
@@ -206,3 +217,33 @@ button.pick:disabled { opacity: 0.5; cursor: default; }
 .art.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 
 .caveat { color: var(--muted); font-size: 0.68rem; margin: 0; padding-top: 0.5rem; border-top: 1px solid var(--line); }
+
+
+/* ── the workshop: a slot for every card the deck needs ────────────────────── */
+.bay h2 { justify-content: flex-start; }
+.bay h2 .of { margin-left: auto; font-variant-numeric: tabular-nums; }
+.bay h2 .of.done { color: var(--pass); }
+.bay + .bay { margin-top: 0.4rem; }
+.singles { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+
+.slots {
+  display: grid; gap: 0.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(3.1rem, 1fr));
+}
+.singles .slots { grid-template-columns: minmax(4.4rem, 1fr); }
+
+/* A slot is card-shaped whether or not anything is in it — that is what makes the gap
+   read as "a card is missing here" rather than as blank space. */
+.slot {
+  position: relative; aspect-ratio: 744 / 1039; padding: 0; overflow: hidden;
+  border-radius: 4px; cursor: pointer; background: var(--ground);
+}
+.slot.filled { border: 1px solid var(--line); }
+.slot.filled img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.slot.filled:hover { border-color: var(--fail); }
+.slot.empty {
+  border: 1px dashed var(--line); color: var(--muted);
+  display: grid; place-items: center; font-size: 0.9rem; line-height: 1;
+}
+.slot.empty:hover { border-color: var(--accent); color: var(--accent); }
+.slot .flag { bottom: 0.1rem; font-size: 0.45rem; padding: 0 0.2rem; letter-spacing: 0.05em; }
