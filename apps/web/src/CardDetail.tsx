@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { hd, symbols, type Card, type Printing } from "./cards.js";
+import { hd, srcSet, symbols, type Card, type Printing } from "./cards.js";
 import type { Role } from "./Workshop.js";
 
 /**
@@ -53,7 +53,15 @@ export function CardDetail({
         aria-label={card.name}
         onClick={(e) => e.stopPropagation()}
       >
-        <img className="detail-art" src={current ? hd(current, 520) : ""} alt={card.name} />
+        {current && (
+          <img
+            className="detail-art"
+            src={hd(current, 520)}
+            srcSet={srcSet(current)}
+            sizes="(max-width: 48rem) 90vw, 20rem"
+            alt={card.name}
+          />
+        )}
 
         <div className="detail-body">
           <header>

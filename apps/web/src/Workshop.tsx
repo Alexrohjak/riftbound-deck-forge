@@ -1,6 +1,6 @@
 import type { Deck, LegalityResult, Zone } from "@forge/engine";
 import { mainDeckCount, zoneCount } from "@forge/engine";
-import { hd, type Card, type CardPool } from "./cards.js";
+import { hd, srcSet, type Card, type CardPool } from "./cards.js";
 import { STEPS, type Step } from "./buildFlow.js";
 
 /**
@@ -77,7 +77,15 @@ function Slots({
             onRemove(o);
           }}
         >
-          <img src={o.card.printings[0] ? hd(o.card.printings[0], size) : ""} alt={o.card.name} loading="lazy" />
+          {o.card.printings[0] && (
+            <img
+              src={hd(o.card.printings[0], size)}
+              srcSet={srcSet(o.card.printings[0])}
+              sizes="(max-width: 60rem) 22vw, 7vw"
+              alt={o.card.name}
+              loading="lazy"
+            />
+          )}
         </button>
       ))}
       {Array.from({ length: blanks }, (_, i) => (
@@ -222,7 +230,14 @@ export function Workshop({
                   onRemove({ card: legend, cardId: deck.legendCardId, zone: "MAIN", role: "legend" });
                 }}
               >
-                <img src={legend.printings[0] ? hd(legend.printings[0], 160) : ""} alt={legend.name} />
+                {legend.printings[0] && (
+                  <img
+                    src={hd(legend.printings[0], 400)}
+                    srcSet={srcSet(legend.printings[0])}
+                    sizes="(max-width: 60rem) 45vw, 20vw"
+                    alt={legend.name}
+                  />
+                )}
               </button>
             ) : (
               <button
@@ -273,7 +288,14 @@ export function Workshop({
                   });
                 }}
               >
-                <img src={champion.printings[0] ? hd(champion.printings[0], 160) : ""} alt={champion.name} />
+                {champion.printings[0] && (
+                  <img
+                    src={hd(champion.printings[0], 400)}
+                    srcSet={srcSet(champion.printings[0])}
+                    sizes="(max-width: 60rem) 45vw, 20vw"
+                    alt={champion.name}
+                  />
+                )}
               </button>
             ) : (
               <button

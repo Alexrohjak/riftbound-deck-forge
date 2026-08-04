@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { checkLegality, energyCurve, zoneCount, type Zone } from "@forge/engine";
-import { hd, loadPool, zoneFor, type Card, type CardPool, type Printing } from "./cards.js";
+import { hd, loadPool, srcSet, zoneFor, type Card, type CardPool, type Printing } from "./cards.js";
 import { useDeck, type SaveState } from "./deckStore.js";
 import { apply, DOMAIN_LIST, NO_FILTERS, SORTS, TYPES, type Filters, type Tab } from "./filters.js";
 import { filtersFor, runeSlots, stepFor, type Step } from "./buildFlow.js";
@@ -83,12 +83,16 @@ function Tile({
   card,
   held,
   index,
+  sizes,
   onAdd,
   onRemove,
 }: {
   card: Card;
   held: number;
   index: number;
+  /** ⚠️ A literal length. `sizes` is parsed before CSS, so `var(--tile)` silently
+      falls back to 100vw — which had the gallery fetching 2492px images to draw at 208. */
+  sizes: string;
   onAdd: () => void;
   onRemove: () => void;
 }) {
@@ -111,16 +115,20 @@ function Tile({
         disabled={atLimit}
         title={atLimit ? `${card.name} — three copies is the limit` : `${card.name} — click to add`}
       >
-        <img
-          src={printing ? hd(printing, 300) : ""}
-          alt={card.name}
-          loading="lazy"
-          decoding="async"
-          width={300}
-          height={419}
-          className={ready ? "ready" : ""}
-          onLoad={() => setReady(true)}
-        />
+        {printing && (
+          <img
+            src={hd(printing, 300)}
+            srcSet={srcSet(printing)}
+            sizes={sizes}
+            alt={card.name}
+            loading="lazy"
+            decoding="async"
+            width={300}
+            height={419}
+            className={ready ? "ready" : ""}
+            onLoad={() => setReady(true)}
+          />
+        )}
       </button>
       {held > 0 && <span className="held">{held}</span>}
     </div>
@@ -452,6 +460,7 @@ export function App() {
             <Tile
               key={card.name}
               index={i % PAGE}
+              sizes={SIZES[size]}
               card={card}
               held={card.types.includes("legend") ? 0 : copiesOfName(card)}
               onAdd={() => add(card)}

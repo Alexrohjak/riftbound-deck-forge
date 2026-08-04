@@ -117,15 +117,37 @@ export const thumb = (printing: Printing, width: number): string =>
 /**
  * The same, but sharp on the screen it lands on.
  *
- * ⚠️ **Pass the CSS size, not the pixel size.** A 3rem slot on a 2× display needs a ~200px
- * image; asking for 96 gives you the soft, muddy card that made the workshop look cheap.
- * Capped at 3× because beyond that the bytes buy nothing the eye can see, and quality is
- * lifted to 82 — card text is fine detail and 75 was visibly mushing it.
+ * ⚠️ **Pass the CSS size, not the pixel size.** Capped at 3×, quality 82 — card text is
+ * fine detail and the default 75 was visibly mushing it.
+ *
+ * Prefer `srcSet` wherever the rendered size is not fixed. This helper guesses once; a
+ * srcset lets the browser measure.
  */
 export const hd = (printing: Printing, cssWidth: number): string => {
   const ratio = Math.min(typeof devicePixelRatio === "number" ? devicePixelRatio : 1, 3);
   return `${printing.img}&w=${Math.round(cssWidth * ratio)}&q=82&fm=webp`;
 };
+
+/**
+ * A ladder of widths, so the browser can pick one that fits what it is about to draw.
+ *
+ * ⚠️ **This is the fix for a real defect, not a refinement.** The workshop asked for a
+ * 160px image and drew it at 538 — a 3.4× upscale, which is exactly as bad as it sounds.
+ * A fixed width cannot work here because the deck panel is *draggable*: the same slot is
+ * 200px wide or 800px depending on where you left the grip, and no single guess is right
+ * for both. With `srcset` the browser measures the box, multiplies by the pixel ratio, and
+ * asks for the rung that fits.
+ */
+/**
+ * ⚠️ **Nothing above ~820, because the source images are 744px wide.** 1,081 of the 1,180
+ * printings are 744×1039; asking the CDN for 1300 gets an upscale — 160 KB instead of 19 KB
+ * for a picture with no more detail in it. The top rung exists only for the 26
+ * double-resolution cards and the landscape battlefields.
+ */
+const LADDER = [160, 260, 400, 620, 820];
+
+export const srcSet = (printing: Printing): string =>
+  LADDER.map((w) => `${printing.img}&w=${w}&q=82&fm=webp ${w}w`).join(", ");
 
 /** Where a card belongs, from its type. Runes and battlefields are registered separately. */
 export function zoneFor(card: Card): Zone {
