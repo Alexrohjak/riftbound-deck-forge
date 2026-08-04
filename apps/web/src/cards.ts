@@ -108,6 +108,7 @@ export function buildPool(raw: RawIndex): CardPool {
         ...(card.consumes ? { consumes: card.consumes } : {}),
         domains: card.domains,
         energy: card.energy,
+        might: card.might,
         // Always present, never conditional: absent would read as "unknown", and the
         // format checks would switch themselves off for a pool with nothing banned in it.
         banned: card.banned === true,

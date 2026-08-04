@@ -72,3 +72,17 @@ export {
   type Standing,
 } from "./log/match.js";
 export { canonicalise, deckHash } from "./log/deckHash.js";
+
+/**
+ * `S5` — deck generation. The engine assembles the constraints and refuses a bad answer;
+ * choosing the cards is the caller's job, whichever mouth it is using (D-043).
+ */
+export {
+  buildBrief,
+  toDeck,
+  type Brief,
+  type BriefCard,
+  type Proposal,
+  type Seed,
+  type Targets,
+} from "./generate/brief.js";

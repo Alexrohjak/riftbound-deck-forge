@@ -76,6 +76,13 @@ export interface CardFacts {
    */
   domains?: readonly Domain[];
   /**
+   * Might — the unit's combat stat. `null` on cards that have none.
+   *
+   * Only deck *generation* needs it: nothing in the 33 checks turns on Might, but you
+   * cannot judge whether a body survives the fight it is being asked to win without it.
+   */
+  might?: number | null;
+  /**
    * Energy cost. `null` where the card has no such stat (battlefields, runes) — which is
    * different again from the field being absent, meaning *not supplied*.
    */
