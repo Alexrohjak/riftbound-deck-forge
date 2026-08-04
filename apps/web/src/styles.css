@@ -164,19 +164,23 @@ h2 {
 .save.offline { color: var(--alert); font-weight: 600; }
 
 /* ── the tally: counts are have/need, never a percentage or a grade ────────── */
+ /* ⚠️ Flex, not a nested grid. The previous version used a 1px-gap grid with
+    `overflow: hidden` to fake dividers — but `overflow: hidden` makes an element a scroll
+    container whose automatic minimum size is zero, so the OUTER grid sized this row to 2px
+    and the whole tally overflowed and drew on top of the violations beneath it. Dividers
+    are now borders on the children, which cannot collapse. */
 .tally {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
-  background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-sm);
-  overflow: hidden;
-  /* Without this the row collapses: `overflow: hidden` makes it a scroll container, whose
-     automatic minimum size is zero, so the outer grid sizes the row to its borders alone. */
-  min-height: fit-content;
+  display: flex;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  background: var(--panel);
 }
 .stat {
-  background: var(--panel); padding: var(--s2) var(--s1); text-align: center;
+  flex: 1 1 0; min-width: 0;
+  padding: var(--s2) var(--s1); text-align: center;
   border-bottom: 2px solid transparent;
   transition: border-color var(--slow) var(--ease);
 }
+.stat + .stat { border-left: 1px solid var(--line); }
 .stat b { display: block; font-family: var(--mono); font-size: 0.95rem; font-variant-numeric: tabular-nums; }
 .stat span {
   font-family: var(--mono); font-size: 0.52rem; color: var(--dim);
@@ -296,4 +300,109 @@ button.pick:disabled { opacity: 0.5; cursor: default; }
 .caveat {
   color: var(--dim); font-size: 0.66rem; margin: 0;
   padding-top: var(--s2); border-top: 1px solid var(--line);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Making it feel like something.
+
+   The previous pass refined a design that still read as a flat grid on a flat
+   background. These are the changes you actually see: depth, a real typographic
+   voice, cards that behave like objects, and state changes that flow instead of
+   snapping.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* A room, not a wall. The ground gets a soft light source so the panels sitting on
+   it read as surfaces at different heights rather than as differently-coloured areas. */
+body {
+  background:
+    radial-gradient(120rem 60rem at 15% -10%, color-mix(in srgb, var(--ink) 5%, transparent), transparent 60%),
+    var(--ground);
+  background-attachment: fixed;
+}
+
+/* ── typographic voice ─────────────────────────────────────────────────────── */
+h1 {
+  font-size: var(--step-2);
+  letter-spacing: var(--track-tight);
+  font-weight: 600;
+}
+h2 {
+  font-size: 0.62rem;
+  letter-spacing: var(--track-wide);
+  font-weight: 600;
+}
+.count, .save { letter-spacing: 0.06em; }
+
+/* Big numbers are the point of the tally — they should read from across the room. */
+.stat b { font-size: 1.25rem; letter-spacing: var(--track-tight); }
+.stat span { font-size: 0.5rem; }
+
+/* ── cards as objects ──────────────────────────────────────────────────────── */
+.face { box-shadow: var(--shadow-card); }
+.face:hover:not(:disabled) {
+  /* Picked up: further off the table, and very slightly larger. */
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--shadow-lift), var(--shadow-card);
+  z-index: 2;
+}
+.tile { transition: z-index 0s; }
+.tile:hover { z-index: 2; }
+
+/* A card in the deck is marked by a ring AND by sitting lower — it is spoken for. */
+.tile.in .face { box-shadow: 0 0 0 2px var(--ink), var(--shadow); }
+
+/* ── the grid flows in rather than appearing ───────────────────────────────── */
+/* Staggered by position, capped so the fortieth card is not still waiting. The delay
+   is set per tile from React; this is the animation it drives. */
+.tile { animation: deal var(--slow) var(--ease) backwards; animation-delay: var(--deal, 0ms); }
+@keyframes deal {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ── the workshop reads as a panel, not a column of boxes ──────────────────── */
+.workshop {
+  box-shadow: -1px 0 0 var(--line), var(--shadow);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 100%, transparent), var(--panel));
+}
+.panel {
+  border: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+}
+
+/* Empty slots should look like an invitation, not an error. */
+.slot.empty {
+  border-style: dashed;
+  background:
+    repeating-linear-gradient(45deg, transparent, transparent 6px,
+      color-mix(in srgb, var(--line) 35%, transparent) 6px,
+      color-mix(in srgb, var(--line) 35%, transparent) 7px);
+  transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.slot.empty:hover { background: var(--sunk); }
+
+/* ── domain colour, finally visible ────────────────────────────────────────── */
+/* The gallery deliberately shows none of this — the card art already carries it. In the
+   workshop, where cards are 3rem tall and unreadable, the domain is the fastest thing to
+   show, and it is the one colour the interface is allowed to spend (D-046, D-052). */
+.spine {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  display: flex; flex-direction: column;
+}
+.spine i { flex: 1; display: block; }
+.spine i.fury { background: var(--fury); }
+.spine i.calm { background: var(--calm); }
+.spine i.mind { background: var(--mind); }
+.spine i.body { background: var(--body); }
+.spine i.chaos { background: var(--chaos); }
+.spine i.order { background: var(--order); }
+.spine i.colorless { background: var(--none); }
+
+.identity { display: inline-flex; gap: 3px; align-items: center; }
+.identity .dot { width: 0.45rem; height: 0.45rem; }
+
+.identity-line {
+  margin: 0; display: flex; align-items: center; gap: var(--s2);
+  font-family: var(--mono); font-size: 0.6rem; color: var(--dim);
+  text-transform: uppercase; letter-spacing: var(--track-wide);
 }

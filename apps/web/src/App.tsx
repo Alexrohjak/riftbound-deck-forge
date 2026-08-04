@@ -103,11 +103,13 @@ function EnergyCurve({ counts, unknown, counted }: ReturnType<typeof energyCurve
 function Tile({
   card,
   held,
+  index,
   onAdd,
   onRemove,
 }: {
   card: Card;
   held: number;
+  index: number;
   onAdd: () => void;
   onRemove: () => void;
 }) {
@@ -116,8 +118,14 @@ function Tile({
   // A cold CDN transform takes about a second. Without this the grid fills in as a series
   // of hard pops; with it, cards arrive.
   const [ready, setReady] = useState(false);
+  // Dealt in, not switched on. Capped at ~12 tiles' worth so a filter change never feels
+  // like waiting for a queue.
+  const deal = `${Math.min(index, 12) * 22}ms`;
   return (
-    <div className={held > 0 ? "tile in" : "tile"}>
+    <div
+      className={held > 0 ? "tile in" : "tile"}
+      style={{ ["--deal" as string]: deal }}
+    >
       <button type="button" className="face" onClick={onAdd} disabled={atLimit} title={card.name}>
         <img
           src={printing ? thumb(printing, 400) : ""}
@@ -395,9 +403,10 @@ export function App() {
         </div>
 
         <div className="grid" style={{ ["--tile" as string]: SIZES[size] }}>
-          {results.slice(0, shown).map((card) => (
+          {results.slice(0, shown).map((card, i) => (
             <Tile
               key={card.name}
+              index={i % PAGE}
               card={card}
               held={card.types.includes("legend") ? 0 : copiesOfName(card)}
               onAdd={() => add(card)}
@@ -418,6 +427,17 @@ export function App() {
             <h1>Forge</h1>
             <SaveBadge save={save} />
           </header>
+
+          {legend && (
+            <p className="identity-line">
+              <span className="identity">
+                {legend.domains.map((d) => (
+                  <i key={d} className={`dot ${d}`} title={d} />
+                ))}
+              </span>
+              <span>{legend.domains.join(" + ")} identity</span>
+            </p>
+          )}
 
           <div className="tally">
             {(["MAIN", "RUNE", "BATTLEFIELD"] as Zone[]).map((zone) => {
