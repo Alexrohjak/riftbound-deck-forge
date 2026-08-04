@@ -101,7 +101,7 @@ function Tile({
   const [ready, setReady] = useState(false);
   return (
     <div
-      className={`tile${held > 0 ? " in" : ""}${atLimit ? " maxed" : ""}`}
+      className={`tile${held > 0 ? " in" : ""}${atLimit ? " maxed" : ""}${card.landscape ? " wide" : ""}`}
       style={{ ["--deal" as string]: `${Math.min(index, 12) * 22}ms` }}
     >
       <button

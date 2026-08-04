@@ -45,6 +45,8 @@ export interface Card {
   printings: Printing[];
   /** Present only when true. Banned cards are shown, never hidden — just marked. */
   banned?: boolean;
+  /** Battlefields are landscape (1039×744) and must not be drawn in a portrait box. */
+  landscape?: boolean;
   /**
    * Legends only, derived from Signature cards (L32). ⚠️ **Not** `superTypes`, which only
    * 9 of 118 Legend printings carry.

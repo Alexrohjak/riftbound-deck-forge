@@ -106,6 +106,10 @@ const entries = [...byName].map(([name, group]) => {
     domains: base.domains,
     tags: base.tags,
     text: base.text,
+    // Battlefields are the only landscape cards — 66 of 1,180. Carried explicitly rather
+    // than inferred from the type, so a future landscape non-battlefield does not silently
+    // get drawn cropped in half.
+    ...(base.orientation === "landscape" ? { landscape: true } : {}),
     ...(() => {
       const c = classification.get(name);
       if (!c) return {};

@@ -59,16 +59,16 @@ function Peek({ card, at }: { card: Card; at: { x: number; y: number } }) {
   const printing = card.printings[0];
   if (!printing) return null;
   // Flip to the left of the pointer when there is no room to the right.
-  const flip = at.x > window.innerWidth - 300;
+  const flip = at.x > window.innerWidth - (card.landscape ? 460 : 340);
   return (
     <img
-      className="peek"
-      src={hd(printing, 260)}
+      className={card.landscape ? "peek wide" : "peek"}
+      src={hd(printing, card.landscape ? 420 : 260)}
       srcSet={srcSet(printing)}
-      sizes="16rem"
+      sizes={card.landscape ? "26rem" : "19rem"}
       alt=""
       style={{
-        left: flip ? at.x - 272 : at.x + 16,
+        left: flip ? at.x - (card.landscape ? 430 : 320) : at.x + 16,
         top: Math.min(at.y - 40, window.innerHeight - 380),
       }}
     />
@@ -78,6 +78,7 @@ function Peek({ card, at }: { card: Card; at: { x: number; y: number } }) {
 function Slots({
   held,
   blanks,
+  zone,
   onOpen,
   onRemove,
   onSeek,
@@ -85,6 +86,8 @@ function Slots({
   held: Occupant[];
   /** Empty slots to draw. Only meaningful where one slot is one card (battlefields). */
   blanks: number;
+  /** Drives the layout: 39 cards, 12 runes and 3 landscape battlefields want different grids. */
+  zone: Zone;
   onOpen: (o: Occupant) => void;
   onRemove: (o: Occupant) => void;
   onSeek: () => void;
@@ -92,7 +95,7 @@ function Slots({
   const [peek, setPeek] = useState<{ card: Card; at: { x: number; y: number } } | null>(null);
 
   return (
-    <div className="slots" onMouseLeave={() => setPeek(null)}>
+    <div className={`slots ${zone.toLowerCase()}`} onMouseLeave={() => setPeek(null)}>
       {peek && <Peek card={peek.card} at={peek.at} />}
       {held.map((o, i) => (
         <div
@@ -180,6 +183,7 @@ export function Workshop({
         <Slots
           held={held}
           blanks={blanks}
+          zone={zone}
           onOpen={(o) => onOpen({ ...o, zone, role: "slot" })}
           onRemove={(o) => onRemove({ ...o, zone, role: "slot" })}
           onSeek={() => onSeek(zone)}

@@ -211,8 +211,6 @@ h2 {
 .bay h2 .of { margin-left: auto; }
 .singles { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); }
 
-.slots { display: grid; gap: var(--s1); grid-template-columns: repeat(auto-fill, minmax(3.1rem, 1fr)); }
-.singles .slots { grid-template-columns: minmax(4.4rem, 1fr); }
 
 .slot {
   position: relative; aspect-ratio: 744 / 1039; padding: 0; overflow: hidden;
@@ -496,8 +494,6 @@ body.resizing * { pointer-events: none; }
 .workshop header { align-items: baseline; }
 .headtools { display: flex; align-items: center; gap: var(--s2); }
 .bay h2 .of.met { color: var(--ink); font-weight: 700; }
-.slots { gap: var(--s1); grid-template-columns: repeat(auto-fill, minmax(3.6rem, 1fr)); }
-.singles .slots { grid-template-columns: 1fr; }
 .slot.tall { aspect-ratio: 744 / 1039; }
 .slot.filled:hover { border-color: var(--ink); transform: translateY(-2px); }
 .slot.filled:active { transform: scale(0.97); }
@@ -581,9 +577,6 @@ body.resizing * { pointer-events: none; }
 }
 .bay h2 .of { order: 2; margin-left: 0; font-size: 0.72rem; }
 
-/* Runes are twelve copies of two cards. Showing twelve full slots wastes the space the
-   Main Deck needs, so they sit smaller — the count is what matters, not the art. */
-.bay:has(> h2:first-child) .slots { grid-template-columns: repeat(auto-fill, minmax(3.2rem, 1fr)); }
 
 .workshop { gap: var(--s3); }
 .workshop header h1 { font-size: var(--step-1); }
@@ -627,11 +620,6 @@ body.resizing * { pointer-events: none; }
 
 /* Cards sized to be recognised. Every copy is drawn, in play order, because that is what
    the deck is — the count in the header says how far along you are. */
-.slots {
-  grid-template-columns: repeat(auto-fill, minmax(5.4rem, 1fr));
-  gap: var(--s2);
-  align-content: start;
-}
 .tray { position: relative; }
 .tray .slot { width: 100%; }
 
@@ -687,7 +675,6 @@ body.resizing * { pointer-events: none; }
   align-items: start;
 }
 .singles > div { display: grid; gap: var(--s2); min-width: 0; }
-.singles .slots { grid-template-columns: minmax(0, 1fr); }
 .slot.tall { max-width: none; width: 100%; }
 
 /* Battlefields and runes are short rows; without this they stretch to fill the width and
@@ -792,7 +779,6 @@ body.resizing * { pointer-events: none; }
 .ghost { font-size: 0.82rem; padding: var(--s2) var(--s3); }
 
 /* Cards you can identify without leaning in. */
-.slots { grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); gap: var(--s2); }
 
 /* The two cards that define the deck, sized to match that role. */
 .singles, .bay.singles { grid-template-columns: repeat(2, minmax(0, 14rem)); gap: var(--s4); }
@@ -831,3 +817,48 @@ body.resizing * { pointer-events: none; }
 /* Champion list, when picking one. */
 .champions button { font-size: 0.85rem; padding: var(--s2); }
 .champions img { width: 2.4rem; height: 2.4rem; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Battlefields are landscape cards
+
+   All 66 of them are 1039×744. Drawing them in the portrait box every other card uses
+   cropped away half the art and most of the rules text — you could not read them at all.
+   A landscape tile spanning two grid columns comes out within 2% of a portrait tile's
+   height, so the gallery grid stays even.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.tile.wide { aspect-ratio: 1039 / 744; grid-column: span 2; }
+.tile.wide .face img { object-position: center; }
+@media (max-width: 30rem) { .tile.wide { grid-column: span 2; } }
+
+/* ── the tray: each zone gets the grid its contents want ──────────────────── */
+
+
+/* A landscape preview needs to be wider, not taller. */
+.peek.wide { width: 26rem; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   The tray's grids — ONE canonical block
+
+   ⚠️ Six competing `.slots` rules had accumulated from appending a block per change, and
+   the winner was whichever survived minification, not whichever was written last. Zone
+   layout silently did nothing for an afternoon because of it. Everything that sizes a tray
+   grid lives here and nowhere else.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.slots { display: grid; gap: var(--s2); align-content: start; }
+
+/* 39 cards, snug. */
+.slots.main,
+.slots.sideboard { grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); }
+
+/* Always exactly 12, and only ever two distinct cards — six per row fills the panel
+   edge to edge instead of leaving a ragged tail. */
+.slots.rune { grid-template-columns: repeat(6, 1fr); }
+
+/* Three landscape battlefields, a third of the panel each. */
+.slots.battlefield { grid-template-columns: repeat(3, 1fr); }
+.slots.battlefield .slot { aspect-ratio: 1039 / 744; }
+.slots.battlefield .slot.filled img { object-position: center; }
+
+/* Legend and Champion are one card each. */
+.singles .slots { grid-template-columns: minmax(0, 1fr); }
