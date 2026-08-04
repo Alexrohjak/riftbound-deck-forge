@@ -142,9 +142,14 @@ there is only one database — a branch build would write to the collection.
 > build** — a drifted count should fail review, not a production deploy, and keeping `python3`
 > off the deploy path means the build cannot break on a container that lacks it.
 >
-> ⚠️ This holds only while Cloudflare's **Settings → Build → Build command** invokes
-> `npm run build`. That field lives in the dashboard and **cannot** be set from
-> `wrangler.toml` — Workers Builds ignores Wrangler's custom-build config.
+> ✅ **Verified wired, 2026-08-04.** Cloudflare's **Workers & Pages → `forge` → Settings →
+> Builds** reads `npm run build`, then `npx wrangler deploy --config apps/api/wrangler.toml`.
+> The first gated deploy passed there, which also proves `vitest` resolves in Cloudflare's
+> build container — the gate cannot silently become a blockage.
+>
+> ⚠️ **If that field is ever changed, the gate stops running.** It lives in the dashboard and
+> **cannot** be set from `wrangler.toml` — Workers Builds ignores Wrangler's custom-build
+> config — so nothing in this repo can defend it. Check it after any dashboard work.
 
 **What `F2` asks of you:** use it, and report what feels wrong. That feedback reshapes
 everything after it — which is the entire reason `F2` came before the card pool.
