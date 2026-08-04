@@ -95,6 +95,7 @@ function Tile({
   card,
   held,
   owned,
+  printing: shown,
   index,
   sizes,
   onAdd,
@@ -104,6 +105,13 @@ function Tile({
   held: number;
   /** Copies in the box. A different fact from `held`, which is copies in this deck. */
   owned: number;
+  /**
+   * ⚠️ Which printing to draw. The gallery collapses a card to one entry, which is right
+   * when you are choosing *cards* — but the collection is a shelf of *objects*, and an
+   * alternate art is a different object you own a different number of. Absent means "the
+   * collapsed default"; supplied means "this exact art".
+   */
+  printing?: Printing;
   index: number;
   /** ⚠️ A literal length. `sizes` is parsed before CSS, so `var(--tile)` silently
       falls back to 100vw — which had the gallery fetching 2492px images to draw at 208. */
@@ -111,7 +119,7 @@ function Tile({
   onAdd: () => void;
   onRemove: () => void;
 }) {
-  const printing = card.printings[0];
+  const printing = shown ?? card.printings[0];
   const atLimit = !card.types.includes("rune") && held >= MAX_COPIES;
   const [ready, setReady] = useState(false);
   return (
@@ -147,6 +155,9 @@ function Tile({
       </button>
       {held > 0 && <span className="held">{held}</span>}
       {owned > 0 && <span className="own" title={`${owned} in your collection`}>{owned}</span>}
+      {/* The collector number, with its suffix — `066a` is the alternate art and the whole
+          reason this tile exists separately from `066`. */}
+      {shown && <span className="printcode">{shown.code.split("/")[0]}</span>}
     </div>
   );
 }
@@ -246,15 +257,55 @@ export function App() {
   );
 
   /**
+   * The collection, **one entry per printing you own**.
+   *
+   * ⚠️ The gallery collapses printings onto a name, which is right when you are choosing
+   * *cards* — three arts of Blazing Scorcher are three ways to play the same card, and the
+   * copy limit counts them together (DATA-MODEL §2). The collection is the other thing: a
+   * shelf of physical objects, where `OGN-066` and `OGN-066a` are different cards you own
+   * different numbers of, and collapsing them hides what is actually in the box.
+   *
+   * So the Owned view expands rather than collapses. The filters still apply — they are
+   * about the card — but the tiles are printings.
+   */
+  /**
+   * How many rows the grid is actually showing. ⚠️ The Owned view renders *printings* and
+   * everything else renders *names*, so paging and the "N more…" counter have to follow the
+   * list on screen rather than the one they were written against.
+   */
+  const shelf = useMemo(() => {
+    if (!pool || !filters.owned) return [];
+    const rows: Array<{ card: Card; printing: Printing; owned: number }> = [];
+    for (const card of results) {
+      for (const printing of card.printings) {
+        const n = owned[printing.id] ?? 0;
+        if (n > 0) rows.push({ card, printing, owned: n });
+      }
+    }
+    return filters.sort.key === "copies"
+      ? rows.sort((a, b) => b.owned - a.owned || a.card.name.localeCompare(b.card.name))
+      : rows;
+  }, [pool, results, owned, filters.owned, filters.sort.key]);
+
+  /** Rows on screen: printings in the Owned view, names everywhere else. */
+  const listLength = filters.owned ? shelf.length : results.length;
+
+  /**
    * The collection in one line. **Names, not printings** — you own a card once however many
    * arts it came in, and printings is the number that would make a collection sound bigger
    * than it plays (DATA-MODEL §2).
    */
   const holdings = useMemo(() => {
-    if (!pool) return { names: 0, copies: 0 };
+    if (!pool) return { names: 0, printings: 0, copies: 0 };
     let names = 0;
     for (const card of pool.cards) if (ownedCount(card, owned) > 0) names += 1;
-    return { names, copies: Object.values(owned).reduce((n, q) => n + q, 0) };
+    return {
+      names,
+      // ⚠️ Printings too, now that the view shows one tile per art. Saying "3 cards" over a
+      // grid of six tiles reads as a bug in the count rather than as the distinction it is.
+      printings: Object.keys(owned).length,
+      copies: Object.values(owned).reduce((n, q) => n + q, 0),
+    };
   }, [pool, owned]);
   useEffect(() => setShown(PAGE), [filters]);
 
@@ -272,14 +323,14 @@ export function App() {
         // app. Measured with the fix in place and 900 printings owned, a keystroke costs
         // 0–3 ms. The cap is still correct; the diagnosis attached to it was not.
         if (entries[0]?.isIntersecting) {
-          setShown((n) => (n >= results.length ? n : n + PAGE));
+          setShown((n) => (n >= listLength ? n : n + PAGE));
         }
       },
       { rootMargin: "800px" },
     );
     io.observe(node);
     return () => io.disconnect();
-  }, [results.length]);
+  }, [listLength]);
 
   const legality = useMemo(
     () => (pool ? checkLegality(deck, pool.index, { ownership: { collection: owned } }) : null),
@@ -330,7 +381,13 @@ export function App() {
         )
       : [];
 
-  const add = (card: Card) => {
+  /**
+   * @param printing ⚠️ Only supplied from the collection view, where the tile *is* a
+   * specific art. Clicking the copy you own and having a different printing go into the
+   * deck is a small lie, and the whole reason the collection shows arts separately. Copy
+   * limits still count by name (L13), so the tile disables at three either way.
+   */
+  const add = (card: Card, printing?: Printing) => {
     // A Legend is the deck's identity rather than a card in it — and picking one fixes the
     // Domain Identity, so the runes it implies are filled in the same move (Riot's 6-6).
     if (card.types.includes("legend")) {
@@ -354,6 +411,12 @@ export function App() {
     if (guided && step === "champion" && card.superTypes.includes("champion")) {
       const id = card.printings[0]?.id;
       if (id) setChampion(id);
+      return;
+    }
+    if (printing) {
+      const zone = zoneFor(card);
+      const mine = deck.slots.find((s) => s.cardId === printing.id && s.zone === zone);
+      setQuantity(printing.id, zone, (mine?.quantity ?? 0) + 1);
       return;
     }
     const existing = slotFor(card);
@@ -574,9 +637,11 @@ export function App() {
         {base.owned && holdings.names > 0 && (
           <p className="rail">
             <span>
-              <strong>{holdings.names}</strong> cards registered,{" "}
+              <strong>{holdings.names}</strong> cards ·{" "}
+              <strong>{holdings.printings}</strong>{" "}
+              {holdings.printings === 1 ? "printing" : "printings"} ·{" "}
               <strong>{holdings.copies}</strong> copies
-              {results.length < holdings.names && ` · ${results.length} match the filters`}
+              {listLength < holdings.printings && ` · ${listLength} match the filters`}
             </span>
             <span className="railtools">
               {/* Re-importable: the collection grows, and re-exporting the whole thing is
@@ -614,7 +679,21 @@ export function App() {
         )}
 
         <div className="grid" style={{ ["--tile" as string]: SIZES[size] }}>
-          {results.slice(0, shown).map((card, i) => (
+          {filters.owned
+            ? shelf.slice(0, shown).map((row, i) => (
+                <Tile
+                  key={row.printing.id}
+                  index={i % PAGE}
+                  sizes={SIZES[size]}
+                  card={row.card}
+                  printing={row.printing}
+                  owned={row.owned}
+                  held={row.card.types.includes("legend") ? 0 : copiesOfName(row.card)}
+                  onAdd={() => add(row.card, row.printing)}
+                  onRemove={() => removeOne(row.card)}
+                />
+              ))
+            : results.slice(0, shown).map((card, i) => (
             <Tile
               key={card.name}
               index={i % PAGE}
@@ -622,15 +701,15 @@ export function App() {
               card={card}
               owned={ownedCount(card, owned)}
               held={card.types.includes("legend") ? 0 : copiesOfName(card)}
-              onAdd={() => add(card)}
-              onRemove={() => removeOne(card)}
-            />
-          ))}
+                  onAdd={() => add(card)}
+                  onRemove={() => removeOne(card)}
+                />
+              ))}
         </div>
 
         <div ref={sentinel} className="sentinel">
-          {shown < results.length ? `${results.length - shown} more…` : ""}
-          {results.length === 0 &&
+          {shown < listLength ? `${listLength - shown} more…` : ""}
+          {listLength === 0 &&
             (base.owned && Object.keys(owned).length === 0 ? (
               <span className="empty">
                 Nothing registered yet. Enter your cards with the collection tool in

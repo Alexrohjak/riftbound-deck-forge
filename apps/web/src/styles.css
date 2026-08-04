@@ -1236,3 +1236,12 @@ body.resizing * { pointer-events: none; }
   background: var(--sunk); color: var(--ink); border: 1px solid var(--accent);
   font: inherit; font-size: 0.8rem; width: 10rem;
 }
+
+/* The collector number on a collection tile. The suffix is the point: 066a is a different
+   physical card from 066, and the collection is a shelf of objects rather than of names. */
+.printcode {
+  position: absolute; left: 50%; transform: translateX(-50%); bottom: -9px;
+  padding: 1px var(--s2); border-radius: 999px; pointer-events: none;
+  background: var(--ink); color: var(--ground);
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.02em; white-space: nowrap;
+}
