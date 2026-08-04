@@ -126,6 +126,24 @@ The single most error-prone relationship in the system:
 > Getting this wrong **breaks copy-limit maths silently** — the worst failure mode,
 > because the deck looks legal and is not.
 
+### ⚠️ Stored per printing, *compared* per name
+
+The table above says where each fact lives. It does **not** say how a shortfall is worked
+out, and reading it as though it did produced a real bug: `L26` compared printing to
+printing, so owning three copies of a card across three different arts reported as *three
+short* — while the sentence directly above that code said the opposite.
+
+**A deck slot demands a card, not a particular picture of one.** The arts are interchangeable
+in a sleeve, and the gallery records whichever printing it happened to pick, which is rarely
+the one in your box. So:
+
+- **Ownership rows** stay keyed on printing — that is what a physical object is
+- **`L26` / `L27` sum owned copies across a name's printings** before comparing
+- **Copy limits** remain keyed on name, unchanged (CR 103.2.b)
+
+The practical consequence for [`W2`](../PLAN.md): it does not matter which printing of a card
+you register. Enter the one in front of you.
+
 ---
 
 <a id="3-commitment"></a>

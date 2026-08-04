@@ -26,11 +26,17 @@ const entry = (cards: CardIndex, cardId: string, zone: Zone, quantity: number): 
   facts: cards.factsOf?.(cardId),
 });
 
-/** Every registered card, the Chosen Champion included. */
+/**
+ * Every registered card, the Chosen Champion included.
+ *
+ * ⚠️ **An unchosen Champion is not a card.** The field is an empty string before you pick
+ * one, and emitting an entry for it produced a nameless phantom that counted toward the 40
+ * and reported as a card you were short of — `"3 copies short across 2 names — , Fury Rune"`.
+ */
 export function deckEntries(deck: Deck, cards: CardIndex): Entry[] {
   return [
     ...deck.slots.map((slot) => entry(cards, slot.cardId, slot.zone, slot.quantity)),
-    entry(cards, deck.chosenChampionCardId, "MAIN", 1),
+    ...(deck.chosenChampionCardId ? [entry(cards, deck.chosenChampionCardId, "MAIN", 1)] : []),
   ];
 }
 

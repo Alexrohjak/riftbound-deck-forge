@@ -180,6 +180,54 @@ describe("the baseline is genuinely legal", () => {
     expect(checks).toContain("L27");
     expect(checks).not.toContain("L26"); // you own them; they are just spoken for
   });
+
+  /**
+   * ⚠️ Ownership is *stored* per printing and *compared* per name. Three copies of a card
+   * spread across three arts is three cards you own — and the gallery records whichever
+   * printing it happened to pick, which is rarely the one in your box.
+   */
+  it("counts copies across arts, because a sleeve does not care which picture it is", () => {
+    const arts = staticCardIndex({
+      "art-a": { name: "Fury Rune", types: ["rune"] },
+      "art-b": { name: "Fury Rune", types: ["rune"] },
+      "art-c": { name: "Fury Rune", types: ["rune"] },
+    });
+    const d = {
+      id: "d",
+      name: "t",
+      state: "DRAFT" as const,
+      legendCardId: "",
+      chosenChampionCardId: "",
+      slots: [{ cardId: "art-a", zone: "RUNE" as const, quantity: 3 }],
+    };
+    const spread = checkLegality(d, arts, {
+      ownership: { collection: { "art-a": 1, "art-b": 1, "art-c": 1 } },
+    });
+    expect(spread.warnings.map((w) => w.check)).not.toContain("L26");
+
+    // And it still notices when you are genuinely short.
+    const thin = checkLegality(d, arts, { ownership: { collection: { "art-a": 1 } } });
+    expect(thin.warnings.find((w) => w.check === "L26")?.message).toContain("2 copies short");
+  });
+
+  it("does not invent a card out of an unchosen Champion", () => {
+    // The field is "" before you pick one. It used to become a nameless entry that counted
+    // toward the 40 and reported as missing: "3 copies short across 2 names — , Fury Rune".
+    const arts = staticCardIndex({ "art-a": { name: "Fury Rune", types: ["rune"] } });
+    const result = checkLegality(
+      {
+        id: "d",
+        name: "t",
+        state: "DRAFT" as const,
+        legendCardId: "",
+        chosenChampionCardId: "",
+        slots: [{ cardId: "art-a", zone: "RUNE" as const, quantity: 3 }],
+      },
+      arts,
+      { ownership: { collection: { "art-a": 3 } } },
+    );
+    expect(result.warnings.map((w) => w.check)).not.toContain("L26");
+  });
 });
 
 describe("T1–T13 — the rulebook's worked examples", () => {
