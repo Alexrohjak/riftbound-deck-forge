@@ -61,6 +61,8 @@ export interface CardPool {
   /** Every printing id → its card. The deck holds printing ids. */
   byPrinting: Map<string, Card>;
   byName: Map<string, Card>;
+  /** Public collector code → printing id. The bridge for importing an older export. */
+  byCode: Map<string, string>;
   /** What the engine needs: name, domains and energy per printing id. */
   index: CardIndex;
   /**
@@ -112,10 +114,14 @@ export function buildPool(raw: RawIndex): CardPool {
     }
   }
 
+  const byCode = new Map<string, string>();
+  for (const card of raw.cards) for (const p of card.printings) byCode.set(p.code, p.id);
+
   return {
     cards: raw.cards,
     byPrinting,
     byName,
+    byCode,
     index: staticCardIndex(facts),
     pool: Object.entries(facts).map(([cardId, f]) => ({ cardId, facts: f })),
   };

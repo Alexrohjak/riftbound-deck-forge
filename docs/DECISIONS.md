@@ -66,6 +66,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-055](#d-055) | **A match names a build, not a deck** — and the record withholds any rate it has not earned | ✅ W5 |
 | [D-056](#d-056) | **One key space: the printing id** — the collection tool exported public codes that Forge could not read | ✅ |
 | [D-057](#d-057) | **EE's analytical surface reaches the app before `S6`** — the mouth stays Claude Code; the app renders engine output verbatim | ✅ |
+| [D-058](#d-058) | **The collection is imported from inside the app** — `curl` cannot get past Access, and looks like it worked | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -2189,3 +2190,61 @@ one confident voice would misrepresent the state of the art.
 | Wait for `S2`, then do `S6` properly | Leaves a built, working analytical core reachable only from a terminal for the length of a large milestone |
 | Build a chat box in the app | Exactly what [D-043](#d-043) declined. The engine would have to parse English, and the app would start authoring claims it cannot ground |
 | Show the advice permanently in the workshop | Violates [D-042](#d-042), and the request that produced that decision was explicit: *"only give feedback when requested"* |
+
+
+---
+
+<a id="d-058"></a>
+
+## D-058 — Importing happens in the app, because `curl` cannot reach production
+
+**Date:** 2026-08-04
+**Status:** Accepted — unblocks `W2`
+
+### What was wrong
+
+Two documents told you to upload your collection like this:
+
+```bash
+curl -X PUT https://forge.<...>.workers.dev/collection --data @collection.json
+```
+
+It does not work. Cloudflare Access ([D-048](#d-048)) sits in front of the origin, so an
+unauthenticated request is answered by the login page:
+
+```
+HTTP/2 302
+location: https://<team>.cloudflareaccess.com/cdn-cgi/access/login/...
+service_token_status: false
+```
+
+The request never reaches the Worker. `curl` exits 0, prints an HTML redirect, and **writes
+nothing** — after an evening of typing, with no error worth reading.
+
+### Decided
+
+**Import from inside Forge.** The *Owned* view has an *Import a collection file* button. It
+is same-origin, so the Access cookie rides along automatically and the problem disappears.
+
+- **Both key spaces are accepted.** An export predating [D-056](#d-056) is keyed by public
+  collector code and is translated on the way in, so an old file on a phone still loads.
+- **The outcome is reported** — copies saved, entries re-keyed, entries skipped — and it is
+  held by the *caller*, because a successful import unmounts the empty state that hosts the
+  button and would otherwise take the message with it.
+- **An Access redirect is detected explicitly.** It arrives as HTML with a 200-shaped
+  response, so the importer checks the content type: *"the server answered with a page rather
+  than data — you may need to sign in again"* beats a silent no-op.
+
+### Why not a service token
+
+It would work, and it would mean a long-lived credential in a shell history or a file on
+disk, created solely to authenticate a person who is already signed in three inches away in a
+browser tab. The credential is the cost; the browser is free.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Cloudflare Access service token | A permanent credential on disk to work around a session that already exists |
+| Bypass Access on `/collection` | Opens the one write endpoint that owns the irreplaceable data |
+| `cloudflared access curl` | Works, but it is a per-machine tool install to paper over a missing button |

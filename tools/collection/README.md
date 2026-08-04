@@ -8,6 +8,11 @@ Enter and browse the cards you actually own. **This is the first working piece o
 > an older export or older browser storage, both are converted on load; you do not need to do
 > anything. `build-index.py` now fails if the two key spaces ever drift again.
 
+> **Getting it into Forge:** export the file, then use **Import a collection file** in
+> Forge's *Owned* view. ⚠️ Not `curl` — Cloudflare Access answers an unauthenticated request
+> with a `302` to its login page, so the upload looks like it worked and writes nothing
+> ([D-058](../../docs/DECISIONS.md#d-058)).
+
 > **Deliberately disposable.** No framework, no build step, no dependencies — one HTML file and a
 > JSON index. The durable thing here is `collection.json`, which you export; the interface around it
 > is meant to be thrown away when [`D3`](../../docs/ROADMAP.md) picks a real stack.

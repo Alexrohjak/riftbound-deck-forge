@@ -195,12 +195,16 @@ The `backups` branch is an orphan — it shares no history with `main`, so the s
 never mix with the code. Restoring is a load, not a migration:
 
 ```bash
-# The snapshot's `collection` field is exactly what PUT /collection accepts.
+# The snapshot's `collection` field is exactly what the importer accepts.
 jq '.collection' forge-state.json > restore.json     # from the backups branch
-# The tool's export drops straight in — counts are keyed by printing id (D-056).
-curl -X PUT https://forge.alexander-rohde-jakobsen.workers.dev/collection \
-     -H 'content-type: application/json' --data @restore.json
 ```
+
+Then load `restore.json` with **Import a collection file** in Forge's *Owned* view.
+
+> ⚠️ **Do not `curl` it.** Cloudflare Access answers an unauthenticated request with a `302`
+> to its login page, so the request never reaches the Worker — the upload looks like it
+> succeeded and writes nothing. A signed-in browser carries the session cookie automatically,
+> which is why the importer lives in the app ([D-058](docs/DECISIONS.md#d-058)).
 
 > **Why the repo and not R2.** An R2 bucket lives in the same Cloudflare account as the
 > database it backs up — it insures a bad write, not losing the account, and Time Travel
@@ -232,7 +236,7 @@ system map and **where to put a new idea**.
 | [`docs/roadmap.html`](docs/roadmap.html) | The same roadmap, rendered. Download and open in a browser |
 | [**`docs/spec/OVERVIEW.md`**](docs/spec/OVERVIEW.md) | **System map — how everything relates, and where new ideas go. Read before adding a feature.** |
 | [`docs/PLAN.md`](docs/PLAN.md) | The detail layer — gates, "done when", validation and risks |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 57 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 58 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
 | [**`docs/ARCHITECTURE.md`**](docs/ARCHITECTURE.md) | **How it's built — stack, hosting, verified £0/month cost, and what's ruled out. Read before writing code.** |
 | [`docs/AUDIT.md`](docs/AUDIT.md) | First-principles audit of the project's own assumptions |

@@ -3,6 +3,7 @@ import { checkLegality, deckHash, energyCurve, zoneCount, type Zone } from "@for
 import { hd, loadPool, srcSet, zoneFor, type Card, type CardPool, type Printing } from "./cards.js";
 import { useDeck, type SaveState } from "./deckStore.js";
 import { Advisor } from "./Advisor.js";
+import { ImportCollection, type Result as ImportResult } from "./ImportCollection.js";
 import { History, LogPanel, useMatches } from "./Log.js";
 import { apply, DOMAIN_LIST, NO_FILTERS, ownedCount, SORTS, TYPES, type Filters, type Tab } from "./filters.js";
 import { filtersFor, runeSlots, stepFor, type Step } from "./buildFlow.js";
@@ -145,6 +146,15 @@ export function App() {
   const [pool, setPool] = useState<CardPool | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
   const [owned, setOwned] = useState<Record<string, number>>({});
+  /** Survives the import that unmounts the button which produced it. */
+  const [imported, setImported] = useState<ImportResult | null>(null);
+  /** Re-read after an import, so the Owned view fills in without a refresh. */
+  const loadCollection = useCallback(() => {
+    fetch("/collection")
+      .then((r) => (r.ok ? r.json() : { counts: {} }))
+      .then((b: { counts?: Record<string, number> }) => setOwned(b.counts ?? {}))
+      .catch(() => setOwned({}));
+  }, []);
   const [base, setBase] = useState<Filters>(NO_FILTERS);
   const [shown, setShown] = useState(PAGE);
   const [size, setSize] = useState<Size>(() => store.get("forge.tileSize", "M") as Size);
@@ -166,11 +176,8 @@ export function App() {
 
   useEffect(() => {
     loadPool().then(setPool, (e: Error) => setFailed(e.message));
-    fetch("/collection")
-      .then((r) => (r.ok ? r.json() : { counts: {} }))
-      .then((b: { counts?: Record<string, number> }) => setOwned(b.counts ?? {}))
-      .catch(() => setOwned({}));
-  }, []);
+    loadCollection();
+  }, [loadCollection]);
 
   useEffect(() => store.set("forge.tileSize", size), [size]);
   useEffect(() => store.set("forge.pane", String(pane)), [pane]);
@@ -524,12 +531,37 @@ export function App() {
               <strong>{holdings.copies}</strong> copies
               {results.length < holdings.names && ` · ${results.length} match the filters`}
             </span>
-            <button
-              type="button"
-              className="ghost"
-              onClick={() => setBase((f) => ({ ...f, owned: false }))}
-            >
-              show every card
+            <span className="railtools">
+              {/* Re-importable: the collection grows, and re-exporting the whole thing is
+                  how the tool works. An upload replaces rather than merges. */}
+              <ImportCollection pool={pool} onLoaded={loadCollection} onResult={setImported} />
+              <button
+                type="button"
+                className="ghost"
+                onClick={() => setBase((f) => ({ ...f, owned: false }))}
+              >
+                show every card
+              </button>
+            </span>
+          </p>
+        )}
+
+        {imported && (
+          <p className={imported.kind === "ok" ? "ok importnote" : "fail importnote"}>
+            {imported.kind === "ok" ? (
+              <>
+                Saved <b>{imported.copies}</b> copies across <b>{imported.printings}</b>{" "}
+                printings.
+                {imported.translated > 0 &&
+                  ` ${imported.translated} re-keyed from collector codes.`}
+                {imported.dropped > 0 &&
+                  ` ${imported.dropped} unrecognised ${imported.dropped === 1 ? "entry" : "entries"} skipped.`}
+              </>
+            ) : (
+              imported.message
+            )}
+            <button type="button" className="ghost" onClick={() => setImported(null)}>
+              dismiss
             </button>
           </p>
         )}
@@ -555,8 +587,9 @@ export function App() {
             (base.owned && Object.keys(owned).length === 0 ? (
               <span className="empty">
                 Nothing registered yet. Enter your cards with the collection tool in
-                <code> tools/collection/</code> — until then Forge knows every card that exists
-                and none that you have.
+                <code> tools/collection/</code>, then load the file it exports — until then
+                Forge knows every card that exists and none that you have.
+                <ImportCollection pool={pool} onLoaded={loadCollection} onResult={setImported} />
               </span>
             ) : (
               <span className="empty">Nothing matches those filters.</span>
