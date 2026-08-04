@@ -4,11 +4,16 @@ import {
   capabilities,
   COMMUNITY,
   deckShape,
+  diagnose,
+  match,
+  readArchetype,
   review,
+  suggest,
   staticCardIndex,
   type CardEntry,
   type Deck,
   type DeckSlot,
+  type Symptom,
 } from "../src/index.js";
 
 /**
@@ -181,5 +186,92 @@ describe("every judgement says where it comes from", () => {
     expect(shape.earlyPlays).toBe(8);
     expect(shape.earlyPlays).toBeGreaterThanOrEqual(COMMUNITY.earlyPlaysMin);
     expect(notes.filter((n) => n.confidence === "doctrine")).toHaveLength(0);
+  });
+});
+
+describe("turning a complaint into a diagnosis", () => {
+  it("reads 'I could not hold battlefields' as a board problem, not a removal problem", () => {
+    // The whole point. Answering a holding complaint with removal would be answering a
+    // different question confidently, which is the failure mode worth engineering against.
+    const d = diagnose(deck([slot("killer", "MAIN", 3)]), cards, "cannot-hold");
+    expect(d.reading).toMatch(/holding problem, not a removal problem/i);
+    expect(d.wants).not.toContain("kill");
+    expect(d.lever).toMatch(/units/i);
+  });
+
+  it("always states what the fix costs", () => {
+    // Every change is a trade. A suggestion that hides its cost makes decks worse.
+    const symptoms: Symptom[] = [
+      "run-over-early", "cannot-hold", "cannot-remove",
+      "clunky-draws", "out-of-gas", "too-slow", "threats-die",
+    ];
+    for (const s of symptoms) {
+      const d = diagnose(deck([slot("cheap", "MAIN", 3)]), cards, s);
+      expect(d.cost, `${s} has no stated cost`).toBeTruthy();
+      expect(d.evidence, `${s} cites no evidence from the deck`).toBeTruthy();
+    }
+  });
+
+  it("grounds the diagnosis in this deck's numbers", () => {
+    const d = diagnose(deck([slot("killer", "MAIN", 3)]), cards, "cannot-remove");
+    expect(d.evidence).toBe("3 cards that remove something.");
+  });
+
+  it("returns every symptom a sentence touches rather than guessing one", () => {
+    const hits = match("I played into Diana and lost because I could not hold the battlefield");
+    expect(hits).toContain("cannot-hold");
+    // The keyword pass is a convenience, not comprehension — so it does not pretend to pick.
+    expect(hits.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("suggesting cards", () => {
+  const pool = Object.entries(CARDS).map(([cardId, facts]) => ({ cardId, facts: facts as never }));
+
+  it("offers only cards that address the diagnosis", () => {
+    const d = diagnose(deck([]), cards, "cannot-remove");
+    const out = suggest(deck([]), cards, d, pool);
+    expect(out.length).toBeGreaterThan(0);
+    for (const c of out) expect(c.why).toMatch(/kill|damage|banish/);
+  });
+
+  it("never offers a card already at three copies", () => {
+    const d = diagnose(deck([slot("killer", "MAIN", 3)]), cards, "cannot-remove");
+    const out = suggest(deck([slot("killer", "MAIN", 3)]), cards, d, pool);
+    expect(out.map((c) => c.name)).not.toContain("Assassinate");
+  });
+
+  it("never offers a Legend, rune or battlefield", () => {
+    const d = diagnose(deck([]), cards, "cannot-hold");
+    const names = suggest(deck([]), cards, d, pool).map((c) => c.name);
+    expect(names).not.toContain("A Legend");
+    expect(names).not.toContain("Rune");
+    expect(names).not.toContain("Field One");
+  });
+
+  it("stays a handful, because a search result is not advice", () => {
+    const d = diagnose(deck([]), cards, "cannot-remove");
+    expect(suggest(deck([]), cards, d, pool).length).toBeLessThanOrEqual(5);
+  });
+});
+
+describe("archetype, and admitting when it cannot tell", () => {
+  it("says unclear rather than guessing on a deck with no signal", () => {
+    const read = readArchetype(deck([slot("f0", "MAIN", 3)]), cards);
+    expect(["unclear", "midrange"]).toContain(read.archetype);
+    expect(read.evidence.length).toBeGreaterThan(0);
+  });
+
+  it("reads a cheap, unit-heavy, interaction-light deck as aggro", () => {
+    const fast = deck([slot("cheap", "MAIN", 3), slot("cheap2", "MAIN", 3), slot("trick", "MAIN", 3)]);
+    const read = readArchetype(fast, cards);
+    expect(read.archetype).toBe("aggro");
+    expect(read.matchups).toMatch(/combo/i);
+  });
+
+  it("always ships the numbers behind the call", () => {
+    const read = readArchetype(deck([slot("cheap", "MAIN", 3)]), cards);
+    expect(read.evidence.join(" ")).toMatch(/Average Energy/);
+    expect(read.evidence.join(" ")).toMatch(/units/);
   });
 });

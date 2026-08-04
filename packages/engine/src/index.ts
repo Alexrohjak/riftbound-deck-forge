@@ -38,5 +38,16 @@ export {
   type Source,
 } from "./advice/doctrine.js";
 
+export {
+  diagnose,
+  match,
+  suggest,
+  type Candidate,
+  type Diagnosis,
+  type PoolCard,
+  type Symptom,
+} from "./advice/feedback.js";
+export { readArchetype, type Archetype, type ArchetypeRead } from "./advice/archetype.js";
+
 /** In-memory `CardIndex`, sufficient for tests and for the static `F2` pool. */
 export { staticCardIndex, type CardEntry } from "./cardIndex.js";

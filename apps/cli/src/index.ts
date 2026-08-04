@@ -13,9 +13,20 @@
  * "couldn't tell" matters: a caller must never read a crash as a pass.
  */
 import { readFileSync } from "node:fs";
-import { checkLegality, review, staticCardIndex, type CardEntry, type Deck } from "@forge/engine";
+import {
+  checkLegality,
+  diagnose,
+  match,
+  readArchetype,
+  review,
+  staticCardIndex,
+  suggest,
+  type CardEntry,
+  type Deck,
+  type PoolCard,
+} from "@forge/engine";
 
-const USAGE = `forge <legality|review> <deck.json> [--cards <cards.json>]
+const USAGE = `forge <legality|review|ask> <deck.json> [--cards <cards.json>] [--note "..."]
 
   deck.json    a Deck — see docs/spec/DATA-MODEL.md §1
   --cards      printing id -> card facts. Either "<name>" or
@@ -29,6 +40,9 @@ const USAGE = `forge <legality|review> <deck.json> [--cards <cards.json>]
   legality     is this deck registerable? 33 checks, each with its citation.
   review       what IS this deck? Counts, odds, and what good players would say —
                every judgement carrying its source and how much confidence it earns.
+  ask          --note "I played into Diana and lost, could not hold battlefields"
+               Turns a complaint into a diagnosis and a handful of candidates.
+               A complaint is evidence about a CAPABILITY, never about a card.
 
 ⚠️ review returns three kinds of claim and they are not interchangeable:
    fact        counted from the list; not arguable
@@ -57,7 +71,7 @@ function main(argv: string[]): number {
     process.stdout.write(`${USAGE}\n`);
     return 0;
   }
-  if (command !== "legality" && command !== "review") {
+  if (!["legality", "review", "ask"].includes(command)) {
     fail(`Unknown command "${command}".\n\n${USAGE}`);
   }
   if (!deckPath) fail(`${command} needs a deck file.\n\n${USAGE}`);
@@ -77,10 +91,48 @@ function main(argv: string[]): number {
 
   const index = staticCardIndex(cards);
 
+  if (command === "ask") {
+    const noteFlag = rest.indexOf("--note");
+    const note = noteFlag === -1 ? "" : (rest[noteFlag + 1] ?? "");
+    if (!note) fail(`ask needs --note "what went wrong".\n\n${USAGE}`);
+
+    // ⚠️ Keyword matching, not comprehension. The engine is pure and stays that way; turning
+    // a sentence into symptoms is the caller's job (D-043 — a swappable mouth).
+    const symptoms = match(note);
+    if (symptoms.length === 0) {
+      process.stdout.write(
+        `${JSON.stringify(
+          {
+            note,
+            symptoms: [],
+            hint: "No symptom matched. Pass a recognised one, or let Claude Code pick from the taxonomy.",
+          },
+          null,
+          2,
+        )}\n`,
+      );
+      return 0;
+    }
+
+    const pool: PoolCard[] = Object.entries(cards).map(([cardId, entry]) => ({
+      cardId,
+      facts: typeof entry === "string" ? { name: entry } : entry,
+    }));
+
+    const answers = symptoms.map((symptom) => {
+      const d = diagnose(deck, index, symptom);
+      return { ...d, candidates: suggest(deck, index, d, pool) };
+    });
+    process.stdout.write(`${JSON.stringify({ note, archetype: readArchetype(deck, index), answers }, null, 2)}\n`);
+    return 0;
+  }
+
   if (command === "review") {
     // Deliberately not a score. A deck is a set of trade-offs and a number hides which
     // ones were chosen (D-016).
-    process.stdout.write(`${JSON.stringify(review(deck, index), null, 2)}\n`);
+    process.stdout.write(
+      `${JSON.stringify({ ...review(deck, index), archetype: readArchetype(deck, index) }, null, 2)}\n`,
+    );
     return 0;
   }
 
