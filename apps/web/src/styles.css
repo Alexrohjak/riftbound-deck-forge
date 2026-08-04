@@ -1180,3 +1180,47 @@ body.resizing * { pointer-events: none; }
 .candidates li.have em { background: color-mix(in srgb, var(--calm) 18%, transparent); color: var(--calm); }
 .candidates li.havent { opacity: 0.72; }
 .candidates li.havent em { border: 1px dashed var(--line-strong); color: var(--faint); }
+
+/* ── decks ────────────────────────────────────────────────────────────────────
+   W3. Until this existed, starting a deck and destroying one were the same act — which
+   is also what made proposing a deck incoherent: a proposal you accept by overwriting
+   the deck you liked is an ultimatum, not a proposal. */
+.deckbar { position: relative; margin-bottom: var(--s3); }
+.deckpick {
+  display: flex; align-items: baseline; gap: var(--s3); width: 100%;
+  padding: var(--s2) var(--s3); cursor: pointer; text-align: left; color: inherit; font: inherit;
+  background: var(--sunk); border: 1px solid var(--line); border-radius: var(--radius-sm);
+}
+.deckpick:hover { border-color: var(--line-strong); }
+.deckpick b { font-size: 0.94rem; }
+.deckpick .caret { margin-left: auto; color: var(--dim); }
+
+.decklist {
+  position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px);
+  padding: var(--s2); border-radius: var(--radius);
+  background: var(--panel); border: 1px solid var(--line-strong); box-shadow: var(--shadow-lift);
+  max-height: 60vh; overflow-y: auto;
+}
+.deckrow { display: flex; align-items: center; gap: var(--s2); border-radius: var(--radius-sm); }
+.deckrow:hover { background: var(--sunk); }
+.deckrow.on { background: var(--accent-soft); }
+.deckopen {
+  flex: 1; min-width: 0; display: grid; gap: 1px; padding: var(--s2);
+  background: none; border: 0; cursor: pointer; text-align: left; color: inherit; font: inherit;
+}
+.deckopen b { font-size: 0.86rem; }
+.deckmeta { font-family: var(--mono); font-size: 0.68rem; color: var(--dim); }
+.confirm { display: flex; gap: var(--s1); padding-right: var(--s2); }
+.danger {
+  padding: 2px var(--s2); border-radius: var(--radius-sm); cursor: pointer;
+  background: var(--alert); color: #fff; border: none; font: inherit; font-size: 0.72rem;
+}
+.deckactions { display: flex; gap: var(--s2); padding: var(--s2); border-top: 1px solid var(--line); margin-top: var(--s2); }
+.deckactions .primary { flex: 1; }
+.deckfoot { margin: 0; padding: 0 var(--s2) var(--s1); font-size: 0.68rem; color: var(--faint); }
+.rename { font-size: 0.72rem; }
+.renamefield {
+  padding: var(--s1) var(--s2); border-radius: var(--radius-sm);
+  background: var(--sunk); color: var(--ink); border: 1px solid var(--accent);
+  font: inherit; font-size: 0.8rem; width: 10rem;
+}

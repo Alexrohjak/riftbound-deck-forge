@@ -13,9 +13,15 @@ export function zoneCount(deck: Deck, zone: Zone): number {
  * The Champion is a singular field rather than a slot (DATA-MODEL §1), so it has to be
  * added back here. Forgetting this is an off-by-one that makes a legal deck report as 39,
  * which is exactly the kind of silent wrongness `W1` exists to prevent.
+ *
+ * ⚠️ **Only when there is one.** The field is empty until you pick a Champion, and adding
+ * the 1 unconditionally reported an entirely empty deck as `1/40`. It stayed hidden while
+ * Forge held a single deck that always had a default Champion; `W3` made empty decks
+ * creatable and the phantom card showed up immediately. Same bug as the nameless entry
+ * `deckEntries` used to emit.
  */
 export function mainDeckCount(deck: Deck): number {
-  return zoneCount(deck, "MAIN") + 1;
+  return zoneCount(deck, "MAIN") + (deck.chosenChampionCardId ? 1 : 0);
 }
 
 /** L3 · L4 · L5 · L6 · L7 — the checks that need only counts and names. */

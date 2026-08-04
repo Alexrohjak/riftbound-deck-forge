@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Deck, DeckSlot, Zone } from "@forge/engine";
+import type { Deck, DeckSlot, DeckState, Zone } from "@forge/engine";
 
 /**
  * The deck lives in D1, not in the browser (D-049 — **editing requires connectivity**).
@@ -9,9 +9,45 @@ import type { Deck, DeckSlot, Zone } from "@forge/engine";
  * on the server and reports exactly where a change got to.
  */
 
-/** F2 builds one deck. `W3` is where more than one becomes a question worth answering. */
-const DECK_ID = "main";
-const ENDPOINT = `/decks/${DECK_ID}`;
+/**
+ * `W3` — many decks. `F2` held exactly one, at the hardcoded id `main`, which meant
+ * *starting* a deck was the same act as *destroying* the one you had.
+ *
+ * The id is remembered locally rather than on the server: which deck you had open is a
+ * property of this browser, not of the collection, and syncing it would make opening Forge
+ * on a phone yank the desktop to a different deck.
+ */
+const ACTIVE_KEY = "forge.activeDeck";
+/** The deck `F2` created. Kept as the default so an existing install opens what it had. */
+export const FIRST_DECK_ID = "main";
+
+export const newDeckId = () =>
+  `d${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
+export function activeDeckId(): string {
+  try {
+    return localStorage.getItem(ACTIVE_KEY) ?? FIRST_DECK_ID;
+  } catch {
+    return FIRST_DECK_ID;
+  }
+}
+
+export function setActiveDeckId(id: string) {
+  try {
+    localStorage.setItem(ACTIVE_KEY, id);
+  } catch {
+    // Private mode or blocked storage. The session still works; it just forgets on reload.
+  }
+}
+
+export interface DeckSummary {
+  id: string;
+  name: string;
+  state: DeckState;
+  legendCardId: string | null;
+  updatedAt: string;
+  counts: { main: number; runes: number; battlefields: number };
+}
 /** Long enough to coalesce a burst of taps, short enough that you never wait for it. */
 const SAVE_DEBOUNCE_MS = 600;
 
@@ -29,8 +65,8 @@ export type SaveState =
 const DEFAULT_LEGEND = "ogn-301-298";
 const DEFAULT_CHAMPION = "ogn-030-298";
 
-const emptyDeck = (): Deck => ({
-  id: DECK_ID,
+const emptyDeck = (id: string): Deck => ({
+  id,
   name: "First deck",
   state: "DRAFT",
   legendCardId: DEFAULT_LEGEND,
@@ -49,8 +85,8 @@ function withQuantity(deck: Deck, cardId: string, zone: Zone, quantity: number):
   return { ...deck, slots };
 }
 
-export function useDeck() {
-  const [deck, setDeck] = useState<Deck>(emptyDeck);
+export function useDeck(deckId: string) {
+  const [deck, setDeck] = useState<Deck>(() => emptyDeck(deckId));
   const [save, setSave] = useState<SaveState>({ status: "loading" });
 
   // The deck to save, held in a ref so the debounce timer always writes the newest state
@@ -79,7 +115,7 @@ export function useDeck() {
     pending.current = null;
     setSave({ status: "saving" });
     try {
-      const response = await fetch(ENDPOINT, {
+      const response = await fetch(`/decks/${encodeURIComponent(deckId)}`, {
         method: "PUT",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(next),
@@ -91,18 +127,24 @@ export function useDeck() {
       // unsaved, which is the truthful state — see D-049.
       setSave({ status: "offline", detail: (error as Error).message });
     }
-  }, []);
+  }, [deckId]);
 
   useEffect(() => {
     let cancelled = false;
+    // ⚠️ Reset before the fetch, not after. Without this, switching decks leaves `loaded`
+    // true from the *previous* deck, so an edit made while the new one is still arriving
+    // would pass the guard in `push` and write the old deck's contents over it.
+    loaded.current = false;
+    pending.current = null;
+    setSave({ status: "loading" });
     (async () => {
       try {
-        const response = await fetch(ENDPOINT);
+        const response = await fetch(`/decks/${encodeURIComponent(deckId)}`);
         if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
         const body = (await response.json()) as { deck: Deck | null };
         if (cancelled) return;
         // A deck that does not exist yet is not an error — it is the first run.
-        setDeck(body.deck ? { ...emptyDeck(), ...body.deck } : emptyDeck());
+        setDeck(body.deck ? { ...emptyDeck(deckId), ...body.deck } : emptyDeck(deckId));
         // A deck that does not exist yet still counts as loaded: we know the server has
         // nothing, so writing the first one over it destroys nothing.
         loaded.current = true;
@@ -115,7 +157,10 @@ export function useDeck() {
     return () => {
       cancelled = true;
     };
-  }, []);
+    // ⚠️ Switching decks must reset `loaded`, or the guard in `push` would let an edit to
+    // the newly opened deck save before its contents had arrived — writing the previous
+    // deck's state over it.
+  }, [deckId]);
 
   const edit = useCallback(
     (change: (current: Deck) => Deck) => {
@@ -184,5 +229,18 @@ export function useDeck() {
 
   const clear = useCallback(() => edit((current) => ({ ...current, slots: [] })), [edit]);
 
-  return { deck, save, setQuantity, replacePrinting, setLegend, setChampion, setSlots, clear };
+  /** `W3` — the one thing you edit *about* a deck rather than *in* it. */
+  const setName = useCallback((name: string) => edit((current) => ({ ...current, name })), [edit]);
+
+  return {
+    deck,
+    save,
+    setQuantity,
+    replacePrinting,
+    setLegend,
+    setChampion,
+    setSlots,
+    setName,
+    clear,
+  };
 }

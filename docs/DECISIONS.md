@@ -68,6 +68,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-057](#d-057) | **EE's analytical surface reaches the app before `S6`** — the mouth stays Claude Code; the app renders engine output verbatim | ✅ |
 | [D-058](#d-058) | **The collection is imported from inside the app** — `curl` cannot get past Access, and looks like it worked | ✅ |
 | [D-059](#d-059) | **Card entry moves into Forge** — a workflow you have to rehearse is one you stop using | ✅ |
+| [D-060](#d-060) | **Forge holds many decks** — starting one and destroying one were the same act | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -2306,3 +2307,58 @@ the way in, and both READMEs now say so.
 | Keep the tool as the only entry path | The objection above. Six steps per card is a tool you abandon |
 | Retire the tool entirely | Loses offline entry, which is the one thing the app genuinely cannot do |
 | Rebuild entry from scratch in the app | The tool's ergonomics were already right; redesigning them would have been change for its own sake |
+
+
+---
+
+<a id="d-060"></a>
+
+## D-060 — More than one deck, pulled forward because generation needs somewhere to land
+
+**Date:** 2026-08-04
+**Status:** Accepted — partly delivers [`W3`](PLAN.md), which stays open
+
+### What was wrong
+
+Forge held exactly one deck, at the hardcoded id `main`. **Starting a new deck and destroying
+the old one were the same act.** That was defensible while `F2` was proving the loop; it stops
+being defensible the moment anything proposes a deck.
+
+It surfaced while describing how `S5` would work end to end: a generated deck you can only
+accept by overwriting the deck you already liked is not a proposal. So `W3`'s core came first.
+
+### Decided
+
+- `GET /decks` lists them, with counts computed in SQL rather than by loading every deck —
+  a list that has to read everything to say how big each thing is stops being usable exactly
+  when a list becomes worth having
+- `DELETE /decks/:id` cascades slots, bench and history. ⚠️ **Matches deliberately do not
+  cascade** — a game you played is not the deck's to take with it ([LOG §2](spec/LOG.md))
+- New · duplicate · rename · switch, with the open deck remembered **in the browser**: which
+  deck you had open is a property of this device, and syncing it would make opening Forge on
+  a phone yank the desktop to a different deck
+- Duplicating copies contents, **not history or matches**. Inheriting another deck's record
+  would be a lie about which list actually played those games
+
+### ⚠️ Two bugs this exposed
+
+Both were invisible while only one always-populated deck existed, and both appeared within
+minutes of being able to make an empty one:
+
+1. **`mainDeckCount` added 1 for the Chosen Champion unconditionally**, so a completely empty
+   deck reported `1/40` and `L3` said *"found 1"* for zero cards.
+2. Switching decks left the store's `loaded` flag true from the *previous* deck, so an edit
+   made while the new deck was still arriving would have passed the "never save over a deck
+   we failed to read" guard and written the old contents over it.
+
+The second is the more instructive: [D-049](#d-049)'s guard was correct and complete for one
+deck, and silently wrong for two. **A guard is only as good as the assumption it was written
+under**, and adding a dimension is exactly when that assumption expires.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Wait and do all of `W3` at once | `S5` is blocked on the deck-slot half of it, and the rest of `W3` is not |
+| Keep the active deck id on the server | Opening Forge on a phone would drag the desktop to a different deck mid-edit |
+| Cascade matches when a deck is deleted | Destroys the one record that cannot be reconstructed, to tidy a foreign key |

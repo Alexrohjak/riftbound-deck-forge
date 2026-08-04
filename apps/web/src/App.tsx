@@ -1,8 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { checkLegality, deckHash, energyCurve, zoneCount, type Zone } from "@forge/engine";
 import { hd, loadPool, srcSet, zoneFor, type Card, type CardPool, type Printing } from "./cards.js";
-import { useDeck, type SaveState } from "./deckStore.js";
+import {
+  activeDeckId,
+  newDeckId,
+  setActiveDeckId,
+  useDeck,
+  type DeckSummary,
+  type SaveState,
+} from "./deckStore.js";
 import { AddCards } from "./AddCards.js";
+import { DeckBar, DeckName, useDecks } from "./Decks.js";
 import { Advisor } from "./Advisor.js";
 import { ImportCollection, type Result as ImportResult } from "./ImportCollection.js";
 import { History, LogPanel, useMatches } from "./Log.js";
@@ -175,7 +183,16 @@ export function App() {
   const [pane, setPane] = useState(() => Number(store.get("forge.pane", "34")) || 34);
 
   const sentinel = useRef<HTMLDivElement | null>(null);
-  const { deck, save, setQuantity, replacePrinting, setLegend, setChampion, setSlots } = useDeck();
+  /** Which deck is open. Local to this browser — see `activeDeckId`. */
+  const [deckId, setDeckId] = useState(activeDeckId);
+  const { deck, save, setQuantity, replacePrinting, setLegend, setChampion, setSlots, setName } =
+    useDeck(deckId);
+  const { decks, refresh: refreshDecks } = useDecks(deckId);
+
+  const openDeck = useCallback((id: string) => {
+    setActiveDeckId(id);
+    setDeckId(id);
+  }, []);
 
   useEffect(() => {
     loadPool().then(setPool, (e: Error) => setFailed(e.message));
@@ -644,6 +661,7 @@ export function App() {
             <header>
               <h1>Forge</h1>
               <div className="headtools">
+                <DeckName deck={deck} onRename={setName} />
                 <SaveBadge save={save} />
                 <button
                   type="button"
@@ -657,6 +675,14 @@ export function App() {
                 </button>
               </div>
             </header>
+
+            <DeckBar
+              deck={deck}
+              decks={decks}
+              pool={pool}
+              onOpen={openDeck}
+              onRefresh={refreshDecks}
+            />
 
             <nav className="views">
               {(

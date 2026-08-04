@@ -333,6 +333,15 @@ DRAFT/BUILT commitment model.
 
 **Size:** L · **Gate:** W1 + W2
 
+> **⚠️ Partly delivered early: Forge now holds more than one deck** ([D-060](DECISIONS.md#d-060)).
+> Pulled forward because `S5` needs somewhere to *put* a proposal — a generated deck you can
+> only accept by overwriting the deck you already liked is an ultimatum, not a proposal. It
+> also makes the match log mean what it was designed to mean: every game was attaching to the
+> single id `main`, so *"which build went 4-1"* had one possible answer.
+>
+> **The milestone stays open.** Its completion test is a full legal deck built end-to-end on
+> desktop **and phone**, and the phone half is unverified.
+
 The centrepiece. Gallery owned-by-default with ownership as a filter dimension · filters ·
 zones (Legend, Champion, Main, Runes, Battlefields, Sideboard) · **The Bench** (staging
 area, saved with the deck, never validated) · live legality · **commitment awareness** —

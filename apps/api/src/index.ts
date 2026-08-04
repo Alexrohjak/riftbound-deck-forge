@@ -207,6 +207,57 @@ async function adjustCollection(env: Env, request: Request) {
  * A deck that does not exist is **not an error**: F2 opens on an empty deck and saves it
  * on the first edit. 404 would make the app's first run look broken.
  */
+/**
+ * Every deck, newest first — `W3`'s foundation.
+ *
+ * ⚠️ Counts come from the database rather than from reading each deck's slots, because a
+ * deck list that has to load every deck to say how big each one is stops being usable at
+ * exactly the point a deck list becomes worth having.
+ */
+async function listDecks(env: Env) {
+  const { results } = await env.DB.prepare(
+    `SELECT d.id, d.name, d.state, d.legend_card_id, d.chosen_champion_card_id, d.updated_at,
+            COALESCE(SUM(CASE WHEN s.zone = 'MAIN' THEN s.quantity END), 0) AS main,
+            COALESCE(SUM(CASE WHEN s.zone = 'RUNE' THEN s.quantity END), 0) AS runes,
+            COALESCE(SUM(CASE WHEN s.zone = 'BATTLEFIELD' THEN s.quantity END), 0) AS battlefields
+     FROM decks d LEFT JOIN deck_slots s ON s.deck_id = d.id
+     GROUP BY d.id ORDER BY d.updated_at DESC`,
+  ).all<
+    DeckRow & { updated_at: string; main: number; runes: number; battlefields: number }
+  >();
+
+  return {
+    schema: "forge.decks/1",
+    decks: results.map((d) => ({
+      id: d.id,
+      name: d.name,
+      state: d.state,
+      legendCardId: d.legend_card_id,
+      chosenChampionCardId: d.chosen_champion_card_id,
+      updatedAt: d.updated_at,
+      // The Chosen Champion lives in its own field and counts inside the 40 (L3), so a
+      // list that showed only slot totals would report every deck one card short.
+      counts: {
+        main: d.main + (d.chosen_champion_card_id ? 1 : 0),
+        runes: d.runes,
+        battlefields: d.battlefields,
+      },
+    })),
+  };
+}
+
+/**
+ * Delete a deck and everything attached to it.
+ *
+ * ⚠️ `deck_slots`, `bench` and `deck_history` cascade. **`matches` deliberately do not** —
+ * a match outlives its deck (LOG §2), and the games you played are not the deck's to take
+ * with it.
+ */
+async function deleteDeck(env: Env, id: string) {
+  const { meta } = await env.DB.prepare("DELETE FROM decks WHERE id = ?").bind(id).run();
+  return json({ ok: true, deleted: meta.changes ?? 0 });
+}
+
 async function readDeck(env: Env, id: string) {
   const deck = await env.DB.prepare(
     "SELECT id, name, state, legend_card_id, chosen_champion_card_id FROM decks WHERE id = ?",
@@ -400,6 +451,11 @@ export default {
       return json({ error: "Use GET or POST." }, 405);
     }
 
+    if (pathname === "/decks") {
+      if (request.method === "GET") return listDecks(env).then(json);
+      return json({ error: "Use GET." }, 405);
+    }
+
     const historyFor = /^\/decks\/([^/]+)\/history$/.exec(pathname);
     if (historyFor) {
       const id = decode(historyFor[1]!);
@@ -417,7 +473,8 @@ export default {
       }
       if (request.method === "GET") return readDeck(env, deckId).then(json);
       if (request.method === "PUT") return writeDeck(env, deckId, request);
-      return json({ error: "Use GET or PUT." }, 405);
+      if (request.method === "DELETE") return deleteDeck(env, deckId);
+      return json({ error: "Use GET, PUT or DELETE." }, 405);
     }
 
     return json({ error: `No route for ${pathname}.` }, 404);

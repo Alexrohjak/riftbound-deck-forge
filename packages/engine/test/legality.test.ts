@@ -331,3 +331,24 @@ describe("coverage honesty", () => {
     expect(result.coverage.implemented).toBe(14); // + the 5 Domain Identity checks
   });
 });
+
+describe("counting the Main Deck", () => {
+  it("counts the Chosen Champion inside the 40 (L3)", () => {
+    const d = legalDeck();
+    expect(mainDeckCount(d)).toBe(40);
+  });
+
+  it("does not count a Champion that has not been chosen", () => {
+    // An empty deck read as 1/40 until `W3` made empty decks creatable and it showed.
+    expect(
+      mainDeckCount({
+        id: "d",
+        name: "empty",
+        state: "DRAFT",
+        legendCardId: "",
+        chosenChampionCardId: "",
+        slots: [],
+      }),
+    ).toBe(0);
+  });
+});
