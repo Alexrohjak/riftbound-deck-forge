@@ -25,7 +25,7 @@
 | **Progress** | **5 of 16** milestones · `D1`–`D3`, `F1`, `F2` complete |
 | **🎯 Next** | **`F3` — card data.** The full 1,180-printing pool, replacing `F2`'s 30-name static file. Unblocks `W1` and `W2` |
 | **Active** | Nothing in flight — **`F2` is live and wants using.** Build a deck on your phone and report what feels wrong |
-| **Blocked** | Nothing. ⚠️ **X8 — D1 now holds a deck, and still has no backup beyond Cloudflare's 7-day Time Travel.** Answer it before `W2` puts the real collection in |
+| **Blocked** | Nothing. ✅ **X8 answered** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. ⚠️ Built and tested, **armed once a GitHub token is set** |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
 | **Code** | **The workspace is real.** `packages/engine` (pure TS, **13 of 33 legality checks**, the energy curve, 27 tests) · `apps/web` · `apps/cli` · `apps/api` · CI. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
 
@@ -67,7 +67,7 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 | [`PLAN.md`](PLAN.md) | **The detail** — gates, "done when", how you validate, risks | Per-milestone |
 | [`spec/`](spec/) | **What we're building** — legality, EE, generation, data model | Deep reference |
 | [`reference/`](reference/) | **Riftbound itself** — rules, cards, Legends, battlefields | External facts |
-| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 50 decisions, append-only | Never rewritten |
+| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 51 decisions, append-only | Never rewritten |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | **How it's built** — stack, hosting, verified cost, what's ruled out | Changes rarely |
 
 **Milestone IDs are permanent handles.** Format `PREFIX-N` — the letter says *which track*,
@@ -237,7 +237,7 @@ Carried deliberately, not forgotten.
 |---|---|---|
 | **X6** | Custom domain, or is `forge.<subdomain>.workers.dev` enough? Cosmetic and reversible | `F1` |
 | ~~**X7**~~ | ✅ **Answered** — [D-050](DECISIONS.md#d-050) removed the Pages project, so the docs site is a separate question, deferred until the docs need a URL | — |
-| **X8** | Scheduled D1 → JSON backup: a Cron Trigger, or a manual export that genuinely gets done | `F1` |
+| **X8** | ✅ **Answered** — [D-051](DECISIONS.md#d-051). Nightly Cron Trigger commits a JSON snapshot to the `backups` branch of this repo. **Not R2**: a backup in the same Cloudflare account does not survive losing the account, and Time Travel already covers 7 days | — |
 | **X9** | Does `apps/cli` gain an MCP wrapper, or is shelling out enough? | `S6`, on evidence |
 | **G1–G4** | Generation: how many candidates? How is a no-identity seed handled? Does it propose battlefields? | `S5` |
 | **E2–E7** | EE modelling depth — battlefield abilities, Legend abilities, refutation search depth, hidden cards, multi-unit boards | `S1a` |

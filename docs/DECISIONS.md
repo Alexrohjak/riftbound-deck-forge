@@ -59,6 +59,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-048](#d-048) | **Nothing is always-on** — static + edge + D1 on Cloudflare, £0/mo | ✅ A6, X5 |
 | [D-049](#d-049) | **Editing requires connectivity; offline is read-only** — corrects D-018 | ✅ |
 | [D-050](#d-050) | **App ships as static assets on the Worker** — Pages is closed to new projects; amends D-048 | ✅ X7 |
+| [D-051](#d-051) | **Backups leave Cloudflare** — nightly cron commits a JSON snapshot to the repo, not R2 | ✅ X8 |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -1755,3 +1756,67 @@ that a non-issue in practice, which is why `F1` is not done until they are wired
 | Two Workers — one assets, one API | Two hostnames, so CORS, a build-time API URL, and two Access applications to keep in step. Pure cost, no benefit for a single user |
 | Pages via the API, bypassing the dashboard | Only creates *direct-upload* projects — Git integration is browser-only. That trades the automatic deploys `F1` requires for a hand-built GitHub Action and a long-lived token on disk |
 | A different host (Netlify, Vercel, Fly) | Would reopen D-048's whole comparison, including the £0/month verification, over a product rename inside a vendor that still meets every constraint |
+
+<a id="d-051"></a>
+
+## D-051 — Backups leave Cloudflare: the nightly snapshot commits to the repo, not R2 ✅ CLOSES X8
+
+**Date:** 2026-08-04
+**Status:** Accepted
+
+### The question X8 actually asked
+
+X8 was written as *"a Cron Trigger, or a manual export that genuinely gets done"*. The
+manual option answers itself — it is the one that happens until the week you forget, and
+the week you forget is uncorrelated with the week you need it. So: a cron. The real
+question turned out to be **where the snapshot lands**.
+
+**R2 was the obvious answer and is the wrong one.** An R2 bucket lives in the *same
+Cloudflare account* as the D1 database it backs up. That protects against a bad write or
+a dropped table; it does nothing about losing the account. Cloudflare already covers the
+first case for free — **Time Travel is always on**, restoring to any minute in the last
+**7 days on the free plan** (30 on paid). Paying a second time for the risk that is
+already covered, while leaving the uncovered one uncovered, is not a backup strategy.
+
+What this protects is **~1,000 cards entered by hand over an evening** (`W2`). The
+failure that actually hurts is the one where Cloudflare is not there to ask.
+
+**Decided:** a nightly Cron Trigger in the existing Worker reads D1 and commits a JSON
+snapshot to **this repository**, on a dedicated `backups` branch.
+
+- **A different vendor** — the point of the exercise. GitHub already holds the code, so
+  no new account, no new billing surface, and R2's subscription (which bills against a
+  card on file, even at £0) is not taken on
+- **Git is the versioning** — one file, overwritten, committed **only when the content
+  differs**. Every historical state is in the branch's history, and an unchanged night
+  leaves no trace. "What changed in my collection last week" is a diff
+- **Not `main`** — build watch paths on the Worker are `*`, so committing to `main` would
+  trigger a Workers Build and redeploy a byte-identical Worker every night, burning
+  free-tier build minutes for nothing
+- **The restore path is the one already in daily use** — the snapshot's `collection` field
+  is the same `forge.collection/1` shape `PUT /collection` accepts ([D-050](#d-050)'s
+  origin), so restoring is a load, not a migration written under pressure on the day the
+  data is already gone
+
+**A6 is upheld.** Nothing here is always-on and nothing is billed: a cron firing once a
+day is inside the free plan's 5-trigger limit, and its 10 ms CPU allowance is ample —
+waiting on D1 and on GitHub is I/O, which does not count against it.
+
+**What it costs.** A GitHub token lives as a Worker secret. It is fine-grained, scoped to
+this one repository with contents-write and nothing else, so its blast radius is the file
+it writes. That is a real key to manage, and it is the price of the backup being somewhere
+Cloudflare cannot lose.
+
+**The trigger for revisiting:** if the snapshot ever outgrows what belongs in git — the
+full card pool, images, anything binary. Card data is not backed up here and never should
+be; it is Riot's, cached in `data/`, and regenerable ([D-034](#d-034)).
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| R2 bucket in the same account | Does not survive the failure worth insuring against, and adds a billing subscription to avoid a risk Time Travel already covers for 7 days |
+| Time Travel alone, no backup | 7 days on the free plan, and it dies with the account. Fine as a first line, not as the only one |
+| A manual export when the collection changes | X8's own alternative. Depends on remembering, and gets skipped exactly when things are busy |
+| Commit to `main` | Redeploys the Worker nightly via watch paths, and buries the code history under backup commits |
+| A dated file per night | Thousands of near-identical blobs, and no diff. Git already stores history better than a filename convention does |
