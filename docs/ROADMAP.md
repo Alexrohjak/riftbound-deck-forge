@@ -25,7 +25,7 @@
 | **Progress** | **5 of 16** milestones · `D1`–`D3`, `F1`, `F2` complete |
 | **🎯 Next** | **`F3` — card data.** The full 1,180-printing pool, replacing `F2`'s 30-name static file. Unblocks `W1` and `W2` |
 | **Active** | Nothing in flight — **`F2` is live and wants using.** Build a deck on your phone and report what feels wrong |
-| **Blocked** | Nothing. ✅ **X8 answered** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. ⚠️ Built and tested, **armed once a GitHub token is set** |
+| **Blocked** | Nothing. ✅ **X8 closed** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. **Live and proven in production** |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
 | **Code** | **The workspace is real.** `packages/engine` (pure TS, **13 of 33 legality checks**, the energy curve, 27 tests) · `apps/web` · `apps/cli` · `apps/api` · CI. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
 

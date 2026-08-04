@@ -52,10 +52,10 @@ to `main`, and **is now a deckbuilder you can actually use** (§4). Forge also s
 [collection tool](tools/collection/), used for real entry and improved twice from that use.
 
 **🎯 Next is `F3`** — the full 1,180-printing card pool, which replaces `F2`'s 30-name
-static file and unblocks both build tracks. ✅ **`X8` is answered** ([D-051](docs/DECISIONS.md#d-051)):
+static file and unblocks both build tracks. ✅ **`X8` is closed** ([D-051](docs/DECISIONS.md#d-051)):
 a nightly cron commits a JSON snapshot to this repo rather than to R2, because a backup in
-the same Cloudflare account does not survive losing the account. ⚠️ **It is built and tested
-but not yet armed** — it needs one GitHub token, §5.
+the same Cloudflare account does not survive losing the account. **Live and proven in
+production** — §5.
 
 ### 1 · Run the collection tool
 
@@ -158,23 +158,27 @@ everything after it — which is the entire reason `F2` came before the card poo
 Then `F3` — the full 1,180-printing pool, replacing the static 30-name file that
 [`scripts/build-f2-pool.mjs`](scripts/build-f2-pool.mjs) generates today.
 
-### 5 · `X8` — the nightly backup ⚠️ needs one token to arm
+### 5 · `X8` — the nightly backup ✅ live
 
-Built and tested, **dormant until a token exists**. It reads D1 at 03:12 UTC and commits a
+**Running.** It reads D1 at 03:12 UTC and commits a
 JSON snapshot to the **`backups` branch of this repo** — a different vendor from the data
 it protects, which is the whole point ([D-051](docs/DECISIONS.md#d-051)). Cloudflare's own
 Time Travel covers 7 days on the free plan; this covers everything else.
 
-Until the token is set it **skips cleanly and logs why**, every night, rather than throwing.
+**Proven in production, 2026-08-04**, by temporarily running the cron every five minutes:
+the first snapshot landed as `b7b1b41` on `backups`, and the runs after it committed nothing
+because the content had not changed. Both halves verified — it writes, and it stays quiet.
+
+The `GITHUB_TOKEN` secret is fine-grained, scoped to this repo, contents-write only. If it is
+ever lost or rotated, the backup **skips cleanly and logs why** rather than throwing, and is
+restored with:
 
 ```bash
-# 1 · GitHub → Settings → Developer settings → Personal access tokens → Fine-grained
-#     Repository access: only Alexrohjak/riftbound-deck-forge
-#     Permissions: Contents = Read and write.  Nothing else.
-#
-# 2 · Paste it when prompted — it goes straight to Cloudflare, never to a file:
-cd apps/api && npx wrangler secret put GITHUB_TOKEN
+cd apps/api && npx wrangler secret put GITHUB_TOKEN   # GITHUB_TOKEN is the NAME
 ```
+
+⚠️ The value goes in at the interactive prompt, never on the command line — anything passed
+as the argument becomes the secret's *name*, which is displayed in plaintext in the dashboard.
 
 The `backups` branch is an orphan — it shares no history with `main`, so the snapshots
 never mix with the code. Restoring is a load, not a migration:
