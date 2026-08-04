@@ -22,21 +22,21 @@
 | | |
 |---|---|
 | **Track** | **F — Foundation** |
-| **Progress** | **5 of 16** milestones · `D1`–`D3`, `F1`, `F2` complete |
-| **🎯 Next** | **`F3` — card data.** The full 1,180-printing pool, replacing `F2`'s 30-name static file. Unblocks `W1` and `W2` |
-| **Active** | Nothing in flight — **`F2` is live and wants using.** Build a deck on your phone and report what feels wrong |
+| **Progress** | **6 of 16** milestones · `D1`–`D3`, `F1`–`F3` complete · **the Foundation track is done** |
+| **🎯 Next** | **`W1` and `W2`, now both unblocked.** `W2` — enter the real collection — is the one that makes Forge yours; `W1` finishes the remaining 20 legality checks |
+| **Active** | Nothing in flight — **the full pool is live and wants using.** Build a deck on your phone and report what feels wrong |
 | **Blocked** | Nothing. ✅ **X8 closed** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. **Live and proven in production** |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
-| **Code** | **The workspace is real.** `packages/engine` (pure TS, **13 of 33 legality checks**, the energy curve, 27 tests) · `apps/web` · `apps/cli` · `apps/api` · CI. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
+| **Code** | **The workspace is real.** `packages/engine` (pure TS, **13 of 33 legality checks**, the energy curve) · `apps/web` (935 cards, search, alternate arts) · `apps/cli` · `apps/api` (deck + collection + nightly backup) · CI · **50 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
 
 ```
 D ─ Design         ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
-F ─ Foundation     ▓▓▓▓▓▓▓▓░░░░  2/3   ← you are here
-W ─ Workbench      ░░░░░░░░░░░░  0/4
+F ─ Foundation     ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
+W ─ Workbench      ░░░░░░░░░░░░  0/4   ← you are here
 S ─ Strategist     ░░░░░░░░░░░░  0/5
 L ─ Later          ░░░░░░░░░░░░  0/1
                                  ────
-                                 5/16
+                                 6/16
 ```
 
 > **The count is unchanged; the shape is not.** [D-043](DECISIONS.md#d-043) retired `S3` and
@@ -49,6 +49,7 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 
 | ID | Milestone | What it produced | Date |
 |---|---|---|---|
+| `F3` | **Card data** | All **935 cards / 1,180 printings**, alternate arts collapsed behind each card, champion tags derived from Signature cards (L32, 49/49), ban list overlaid. 95 KB gzipped, fetched not bundled | 2026-08-04 |
 | `F2` | **First usable version** ⭐ | A working deckbuilder on a phone: 30-name static pool under one Legend, add/remove, live legality (**13 of 33 checks** — Domain Identity now among them), the energy curve, saved to D1 | 2026-08-04 |
 | `F1` | **Get it online** | One Worker serving SPA + API on D1, behind Zero Trust Access; `main` deploys itself. [D-050](DECISIONS.md#d-050) — Cloudflare closed Pages to new projects | 2026-08-04 |
 | `D3` | **Architecture** | [`ARCHITECTURE.md`](ARCHITECTURE.md) — one TypeScript rules package with two consumers; static app, one edge function, managed SQLite. **£0/month, verified.** A6 upheld, X5 resolved. [D-047](DECISIONS.md#d-047)–[D-049](DECISIONS.md#d-049) | 2026-08-03 |
@@ -125,7 +126,7 @@ new work appends the next free number and **nothing ever renumbers**.
 |---|---|---|---|---|
 | `F1` | **Get it online** | A trivial page is live, reachable from your phone, deploying automatically | ✅ | `D3` |
 | `F2` | **First usable version** ⭐ | You can open it on your phone and put cards into a deck | ✅ | `F1` |
-| `F3` | **Card data** | Full pool queryable offline, variants collapsed by name, errata + ban overlay working | ⬜ | `F2` |
+| `F3` | **Card data** | Full pool queryable offline, variants collapsed by name, errata + ban overlay working | ✅ | `F2` |
 
 > ⭐ **`F2` is the most important sequencing decision in the plan.** The audit found
 > time-to-first-value was the dominant risk — the original plan needed four steps of

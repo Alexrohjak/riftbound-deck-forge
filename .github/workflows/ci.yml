@@ -40,12 +40,12 @@ jobs:
           python3 tools/collection/build-index.py
           git diff --exit-code tools/collection/cards-index.json
 
-      # The F2 pool is generated, not authored (D-034). Same guard as the card index:
+      # The card pool is generated, not authored (D-034). Same guard as the card index:
       # editing the generator without regenerating would leave the committed file lying.
-      - name: F2 pool is reproducible
+      - name: Card pool is reproducible
         run: |
-          node scripts/build-f2-pool.mjs
-          git diff --exit-code apps/web/src/data/pool.json
+          node scripts/build-card-index.mjs
+          git diff --exit-code apps/web/public/cards.json
 
       # ⚠️ This one step is the whole deploy gate, and it is deliberately the EXACT command
       # Cloudflare runs. Workers Builds deploys on every push to main using its own build

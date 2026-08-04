@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Deck, DeckSlot, Zone } from "@forge/engine";
-import { CHAMPION_CARD_ID, LEGEND_CARD_ID } from "./pool.js";
 
 /**
  * The deck lives in D1, not in the browser (D-049 — **editing requires connectivity**).
@@ -22,12 +21,20 @@ export type SaveState =
   | { status: "saving" }
   | { status: "offline"; detail: string };
 
+/**
+ * Loose Cannon (Jinx, Fury + Chaos) and Jinx, Demolitionist — a starting point, not a
+ * fixture. Both are changeable in the app now that the whole pool is loaded, and an empty
+ * Legend would mean no Domain Identity and therefore no domain checks at all.
+ */
+const DEFAULT_LEGEND = "ogn-301-298";
+const DEFAULT_CHAMPION = "ogn-030-298";
+
 const emptyDeck = (): Deck => ({
   id: DECK_ID,
   name: "First deck",
   state: "DRAFT",
-  legendCardId: LEGEND_CARD_ID,
-  chosenChampionCardId: CHAMPION_CARD_ID,
+  legendCardId: DEFAULT_LEGEND,
+  chosenChampionCardId: DEFAULT_CHAMPION,
   slots: [],
 });
 
@@ -111,7 +118,46 @@ export function useDeck() {
     [edit],
   );
 
+  /**
+   * Swap which printing a slot uses — the same card in a different coat.
+   *
+   * Quantity and zone are preserved because nothing about the card changed: legality
+   * counts names, so this cannot make a legal deck illegal (DATA-MODEL §2). It only
+   * changes which physical copies you intend to sleeve.
+   */
+  const replacePrinting = useCallback(
+    (from: string, zone: Zone, to: string) =>
+      edit((current) => {
+        const slot = current.slots.find((s) => s.cardId === from && s.zone === zone);
+        if (!slot || from === to) return current;
+        const withoutBoth = current.slots.filter(
+          (s) => !(s.zone === zone && (s.cardId === from || s.cardId === to)),
+        );
+        // If the target printing is already in this zone, the two rows merge rather than
+        // colliding on the deck_slots primary key.
+        const existing = current.slots.find((s) => s.cardId === to && s.zone === zone);
+        return {
+          ...current,
+          slots: [
+            ...withoutBoth,
+            { cardId: to, zone, quantity: slot.quantity + (existing?.quantity ?? 0) },
+          ],
+        };
+      }),
+    [edit],
+  );
+
+  const setLegend = useCallback(
+    (cardId: string) => edit((current) => ({ ...current, legendCardId: cardId })),
+    [edit],
+  );
+
+  const setChampion = useCallback(
+    (cardId: string) => edit((current) => ({ ...current, chosenChampionCardId: cardId })),
+    [edit],
+  );
+
   const clear = useCallback(() => edit((current) => ({ ...current, slots: [] })), [edit]);
 
-  return { deck, save, setQuantity, clear };
+  return { deck, save, setQuantity, replacePrinting, setLegend, setChampion, clear };
 }

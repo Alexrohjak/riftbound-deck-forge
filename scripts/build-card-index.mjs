@@ -1,0 +1,142 @@
+#!/usr/bin/env node
+/**
+ * `F3` — build the full card index the app and the engine read.
+ *
+ * **One entry per card, printings stacked behind it.** 1,180 printings collapse to 935
+ * names. Verified safe: only 5 names have printings that disagree on cost, might, power,
+ * type or domain, and all 5 are the Legend supertype inconsistency handled below — so a
+ * name never merges two genuinely different cards. Riot puts the distinguishing part *in*
+ * the name: "Jinx, Demolitionist" (3E/4M/Fury) and "Jinx, Rebel" (5E/5M/Chaos) are two
+ * names, not one name with two versions.
+ *
+ * ⚠️ **`superTypes` is unreliable on Legends.** Only 9 of 118 Legend printings carry
+ * `champion`; 40 of the 49 Legends have none at all. Identifying a Champion Legend by that
+ * field would be wrong four times in five. The reliable route is L32 — derive the champion
+ * tag from the Legend's **Signature** cards, which resolves 49/49 uniquely, including
+ * Heart of the Tempest (tags `Yordle, Kennen` → **Kennen**, not the 13 Yordles).
+ *
+ *     node scripts/build-card-index.mjs
+ */
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { gzipSync } from "node:zlib";
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const OUT = join(ROOT, "apps/web/public/cards.json");
+
+const cards = JSON.parse(readFileSync(join(ROOT, "data/cards.json"), "utf8"));
+const banlist = JSON.parse(readFileSync(join(ROOT, "data/banlist.json"), "utf8"));
+
+// ── the ban list ─────────────────────────────────────────────────────────────
+// Matching goes through the alias map, never string equality: the official list does not
+// always use the printed name ("Dreaming Tree" is printed "The Dreaming Tree").
+const aliases = banlist.aliases ?? {};
+const resolve = (name) => aliases[name] ?? name;
+const banned = new Set(
+  [...banlist.constructed_1v1.cards, ...banlist.constructed_1v1.battlefields].map(resolve),
+);
+
+// ── printing order: the base art first, alternates behind it ─────────────────
+// The gallery marks showcase/foil printings with `*` in the public code, and alternate
+// arts with a letter suffix on the collector number ("ogn-030a-298"). Neither is a
+// different card — they are the same card wearing a different coat, which is exactly the
+// distinction the deck slot needs so you can swap the look without swapping the card.
+const isStar = (card) => card.publicCode.includes("*");
+const isAltArt = (card) => /-\d+[a-z]-/.test(card.id);
+const printingRank = (card) =>
+  (isStar(card) ? 2 : 0) + (isAltArt(card) ? 1 : 0);
+
+// ── group by name ────────────────────────────────────────────────────────────
+const byName = new Map();
+for (const card of cards) {
+  if (!byName.has(card.name)) byName.set(card.name, []);
+  byName.get(card.name).push(card);
+}
+
+const entries = [...byName].map(([name, group]) => {
+  const ordered = [...group].sort(
+    (a, b) =>
+      printingRank(a) - printingRank(b) ||
+      a.collectorNumber - b.collectorNumber ||
+      a.id.localeCompare(b.id),
+  );
+
+  // The base printing carries the card's facts. Where printings disagree on `superTypes`
+  // — the 5 Legends — the union wins: the rare printing simply has the more complete
+  // record, and dropping `champion` would lose information no other printing carries.
+  const base = ordered[0];
+  const superTypes = [...new Set(group.flatMap((c) => c.superTypes))].sort();
+
+  const entry = {
+    name,
+    energy: base.energy,
+    power: base.power,
+    might: base.might,
+    types: base.types,
+    superTypes,
+    domains: base.domains,
+    tags: base.tags,
+    text: base.text,
+    printings: ordered.map((card) => ({
+      id: card.id,
+      code: card.publicCode,
+      set: card.set,
+      n: card.collectorNumber,
+      img: card.imageUrl,
+      ...(isStar(card) ? { star: true } : {}),
+      ...(isAltArt(card) ? { alt: true } : {}),
+    })),
+  };
+
+  // Present only when true — 10 flags cost less than 935 `false`s.
+  if (banned.has(name)) entry.banned = true;
+  return entry;
+});
+
+entries.sort((a, b) => a.name.localeCompare(b.name));
+
+// ── L32: the champion tag, derived from Signature cards ──────────────────────
+const signatureTags = new Set(
+  cards.filter((c) => c.superTypes.includes("signature")).flatMap((c) => c.tags),
+);
+let resolved = 0;
+for (const entry of entries) {
+  if (!entry.types.includes("legend")) continue;
+  const candidates = entry.tags.filter((tag) => signatureTags.has(tag));
+  if (candidates.length !== 1) {
+    // Loud, not silent. Champion eligibility (L18) and the Signature limits (L20, L21)
+    // all key on this, so an unresolved Legend is a correctness problem, not a cosmetic one.
+    throw new Error(
+      `Champion tag for "${entry.name}" resolves to ${candidates.length} candidates ` +
+        `(${entry.tags.join(", ")}). L32 requires exactly one.`,
+    );
+  }
+  entry.championTag = candidates[0];
+  resolved++;
+}
+
+const index = {
+  schema: "forge.cards/1",
+  note:
+    "GENERATED by scripts/build-card-index.mjs from data/cards.json — do not edit by hand. " +
+    "One entry per card name; `printings` are the same card's alternate arts.",
+  counts: {
+    names: entries.length,
+    printings: cards.length,
+    legends: resolved,
+    banned: entries.filter((e) => e.banned).length,
+  },
+  cards: entries,
+};
+
+mkdirSync(dirname(OUT), { recursive: true });
+const json = `${JSON.stringify(index)}\n`;
+writeFileSync(OUT, json);
+
+const kb = (n) => `${(n / 1024).toFixed(0)} KB`;
+console.log(
+  `✓ ${OUT.replace(`${ROOT}/`, "")} — ${index.counts.names} names / ` +
+    `${index.counts.printings} printings, ${index.counts.legends} Legends tagged, ` +
+    `${index.counts.banned} banned · ${kb(json.length)} raw, ${kb(gzipSync(json).length)} gzip`,
+);
