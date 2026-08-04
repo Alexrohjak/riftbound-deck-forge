@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ **The Foundation track is complete.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · 🎯 `W2` next — enter the real collection · **nightly backups run off-vendor**
+> **Status:** ✅ **The Foundation track is complete.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · now with **[the log](docs/spec/LOG.md)** — matches, deck history, and a record that withholds any win rate it has not earned · 🎯 `W2` next — enter the real collection · **nightly backups run off-vendor**
 
 ---
 
