@@ -1,4 +1,6 @@
-import { staticCardIndex, type CardFacts, type CardIndex, type Domain, type Zone } from "@forge/engine";
+import { staticCardIndex, type CardFacts, type CardIndex, type Domain, type Zone,
+  type PoolCard,
+} from "@forge/engine";
 
 /**
  * `F3` — the full card pool: 935 cards, 1,180 printings.
@@ -61,6 +63,12 @@ export interface CardPool {
   byName: Map<string, Card>;
   /** What the engine needs: name, domains and energy per printing id. */
   index: CardIndex;
+  /**
+   * The same facts as a list, which is the shape `suggest()` takes. Exposed rather than
+   * rebuilt at the call site: the engine must never be handed a pool assembled by different
+   * rules from the one legality ran against, or it would recommend cards the checks reject.
+   */
+  pool: PoolCard[];
 }
 
 interface RawIndex {
@@ -104,7 +112,13 @@ export function buildPool(raw: RawIndex): CardPool {
     }
   }
 
-  return { cards: raw.cards, byPrinting, byName, index: staticCardIndex(facts) };
+  return {
+    cards: raw.cards,
+    byPrinting,
+    byName,
+    index: staticCardIndex(facts),
+    pool: Object.entries(facts).map(([cardId, f]) => ({ cardId, facts: f })),
+  };
 }
 
 export async function loadPool(): Promise<CardPool> {

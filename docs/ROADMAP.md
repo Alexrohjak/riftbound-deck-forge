@@ -69,7 +69,7 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 | [`PLAN.md`](PLAN.md) | **The detail** — gates, "done when", how you validate, risks | Per-milestone |
 | [`spec/`](spec/) | **What we're building** — legality, EE, generation, data model | Deep reference |
 | [`reference/`](reference/) | **Riftbound itself** — rules, cards, Legends, battlefields | External facts |
-| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 56 decisions, append-only | Never rewritten |
+| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 57 decisions, append-only | Never rewritten |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | **How it's built** — stack, hosting, verified cost, what's ruled out | Changes rarely |
 
 **Milestone IDs are permanent handles.** Format `PREFIX-N` — the letter says *which track*,

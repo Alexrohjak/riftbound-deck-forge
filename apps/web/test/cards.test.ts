@@ -47,6 +47,9 @@ const ROCKET = card({
   types: ["spell"],
   tags: ["Jinx"],
   text: "Deal 4 damage.",
+  // The classification tags EE filters candidates on. Present here because the plumbing
+  // that carries them from the index to `suggest()` is what these tests cover.
+  produces: ["damage", "kill"],
 });
 const RUNE = card({ name: "Fury Rune", types: ["rune"], energy: null, might: null });
 const TOKEN = card({ name: "Bird", superTypes: ["token"] });
@@ -115,6 +118,26 @@ describe("search over 935 cards", () => {
 
   it("returns everything for an empty query", () => {
     expect(search(all, "   ")).toHaveLength(all.length);
+  });
+});
+
+describe("the pool EE suggests from", () => {
+  it("is the same facts legality ran against, not a second assembly", () => {
+    // If these ever diverge, EE recommends cards the checks reject — and the two would
+    // disagree in a way neither could report.
+    expect(pool.pool.length).toBeGreaterThan(0);
+    for (const entry of pool.pool) {
+      expect(pool.byPrinting.get(entry.cardId)?.name).toBe(entry.facts.name);
+    }
+  });
+
+  it("carries the tags suggest() filters on, or it would return nothing", () => {
+    const withProduces = pool.pool.filter((p) => (p.facts.produces ?? []).length > 0);
+    expect(withProduces.length).toBeGreaterThan(0);
+  });
+
+  it("keeps the banned flag, so a suggestion is never illegal", () => {
+    expect(pool.pool.every((p) => typeof p.facts.banned === "boolean")).toBe(true);
   });
 });
 

@@ -992,3 +992,54 @@ body.resizing * { pointer-events: none; }
   font: inherit; font-size: 0.82rem; font-weight: 600;
 }
 .primary:disabled { opacity: 0.6; cursor: progress; }
+
+/* ── EE ───────────────────────────────────────────────────────────────────────
+   Pull, never push (D-042): this panel is inert until asked. Everything it then says
+   carries where it came from, because the schools genuinely disagree and a tool that
+   flattened them into one voice would be lying about the state of the art. */
+.panel.ee .primary { width: 100%; }
+.verdict { margin: 0 0 var(--s1); font-size: var(--step-1); letter-spacing: var(--track-tight); }
+.verdict b { color: var(--accent); text-transform: capitalize; }
+.evidence {
+  margin: 0 0 var(--s3); font-family: var(--mono); font-size: 0.72rem; color: var(--faint);
+}
+
+.claims { margin: 0 0 var(--s4); padding: 0; list-style: none; display: grid; gap: var(--s3); }
+.claim { padding-left: var(--s3); border-left: 2px solid var(--line-strong); }
+.claim-what { margin: 0 0 var(--s1); font-size: 0.86rem; color: var(--ink); line-height: 1.45; }
+.claim-why { margin: 0; font-size: 0.8rem; color: var(--dim); line-height: 1.5; }
+.claim-source {
+  margin: var(--s2) 0 0; padding: var(--s2); border-radius: var(--radius-sm);
+  background: var(--sunk); font-size: 0.74rem; color: var(--dim); line-height: 1.45;
+}
+
+/* The tier is the point, so it is a control you can interrogate, not a decoration. */
+.badge {
+  margin-left: var(--s2); padding: 1px var(--s2); border-radius: 999px; cursor: help;
+  border: 1px solid var(--line-strong); background: transparent; color: var(--dim);
+  font: inherit; font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.08em;
+  vertical-align: 1px;
+}
+.badge.fact { border-color: var(--accent); color: var(--accent); }
+.badge.probability { border-style: dashed; }
+.badge.doctrine { border-style: dotted; }
+
+.complaint { display: grid; gap: var(--s2); margin-top: var(--s4); }
+.complaint label { font-size: 0.76rem; color: var(--dim); }
+.complaint input {
+  padding: var(--s2) var(--s3); border-radius: var(--radius-sm);
+  background: var(--sunk); color: var(--ink); border: 1px solid var(--line);
+  font: inherit; font-size: 16px;
+}
+.symptom-row { display: flex; flex-wrap: wrap; gap: var(--s1); }
+.symptom-row .chip { font-size: 0.7rem; padding: 2px var(--s2); }
+
+.diagnosis {
+  margin-top: var(--s3); padding: var(--s3);
+  border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--sunk);
+  display: grid; gap: var(--s2);
+}
+.cost { margin: 0; font-size: 0.8rem; color: var(--dim); line-height: 1.5; }
+.cost b, .claim-why b { color: var(--ink); }
+.candidates { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--s1); }
+.candidates li { font-size: 0.8rem; }

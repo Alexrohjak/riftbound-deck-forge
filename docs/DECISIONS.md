@@ -65,6 +65,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-054](#d-054) | **The collection is a filter, not a second gallery** — one gallery, an Owned toggle over it | ✅ |
 | [D-055](#d-055) | **A match names a build, not a deck** — and the record withholds any rate it has not earned | ✅ W5 |
 | [D-056](#d-056) | **One key space: the printing id** — the collection tool exported public codes that Forge could not read | ✅ |
+| [D-057](#d-057) | **EE's analytical surface reaches the app before `S6`** — the mouth stays Claude Code; the app renders engine output verbatim | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -2115,3 +2116,56 @@ build enforces one.**
 | Translate codes → ids in the Worker | The API deliberately holds no card data ([D-034](#d-034)); giving it a card index to fix a key-space bug is a large concession to a small problem |
 | A one-off conversion script | Converts today's data and leaves the trap armed for the next export |
 | Key everything on public code instead | The code is Riot's presentation format and changes shape across 17 known variants; the id is stable and is already what the database stores |
+
+
+---
+
+<a id="d-057"></a>
+
+## D-057 — EE reaches the app without becoming a chat interface
+
+**Date:** 2026-08-04
+**Status:** Accepted — does **not** complete [`S6`](PLAN.md)
+
+### The mismatch worth naming
+
+*"Get EE into the app"* and `S6` are not the same job. `S6` is the **tool surface, the export
+contract and the briefing** that let Claude Code answer questions — and it gates on `S2`,
+which needs ~153 hand-annotated card effects and 49 Legend abilities that do not exist yet.
+
+But EE's analytical core was already built and reachable only from the CLI: archetype
+reading, the doctrine notes, and complaint → diagnosis → candidates. Making *that* visible
+needs no `S2` at all.
+
+**Decided:** put the built surface on screen now; leave `S6`'s three deliverables untouched.
+
+### The two rules that shape it
+
+- **Pull, never push** ([D-042](#d-042)). The panel is inert until asked. The workshop
+  already shows counts, curve and violations — that is *state*, and state is not advice. A
+  tool that volunteers an opinion mid-thought is one you learn to ignore.
+- **The app authors nothing** ([D-043](#d-043)). Every sentence rendered comes out of a tool
+  call carrying its own `source` and `confidence`; the component adds none of its own. This
+  is the structural half of the swappable-mouth decision: **a mouth that cannot author a
+  claim cannot invent one**, and a statement that looks wrong is wrong in the engine, where
+  a test can reach it.
+
+### What that buys, concretely
+
+A plain-English complaint becomes a symptom, a symptom becomes a diagnosis of *this* deck —
+with its evidence, its lever, **and its cost, always stated** — and only then a handful of
+candidates, filtered to the deck's Domain Identity and the copy limit so nothing suggested is
+illegal. Verified end to end: *"couldn't hold battlefields"* → `cannot-hold` → *"26 units in
+41 Main Deck cards"* → pump-and-ready candidates at 3–5 Energy.
+
+Confidence tiers are rendered as a control you can interrogate rather than a decoration,
+because [the schools genuinely disagree](reference/DECKBUILDING.md) and flattening them into
+one confident voice would misrepresent the state of the art.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Wait for `S2`, then do `S6` properly | Leaves a built, working analytical core reachable only from a terminal for the length of a large milestone |
+| Build a chat box in the app | Exactly what [D-043](#d-043) declined. The engine would have to parse English, and the app would start authoring claims it cannot ground |
+| Show the advice permanently in the workshop | Violates [D-042](#d-042), and the request that produced that decision was explicit: *"only give feedback when requested"* |

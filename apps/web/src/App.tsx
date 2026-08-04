@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { checkLegality, deckHash, energyCurve, zoneCount, type Zone } from "@forge/engine";
 import { hd, loadPool, srcSet, zoneFor, type Card, type CardPool, type Printing } from "./cards.js";
 import { useDeck, type SaveState } from "./deckStore.js";
+import { Advisor } from "./Advisor.js";
 import { History, LogPanel, useMatches } from "./Log.js";
 import { apply, DOMAIN_LIST, NO_FILTERS, ownedCount, SORTS, TYPES, type Filters, type Tab } from "./filters.js";
 import { filtersFor, runeSlots, stepFor, type Step } from "./buildFlow.js";
@@ -608,6 +609,8 @@ export function App() {
                 <h2>Energy curve</h2>
                 <EnergyCurve {...curve} />
               </section>
+
+              <Advisor deck={deck} pool={pool} />
 
               <LogPanel
                 deckId={deck.id}

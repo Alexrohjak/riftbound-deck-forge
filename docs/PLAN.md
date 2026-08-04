@@ -422,6 +422,14 @@ hand-annotated rather than parsed.
 
 **Size:** S · **Gate:** S2 · Replaces the retired `S3` + `S4`
 
+> **⚠️ Partly delivered early, and deliberately not by doing `S6`.** *"Get EE into the app"*
+> and `S6` turned out to be different things: `S6` is the **tool contract, export format and
+> briefing** for Claude Code, and it gates on `S2`. What was reachable without `S2` was
+> putting the **already-built** analytical surface on screen — archetype, the doctrine notes
+> with their sources, and complaint → diagnosis → candidates — under
+> [D-042](DECISIONS.md#d-042). See [D-057](DECISIONS.md#d-057). The three deliverables below
+> are unchanged.
+
 Three deliverables, none of them a chat interface:
 
 1. **The tool surface** — `legality()`, `duel()`, `coverage()`, `legendPool()` and siblings.
