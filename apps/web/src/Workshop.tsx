@@ -25,9 +25,11 @@ const ZONE_LABEL: Record<Zone, string> = {
   SIDEBOARD: "Sideboard",
 };
 
+/** One physical card in the tray. Three copies are three entries, in play order. */
 export interface Occupant {
   card: Card;
   cardId: string;
+  quantity: number;
 }
 
 /**
@@ -48,45 +50,44 @@ export interface Target extends Occupant {
 
 function Slots({
   held,
-  capacity,
+  blanks,
   onOpen,
   onRemove,
   onSeek,
-  size = 62,
 }: {
   held: Occupant[];
-  capacity: number;
+  /** Empty slots to draw. Only meaningful where one slot is one card (battlefields). */
+  blanks: number;
   onOpen: (o: Occupant) => void;
   onRemove: (o: Occupant) => void;
   onSeek: () => void;
-  size?: number;
 }) {
-  const blanks = Math.max(0, capacity - held.length);
   return (
     <div className="slots">
       {held.map((o, i) => (
-        <button
-          key={`${o.cardId}-${i}`}
-          type="button"
-          className="slot filled"
-          aria-label={`${o.card.name} — details`}
-          title={`${o.card.name} — click for details, right-click to remove`}
-          onClick={() => onOpen(o)}
-          onContextMenu={(e) => {
-            e.preventDefault();
-            onRemove(o);
-          }}
-        >
-          {o.card.printings[0] && (
-            <img
-              src={hd(o.card.printings[0], size)}
-              srcSet={srcSet(o.card.printings[0])}
-              sizes="(max-width: 60rem) 22vw, 7vw"
-              alt={o.card.name}
-              loading="lazy"
-            />
-          )}
-        </button>
+        <div className="tray" key={`${o.cardId}-${i}`}>
+          <button
+            type="button"
+            className="slot filled"
+            aria-label={`${o.card.name} — details`}
+            title={`${o.card.name} — click for details, right-click to remove one`}
+            onClick={() => onOpen(o)}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              onRemove(o);
+            }}
+          >
+            {o.card.printings[0] && (
+              <img
+                src={hd(o.card.printings[0], 150)}
+                srcSet={srcSet(o.card.printings[0])}
+                sizes="(max-width: 60rem) 22vw, 9vw"
+                alt={o.card.name}
+                loading="lazy"
+              />
+            )}
+          </button>
+        </div>
       ))}
       {Array.from({ length: blanks }, (_, i) => (
         <button
@@ -131,17 +132,19 @@ export function Workshop({
     const held = occupants(zone);
     if (zone === "SIDEBOARD" && held.length === 0) return null;
     const capacity = CAPACITY[zone];
+    const cards = held.length;
+    const blanks = Math.max(0, capacity - cards);
     return (
       <section className="bay" key={zone}>
         <h2>
           {ZONE_LABEL[zone]}
-          <span className={held.length === capacity ? "of met" : "of"}>
-            {held.length} / {capacity}
+          <span className={cards === capacity ? "of met" : "of"}>
+            {cards} / {capacity}
           </span>
         </h2>
         <Slots
           held={held}
-          capacity={capacity}
+          blanks={blanks}
           onOpen={(o) => onOpen({ ...o, zone, role: "slot" })}
           onRemove={(o) => onRemove({ ...o, zone, role: "slot" })}
           onSeek={() => onSeek(zone)}
@@ -223,11 +226,11 @@ export function Workshop({
                 aria-label={`Legend: ${legend.name} — details`}
                 title={`${legend.name} — click for details, right-click to clear`}
                 onClick={() =>
-                  onOpen({ card: legend, cardId: deck.legendCardId, zone: "MAIN", role: "legend" })
+                  onOpen({ card: legend, cardId: deck.legendCardId, quantity: 1, zone: "MAIN", role: "legend" })
                 }
                 onContextMenu={(e) => {
                   e.preventDefault();
-                  onRemove({ card: legend, cardId: deck.legendCardId, zone: "MAIN", role: "legend" });
+                  onRemove({ card: legend, cardId: deck.legendCardId, quantity: 1, zone: "MAIN", role: "legend" });
                 }}
               >
                 {legend.printings[0] && (
@@ -274,6 +277,7 @@ export function Workshop({
                   onOpen({
                     card: champion,
                     cardId: deck.chosenChampionCardId,
+                    quantity: 1,
                     zone: "MAIN",
                     role: "champion",
                   })
@@ -283,6 +287,7 @@ export function Workshop({
                   onRemove({
                     card: champion,
                     cardId: deck.chosenChampionCardId,
+                    quantity: 1,
                     zone: "MAIN",
                     role: "champion",
                   });

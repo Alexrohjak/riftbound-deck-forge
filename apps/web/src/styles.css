@@ -620,3 +620,88 @@ body.resizing * { pointer-events: none; }
 .bar:hover .stem { background: var(--ink); }
 .bar .count { font-size: 0.58rem; }
 .bar .tick { font-size: 0.58rem; opacity: 0.7; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   The tray, at a size you can actually read
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Cards sized to be recognised. Every copy is drawn, in play order, because that is what
+   the deck is — the count in the header says how far along you are. */
+.slots {
+  grid-template-columns: repeat(auto-fill, minmax(5.4rem, 1fr));
+  gap: var(--s2);
+  align-content: start;
+}
+.tray { position: relative; }
+.tray .slot { width: 100%; }
+
+/* Reaching for a card lifts it, the same gesture as in the gallery — one interaction
+   language across both halves of the screen. */
+.slot.filled {
+  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease),
+    border-color var(--fast) var(--ease);
+}
+.slot.filled:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: var(--shadow-lift);
+  border-color: var(--ink);
+  z-index: 3;
+}
+.tray:hover { z-index: 3; }
+.slot.filled:active { transform: translateY(-1px) scale(1); }
+
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Structure: each zone is a section you can see the edges of
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Zones were separated by whitespace alone, which reads as one long column with gaps in it
+   rather than as four distinct parts of a deck. Each is now a panel with its own edge. */
+.bay {
+  background: var(--sunk);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--s3);
+}
+.bay + .bay { margin-top: 0; }
+
+.bay h2 {
+  margin: 0 0 var(--s2);
+  padding-bottom: var(--s2);
+  border-bottom: 1px solid var(--line);
+  font-size: 0.66rem;
+  color: var(--ink);
+}
+.bay h2 .of { font-size: 0.78rem; color: var(--dim); }
+.bay h2 .of.met { color: var(--ink); font-weight: 700; }
+
+/* ── Legend and Champion: the same size, because they are the same kind of choice ──
+   They were mismatched — the Legend cropped narrow while the Champion filled its cell — so
+   the two cards that define the deck did not read as a pair. Matched and capped: important
+   enough to see, not so large they push the other 39 off the screen. */
+.singles {
+  grid-template-columns: repeat(2, minmax(0, 11rem));
+  justify-content: start;
+  gap: var(--s3);
+  align-items: start;
+}
+.singles > div { display: grid; gap: var(--s2); min-width: 0; }
+.singles .slots { grid-template-columns: minmax(0, 1fr); }
+.slot.tall { max-width: none; width: 100%; }
+
+/* Battlefields and runes are short rows; without this they stretch to fill the width and
+   the deck looks like it has holes in it. */
+.bay .slots { justify-content: start; }
+
+/* The Legend/Champion pair is a section like any other and gets the same frame, so the
+   tray reads as four labelled parts rather than one column that changes its mind. */
+.bay.singles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 11rem));
+  background: var(--sunk);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--s3);
+}
+.singles > div > h2 { border-bottom: 1px solid var(--line); }

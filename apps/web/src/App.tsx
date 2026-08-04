@@ -309,12 +309,18 @@ export function App() {
     if (slot) setQuantity(t.cardId, t.zone, slot.quantity - 1);
   };
 
+  /**
+   * One entry per physical card, in play order — cheapest first, then by name. Three copies
+   * are three cards in the tray, because that is what they are in the deck.
+   */
   const occupants = (zone: Zone): Occupant[] =>
     deck.slots
       .filter((s) => s.zone === zone)
       .flatMap((s) => {
         const card = pool.byPrinting.get(s.cardId);
-        return card ? Array.from({ length: s.quantity }, () => ({ card, cardId: s.cardId })) : [];
+        return card
+          ? Array.from({ length: s.quantity }, () => ({ card, cardId: s.cardId, quantity: 1 }))
+          : [];
       })
       .sort((a, b) => (a.card.energy ?? 99) - (b.card.energy ?? 99) || a.card.name.localeCompare(b.card.name));
 
