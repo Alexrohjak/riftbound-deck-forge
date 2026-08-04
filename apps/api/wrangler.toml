@@ -18,7 +18,20 @@ not_found_handling = "single-page-application"
 # `/__scheduled` exists only under `wrangler dev --test-scheduled`, and without it here the
 # asset router answers the cron-trigger endpoint with index.html — so the nightly backup
 # cannot be exercised locally at all. In production nothing routes there.
-run_worker_first = ["/health", "/collection", "/decks/*", "/__scheduled"]
+#
+# ⚠️ Adding an API route means editing this list too, and forgetting is silent — the route
+# answers with index.html and a POST "succeeds" against an HTML page. `route-coverage.test.ts`
+# fails when a path in src/ is missing here, because this comment was already present and did
+# not stop it happening.
+run_worker_first = [
+  "/health",
+  "/collection",
+  "/decks/*",
+  "/matches",
+  "/matches/*",
+  "/events",
+  "/__scheduled",
+]
 
 # Created with:  npx wrangler d1 create forge
 # then paste the returned database_id here. It is an identifier, not a secret.

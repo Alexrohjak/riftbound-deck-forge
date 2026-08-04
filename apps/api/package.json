@@ -11,6 +11,9 @@
     "db:init:local": "wrangler d1 execute forge --local --file=./schema.sql",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
+  "dependencies": {
+    "@forge/engine": "*"
+  },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250109.0",
     "wrangler": "^4.118.0"

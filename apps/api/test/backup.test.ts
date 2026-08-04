@@ -34,6 +34,54 @@ const SLOTS = [
 const snapshot = (takenAt = "2026-08-04T03:12:00.000Z") =>
   buildSnapshot(takenAt, COLLECTION, DECKS, SLOTS);
 
+const MATCHES = [
+  {
+    id: "m1",
+    deck_id: "main",
+    deck_name: "Ahri Calm-Mind",
+    deck_hash: "aaaaaaaaaaaaaaaa",
+    played_at: "2026-08-01",
+    opponent_legend: "ogn-002-298",
+    opponent_note: null,
+    result: "WIN",
+    games: "2-1",
+    symptoms: "[]",
+    notes: null,
+  },
+];
+const HISTORY = [
+  { deck_id: "main", seq: 1, hash: "aaaaaaaaaaaaaaaa", contents: "{}", at: "2026-08-01 10:00:00" },
+];
+
+/**
+ * The log is the part of the snapshot that cannot be reconstructed from anything else. A
+ * collection can be re-entered from the boxes and a deck can be rebuilt from memory; a
+ * record of what happened in a game on the 1st cannot.
+ */
+describe("the log in the snapshot", () => {
+  it("carries matches and deck history", () => {
+    const s = buildSnapshot("2026-08-04T03:12:00.000Z", COLLECTION, DECKS, SLOTS, MATCHES, HISTORY);
+    expect(s.matches).toHaveLength(1);
+    expect(s.matches[0]?.deck_hash).toBe("aaaaaaaaaaaaaaaa");
+    expect(s.deckHistory[0]?.seq).toBe(1);
+  });
+
+  it("has no events field at all — crash noise is expendable by design", () => {
+    const s = buildSnapshot("2026-08-04T03:12:00.000Z", COLLECTION, DECKS, SLOTS, MATCHES, HISTORY);
+    expect(s).not.toHaveProperty("events");
+  });
+
+  it("defaults both to empty, so a caller that predates the log still builds", () => {
+    const s = buildSnapshot("2026-08-04T03:12:00.000Z", COLLECTION, DECKS, SLOTS);
+    expect(s.matches).toEqual([]);
+    expect(s.deckHistory).toEqual([]);
+  });
+
+  it("announces the schema bump, so a restore knows what it is reading", () => {
+    expect(snapshot().schema).toBe("forge.backup/2");
+  });
+});
+
 describe("snapshot content", () => {
   it("writes the collection in the shape the restore endpoint accepts", () => {
     // PUT /collection takes `forge.collection/1`. If this drifts, restoring becomes a

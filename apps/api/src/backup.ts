@@ -32,7 +32,11 @@ export const DEFAULTS = {
 } as const;
 
 export interface Snapshot {
-  schema: "forge.backup/1";
+  /**
+   * ⚠️ Bumped from `/1` when the log arrived. Additive only — the two new arrays default to
+   * empty, so a `/1` file still restores exactly as it did.
+   */
+  schema: "forge.backup/2";
   takenAt: string;
   collection: {
     schema: "forge.collection/1";
@@ -47,6 +51,38 @@ export interface Snapshot {
     chosenChampionCardId: string | null;
     slots: Array<{ cardId: string; zone: string; quantity: number }>;
   }>;
+  /**
+   * Games played. **Irreplaceable** — a collection can be re-entered from the boxes and a
+   * deck can be rebuilt, but a record of what happened cannot be reconstructed from
+   * anything. It is the single most valuable thing in the snapshot.
+   */
+  matches: MatchRow[];
+  /** What each deck looked like over time, so a match can still name the build it was. */
+  deckHistory: DeckHistoryRow[];
+}
+
+/** ⚠️ `events` are deliberately absent — crash noise is expendable by design (LOG §3). */
+
+export interface MatchRow {
+  id: string;
+  deck_id: string | null;
+  deck_name: string | null;
+  deck_hash: string | null;
+  played_at: string;
+  opponent_legend: string | null;
+  opponent_note: string | null;
+  result: string;
+  games: string | null;
+  symptoms: string | null;
+  notes: string | null;
+}
+
+export interface DeckHistoryRow {
+  deck_id: string;
+  seq: number;
+  hash: string;
+  contents: string;
+  at: string;
 }
 
 interface CollectionRow {
@@ -78,6 +114,8 @@ export function buildSnapshot(
   collection: CollectionRow[],
   decks: DeckRow[],
   slots: SlotRow[],
+  matches: MatchRow[] = [],
+  deckHistory: DeckHistoryRow[] = [],
 ): Snapshot {
   const counts: Record<string, number> = {};
   let copies = 0;
@@ -87,7 +125,7 @@ export function buildSnapshot(
   }
 
   return {
-    schema: "forge.backup/1",
+    schema: "forge.backup/2",
     takenAt,
     collection: {
       schema: "forge.collection/1",
@@ -104,12 +142,14 @@ export function buildSnapshot(
         .filter((slot) => slot.deck_id === deck.id)
         .map((slot) => ({ cardId: slot.card_id, zone: slot.zone, quantity: slot.quantity })),
     })),
+    matches,
+    deckHistory,
   };
 }
 
 /** Read everything worth keeping. Ordered, so an unchanged database serialises identically. */
 export async function readState(db: D1Database, takenAt: string): Promise<Snapshot> {
-  const [collection, decks, slots] = await Promise.all([
+  const [collection, decks, slots, matches, history] = await Promise.all([
     db.prepare("SELECT card_id, quantity FROM collection ORDER BY card_id").all<CollectionRow>(),
     db
       .prepare(
@@ -119,9 +159,20 @@ export async function readState(db: D1Database, takenAt: string): Promise<Snapsh
     db
       .prepare("SELECT deck_id, card_id, zone, quantity FROM deck_slots ORDER BY deck_id, zone, card_id")
       .all<SlotRow>(),
+    db.prepare("SELECT * FROM matches ORDER BY played_at, id").all<MatchRow>(),
+    db
+      .prepare("SELECT deck_id, seq, hash, contents, at FROM deck_history ORDER BY deck_id, seq")
+      .all<DeckHistoryRow>(),
   ]);
 
-  return buildSnapshot(takenAt, collection.results, decks.results, slots.results);
+  return buildSnapshot(
+    takenAt,
+    collection.results,
+    decks.results,
+    slots.results,
+    matches.results,
+    history.results,
+  );
 }
 
 /**
@@ -198,7 +249,7 @@ export async function commitSnapshot(
     method: "PUT",
     headers,
     body: JSON.stringify({
-      message: `Backup ${snapshot.takenAt} — ${snapshot.collection.totals.printings} printings, ${snapshot.decks.length} deck(s)`,
+      message: `Backup ${snapshot.takenAt} — ${snapshot.collection.totals.printings} printings, ${snapshot.decks.length} deck(s), ${snapshot.matches.length} match(es)`,
       content: encodeBase64(`${JSON.stringify(snapshot, null, 1)}\n`),
       branch,
       ...(sha ? { sha } : {}),
@@ -221,7 +272,7 @@ export async function runBackup(
   const result = await commitSnapshot(env, snapshot, fetchImpl);
   console.log(
     `[backup] ${result.status}${result.reason ? ` — ${result.reason}` : ""}: ` +
-      `${snapshot.collection.totals.printings} printings, ${snapshot.collection.totals.copies} copies, ${snapshot.decks.length} deck(s)`,
+      `${snapshot.collection.totals.printings} printings, ${snapshot.collection.totals.copies} copies, ${snapshot.decks.length} deck(s), ${snapshot.matches.length} match(es)`,
   );
   return result;
 }
