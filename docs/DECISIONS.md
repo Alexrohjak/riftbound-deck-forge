@@ -2141,14 +2141,34 @@ needs no `S2` at all.
 
 ### The two rules that shape it
 
-- **Pull, never push** ([D-042](#d-042)). The panel is inert until asked. The workshop
-  already shows counts, curve and violations — that is *state*, and state is not advice. A
-  tool that volunteers an opinion mid-thought is one you learn to ignore.
+- **Pull, never push** ([D-042](#d-042)), where **the pull is opening the Analysis tab**.
+  Nothing renders in the Deck view, where you are building — a builder mid-thought does not
+  want to be corrected, and a tool that volunteers is one you learn to ignore. The counts and
+  violations that stay on screen in every view are *state*, which is not advice.
+
+  ⚠️ There was briefly a *"look this deck over"* button on top of the tab. It satisfied the
+  same rule and made the feature unusable — two deliberate acts to get one opinion, reported
+  as **"I can't tell how to use this."** One deliberate act is the pull; a second is
+  ceremony.
 - **The app authors nothing** ([D-043](#d-043)). Every sentence rendered comes out of a tool
   call carrying its own `source` and `confidence`; the component adds none of its own. This
   is the structural half of the swappable-mouth decision: **a mouth that cannot author a
   claim cannot invent one**, and a statement that looks wrong is wrong in the engine, where
   a test can reach it.
+
+### The workshop had to be split first
+
+EE landed at the bottom of a single scrolling column — bays, curve, EE, log, history — and
+measured **2915px down a 3378px scroll**. Every panel added all week had gone to the bottom,
+so *newest* had come to mean *furthest from the eye*.
+
+The right panel now has three views — **Deck**, **Analysis**, **Log** — each one click away,
+with the counts and violations pinned above them in all three because that is the state you
+steer by. EE moved from 2915px to 546px: on screen without scrolling.
+
+The general lesson, which has now cost time twice in a week: **appending is not a layout
+decision, and it silently becomes one.** The same habit produced six competing `.slots`
+rules in the CSS.
 
 ### What that buys, concretely
 

@@ -1043,3 +1043,21 @@ body.resizing * { pointer-events: none; }
 .cost b, .claim-why b { color: var(--ink); }
 .candidates { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--s1); }
 .candidates li { font-size: 0.8rem; }
+
+/* ── workshop views ───────────────────────────────────────────────────────────
+   The right panel holds three different concerns — the deck, what to make of it, and what
+   happened when you played it. Stacked, they were 3378px of scroll and the newest was
+   always furthest from the eye. Tabs keep each one click away, and keep "newest" from
+   meaning "buried". */
+.views {
+  display: flex; gap: 2px; margin-bottom: var(--s3);
+  padding: 3px; border-radius: var(--radius-sm); background: var(--sunk);
+}
+.view {
+  flex: 1; padding: var(--s2) var(--s3); cursor: pointer;
+  background: transparent; border: none; border-radius: 4px;
+  color: var(--dim); font: inherit; font-size: 0.78rem; font-weight: 500;
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.view:hover { color: var(--ink); }
+.view.on { background: var(--panel); color: var(--ink); font-weight: 600; box-shadow: var(--shadow); }

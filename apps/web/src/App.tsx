@@ -151,6 +151,13 @@ export function App() {
   const [open, setOpen] = useState(true);
   const [guided, setGuided] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  /**
+   * ⚠️ The workshop used to be one column: bays, then curve, then EE, then the log, then
+   * history — 3378px of scroll, with EE starting at 2915. Everything added went to the
+   * bottom, and the bottom was two screens past anywhere anyone looks. Three views instead,
+   * so nothing new is ever buried by being newest.
+   */
+  const [view, setView] = useState<"deck" | "analysis" | "log">("deck");
   const [detail, setDetail] = useState<Target | null>(null);
   const [pane, setPane] = useState(() => Number(store.get("forge.pane", "34")) || 34);
 
@@ -588,7 +595,27 @@ export function App() {
               </div>
             </header>
 
+            <nav className="views">
+              {(
+                [
+                  ["deck", "Deck"],
+                  ["analysis", "Analysis"],
+                  ["log", "Log"],
+                ] as const
+              ).map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  className={view === id ? "view on" : "view"}
+                  onClick={() => setView(id)}
+                >
+                  {label}
+                </button>
+              ))}
+            </nav>
+
             <Workshop
+              showDeck={view === "deck"}
               deck={deck}
               pool={pool}
               legality={legality}
@@ -605,25 +632,32 @@ export function App() {
                 }));
               }}
             >
-              <section className="panel">
-                <h2>Energy curve</h2>
-                <EnergyCurve {...curve} />
-              </section>
+              {view === "analysis" && (
+                <>
+                  <section className="panel">
+                    <h2>Energy curve</h2>
+                    <EnergyCurve {...curve} />
+                  </section>
+                  <Advisor deck={deck} pool={pool} />
+                </>
+              )}
 
-              <Advisor deck={deck} pool={pool} />
+              {view === "log" && (
+                <>
+                  <LogPanel
+                    deckId={deck.id}
+                    deckName={deck.name}
+                    deckHash={currentHash}
+                    pool={pool}
+                    matches={matches}
+                    failed={logFailed}
+                    onRefresh={refreshLog}
+                  />
+                  <History deckId={deck.id} playedOn={playedOn} />
+                </>
+              )}
 
-              <LogPanel
-                deckId={deck.id}
-                deckName={deck.name}
-                deckHash={currentHash}
-                pool={pool}
-                matches={matches}
-                failed={logFailed}
-                onRefresh={refreshLog}
-              />
-
-              <History deckId={deck.id} playedOn={playedOn} />
-              <p className="caveat">⚠️ {legality.coverage.caveat}</p>
+              {view === "deck" && <p className="caveat">⚠️ {legality.coverage.caveat}</p>}
             </Workshop>
           </aside>
         </>

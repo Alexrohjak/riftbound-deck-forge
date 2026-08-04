@@ -18,10 +18,14 @@ import type { CardPool } from "./cards.js";
 /**
  * EE, in the app at last.
  *
- * ⚠️ **Nothing here appears until it is asked for** ([D-042](../../docs/DECISIONS.md#d-042)).
- * The workshop already shows *state* — counts, curve, violations — and state is not advice.
- * Opinion is opt-in, every time, because a builder who is mid-thought does not want to be
- * corrected and a tool that volunteers is a tool you learn to ignore.
+ * ⚠️ **Advice is pull, never push** ([D-042](../../docs/DECISIONS.md#d-042)) — and the pull
+ * is *navigating to the Analysis tab*. Nothing here renders in the Deck view, where you are
+ * building: a builder mid-thought does not want to be corrected, and a tool that volunteers
+ * is a tool you learn to ignore. The counts and violations that stay on screen everywhere
+ * are *state*, which is not advice.
+ *
+ * There was briefly a second "look this deck over" button on top of the tab. It satisfied
+ * the same rule and made the feature unfindable — two deliberate acts to get one opinion.
  *
  * ⚠️ **The prose is the engine's, not this component's.** Every sentence rendered below came
  * out of a tool call with a `source` and a `confidence` attached, and this file adds none of
@@ -79,18 +83,17 @@ function Claim({ note }: { note: Note }) {
 }
 
 export function Advisor({ deck, pool }: { deck: Deck; pool: CardPool }) {
-  const [asked, setAsked] = useState(false);
   const [note, setNote] = useState("");
   const [symptom, setSymptom] = useState<Symptom | null>(null);
 
-  const read = useMemo(
-    () => (asked ? review(deck, pool.index) : null),
-    [asked, deck, pool],
-  );
-  const archetype = useMemo(
-    () => (asked ? readArchetype(deck, pool.index) : null),
-    [asked, deck, pool],
-  );
+  /**
+   * ⚠️ **Opening the Analysis tab is the ask** — that is what keeps this D-042-compliant
+   * without a second button. Advice never appears in the Deck view, where you are building;
+   * it appears in a tab you deliberately navigated to. Making you then click "look this deck
+   * over" was ceremony, and ceremony is what made the feature unfindable.
+   */
+  const read = useMemo(() => review(deck, pool.index), [deck, pool]);
+  const archetype = useMemo(() => readArchetype(deck, pool.index), [deck, pool]);
 
   // A complaint is evidence about a CAPABILITY, never about a card — so the answer is a
   // diagnosis with its cost, and candidates come second.
@@ -104,28 +107,9 @@ export function Advisor({ deck, pool }: { deck: Deck; pool: CardPool }) {
 
   return (
     <section className="panel ee">
-      <h2>
-        Ask EE
-        {asked && (
-          <button type="button" className="ghost" onClick={() => setAsked(false)}>
-            close
-          </button>
-        )}
-      </h2>
+      <h2>What EE makes of it</h2>
 
-      {!asked && (
-        <>
-          <p className="empty">
-            Forge never volunteers an opinion — the counts and violations above are state, not
-            advice. Ask when you want one.
-          </p>
-          <button type="button" className="primary" onClick={() => setAsked(true)}>
-            Look this deck over
-          </button>
-        </>
-      )}
-
-      {asked && read && archetype && (
+      {read && archetype && (
         <>
           <p className="verdict">
             Reads as <b>{archetype.archetype}</b>

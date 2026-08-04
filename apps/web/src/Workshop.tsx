@@ -150,6 +150,7 @@ export function Workshop({
   onOpen,
   onRemove,
   onSeek,
+  showDeck,
   children,
 }: {
   deck: Deck;
@@ -161,6 +162,12 @@ export function Workshop({
   onOpen: (t: Target) => void;
   onRemove: (t: Target) => void;
   onSeek: (zone: Zone) => void;
+  /**
+   * ⚠️ The counts and violations stay on screen in every view. They are *state* — the thing
+   * you are steering by — and hiding them behind a tab would make the other views feel like
+   * a different application.
+   */
+  showDeck: boolean;
   children?: React.ReactNode;
 }) {
   const legend = pool.byPrinting.get(deck.legendCardId);
@@ -252,6 +259,7 @@ export function Workshop({
         </ul>
       )}
 
+      {showDeck && <>
       <section className="bay singles">
         <div>
           <h2>
@@ -358,6 +366,7 @@ export function Workshop({
       {bay("RUNE")}
       {bay("BATTLEFIELD")}
       {bay("SIDEBOARD")}
+      </>}
 
       {children}
     </>
