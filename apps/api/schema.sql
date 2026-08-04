@@ -56,3 +56,59 @@ CREATE TABLE IF NOT EXISTS bench (
 
 CREATE INDEX IF NOT EXISTS deck_slots_by_deck ON deck_slots(deck_id);
 CREATE INDEX IF NOT EXISTS decks_by_state ON decks(state);
+
+-- ── the log ─────────────────────────────────────────────────────────────────
+-- Three tables rather than one with a `kind` column: retention, backup and privacy rules
+-- differ per row type, and one table would have to take the strictest of each — permanent
+-- retention for crash noise, or expiry for match records. See docs/spec/LOG.md.
+
+-- A deck's contents at a moment. Append-only, and written ONLY when the content hash
+-- differs from the previous row — autosave fires constantly and ten thousand identical
+-- rows is not history.
+CREATE TABLE IF NOT EXISTS deck_history (
+  deck_id   TEXT NOT NULL REFERENCES decks(id) ON DELETE CASCADE,
+  seq       INTEGER NOT NULL,
+  hash      TEXT NOT NULL,            -- content hash; identical lists hash identically
+  contents  TEXT NOT NULL,            -- JSON: legend, champion, slots
+  at        TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (deck_id, seq)
+);
+
+-- Games you actually played.
+--
+-- ⚠️ deck_id carries NO foreign key, and deck_name is stored on the row. Delete a deck and
+-- the games you played with it are still games you played; a cascade would destroy the most
+-- irreplaceable data here to preserve referential tidiness. The denormalised name is not a
+-- DATA-MODEL §2 violation — that rule forbids copying Riot's card data, which goes stale.
+-- A deck name is the user's own, and the name it had when played is the correct answer.
+CREATE TABLE IF NOT EXISTS matches (
+  id               TEXT PRIMARY KEY,
+  deck_id          TEXT,
+  deck_name        TEXT,
+  deck_hash        TEXT,              -- which version was played — joins to deck_history
+  played_at        TEXT NOT NULL,     -- the date played, not the date typed in
+  opponent_legend  TEXT,              -- their Legend's card_id; null is a real answer
+  opponent_note    TEXT,
+  result           TEXT NOT NULL CHECK (result IN ('WIN', 'LOSS', 'DRAW')),
+  games            TEXT,              -- "2-1" when it was several; null when it was one
+  symptoms         TEXT,              -- JSON array of EE Symptom codes
+  notes            TEXT,
+  logged_at        TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Client-side failures. Cloudflare already logs the Worker; what it cannot see is the
+-- browser, which is where every interface bug so far has lived. Trimmed to the newest 500
+-- on write, and deliberately excluded from the nightly backup — expendable by design.
+CREATE TABLE IF NOT EXISTS events (
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+  at       TEXT NOT NULL DEFAULT (datetime('now')),
+  level    TEXT NOT NULL CHECK (level IN ('error', 'warn', 'info')),
+  code     TEXT NOT NULL,             -- a stable identifier, not a sentence
+  message  TEXT,
+  context  TEXT
+);
+
+CREATE INDEX IF NOT EXISTS matches_by_deck ON matches(deck_id, played_at);
+CREATE INDEX IF NOT EXISTS matches_by_hash ON matches(deck_hash);
+CREATE INDEX IF NOT EXISTS deck_history_by_hash ON deck_history(hash);
+CREATE INDEX IF NOT EXISTS events_recent ON events(at DESC);

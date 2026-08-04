@@ -51,3 +51,22 @@ export { readArchetype, type Archetype, type ArchetypeRead } from "./advice/arch
 
 /** In-memory `CardIndex`, sufficient for tests and for the static `F2` pool. */
 export { staticCardIndex, type CardEntry } from "./cardIndex.js";
+
+/**
+ * The log — what you actually played, and what the record is allowed to claim about it.
+ * The thresholds are the feature: a win rate from four games describes the dice.
+ */
+export {
+  read,
+  validate,
+  MIN_FOR_MATCHUP,
+  MIN_FOR_RATE,
+  MIN_LOSSES_FOR_PATTERN,
+  type LogReading,
+  type MatchRecord,
+  type MatchResult,
+  type Matchup,
+  type Pattern,
+  type Standing,
+} from "./log/match.js";
+export { canonicalise, deckHash } from "./log/deckHash.js";
