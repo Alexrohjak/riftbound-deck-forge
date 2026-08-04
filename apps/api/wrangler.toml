@@ -36,7 +36,7 @@ enabled = true
 # Free-plan scheduled invocations get 10 ms CPU. Reading a few hundred rows and serialising
 # them is well inside that — waiting on D1 and on GitHub is I/O, which does not count.
 [triggers]
-crons = ["*/5 * * * *"]   # TEMPORARY — reverted to "12 3 * * *" in the next commit
+crons = ["12 3 * * *"]
 
 [vars]
 # Not secrets — the repo is in the git remote already, and the branch is public knowledge.
