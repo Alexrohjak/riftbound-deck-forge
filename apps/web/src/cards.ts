@@ -118,14 +118,27 @@ export function buildPool(raw: RawIndex): CardPool {
   }
 
   const byCode = new Map<string, string>();
+  /**
+   * The set chips, in the order the game shipped them.
+   *
+   * ⚠️ **Only a card's base printing votes for its set.** `release` is where a card *first*
+   * appeared, so letting every printing vote let a reprint carry an early rank into a late
+   * set: Pouty Poro is an OGN card reprinted as UNL-220, and its OGN rank ranked the whole
+   * of UNL above SFD. The entry field read `OGN · UNL · VEN · SFD · OGS` — four of the five
+   * in the wrong place, on the one screen where you are working set by set through a pile.
+   */
   const setOrder = new Map<string, number>();
   for (const card of raw.cards) {
-    for (const p of card.printings) {
-      byCode.set(p.code, p.id);
-      // Earliest release wins, so the set chips read in the order the game shipped them.
-      const seen = setOrder.get(p.set);
-      if (seen === undefined || card.release < seen) setOrder.set(p.set, card.release);
-    }
+    for (const p of card.printings) byCode.set(p.code, p.id);
+    const base = card.printings[0];
+    if (!base) continue;
+    const seen = setOrder.get(base.set);
+    if (seen === undefined || card.release < seen) setOrder.set(base.set, card.release);
+  }
+  // A set that exists only as reprints still has to be enterable, so it goes to the end
+  // rather than being dropped from a list whose job is to cover the whole pool.
+  for (const card of raw.cards) {
+    for (const p of card.printings) if (!setOrder.has(p.set)) setOrder.set(p.set, Number.MAX_SAFE_INTEGER);
   }
   const sets = [...setOrder].sort((a, b) => a[1] - b[1]).map(([code]) => code);
 

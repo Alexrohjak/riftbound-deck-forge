@@ -1,5 +1,5 @@
 import type { Domain } from "@forge/engine";
-import { isDeckable, search, zoneFor, type Card } from "./cards.js";
+import { isDeckable, search, zoneFor, type Card, type Printing } from "./cards.js";
 
 /**
  * What the gallery is showing, and in what order.
@@ -118,6 +118,63 @@ export function apply(
   const found = f.query.trim() ? search(picked, f.query) : picked;
   return f.query.trim() ? found : [...found].sort((a, b) => compare(a, b, f.sort, collection));
 }
+
+/** One printing you physically hold. The Owned view's row, as opposed to the gallery's card. */
+export interface ShelfRow {
+  card: Card;
+  printing: Printing;
+  owned: number;
+}
+
+/**
+ * Where a printing sits in the sequence of everything ever printed.
+ *
+ * ⚠️ **A card's `release` cannot order a shelf.** `release` is where the *name* first
+ * appeared, so ordering printings by it filed every reprint next to its original — the SFD
+ * printing of Yasuo, Windrider sitting inside the OGN block because the OGN one is there.
+ * 42 cards are reprinted, which is 42 places the collection contradicted the boxes it is
+ * supposed to describe. A shelf is physical objects, and they are sorted by the set they
+ * came out of.
+ */
+export const printingRank = (p: Printing, sets: readonly string[]): number => {
+  const set = sets.indexOf(p.set);
+  // An unknown set goes last, not first: a pool cached before a new set shipped should
+  // degrade to "at the end", never to "before everything you own".
+  const rank = set === -1 ? sets.length : set;
+  return rank * 1_000_000 + p.n * 4 + (p.star ? 2 : 0) + (p.alt ? 1 : 0);
+};
+
+/**
+ * The Owned view's order — the gallery's sort keys, applied to printings instead of names.
+ *
+ * **Every key falls back to set order**, so rows that tie never sit in an arbitrary
+ * arrangement that shifts as you enter more cards.
+ */
+export const orderShelf = (
+  rows: readonly ShelfRow[],
+  sort: Sort,
+  sets: readonly string[],
+): ShelfRow[] => {
+  const dir = sort.desc ? -1 : 1;
+  const rank = (r: ShelfRow): number => printingRank(r.printing, sets);
+  return [...rows].sort((a, b) => {
+    switch (sort.key) {
+      // Deepest holdings first, and ⚠️ the direction toggle applies — the Owned view used
+      // to hardcode descending, so pressing the chip a second time changed the arrow and
+      // nothing else.
+      case "copies":
+        return dir * (b.owned - a.owned) || rank(a) - rank(b);
+      case "cost":
+        return dir * ((a.card.energy ?? 99) - (b.card.energy ?? 99)) || rank(a) - rank(b);
+      case "might":
+        return dir * ((a.card.might ?? -1) - (b.card.might ?? -1)) || rank(a) - rank(b);
+      case "name":
+        return dir * a.card.name.localeCompare(b.card.name) || rank(a) - rank(b);
+      default:
+        return dir * (rank(a) - rank(b));
+    }
+  });
+};
 
 export const SORTS: Array<{ key: SortKey; label: string }> = [
   { key: "release", label: "Set order" },

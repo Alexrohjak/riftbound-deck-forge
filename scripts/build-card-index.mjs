@@ -81,8 +81,15 @@ for (const card of cards) {
 }
 
 const entries = [...byName].map(([name, group]) => {
+  // ⚠️ **Set first, and only then the collector number.** A number means nothing outside
+  // its own set, so comparing them across sets picked the wrong base printing for 17 of the
+  // 42 reprinted cards — every basic Rune took its VEN promo (`VEN-R01`, number 1) over its
+  // OGN original (`OGN-007`), and Darius took `SFD-236` over `OGN-243`. The base printing
+  // decides the card's `release`, so those cards then sat in the wrong set block in the
+  // gallery, and displayed the wrong art as their own.
   const ordered = [...group].sort(
     (a, b) =>
+      SET_ORDER.indexOf(a.set) - SET_ORDER.indexOf(b.set) ||
       printingRank(a) - printingRank(b) ||
       a.collectorNumber - b.collectorNumber ||
       a.id.localeCompare(b.id),

@@ -15,7 +15,7 @@ import { DeckBar, DeckName, useDecks } from "./Decks.js";
 import { Advisor } from "./Advisor.js";
 import { ImportCollection, type Result as ImportResult } from "./ImportCollection.js";
 import { History, LogPanel, useMatches } from "./Log.js";
-import { apply, DOMAIN_LIST, NO_FILTERS, ownedCount, SORTS, TYPES, type Filters, type Tab } from "./filters.js";
+import { apply, DOMAIN_LIST, NO_FILTERS, orderShelf, ownedCount, SORTS, TYPES, type Filters, type ShelfRow, type Tab } from "./filters.js";
 import { filtersFor, runeSlots, stepFor, type Step } from "./buildFlow.js";
 import { Workshop, type Occupant, type Target } from "./Workshop.js";
 import { CardDetail } from "./CardDetail.js";
@@ -279,17 +279,18 @@ export function App() {
    */
   const shelf = useMemo(() => {
     if (!pool || !filters.owned) return [];
-    const rows: Array<{ card: Card; printing: Printing; owned: number }> = [];
+    const rows: ShelfRow[] = [];
     for (const card of results) {
       for (const printing of card.printings) {
         const n = owned[printing.id] ?? 0;
         if (n > 0) rows.push({ card, printing, owned: n });
       }
     }
-    return filters.sort.key === "copies"
-      ? rows.sort((a, b) => b.owned - a.owned || a.card.name.localeCompare(b.card.name))
-      : rows;
-  }, [pool, results, owned, filters.owned, filters.sort.key]);
+    // ⚠️ The rows arrive in the *card* order `apply` produced, which is not an order for
+    // printings — see `printingRank`. Re-order them as objects. A search query still wins,
+    // exactly as it does in the gallery: relevance decides when you have asked for a card.
+    return filters.query.trim() ? rows : orderShelf(rows, filters.sort, pool.sets);
+  }, [pool, results, owned, filters]);
 
   /** Rows on screen: printings in the Owned view, names everywhere else. */
   const listLength = filters.owned ? shelf.length : results.length;

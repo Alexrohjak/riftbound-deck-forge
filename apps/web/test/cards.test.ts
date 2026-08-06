@@ -141,6 +141,47 @@ describe("the pool EE suggests from", () => {
   });
 });
 
+/**
+ * The set chips drive the entry field, which is worked one set at a time against a physical
+ * pile. Listing them out of order is not cosmetic there — it is the order you sort boxes in.
+ */
+describe("the order of the sets", () => {
+  const setsOf = (cards: Card[]): string[] =>
+    buildPool({
+      schema: "forge.cards/1",
+      counts: { names: cards.length, printings: cards.length, legends: 0, banned: 0 },
+      cards,
+    }).sets;
+
+  const at = (name: string, release: number, printings: Card["printings"]): Card =>
+    card({ name, release, printings });
+
+  it("ranks a set by the cards it introduced, never by the reprints it carries", () => {
+    // Pouty Poro is an OGN card reprinted as UNL-220. When every printing voted, its OGN
+    // rank was cast for UNL too and put the whole set ahead of SFD.
+    const poro = at("Pouty Poro", 13, [
+      { id: "ogn-013-298", code: "OGN-013/298", set: "OGN", n: 13, img: "https://i/a" },
+      { id: "unl-220-219", code: "UNL-220/219", set: "UNL", n: 220, img: "https://i/b" },
+    ]);
+    const sfd = at("Chem-Baroness", 200_001, [
+      { id: "sfd-001-221", code: "SFD-001/221", set: "SFD", n: 1, img: "https://i/c" },
+    ]);
+    const unl = at("Green Father", 300_001, [
+      { id: "unl-001-219", code: "UNL-001/219", set: "UNL", n: 1, img: "https://i/d" },
+    ]);
+    expect(setsOf([poro, sfd, unl])).toEqual(["OGN", "SFD", "UNL"]);
+  });
+
+  it("still lists a set that exists only as reprints, rather than dropping it", () => {
+    // Dropping it would make its cards unenterable, which is worse than listing it late.
+    const only = at("Vi, Destructive", 36, [
+      { id: "ogn-036-298", code: "OGN-036/298", set: "OGN", n: 36, img: "https://i/e" },
+      { id: "ven-167-166", code: "VEN-167/166", set: "VEN", n: 167, img: "https://i/f" },
+    ]);
+    expect(setsOf([only])).toEqual(["OGN", "VEN"]);
+  });
+});
+
 describe("thumbnails", () => {
   it("always requests a sized image", () => {
     // Full-size scans are ~1 MB each. A list of 40 unsized images is ~40 MB and locks the
