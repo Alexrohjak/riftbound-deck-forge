@@ -33,8 +33,26 @@ import { CardDetail } from "./CardDetail.js";
 
 const MAX_COPIES = 3;
 const PAGE = 60;
-const SIZES = { S: "9rem", M: "13rem", L: "18rem" } as const;
-type Size = keyof typeof SIZES;
+
+/**
+ * **Tile size belongs to the tab, not to you.** It used to be an S/M/L control, which meant
+ * every visit started at whichever size you last left it on and the gallery never looked
+ * like itself twice. What a card needs to be readable is a property of the card: portrait
+ * cards want the large tile, and battlefields are landscape — the same width holds far more
+ * picture, so they read at medium and a large one would waste half the shelf.
+ *
+ * ⚠️ `sizes` is an image hint, parsed before CSS runs, so it cannot say `var(--tile)` — it
+ * mirrors the same breakpoints by hand. Getting this wrong is expensive rather than ugly:
+ * an unresolved `var()` falls back to `100vw` and the gallery fetches 2492px scans to draw
+ * them at 208.
+ */
+const TILE = {
+  L: { css: "tile-l", sizes: "(max-width: 30rem) 42vw, (max-width: 48rem) 13rem, 18rem" },
+  M: { css: "tile-m", sizes: "(max-width: 30rem) 42vw, 13rem" },
+} as const;
+
+const tileFor = (tab: Tab): (typeof TILE)[keyof typeof TILE] =>
+  tab === "battlefield" ? TILE.M : TILE.L;
 
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: "all", label: "All" },
@@ -114,8 +132,9 @@ function Tile({
    */
   printing?: Printing;
   index: number;
-  /** ⚠️ A literal length. `sizes` is parsed before CSS, so `var(--tile)` silently
-      falls back to 100vw — which had the gallery fetching 2492px images to draw at 208. */
+  /** ⚠️ Literal lengths and media conditions only. `sizes` is parsed before CSS, so
+      `var(--tile)` silently falls back to 100vw — which had the gallery fetching 2492px
+      images to draw at 208. It mirrors `TILE`'s breakpoints by hand for that reason. */
   sizes: string;
   onAdd: () => void;
   onRemove: () => void;
@@ -183,7 +202,6 @@ export function App() {
   }, []);
   const [base, setBase] = useState<Filters>(NO_FILTERS);
   const [shown, setShown] = useState(PAGE);
-  const [size, setSize] = useState<Size>(() => store.get("forge.tileSize", "M") as Size);
   const [open, setOpen] = useState(true);
   const [guided, setGuided] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -214,7 +232,6 @@ export function App() {
     loadCollection();
   }, [loadCollection]);
 
-  useEffect(() => store.set("forge.tileSize", size), [size]);
   useEffect(() => store.set("forge.pane", String(pane)), [pane]);
 
   // ── the workshop is dragged, not fixed ──────────────────────────────────────
@@ -242,6 +259,8 @@ export function App() {
     () => (pool && guided ? filtersFor(step, deck, pool, base) : base),
     [pool, guided, step, deck, base],
   );
+  /** Read off the tab actually in force, so the guided flow sizes its shelf too. */
+  const tile = tileFor(filters.tab);
 
   const { matches, failed: logFailed, refresh: refreshLog } = useMatches(deck.id);
   /**
@@ -560,14 +579,6 @@ export function App() {
             Filters{activeFilters > 0 && <em className="pipcount">{activeFilters}</em>}
           </button>
 
-          <div className="sizes">
-            {(Object.keys(SIZES) as Size[]).map((s) => (
-              <button key={s} type="button" className={size === s ? "tab on" : "tab"} onClick={() => setSize(s)}>
-                {s}
-              </button>
-            ))}
-          </div>
-
           <span className="count">{results.length}</span>
           <button type="button" className="tab toggle" onClick={() => setOpen((o) => !o)}>
             {open ? "Hide deck ›" : "‹ Deck"}
@@ -698,13 +709,13 @@ export function App() {
           </p>
         )}
 
-        <div className="grid" style={{ ["--tile" as string]: SIZES[size] }}>
+        <div className={`grid ${tile.css}`}>
           {filters.owned
             ? shelf.slice(0, shown).map((row, i) => (
                 <Tile
                   key={row.printing.id}
                   index={i % PAGE}
-                  sizes={SIZES[size]}
+                  sizes={tile.sizes}
                   card={row.card}
                   printing={row.printing}
                   owned={row.owned}
@@ -717,7 +728,7 @@ export function App() {
             <Tile
               key={card.name}
               index={i % PAGE}
-              sizes={SIZES[size]}
+              sizes={tile.sizes}
               card={card}
               owned={ownedCount(card, owned)}
               held={card.types.includes("legend") ? 0 : copiesOfName(card)}
