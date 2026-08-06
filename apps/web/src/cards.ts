@@ -180,9 +180,25 @@ export const thumb = (printing: Printing, width: number): string =>
  * Prefer `srcSet` wherever the rendered size is not fixed. This helper guesses once; a
  * srcset lets the browser measure.
  */
+/**
+ * The width of the scan Riot actually holds, read from the URL it is served under
+ * (`…-744x1039.png`). Three shapes exist in the pool: 744-wide portraits (1,088 of them),
+ * **1,038–1,040-wide landscape battlefields (all 66)**, and 26 double-resolution cards at
+ * 1,488.
+ *
+ * ⚠️ This is the number every request should be clamped to and none should stop short of.
+ * Above it the CDN upscales — more bytes, no more detail. Below it you are throwing away
+ * picture you have already been given, which is what made the battlefields look soft.
+ */
+export const nativeWidth = (printing: Printing): number => {
+  const found = /-(\d+)x\d+\.png/.exec(printing.img);
+  return found?.[1] ? Number(found[1]) : 744;
+};
+
 export const hd = (printing: Printing, cssWidth: number): string => {
   const ratio = Math.min(typeof devicePixelRatio === "number" ? devicePixelRatio : 1, 3);
-  return `${printing.img}&w=${Math.round(cssWidth * ratio)}&q=82&fm=webp`;
+  const width = Math.min(Math.round(cssWidth * ratio), nativeWidth(printing));
+  return `${printing.img}&w=${width}&q=82&fm=webp`;
 };
 
 /**
@@ -196,15 +212,23 @@ export const hd = (printing: Printing, cssWidth: number): string => {
  * asks for the rung that fits.
  */
 /**
- * ⚠️ **Nothing above ~820, because the source images are 744px wide.** 1,081 of the 1,180
- * printings are 744×1039; asking the CDN for 1300 gets an upscale — 160 KB instead of 19 KB
- * for a picture with no more detail in it. The top rung exists only for the 26
- * double-resolution cards and the landscape battlefields.
+ * ⚠️ **The ladder ends at the printing's own width, whatever that is.** It used to stop at
+ * a flat 820 for everything, with a comment claiming the top rung was there for the
+ * battlefields — but battlefields are **1,038 wide**, so 820 was the one thing they could
+ * never ask for. Every battlefield was served at best a 79% scan and usually far less,
+ * which is what made them look soft next to the portraits.
+ *
+ * Taking the cap from the URL fixes all three shapes at once and cannot drift: portraits
+ * stop at 744 (asking for 820 was already an upscale), battlefields reach 1,038, and the 26
+ * double-resolution cards reach 1,488.
  */
-const LADDER = [160, 260, 400, 620, 820];
+const LADDER = [160, 260, 400, 620, 820, 1040];
 
-export const srcSet = (printing: Printing): string =>
-  LADDER.map((w) => `${printing.img}&w=${w}&q=82&fm=webp ${w}w`).join(", ");
+export const srcSet = (printing: Printing): string => {
+  const native = nativeWidth(printing);
+  const rungs = [...LADDER.filter((w) => w < native), native];
+  return rungs.map((w) => `${printing.img}&w=${w}&q=82&fm=webp ${w}w`).join(", ");
+};
 
 /** Where a card belongs, from its type. Runes and battlefields are registered separately. */
 export function zoneFor(card: Card): Zone {

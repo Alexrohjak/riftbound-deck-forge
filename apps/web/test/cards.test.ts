@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildPool, isDeckable, search, thumb, zoneFor, type Card } from "../src/cards.js";
+import { buildPool, hd, isDeckable, nativeWidth, search, srcSet, thumb, zoneFor, type Card } from "../src/cards.js";
 
 /**
  * The collapse is the part that can be silently wrong: merge two cards that share a name
@@ -179,6 +179,51 @@ describe("the order of the sets", () => {
       { id: "ven-167-166", code: "VEN-167/166", set: "VEN", n: 167, img: "https://i/f" },
     ]);
     expect(setsOf([only])).toEqual(["OGN", "VEN"]);
+  });
+});
+
+/**
+ * Image widths are a correctness problem, not a polish one. Ask for less than the box you
+ * are about to draw and the picture is soft; ask for more than the scan Riot holds and the
+ * CDN upscales — 118 KB instead of 91 KB for a battlefield with no more detail in it.
+ */
+describe("how big an image to ask for", () => {
+  const portrait = {
+    id: "ogn-001-298", code: "OGN-001/298", set: "OGN", n: 1,
+    img: "https://cms/img/15ed971e-744x1039.png?accountingTag=RB",
+  };
+  const battlefield = {
+    id: "ogn-275-298", code: "OGN-275/298", set: "OGN", n: 275,
+    img: "https://cms/img/9a71bc02-1038x744.png?accountingTag=RB",
+  };
+  const widths = (p: typeof portrait): number[] =>
+    srcSet(p).split(", ").map((rung) => Number(rung.split(" ")[1]?.replace("w", "")));
+
+  it("reaches the battlefield's full 1038, which the old flat ceiling of 820 could not", () => {
+    // Every battlefield is 1038 wide and every one of them was capped at 820 — a 79% scan,
+    // drawn across two grid columns. That is what made them look soft beside the portraits.
+    expect(widths(battlefield).at(-1)).toBe(1038);
+  });
+
+  it("stops at 744 for a portrait, because there is nothing above it to fetch", () => {
+    expect(widths(portrait).at(-1)).toBe(744);
+    expect(widths(portrait).some((w) => w > 744)).toBe(false);
+  });
+
+  it("keeps the ladder ascending, or the browser cannot choose a rung", () => {
+    for (const card of [portrait, battlefield]) {
+      const rungs = widths(card);
+      expect([...rungs].sort((a, b) => a - b)).toEqual(rungs);
+    }
+  });
+
+  it("never asks the CDN to upscale, however large the box", () => {
+    expect(hd(battlefield, 4000)).toContain("w=1038");
+    expect(hd(portrait, 4000)).toContain("w=744");
+  });
+
+  it("assumes a portrait when the URL carries no dimensions, rather than guessing big", () => {
+    expect(nativeWidth({ ...portrait, img: "https://cms/img/nothing.png" })).toBe(744);
   });
 });
 

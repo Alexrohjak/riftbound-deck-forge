@@ -47,10 +47,24 @@ const PAGE = 60;
  * them at 208.
  */
 const TILE = {
-  L: { css: "tile-l", sizes: "(max-width: 30rem) 42vw, (max-width: 48rem) 13rem, 18rem" },
-  M: { css: "tile-m", sizes: "(max-width: 30rem) 42vw, 13rem" },
+  L: {
+    css: "tile-l",
+    sizes: "(max-width: 30rem) 42vw, (max-width: 48rem) 13rem, 18rem",
+    wide: "(max-width: 30rem) 87vw, (max-width: 48rem) 27rem, 37rem",
+  },
+  M: {
+    css: "tile-m",
+    sizes: "(max-width: 30rem) 42vw, 13rem",
+    wide: "(max-width: 30rem) 87vw, 27rem",
+  },
 } as const;
 
+/**
+ * ⚠️ **A landscape tile spans two columns** (`.tile.wide`), so its `wide` hint is two tile
+ * widths plus the 0.75rem gap. Stating the single-column width instead is not a rounding
+ * error — it asked the browser for half the pixels it was about to draw, and the browser
+ * obliged, which is the other half of why the battlefields were soft.
+ */
 const tileFor = (tab: Tab): (typeof TILE)[keyof typeof TILE] =>
   tab === "battlefield" ? TILE.M : TILE.L;
 
@@ -116,7 +130,7 @@ function Tile({
   owned,
   printing: shown,
   index,
-  sizes,
+  tile,
   onAdd,
   onRemove,
 }: {
@@ -135,7 +149,7 @@ function Tile({
   /** ⚠️ Literal lengths and media conditions only. `sizes` is parsed before CSS, so
       `var(--tile)` silently falls back to 100vw — which had the gallery fetching 2492px
       images to draw at 208. It mirrors `TILE`'s breakpoints by hand for that reason. */
-  sizes: string;
+  tile: { sizes: string; wide: string };
   onAdd: () => void;
   onRemove: () => void;
 }) {
@@ -160,14 +174,13 @@ function Tile({
       >
         {printing && (
           <img
-            src={hd(printing, 300)}
+            src={hd(printing, card.landscape ? 560 : 300)}
             srcSet={srcSet(printing)}
-            sizes={sizes}
+            sizes={card.landscape ? tile.wide : tile.sizes}
             alt={card.name}
             loading="lazy"
             decoding="async"
-            width={300}
-            height={419}
+            {...(card.landscape ? { width: 419, height: 300 } : { width: 300, height: 419 })}
             className={ready ? "ready" : ""}
             onLoad={() => setReady(true)}
           />
@@ -715,7 +728,7 @@ export function App() {
                 <Tile
                   key={row.printing.id}
                   index={i % PAGE}
-                  sizes={tile.sizes}
+                  tile={tile}
                   card={row.card}
                   printing={row.printing}
                   owned={row.owned}
@@ -728,7 +741,7 @@ export function App() {
             <Tile
               key={card.name}
               index={i % PAGE}
-              sizes={tile.sizes}
+              tile={tile}
               card={card}
               owned={ownedCount(card, owned)}
               held={card.types.includes("legend") ? 0 : copiesOfName(card)}
