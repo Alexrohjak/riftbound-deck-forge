@@ -50,20 +50,25 @@ const TILE = {
   L: {
     css: "tile-l",
     sizes: "(max-width: 30rem) 42vw, (max-width: 48rem) 13rem, 18rem",
-    wide: "(max-width: 30rem) 87vw, (max-width: 48rem) 27rem, 37rem",
+    wide: "(max-width: 30rem) 87vw, (max-width: 48rem) 27rem, 44rem",
   },
   M: {
     css: "tile-m",
     sizes: "(max-width: 30rem) 42vw, 13rem",
-    wide: "(max-width: 30rem) 87vw, 27rem",
+    wide: "(max-width: 30rem) 87vw, 44rem",
   },
 } as const;
 
 /**
- * ⚠️ **A landscape tile spans two columns** (`.tile.wide`), so its `wide` hint is two tile
- * widths plus the 0.75rem gap. Stating the single-column width instead is not a rounding
- * error — it asked the browser for half the pixels it was about to draw, and the browser
- * obliged, which is the other half of why the battlefields were soft.
+ * ⚠️ **A landscape tile spans two columns** (`.tile.wide`), so a battlefield is drawn at
+ * roughly twice a portrait tile's width. Declaring the single-column width asked the browser
+ * for half the pixels it was about to paint, and the browser obliged.
+ *
+ * The `wide` hint now deliberately over-declares — 44rem against a measured 435–499px box.
+ * That is not slack, it is the point: it takes the 820 rung rather than the 620, and a
+ * battlefield's rules text is fine enough detail that downsampling a larger scan is visibly
+ * crisper than a near-exact one. It costs ~22 KB a card on one tab, and the ladder still
+ * caps at the 1038 the scan actually holds, so it can never tip over into an upscale.
  */
 const tileFor = (tab: Tab): (typeof TILE)[keyof typeof TILE] =>
   tab === "battlefield" ? TILE.M : TILE.L;

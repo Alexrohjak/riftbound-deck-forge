@@ -390,9 +390,13 @@ export function AddCards({
             return (
               <li key={printing.id}>
                 <button type="button" onClick={() => void commit(match, parsed.mult, parsed.sign)}>
+                  {/* ⚠️ **These numbers are the CSS, restated.** `.hits img` is 96px and
+                      `.hits img.wide` is 132px — asking for 96 and drawing 132 is a 1.4x
+                      upscale, and it landed on exactly one kind of card: the battlefields,
+                      in the one list you stare at while entering a pile of them. */}
                   <img
                     className={card.landscape === true ? "wide" : ""}
-                    src={hd(printing, 96)}
+                    src={hd(printing, card.landscape === true ? 132 : 96)}
                     alt=""
                     loading="lazy"
                   />
