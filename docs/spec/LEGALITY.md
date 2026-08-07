@@ -113,6 +113,10 @@ These six were absent from the original 27. See
 > **L26/L27 are warnings, not legality failures.** A deck can be perfectly legal and
 > unbuildable. **These must never be conflated** — the distinction is the point of
 > the whole tool.
+>
+> ⚠️ **The builder is separately allowed to refuse.** The workshop caps a card at the copies
+> you own ([DATA-MODEL §2](DATA-MODEL.md)), which is a UI affordance and not a verdict —
+> nothing here changes, and neither should be "fixed" to match the other.
 
 ---
 

@@ -1,7 +1,7 @@
 # Forge — Roadmap
 
-> **Version:** 1.3 · **Updated:** 2026-08-04 — `F1` and `F2` complete, **Forge is a usable
-> deckbuilder**
+> **Version:** 1.4 · **Updated:** 2026-08-07 — **the boxes are going in**; `W2` is in flight,
+> and the workshop now caps a card at the copies you own
 >
 > 🖥️ **Visual version: [`roadmap.html`](roadmap.html)** — same content, rendered. Open it from
 > disk, or use the published page. ✅ **X5 resolved** — the docs ship from the same Cloudflare
@@ -23,11 +23,11 @@
 |---|---|
 | **Track** | **F — Foundation** |
 | **Progress** | **8 of 17** milestones · `D1`–`D3`, `F1`–`F3`, `W1`, `W5` complete |
-| **🎯 Next** | **`W2` — enter the real collection.** The one that makes Forge yours: the rules are now complete, so what is missing is your cards |
-| **Active** | Nothing in flight — **the full pool is live and wants using.** Build a deck on your phone and report what feels wrong |
+| **🎯 Next** | **`W2` — enter the real collection.** ⏳ **In flight, not waiting:** 629 printings / 1,238 copies by the 2026-08-07 snapshot. What is left is the gate — 20 random names spot-checked against the boxes — and the rest of the pile |
+| **Active** | **`W2` entry, and the fixes it keeps producing.** Using Forge for real is what surfaces them: the copy cap now follows the boxes, the browsing tab holds 854 cards, and the tray draws the printing you actually picked |
 | **Blocked** | Nothing. ✅ **X8 closed** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. **Live and proven in production** |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
-| **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve) · `apps/web` (935 cards, search, alternate arts) · `apps/cli` · `apps/api` (deck + collection + the log + nightly backup) · CI · **208 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
+| **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve, the `S5` brief and gate) · `apps/web` (935 cards, search, alternate arts, many decks, card entry, import) · `apps/cli` · `apps/api` (decks + collection + the log + nightly backup) · CI · **225 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
 
 ```
 D ─ Design         ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
@@ -57,6 +57,17 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 | `D2` | **Interface design** | [Clickable prototype](design/D2-workbench-prototype.html), approved. Ownership visual language, EE's answer shape, and how EE is invoked — all three locked. Four decisions: [D-043](DECISIONS.md#d-043) to [D-046](DECISIONS.md#d-046) | 2026-08-03 |
 | — | **Collection tool** | Keyboard entry over 1,180 printings, live matches with images, JSON export. 21 parser tests | 2026-08-02 |
 | `D1` | **Discovery** | 19 documents · 42 decisions · both rulebooks read in full · all 935 cards read, 814 main-deck cards classified · 1.3 MB cached card data · 33 legality checks · EE and generation specified | 2026-08-02 |
+
+### Shipped since, without closing a milestone
+
+**Using Forge to enter a real collection is what produced all of it**, which is the argument
+`F2` was sequenced on. **Many decks** ([D-060](DECISIONS.md#d-060)) and **deck import**, both
+pulled forward from `W3`. **Card entry moved into the app** — the standalone tool cost six
+steps a card. The **`S5` brief and gate** in the engine and CLI, ahead of `S2`. And a run of
+corrections only real use could surface: the copy cap now follows the boxes rather than
+counting to three, the browsing tab holds the 854 cards you build with, the tray draws the
+printing you picked rather than the card's default art, and the page tells you when it is
+running an old build.
 
 ---
 
@@ -142,8 +153,8 @@ new work appends the next free number and **nothing ever renumbers**.
 | ID | Milestone | Done when | Status | Depends on |
 |---|---|---|---|---|
 | `W1` | **Legality checking** ⚠️ | All 33 checks implemented, 13 rulebook tests passing | ✅ | `F3` |
-| `W2` | **Collection entry** | You have entered the real collection; 20 random names spot-check correct | ⬜ | `F3` |
-| `W3` | **Deck builder** | A complete legal deck can be built end-to-end on desktop **and** phone | ⬜ | `W1`, `W2` |
+| `W2` | **Collection entry** | You have entered the real collection; 20 random names spot-check correct | ⏳ **in flight** — 629 printings / 1,238 copies | `F3` |
+| `W3` | **Deck builder** | A complete legal deck can be built end-to-end on desktop **and** phone | ⬜ *partly delivered* — many decks ([D-060](DECISIONS.md#d-060)), import, phone widths | `W1`, `W2` |
 | `W4` | **Deck statistics** | Tier 1 + Tier 2 render with correct visual separation, under 2 s | ⬜ | `W3` |
 | `W5` | **The log** | A match logs in under a minute; the record refuses to state a rate it has not earned | ✅ | `F2` |
 
@@ -173,7 +184,7 @@ project* — it's an evening of typing that everything else depends on.
 | `S1b` | **Chains and showdowns** | CR 355–359, 370–375, 465.2 worked examples pass as fixtures; LIFO and Reaction-only-when-closed hold as property tests | 💤 **deferred** | `S1a` |
 | `S2` | **Analysis** | EE answers Q-CARD, Q-COMPARE and Q-LEGEND correctly, headlessly | ⬜ | `S1a` |
 | `S6` | **EE's mouth** | Tool surface + export contract + briefing. A real question answered end-to-end from Claude Code, with every number traceable to a tool call | ⬜ | `S2` |
-| `S5` | **Deck generation** ⭐ | All four modes produce legal, owned, explained candidates you'd actually sleeve | ⬜ | `S2`, `W2` |
+| `S5` | **Deck generation** ⭐ | All four modes produce legal, owned, explained candidates you'd actually sleeve | ⬜ *partly delivered* — the **brief** and the **gate** exist in the engine and the CLI (`brief`, `validate`); no mode generates yet | `S2`, `W2` |
 | ~~`S1`~~ | ~~Rules engine~~ | — | ↔️ **split** into `S1a` + `S1b` — [D-044](DECISIONS.md#d-044) | — |
 | ~~`S3`~~ | ~~Plain-English answers~~ | — | ❌ **retired** — [D-043](DECISIONS.md#d-043) | — |
 | ~~`S4`~~ | ~~Conversation~~ | — | ❌ **retired** — [D-043](DECISIONS.md#d-043) | — |

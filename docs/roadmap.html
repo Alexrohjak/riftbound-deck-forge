@@ -234,7 +234,7 @@
     <span class="sub">Roadmap — a personal deckbuilding workbench for Riftbound</span>
   </div>
   <div class="meta mono">
-    <span>Version 1.2</span><span>Updated 2026-08-04</span><span>17 milestones</span><span>5 tracks</span>
+    <span>Version 1.4</span><span>Updated 2026-08-07</span><span>17 milestones</span><span>5 tracks</span>
   </div>
 
   <!-- STATUS BOARD -->
@@ -243,11 +243,11 @@
     <dl class="rows">
       <div class="row"><dt>Track</dt><dd><strong>F — Foundation</strong></dd></div>
       <div class="row"><dt>Progress</dt><dd><strong class="mono">8 of 17</strong> milestones · <span class="mono">D1</span>–<span class="mono">D3</span>, <span class="mono">F1</span>–<span class="mono">F3</span>, <span class="mono">W1</span>, <span class="mono">W5</span> complete</dd></div>
-      <div class="row"><dt>Next</dt><dd><strong><span class="mono">W2</span> — enter the real collection.</strong> The rules are complete; what is missing is your cards.</dd></div>
-      <div class="row"><dt>Active</dt><dd>Nothing in flight — <strong>F2 is live and wants using.</strong> Build a deck on your phone and report what feels wrong.</dd></div>
+      <div class="row"><dt>Next</dt><dd><strong><span class="mono">W2</span> — enter the real collection.</strong> In flight, not waiting: 629 printings / 1,238 copies by the 2026-08-07 snapshot. What is left is the gate — 20 random names spot-checked against the boxes — and the rest of the pile.</dd></div>
+      <div class="row"><dt>Active</dt><dd><strong>W2 entry, and the fixes it keeps producing.</strong> The copy cap now follows the boxes, the browsing tab holds 854 cards, and the tray draws the printing you actually picked.</dd></div>
       <div class="row"><dt>Blocked</dt><dd>Nothing. <strong>X8 closed</strong> (D-051) — a nightly cron commits a snapshot to this repo, off Cloudflare. Live and proven in production.</dd></div>
       <div class="row"><dt>Stack</dt><dd>TypeScript · React + Vite · <strong>one Cloudflare Worker</strong> (SPA + API) and D1 · <strong>£0/month, verified</strong></dd></div>
-      <div class="row"><dt>Code</dt><dd><strong>The workspace is real.</strong> packages/engine (pure TypeScript, all 33 legality checks, the energy curve), apps/web (935 cards, search, alternate arts), apps/cli, apps/api and CI, with 72 tests — plus the collection tool and the docs check.</dd></div>
+      <div class="row"><dt>Code</dt><dd><strong>The workspace is real.</strong> packages/engine (pure TypeScript, all 33 legality checks, the energy curve), apps/web (935 cards, search, alternate arts), apps/cli, apps/api and CI, with 225 tests — plus the collection tool and the docs check.</dd></div>
     </dl>
   </div>
 
@@ -306,9 +306,9 @@
   <section class="track">
     <div class="track-head"><span class="id">W</span><h3>The Workbench</h3><span class="note">Catalogue what you own; build, validate and measure decks</span></div>
     <div class="lane future">
-      <div class="ms"><span class="code">W1</span><div class="body"><h4>Legality checking</h4><p>All 33 checks implemented, 13 rulebook-derived tests passing.</p><span class="dep">depends on F3</span></div><span class="pill todo">Todo</span></div>
-      <div class="ms"><span class="code">W2</span><div class="body"><h4>Collection entry</h4><p>You have entered the real collection; 20 random names spot-check correct against the boxes.</p><span class="dep">depends on F3</span></div><span class="pill todo">Todo</span></div>
-      <div class="ms"><span class="code">W3</span><div class="body"><h4>Deck builder</h4><p>A complete legal deck can be built end-to-end on desktop <em>and</em> phone.</p><span class="dep">depends on W1, W2</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">W1</span><div class="body"><h4>Legality checking</h4><p>All 33 checks implemented, 13 rulebook-derived tests passing.</p><span class="dep">depends on F3</span></div><span class="pill done">Done</span></div>
+      <div class="ms"><span class="code">W2</span><div class="body"><h4>Collection entry</h4><p>You have entered the real collection; 20 random names spot-check correct against the boxes. In flight — 629 printings entered.</p><span class="dep">depends on F3</span></div><span class="pill next">In flight</span></div>
+      <div class="ms"><span class="code">W3</span><div class="body"><h4>Deck builder</h4><p>A complete legal deck can be built end-to-end on desktop <em>and</em> phone. Partly delivered: many decks (D-060), import, phone widths.</p><span class="dep">depends on W1, W2</span></div><span class="pill todo">Todo</span></div>
       <div class="ms"><span class="code">W4</span><div class="body"><h4>Deck statistics</h4><p>Tier 1 facts and Tier 2 probabilities render with correct visual separation, under 2 s.</p><span class="dep">depends on W3</span></div><span class="pill todo">Todo</span></div>
       <div class="ms"><span class="code">W5</span><div class="body"><h4>The log</h4><p>Matches, deck history and client diagnostics. A match logs in under a minute, and the record refuses to state a win rate it has not earned.</p><span class="dep">depends on F2</span></div><span class="pill done">Done</span></div>
     </div>
@@ -324,7 +324,7 @@
       <div class="ms"><span class="code">S1b</span><div class="body"><h4>Chains and showdowns</h4><p>Deferred until Q-LINE is actually missed. Rulebook worked examples pass as fixtures; LIFO and Reaction-only-when-closed hold as property tests.</p><span class="dep">depends on S1a · deferred</span></div><span class="pill todo">Deferred</span></div>
       <div class="ms"><span class="code">S2</span><div class="body"><h4>Analysis</h4><p>Answers card, comparison and Legend questions correctly, headlessly.</p><span class="dep">depends on S1a</span></div><span class="pill todo">Todo</span></div>
       <div class="ms"><span class="code">S6</span><div class="body"><h4>EE's mouth</h4><p>Tool surface, export contract and briefing. A real question answered end-to-end from Claude Code, with every number traceable to a tool call.</p><span class="dep">depends on S2</span></div><span class="pill todo">Todo</span></div>
-      <div class="ms"><span class="code">S5</span><div class="body"><h4>Deck generation</h4><p>All four modes — seeded, intent, counter, open — produce legal, owned, explained candidates you'd actually sleeve.</p><span class="dep">depends on S2, W2</span></div><span class="pill todo">Todo</span></div>
+      <div class="ms"><span class="code">S5</span><div class="body"><h4>Deck generation</h4><p>All four modes — seeded, intent, counter, open — produce legal, owned, explained candidates you'd actually sleeve. Partly delivered: the brief and the gate exist in the engine and CLI; no mode generates yet.</p><span class="dep">depends on S2, W2</span></div><span class="pill todo">Todo</span></div>
       <div class="ms"><span class="code">S3 · S4</span><div class="body"><h4>Retired — D-043</h4><p>Plain-English answers and Conversation are no longer built. Claude Code is the mouth. IDs never renumber, so they stay here retired rather than reused.</p></div><span class="pill todo">Retired</span></div>
     </div>
     <div class="callout"><strong>Restructured 2026-08-03.</strong> D-043 — EE is a rules engine with a swappable mouth, and the mouth is Claude Code against exported state. D-044 splits the engine so the track delivers before its hardest half is finished.</div>

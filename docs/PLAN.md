@@ -4,7 +4,8 @@
 > where the risk sits. For *status* — where we are right now — see [`ROADMAP.md`](ROADMAP.md).
 >
 > **Created:** 2026-08-02 · **Rewritten:** 2026-08-03 (v5 — `D3` closed, `DESIGN LOCKED` lifted)
-> · **Status:** the design track is **complete**; `F1` is next and the architecture is
+> · **Status checked:** 2026-08-07 — the design and Foundation tracks are **complete**, `W1`
+> and `W5` with them, and **`W2` is in flight**. The architecture is
 > [`ARCHITECTURE.md`](ARCHITECTURE.md) — see the
 > [README](../README.md#-start-here--how-to-pick-this-up)
 
@@ -205,7 +206,7 @@ SQLite that exports to a file.
 
 ---
 
-### F1 — Get it online **← NEXT**
+### F1 — Get it online ✅ **COMPLETE 2026-08-04**
 
 **Size:** S · **Gate:** ✅ design locked · 📐 Build to [`ARCHITECTURE.md`](ARCHITECTURE.md)
 
@@ -252,7 +253,7 @@ finding a hosting problem later would be expensive.
 
 ---
 
-### F2 — First usable version ⭐
+### F2 — First usable version ⭐ ✅ **COMPLETE 2026-08-04**
 
 **Size:** M · **Gate:** F1
 
@@ -281,7 +282,7 @@ Ugly, incomplete, and **genuinely usable.**
 
 ---
 
-### F3 — Card data
+### F3 — Card data ✅ **COMPLETE 2026-08-04**
 
 **Size:** S–M · **Gate:** F2 · **Gates both tracks**
 
@@ -297,7 +298,7 @@ tags, domains and Signature status available for every card.
 
 ## 5. The Workbench — W1 to W4
 
-### W1 — Legality checking ⚠️ **highest correctness risk**
+### W1 — Legality checking ✅ **COMPLETE 2026-08-04** · ⚠️ **was the highest correctness risk**
 
 **Size:** M–L · **Gate:** F3 · **Parallel with W2**
 
@@ -313,7 +314,7 @@ rulebooks (both now read in full — see [COMPENDIUM](reference/COMPENDIUM.md)).
 > Mitigation: read the rulebook line by line, never summaries; encode every rulebook
 > example as a test.
 
-### W2 — Collection entry
+### W2 — Collection entry ⏳ **IN FLIGHT**
 
 **Size:** M · **Gate:** F3 · **Parallel with W1**
 
@@ -328,6 +329,12 @@ DRAFT/BUILT commitment model.
 >
 > **Audit finding A3:** this was assumed rather than planned. It is now an explicit
 > milestone with a completion check — spot-check 20 random names against the boxes.
+>
+> ⏳ **In flight as of 2026-08-07: 629 printings / 1,238 copies**, already past the ~1,000
+> physical cards [`DISCOVERY.md`](DISCOVERY.md) estimated. **The route changed** — entry moved
+> into Forge itself (`+ Add cards`), so it writes to D1 as you type instead of through the
+> standalone tool's export. **The spot-check has not been run**, and it is the only thing the
+> milestone is still waiting on besides the rest of the pile.
 
 ### W3 — Deck builder
 
@@ -465,6 +472,13 @@ the answer traces to a tool call.
 
 **Size:** L · **Gate:** S2 + **W2** (generation is meaningless without knowing what you own)
 · Spec: [`spec/GENERATOR.md`](spec/GENERATOR.md)
+
+> **⚠️ Partly delivered early: the brief and the gate exist, ahead of `S2`.** `brief` states
+> the constraints a proposal must satisfy — the Legend's text, every card legal under its
+> identity, the targets, and what you own — and `validate` is the gate a proposal has to pass,
+> answering in **instructions rather than complaints** and catching invented card ids, which
+> no legality check can. Both run headlessly from [`apps/cli`](../apps/cli/). **No mode
+> generates yet**: the engine states the constraints, and the caller chooses the cards.
 
 **Reinstated and fused with EE** ([D-041](DECISIONS.md#d-041)) — this is EE running in the
 *propose* direction, not a separate subsystem. **Re-gated from `S3` to `S2`** by

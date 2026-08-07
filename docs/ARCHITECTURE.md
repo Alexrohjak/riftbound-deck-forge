@@ -180,8 +180,13 @@ immutable and ships with the build.** That is what makes §5's headroom real rat
 optimistic.
 
 **Backup is not a feature to build later.** The collection tool's export already produces the
-canonical format, and [`DATA-MODEL.md` §6](spec/DATA-MODEL.md) specifies portability. `F1`
-wires a scheduled export; until then the manual one is genuine.
+canonical format, and [`DATA-MODEL.md` §6](spec/DATA-MODEL.md) specifies portability.
+
+> ✅ **Settled by `X8` / [D-051](DECISIONS.md#d-051), not by `F1` as this said.** A nightly
+> cron reads D1 at 03:12 UTC and commits a JSON snapshot to the **`backups` branch of the
+> repo** — deliberately a different vendor from the data it protects, because an R2 bucket in
+> the same Cloudflare account insures a bad write and not the loss of the account. Live and
+> proven in production 2026-08-04; the manual export remains the restore path.
 
 ## 7. Offline, and a correction to D-018
 

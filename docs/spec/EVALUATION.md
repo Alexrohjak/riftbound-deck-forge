@@ -4,7 +4,12 @@
 > matchups; it answers in plain language, grounded in a deterministic rules core.
 >
 > **Created:** 2026-08-02 · **Revised:** 2026-08-03 (v4 — the mouth is swappable,
-> [D-043](../DECISIONS.md#d-043)) · **Status:** specification, no code
+> [D-043](../DECISIONS.md#d-043)) · **Status checked 2026-08-07:** specification, with a
+> **first slice built ahead of `S2`** — `packages/engine/src/advice` reads a deck's archetype
+> and shape, holds the doctrine thresholds, and turns *"what went wrong in that game"* into a
+> diagnosis; it is on screen as the Advisor, asked and never volunteered
+> ([D-042](../DECISIONS.md#d-042)). **`S1a`, `S2` and `S6` remain unbuilt** — no rules engine,
+> no Q-CARD/Q-COMPARE/Q-LEGEND, no mouth.
 
 **Related:** [`OVERVIEW.md`](OVERVIEW.md) (system map) ·
 [`../reference/COMPENDIUM.md`](../reference/COMPENDIUM.md) (rules + cards) ·

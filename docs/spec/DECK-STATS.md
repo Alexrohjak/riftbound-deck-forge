@@ -7,7 +7,10 @@
 > [`EVALUATION.md`](EVALUATION.md) (EE) owns what they *mean* and what to do about them.
 > See [`OVERVIEW.md`](OVERVIEW.md) §1 for why the two must never blur.
 >
-> **Status:** Design accepted 2026-08-02. Not yet specified to implementation detail.
+> **Status:** Design accepted 2026-08-02. **The energy curve is built** — a histogram, never
+> a mean (§6), with cost-less cards held out of the buckets rather than folded into zero.
+> The rest of the framework, and `W4`'s Tier 1 / Tier 2 visual separation, is still design
+> rather than implementation detail.
 
 ---
 

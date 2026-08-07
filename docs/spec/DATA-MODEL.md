@@ -3,7 +3,10 @@
 > Entities, relationships, and lifecycle. Written **before** architecture, because
 > these are product decisions wearing implementation clothes.
 >
-> **Status:** Draft, 2026-08-02. Storage technology deliberately unspecified (D-019).
+> **Status:** Written 2026-08-02 with storage deliberately unspecified (D-019); ✅ **built.**
+> `D3` chose D1 ([`ARCHITECTURE.md`](../ARCHITECTURE.md)) and the schema in
+> [`apps/api/schema.sql`](../../apps/api/schema.sql) implements these entities directly —
+> collection, decks, deck_slots, bench, deck_history, matches, events.
 
 ---
 
@@ -143,6 +146,23 @@ the one in your box. So:
 
 The practical consequence for [`W2`](../PLAN.md): it does not matter which printing of a card
 you register. Enter the one in front of you.
+
+### The workshop stops at what you own — the verdict still only warns
+
+**Two different statements, and they are easy to mistake for a contradiction.** A deck slot
+will not take more copies of a name than the boxes hold: the tile fills at `min(3, owned)`
+rather than counting to `L13`'s three regardless, because a deck full of copies that do not
+exist is legal on paper and unsleeveable at the table. That cap is **counted by name across
+every art** — owning one of each of two printings is two copies, not one from either side.
+
+**This does not change [`LEGALITY.md` §2](LEGALITY.md).** `L26`/`L27` remain warnings that
+can never make a deck illegal. A tile declining a click and an engine calling a deck illegal
+are different statements; the first is the builder refusing to help you build something you
+cannot sleeve, the second would be Forge inventing a rule Riot did not write.
+
+⚠️ **An empty collection means "not entered yet", never "you own nothing"** — with nothing
+registered the cap falls back to three, or the whole gallery would black out before D1
+answered and stay that way for anyone who has never imported.
 
 ---
 

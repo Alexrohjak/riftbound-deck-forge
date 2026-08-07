@@ -1,8 +1,9 @@
 # Discovery — Forge
 
-> **Status:** Discovery in progress. Not yet a locked BLUEPRINT.
-> **Phase:** 1 (Discovery) of the 4-Phase SOP
-> **Last updated:** 2026-08-02
+> **Status:** ✅ **Closed.** `D1` completed 2026-08-02 and the design track with it; this
+> document is the locked statement of problem, scope and non-goals, not a live workspace.
+> **Phase:** 1 (Discovery) of the 4-Phase SOP — the project is in Phase 3 (Development)
+> **Last updated:** 2026-08-02 · **Status checked:** 2026-08-07
 
 ---
 

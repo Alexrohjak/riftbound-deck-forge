@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ **The Foundation track is complete.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · now with **card entry built in** (`+ Add cards`), **[the log](docs/spec/LOG.md)** and **EE on screen** — ask it to look a deck over, tell it what went wrong in a game, and every claim carries its source and how much confidence it earns · 🎯 `W2` next — enter the real collection · **nightly backups run off-vendor**
+> **Status:** ✅ **The Foundation track is complete.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** — ask it to look a deck over, tell it what went wrong in a game, and every claim carries its source and how much confidence it earns · 🎯 **`W2` is in flight** — **629 printings / 1,238 copies** entered as of the 2026-08-07 snapshot, and **the deck can no longer take three copies of a card you own one of** · **nightly backups run off-vendor**
 
 ---
 
@@ -43,32 +43,39 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here — how to pick this up
 
-*Last worked on 2026-08-04. This section is the recipe; the live status board is
+*Last worked on 2026-08-07. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
 **Where things stand.** 🔓 The whole design track is done and `DESIGN LOCKED` has lifted.
 ✅ **`F1`, `F2` and `F3` are all closed** — Forge is live, private, deploys itself on every push
-to `main`, and **is now a deckbuilder you can actually use** (§4). Forge also still has the
-[collection tool](tools/collection/), used for real entry and improved twice from that use.
+to `main`, and **is now a deckbuilder you can actually use** (§4).
 
-**🎯 Next is `W2`** — an evening entering the real collection, which is when Forge stops
-being a demo. ⚖️ **`W1` is done**: all 33 legality checks, with the rulebook's own 13 worked
+**🎯 `W2` is in flight rather than waiting.** The boxes are going in: **629 printings /
+1,238 copies** by the 2026-08-07 backup, entered through `+ Add cards` inside Forge rather
+than through the standalone tool. What is left of the milestone is its gate — **20 random
+names spot-checked against the boxes** — and however much of the pile is still unentered.
+⚖️ **`W1` is done**: all 33 legality checks, with the rulebook's own 13 worked
 examples as tests. ✅ **`X8` is closed** ([D-051](docs/DECISIONS.md#d-051)):
 a nightly cron commits a JSON snapshot to this repo rather than to R2, because a backup in
 the same Cloudflare account does not survive losing the account. **Live and proven in
 production** — §5.
 
-### 1 · Run the collection tool
+### 1 · Enter cards — in Forge, not in the tool
+
+**`+ Add cards` in the toolbar** is where entry lives now. Pick a set, type collector
+numbers, matches appear as you type, `⏎` adds — and it writes straight to D1, so there is no
+export step and nothing to lose. Turning it on also turns on the Owned view, because entering
+cards and seeing what you own are the same activity.
+
+> The standalone [collection tool](tools/collection/) still works and still exports the same
+> `forge.collection/1` JSON, which the app imports. It is now the **fallback**, not the
+> route: it took six steps per card and the round trip through a file is exactly what made it
+> a tool you abandon.
 
 ```bash
 cd ~/code/riftbound && git pull
 cd tools/collection && python3 -m http.server 8000     # → http://localhost:8000
 ```
-
-Pick a set, type collector numbers — matches appear as you type, `⏎` adds.
-**Export from the Data tab when finished**: the collection lives in `localStorage`, and that
-exported JSON is the durable asset. Full instructions in
-[`tools/collection/README.md`](tools/collection/README.md).
 
 ### 2 · What was decided on 2026-08-03
 
@@ -90,7 +97,7 @@ grounding lines; and **editing requires connectivity** — offline you can look 
 ### 3 · Run the workspace
 
 `packages/engine` is the real thing — pure TypeScript, ⚖️ **all 33 legality checks**,
-the energy curve, the log's honesty thresholds, 208 tests:
+the energy curve, the log's honesty thresholds, 225 tests:
 
 ```bash
 npm install
@@ -137,12 +144,13 @@ list always says which checks actually ran.
 
 | Piece | State |
 |---|---|
-| **The deckbuilder** | **All 935 cards** behind a search box. Pick any of the 49 Legends and an eligible Champion, tap to add and remove, saved to D1 as you go |
-| **Alternate arts** | Collapsed behind each card; pick which printing a deck slot uses. Thumbnails are served at `w=96` — the full scans are ~1 MB each |
-| **Live legality** | ⚖️ **All 33 checks**, including the ban list, the Signature cap and `[Unique]`. Violations name the check *and* its rulebook citation. Ownership appears as a **warning**, never a violation |
+| **The deckbuilder** | **All 935 cards** behind a search box — the browsing tab holds **854** of them, since battlefields and runes have their own tabs and tokens can never be registered. Pick any of the 49 Legends and an eligible Champion, tap to add and remove, saved to D1 as you go |
+| **Many decks** | Start one, rename one, destroy one, switch between them ([D-060](docs/DECISIONS.md#d-060)). A deck imports from a list, and so does the collection |
+| **Alternate arts** | Collapsed behind each card; pick which printing a deck slot uses, and **the tray draws the printing you picked** |
+| **Live legality** | ⚖️ **All 33 checks**, including the ban list, the Signature cap and `[Unique]`. Violations name the check *and* its rulebook citation. Ownership appears as a **warning**, never a violation — but the **workshop will not take more copies than the boxes hold** ([DATA-MODEL §2](docs/spec/DATA-MODEL.md)) |
 | **The energy curve** | A histogram, never a mean ([DECK-STATS §6](docs/spec/DECK-STATS.md)). Cards with no cost data are kept out of the buckets rather than folded into zero |
 | **One Worker, one origin** | Serves the SPA *and* the API ([D-050](docs/DECISIONS.md#d-050) — Cloudflare closed Pages to new projects) |
-| **D1** | `forge`, schema applied. Holds one deck; the collection table is still empty until `W2` |
+| **D1** | `forge`, schema applied. Decks, slots, bench, deck history, matches, events — and a **collection of 629 printings** and climbing |
 | **Zero Trust Access** | Self-hosted app, allow-list of one email, 7-day sessions. Verified enforcing |
 | **Automatic deploys** | `main` → build → deploy, via Workers Builds. **`npm run build` is the gate** — see below |
 
