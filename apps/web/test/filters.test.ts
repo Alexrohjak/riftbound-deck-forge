@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { apply, NO_FILTERS, orderShelf, ownedCount, type Filters, type ShelfRow } from "../src/filters.js";
+import {
+  apply,
+  copyLimit,
+  MAX_COPIES,
+  NO_FILTERS,
+  orderShelf,
+  ownedCount,
+  type Filters,
+  type ShelfRow,
+  type Tab,
+} from "../src/filters.js";
 import { buildPool, type Card } from "../src/cards.js";
 
 /**
@@ -89,6 +99,83 @@ describe("the Owned view", () => {
 
   it("leaves the full pool alone when it is off", () => {
     expect(names(NO_FILTERS)).toHaveLength(4);
+  });
+});
+
+/**
+ * **All is the cards you build with**, not every printing that exists. Three kinds are shown
+ * elsewhere or nowhere: battlefields are landscape and break the grid wherever one lands,
+ * runes are 6 names a Legend fills for you, and tokens can never be registered at all.
+ */
+describe("what the All tab shows", () => {
+  const FIELD = card({ name: "Ionian Coast", types: ["battlefield"] });
+  const RUNE = card({ name: "Fury Rune", types: ["rune"], superTypes: ["basic"] });
+  const LEGEND = card({ name: "Jinx, Loose Cannon", types: ["legend"] });
+  const TOKEN = card({ name: "Sprite", superTypes: ["token"] });
+  const mixed = buildPool({
+    schema: "forge.cards/1",
+    counts: { names: 5, printings: 5, legends: 1, banned: 0 },
+    cards: [ONE, FIELD, RUNE, LEGEND, TOKEN],
+  });
+  const inTab = (tab: Tab) => apply(mixed.cards, { ...NO_FILTERS, tab }).map((c) => c.name);
+
+  it("is the Main Deck pool and the Legends, and nothing else", () => {
+    expect(inTab("all")).toEqual(["Yordle Squad", "Jinx, Loose Cannon"]);
+  });
+
+  it("still shows battlefields and runes in their own tabs, which are now the only route", () => {
+    expect(inTab("battlefield")).toEqual(["Ionian Coast"]);
+    expect(inTab("rune")).toEqual(["Fury Rune"]);
+  });
+
+  it("shows a token in no tab at all — it is created in play, never registered", () => {
+    for (const tab of ["all", "legend", "main", "battlefield", "rune"] as Tab[]) {
+      expect(inTab(tab)).not.toContain("Sprite");
+    }
+  });
+
+  it("keeps Main Deck to what goes in the forty", () => {
+    expect(inTab("main")).toEqual(["Yordle Squad"]);
+  });
+});
+
+/**
+ * **The boxes cap a deck as hard as the rulebook.** Counting to three on a card you own one
+ * of builds a deck that cannot be sleeved — the exact confusion this tool exists to remove.
+ */
+describe("how many copies the workshop will take", () => {
+  const limit = (c: Card, tracked = true) => copyLimit(c, COLLECTION, tracked);
+
+  it("stops at the copies you hold rather than at three", () => {
+    expect(limit(ONE)).toBe(1);
+  });
+
+  it("counts a name across its arts, so two printings are one pool of copies", () => {
+    // One base + two alt = three, and three is where L13 lands anyway.
+    expect(limit(SPLIT)).toBe(3);
+  });
+
+  it("never lets a deep holding raise the cap above L13's three", () => {
+    // Four copies of the spell are in the boxes. The fourth is still unplayable.
+    expect(limit(SPELL)).toBe(MAX_COPIES);
+  });
+
+  it("takes none of a card you own none of", () => {
+    expect(limit(NONE)).toBe(0);
+  });
+
+  it("falls back to the rulebook when no collection has been entered", () => {
+    // ⚠️ The whole gallery would black out otherwise — in the moment before D1 answers, and
+    // permanently for anyone who has not imported a collection yet.
+    expect(copyLimit(NONE, {}, false)).toBe(MAX_COPIES);
+    expect(copyLimit(ONE, {}, false)).toBe(MAX_COPIES);
+  });
+
+  it("exempts runes and Legends, which the collection does not count", () => {
+    // A Legend fills twelve runes by identity, and is itself the deck's identity rather than
+    // a copy in it. Capping either would block the first step of a build.
+    expect(limit(card({ name: "Fury Rune", types: ["rune"] }))).toBe(Infinity);
+    expect(limit(card({ name: "Jinx, Loose Cannon", types: ["legend"] }))).toBe(Infinity);
   });
 });
 

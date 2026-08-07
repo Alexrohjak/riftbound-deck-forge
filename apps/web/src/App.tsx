@@ -15,7 +15,7 @@ import { DeckBar, DeckName, useDecks } from "./Decks.js";
 import { Advisor } from "./Advisor.js";
 import { ImportCollection, type Result as ImportResult } from "./ImportCollection.js";
 import { History, LogPanel, useMatches } from "./Log.js";
-import { apply, DOMAIN_LIST, NO_FILTERS, orderShelf, ownedCount, SORTS, TYPES, type Filters, type ShelfRow, type Tab } from "./filters.js";
+import { apply, copyLimit, DOMAIN_LIST, MAX_COPIES, NO_FILTERS, orderShelf, ownedCount, SORTS, TYPES, type Filters, type ShelfRow, type Tab } from "./filters.js";
 import { filtersFor, runeSlots, stepFor, type Step } from "./buildFlow.js";
 import { Workshop, type Occupant, type Target } from "./Workshop.js";
 import { CardDetail } from "./CardDetail.js";
@@ -31,7 +31,6 @@ import { CardDetail } from "./CardDetail.js";
  * One rule everywhere, with no hover-only affordances and no 20px targets.
  */
 
-const MAX_COPIES = 3;
 const PAGE = 60;
 
 /**
@@ -128,11 +127,22 @@ function EnergyCurve({ counts, unknown, counted }: ReturnType<typeof energyCurve
   );
 }
 
+/**
+ * Why the tile will not take another copy — said in the terms that caused it, because
+ * "three copies is the limit" on a card you own one of is a lie about your own boxes.
+ */
+const limitNote = (card: Card, limit: number): string => {
+  if (limit >= MAX_COPIES) return `${card.name} — three copies is the limit`;
+  if (limit === 0) return `${card.name} — none in your collection`;
+  return `${card.name} — you own ${limit}, and ${limit === 1 ? "it is" : "they are"} in the deck`;
+};
+
 /** A gallery tile: the art, and a count when it is in the deck. */
 function Tile({
   card,
   held,
   owned,
+  limit,
   printing: shown,
   index,
   tile,
@@ -143,6 +153,12 @@ function Tile({
   held: number;
   /** Copies in the box. A different fact from `held`, which is copies in this deck. */
   owned: number;
+  /**
+   * The most copies this card will accept — `MAX_COPIES`, or fewer when the boxes say so
+   * (`copyLimit`). ⚠️ **Counted by name, never by the printing on the tile**, or owning one
+   * of each of two arts would cap the card at one from either side.
+   */
+  limit: number;
   /**
    * ⚠️ Which printing to draw. The gallery collapses a card to one entry, which is right
    * when you are choosing *cards* — but the collection is a shelf of *objects*, and an
@@ -159,23 +175,28 @@ function Tile({
   onRemove: () => void;
 }) {
   const printing = shown ?? card.printings[0];
-  const atLimit = !card.types.includes("rune") && held >= MAX_COPIES;
+  const atLimit = held >= limit;
   const [ready, setReady] = useState(false);
   return (
     <div
       className={`tile${held > 0 ? " in" : ""}${atLimit ? " maxed" : ""}${card.landscape ? " wide" : ""}`}
       style={{ ["--deal" as string]: `${Math.min(index, 12) * 22}ms` }}
     >
+      {/* ⚠️ **Full is not `disabled`.** A disabled button dispatches no mouse events at all,
+          so the right-click that takes a card *out* dies with the left-click that puts one
+          in. That was survivable while the cap was three and rarely met; against the boxes a
+          single-copy card fills on its first click, and the tile you just filled would be the
+          one tile you could not undo. Left click is refused, right click still removes. */}
       <button
         type="button"
         className="face"
-        onClick={onAdd}
+        onClick={atLimit ? undefined : onAdd}
         onContextMenu={(e) => {
           e.preventDefault();
           onRemove();
         }}
-        disabled={atLimit}
-        title={atLimit ? `${card.name} — three copies is the limit` : `${card.name} — click to add`}
+        aria-disabled={atLimit}
+        title={atLimit ? limitNote(card, limit) : `${card.name} — click to add`}
       >
         {printing && (
           <img
@@ -349,6 +370,14 @@ export function App() {
       copies: Object.values(owned).reduce((n, q) => n + q, 0),
     };
   }, [pool, owned]);
+
+  /**
+   * Whether Forge knows your boxes at all. ⚠️ **Derived once per collection, never per
+   * tile** — `Object.keys` on 600+ printings, called for every card in the grid on every
+   * render, is the shape of the lag that made the search box stutter.
+   */
+  const tracked = holdings.printings > 0;
+
   useEffect(() => setShown(PAGE), [filters]);
 
   useEffect(() => {
@@ -607,7 +636,11 @@ export function App() {
           <div className="filterbar">
             <div className="fgroup">
               <span className="flabel">Type</span>
-              {TYPES.map((t) => (
+              {/* ⚠️ No battlefield or rune chip. Their tabs are the only route to them now,
+                  so in every other tab the chip could only ever return nothing — a filter
+                  that empties the gallery reads as a broken gallery, not as a filter you
+                  should not have pressed. */}
+              {TYPES.filter((t) => t !== "battlefield" && t !== "rune").map((t) => (
                 <button
                   key={t}
                   type="button"
@@ -737,6 +770,9 @@ export function App() {
                   card={row.card}
                   printing={row.printing}
                   owned={row.owned}
+                  // ⚠️ The row's `owned` is this art alone; the limit is the name's total
+                  // across every art, which is why it is recomputed rather than reused.
+                  limit={copyLimit(row.card, owned, tracked)}
                   held={row.card.types.includes("legend") ? 0 : copiesOfName(row.card)}
                   onAdd={() => add(row.card, row.printing)}
                   onRemove={() => removeOne(row.card)}
@@ -749,6 +785,7 @@ export function App() {
               tile={tile}
               card={card}
               owned={ownedCount(card, owned)}
+              limit={copyLimit(card, owned, tracked)}
               held={card.types.includes("legend") ? 0 : copiesOfName(card)}
                   onAdd={() => add(card)}
                   onRemove={() => removeOne(card)}

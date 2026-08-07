@@ -51,10 +51,23 @@ export const NO_FILTERS: Filters = {
 };
 
 const inTab = (card: Card, tab: Tab): boolean => {
-  if (tab === "all") return true;
   if (tab === "legend") return card.types.includes("legend");
   if (tab === "rune") return card.types.includes("rune");
   if (tab === "battlefield") return card.types.includes("battlefield");
+  // ⚠️ **`all` is the cards you build with — Legends and the Main Deck pool.** It is not
+  // "every printing that exists", and the three it drops are each dropped for their own
+  // reason. **Battlefields** are the one landscape card, so a tile spans two columns and
+  // interrupts the grid wherever it falls; 66 of them scattered through the set order broke
+  // up the one tab you scroll to browse, and they have their own zone, their own cap and
+  // their own tab. **Runes** are 6 names you never choose — a Legend fills all twelve slots
+  // by identity the moment you pick it. **Tokens** are created during play and can never be
+  // registered (DATA-MODEL §1), so offering one is offering something the rules refuse.
+  if (tab === "all")
+    return (
+      !card.types.includes("battlefield") &&
+      !card.types.includes("rune") &&
+      !card.superTypes.includes("token")
+    );
   return isDeckable(card) && zoneFor(card) === "MAIN";
 };
 
@@ -92,6 +105,41 @@ const compare = (
 /** Copies owned of a card, summed across every printing of that name. */
 export const ownedCount = (card: Card, collection: Readonly<Record<string, number>>): number =>
   card.printings.reduce((n, p) => n + (collection[p.id] ?? 0), 0);
+
+/** L13 — three copies of a name. The game's cap, and the only one Forge can apply blind. */
+export const MAX_COPIES = 3;
+
+/**
+ * How many copies of a card the workshop will take.
+ *
+ * ⚠️ **The boxes cap a deck as hard as the rulebook does.** L13 allows three of a name;
+ * owning one allows one. Counting to three regardless let a deck fill up with copies that do
+ * not exist — legal on paper and unsleeveable at the table, which is the precise confusion
+ * this tool was built to remove.
+ *
+ * This does **not** touch the verdict. Ownership stays a warning there and can never make a
+ * deck illegal ([LEGALITY §2](../../../docs/spec/LEGALITY.md)) — a tile declining a click and
+ * an engine calling a deck illegal are different statements, and the distinction is the point
+ * of the whole tool.
+ *
+ * **Two exemptions.** Runes are not collected — a Legend fills twelve of them and the
+ * collection has no rows to count, so a cap would read as "you own none of the six runes that
+ * exist". A Legend is the deck's *identity* rather than a copy in it; blacking one out would
+ * stop the build at step one with nothing to click past it.
+ *
+ * @param tracked Whether the collection holds anything at all. **Empty means "not entered
+ * yet", never "you own nothing"** — without this the whole gallery greys out in the moment
+ * before D1 answers, and stays that way for a collection that has never been imported.
+ */
+export const copyLimit = (
+  card: Card,
+  collection: Readonly<Record<string, number>>,
+  tracked: boolean,
+): number => {
+  if (card.types.includes("rune") || card.types.includes("legend")) return Infinity;
+  if (!tracked) return MAX_COPIES;
+  return Math.min(MAX_COPIES, ownedCount(card, collection));
+};
 
 export function apply(
   cards: Card[],

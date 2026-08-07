@@ -137,7 +137,9 @@ h2 {
   box-shadow: var(--shadow);
 }
 /* At the copy limit the card steps back rather than shouting — nothing more to add here. */
-.tile.maxed .face { filter: saturate(0.5); }
+/* Full: as many copies in the deck as the boxes hold. Not `not-allowed` — right click still
+   takes one out, and the cursor should not claim the tile is dead. */
+.tile.maxed .face { filter: saturate(0.5); cursor: default; }
 
 @keyframes pop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
