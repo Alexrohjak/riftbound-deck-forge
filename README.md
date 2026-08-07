@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ **The Foundation track is complete.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** — ask it to look a deck over, tell it what went wrong in a game, and every claim carries its source and how much confidence it earns · 🎯 **`W2` is in flight** — **629 printings / 1,238 copies** entered as of the 2026-08-07 snapshot, and **the deck can no longer take three copies of a card you own one of** · **nightly backups run off-vendor**
+> **Status:** ✅ **The Foundation track is complete.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** — ask it to look a deck over, tell it what went wrong in a game, and every claim carries its source and how much confidence it earns · ✅ **`W2` is closed — the collection is real**: **629 printings / 1,238 copies**, every set but `OGS`, and **the deck can no longer take three copies of a card you own one of** · 🎯 `W3` next · **nightly backups run off-vendor**
 
 ---
 
@@ -50,12 +50,21 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 ✅ **`F1`, `F2` and `F3` are all closed** — Forge is live, private, deploys itself on every push
 to `main`, and **is now a deckbuilder you can actually use** (§4).
 
-**🎯 `W2` is in flight rather than waiting.** The boxes are going in: **629 printings /
-1,238 copies** by the 2026-08-07 backup, entered through `+ Add cards` inside Forge rather
-than through the standalone tool. What is left of the milestone is its gate — **20 random
-names spot-checked against the boxes** — and however much of the pile is still unentered.
-⚖️ **`W1` is done**: all 33 legality checks, with the rulebook's own 13 worked
-examples as tests. ✅ **`X8` is closed** ([D-051](docs/DECISIONS.md#d-051)):
+✅ **`W2` is closed — Forge runs on your cards now.** **629 printings / 1,238 copies**,
+entered through `+ Add cards` inside Forge rather than through the standalone tool.
+⚖️ **`W1` is done** too: all 33 legality checks, with the rulebook's own 13 worked examples
+as tests.
+
+> ⚠️ **Two things `W2` is closed *without*.** **`OGS` is not entered** — the 24-printing
+> Origins supplement inside Proving Grounds, held back on purpose — so everything that reads
+> ownership will call those 24 unowned, which is true until the set goes in and is the one
+> place Forge will be confidently wrong about your boxes. And **the 20-name spot-check has not
+> been run**: the milestone is closed on judgement rather than evidence, which is worth an
+> hour before `W4` starts putting statistics on top of these numbers.
+
+**🎯 Next is `W3`** — the deck builder, and it is no longer waiting on anything: `W1` gave it
+the rules and `W2` gave it the cards. What is left is building a complete legal deck
+end-to-end on desktop **and** phone. ✅ **`X8` is closed** ([D-051](docs/DECISIONS.md#d-051)):
 a nightly cron commits a JSON snapshot to this repo rather than to R2, because a backup in
 the same Cloudflare account does not survive losing the account. **Live and proven in
 production** — §5.
@@ -150,7 +159,7 @@ list always says which checks actually ran.
 | **Live legality** | ⚖️ **All 33 checks**, including the ban list, the Signature cap and `[Unique]`. Violations name the check *and* its rulebook citation. Ownership appears as a **warning**, never a violation — but the **workshop will not take more copies than the boxes hold** ([DATA-MODEL §2](docs/spec/DATA-MODEL.md)) |
 | **The energy curve** | A histogram, never a mean ([DECK-STATS §6](docs/spec/DECK-STATS.md)). Cards with no cost data are kept out of the buckets rather than folded into zero |
 | **One Worker, one origin** | Serves the SPA *and* the API ([D-050](docs/DECISIONS.md#d-050) — Cloudflare closed Pages to new projects) |
-| **D1** | `forge`, schema applied. Decks, slots, bench, deck history, matches, events — and a **collection of 629 printings** and climbing |
+| **D1** | `forge`, schema applied. Decks, slots, bench, deck history, matches, events — and the **real collection: 629 printings / 1,238 copies**, every set but `OGS` |
 | **Zero Trust Access** | Self-hosted app, allow-list of one email, 7-day sessions. Verified enforcing |
 | **Automatic deploys** | `main` → build → deploy, via Workers Builds. **`npm run build` is the gate** — see below |
 

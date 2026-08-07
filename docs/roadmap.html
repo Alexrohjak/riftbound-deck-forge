@@ -234,17 +234,17 @@
     <span class="sub">Roadmap — a personal deckbuilding workbench for Riftbound</span>
   </div>
   <div class="meta mono">
-    <span>Version 1.4</span><span>Updated 2026-08-07</span><span>17 milestones</span><span>5 tracks</span>
+    <span>Version 1.5</span><span>Updated 2026-08-07</span><span>17 milestones</span><span>5 tracks</span>
   </div>
 
   <!-- STATUS BOARD -->
   <div class="board">
     <div class="board-head"><span class="dot"></span><h2>Status board — you are here</h2></div>
     <dl class="rows">
-      <div class="row"><dt>Track</dt><dd><strong>F — Foundation</strong></dd></div>
-      <div class="row"><dt>Progress</dt><dd><strong class="mono">8 of 17</strong> milestones · <span class="mono">D1</span>–<span class="mono">D3</span>, <span class="mono">F1</span>–<span class="mono">F3</span>, <span class="mono">W1</span>, <span class="mono">W5</span> complete</dd></div>
-      <div class="row"><dt>Next</dt><dd><strong><span class="mono">W2</span> — enter the real collection.</strong> In flight, not waiting: 629 printings / 1,238 copies by the 2026-08-07 snapshot. What is left is the gate — 20 random names spot-checked against the boxes — and the rest of the pile.</dd></div>
-      <div class="row"><dt>Active</dt><dd><strong>W2 entry, and the fixes it keeps producing.</strong> The copy cap now follows the boxes, the browsing tab holds 854 cards, and the tray draws the printing you actually picked.</dd></div>
+      <div class="row"><dt>Track</dt><dd><strong>W — The Workbench</strong></dd></div>
+      <div class="row"><dt>Progress</dt><dd><strong class="mono">9 of 17</strong> milestones · <span class="mono">D1</span>–<span class="mono">D3</span>, <span class="mono">F1</span>–<span class="mono">F3</span>, <span class="mono">W1</span>, <span class="mono">W2</span>, <span class="mono">W5</span> complete</dd></div>
+      <div class="row"><dt>Next</dt><dd><strong><span class="mono">W3</span> — the deck builder</strong>, no longer waiting on anything. W1 gave it the rules, W2 gave it the cards; what is left is a complete legal deck built end-to-end on desktop <em>and</em> phone.</dd></div>
+      <div class="row"><dt>Active</dt><dd><strong>Nothing in flight. W2 is closed</strong> — 629 printings / 1,238 copies, every set but OGS. Entering it for real produced the last week of fixes: the copy cap follows the boxes, the browsing tab holds 854 cards, and the tray draws the printing you picked.</dd></div>
       <div class="row"><dt>Blocked</dt><dd>Nothing. <strong>X8 closed</strong> (D-051) — a nightly cron commits a snapshot to this repo, off Cloudflare. Live and proven in production.</dd></div>
       <div class="row"><dt>Stack</dt><dd>TypeScript · React + Vite · <strong>one Cloudflare Worker</strong> (SPA + API) and D1 · <strong>£0/month, verified</strong></dd></div>
       <div class="row"><dt>Code</dt><dd><strong>The workspace is real.</strong> packages/engine (pure TypeScript, all 33 legality checks, the energy curve), apps/web (935 cards, search, alternate arts), apps/cli, apps/api and CI, with 225 tests — plus the collection tool and the docs check.</dd></div>
@@ -254,11 +254,11 @@
   <!-- LEDGER -->
   <div class="ledger">
     <div class="lrow"><span class="key">D</span><span class="nm">Design</span><span class="bar"><span style="width:100%"></span></span><span class="cnt">3/3</span></div>
-    <div class="lrow here"><span class="key">F</span><span class="nm">Foundation</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/3</span></div>
-    <div class="lrow"><span class="key">W</span><span class="nm">Workbench</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/4</span></div>
+    <div class="lrow"><span class="key">F</span><span class="nm">Foundation</span><span class="bar"><span style="width:100%"></span></span><span class="cnt">3/3</span></div>
+    <div class="lrow here"><span class="key">W</span><span class="nm">Workbench</span><span class="bar"><span style="width:60%"></span></span><span class="cnt">3/5</span></div>
     <div class="lrow"><span class="key">S</span><span class="nm">Strategist</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/5</span></div>
     <div class="lrow"><span class="key">L</span><span class="nm">Later</span><span class="bar"><span style="width:0"></span></span><span class="cnt">0/1</span></div>
-    <div class="lrow ltot"><span class="key">—</span><span class="nm">Total</span><span class="bar"><span style="width:18.75%"></span></span><span class="cnt">3/16</span></div>
+    <div class="lrow ltot"><span class="key">—</span><span class="nm">Total</span><span class="bar"><span style="width:53%"></span></span><span class="cnt">9/17</span></div>
   </div>
 
   <!-- TRACK D -->
@@ -307,13 +307,13 @@
     <div class="track-head"><span class="id">W</span><h3>The Workbench</h3><span class="note">Catalogue what you own; build, validate and measure decks</span></div>
     <div class="lane future">
       <div class="ms"><span class="code">W1</span><div class="body"><h4>Legality checking</h4><p>All 33 checks implemented, 13 rulebook-derived tests passing.</p><span class="dep">depends on F3</span></div><span class="pill done">Done</span></div>
-      <div class="ms"><span class="code">W2</span><div class="body"><h4>Collection entry</h4><p>You have entered the real collection; 20 random names spot-check correct against the boxes. In flight — 629 printings entered.</p><span class="dep">depends on F3</span></div><span class="pill next">In flight</span></div>
+      <div class="ms done"><span class="code">W2</span><div class="body"><h4>Collection entry</h4><p>629 printings and 1,238 copies, entered through <span class="mono">+ Add cards</span> in the app. Every set but OGS — the 24-card Origins supplement in Proving Grounds — which is deliberately held back.</p><span class="dep">depends on F3</span></div><span class="pill done">Done</span></div>
       <div class="ms"><span class="code">W3</span><div class="body"><h4>Deck builder</h4><p>A complete legal deck can be built end-to-end on desktop <em>and</em> phone. Partly delivered: many decks (D-060), import, phone widths.</p><span class="dep">depends on W1, W2</span></div><span class="pill todo">Todo</span></div>
       <div class="ms"><span class="code">W4</span><div class="body"><h4>Deck statistics</h4><p>Tier 1 facts and Tier 2 probabilities render with correct visual separation, under 2 s.</p><span class="dep">depends on W3</span></div><span class="pill todo">Todo</span></div>
       <div class="ms"><span class="code">W5</span><div class="body"><h4>The log</h4><p>Matches, deck history and client diagnostics. A match logs in under a minute, and the record refuses to state a win rate it has not earned.</p><span class="dep">depends on F2</span></div><span class="pill done">Done</span></div>
     </div>
     <div class="callout"><strong>W1 is the highest correctness risk in the project.</strong> Everything downstream trusts it — and two rules (<span class="mono">Signature</span>, <span class="mono">Unique</span>) were found only by reading the PDF directly. There are probably more.</div>
-    <div class="callout"><strong>W2 is the biggest practical risk.</strong> It's an evening of typing that everything else depends on. From there Forge runs on real data, not fixtures.</div>
+    <div class="callout"><strong>W2 is closed — Forge runs on real data now.</strong> It was called the biggest practical risk and behaved like one: several sittings rather than an evening, and it rewrote its own tool halfway through. Two things stay true — OGS is absent, so anything reading ownership will call those 24 printings unowned; and the 20-name spot-check has not been run, which is worth an hour before W4 trusts these numbers with statistics.</div>
   </section>
 
   <!-- TRACK S -->

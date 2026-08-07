@@ -1,7 +1,7 @@
 # Forge — Roadmap
 
-> **Version:** 1.4 · **Updated:** 2026-08-07 — **the boxes are going in**; `W2` is in flight,
-> and the workshop now caps a card at the copies you own
+> **Version:** 1.5 · **Updated:** 2026-08-07 — ✅ **`W2` is closed: the collection is real.**
+> `W3` is next and unblocked
 >
 > 🖥️ **Visual version: [`roadmap.html`](roadmap.html)** — same content, rendered. Open it from
 > disk, or use the published page. ✅ **X5 resolved** — the docs ship from the same Cloudflare
@@ -21,10 +21,10 @@
 
 | | |
 |---|---|
-| **Track** | **F — Foundation** |
-| **Progress** | **8 of 17** milestones · `D1`–`D3`, `F1`–`F3`, `W1`, `W5` complete |
-| **🎯 Next** | **`W2` — enter the real collection.** ⏳ **In flight, not waiting:** 629 printings / 1,238 copies by the 2026-08-07 snapshot. What is left is the gate — 20 random names spot-checked against the boxes — and the rest of the pile |
-| **Active** | **`W2` entry, and the fixes it keeps producing.** Using Forge for real is what surfaces them: the copy cap now follows the boxes, the browsing tab holds 854 cards, and the tray draws the printing you actually picked |
+| **Track** | **W — The Workbench** |
+| **Progress** | **9 of 17** milestones · `D1`–`D3`, `F1`–`F3`, `W1`, `W2`, `W5` complete |
+| **🎯 Next** | **`W3` — the deck builder**, and it is no longer waiting on anything. `W1` gave it the rules, `W2` gave it the cards; what is left is building a complete legal deck end-to-end on desktop **and** phone |
+| **Active** | **Nothing in flight.** ✅ `W2` is closed — **629 printings / 1,238 copies**, every set but `OGS`. Entering it for real is what produced the last week of fixes: the copy cap follows the boxes, the browsing tab holds 854 cards, and the tray draws the printing you picked |
 | **Blocked** | Nothing. ✅ **X8 closed** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. **Live and proven in production** |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
 | **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve, the `S5` brief and gate) · `apps/web` (935 cards, search, alternate arts, many decks, card entry, import) · `apps/cli` · `apps/api` (decks + collection + the log + nightly backup) · CI · **225 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
@@ -32,11 +32,11 @@
 ```
 D ─ Design         ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
 F ─ Foundation     ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
-W ─ Workbench      ▓▓▓▓▓░░░░░░░  2/5   ← you are here
+W ─ Workbench      ▓▓▓▓▓▓▓░░░░░  3/5   ← you are here
 S ─ Strategist     ░░░░░░░░░░░░  0/5
 L ─ Later          ░░░░░░░░░░░░  0/1
                                  ────
-                                 8/17
+                                 9/17
 ```
 
 > **The count is unchanged; the shape is not.** [D-043](DECISIONS.md#d-043) retired `S3` and
@@ -49,6 +49,7 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 
 | ID | Milestone | What it produced | Date |
 |---|---|---|---|
+| `W2` | **Collection entry** 🏁 | **629 printings · 1,238 copies**, entered through `+ Add cards` in the app rather than the standalone tool. Every set but `OGS`. Forge stops being a demo here | 2026-08-07 |
 | `W1` | **Legality checking** ⚠️ | **All 33 checks**, and the rulebook's own 13 worked examples as tests. Ownership is a *warning*, never a violation. Coverage is reported per verdict, so an index that cannot see the ban list says so | 2026-08-04 |
 | `F3` | **Card data** | All **935 cards / 1,180 printings**, alternate arts collapsed behind each card, champion tags derived from Signature cards (L32, 49/49), ban list overlaid. 101 KB gzipped, fetched not bundled | 2026-08-04 |
 | `F2` | **First usable version** ⭐ | A working deckbuilder on a phone: 30-name static pool under one Legend, add/remove, live legality (**13 of 33 checks** — Domain Identity now among them), the energy curve, saved to D1 | 2026-08-04 |
@@ -153,7 +154,7 @@ new work appends the next free number and **nothing ever renumbers**.
 | ID | Milestone | Done when | Status | Depends on |
 |---|---|---|---|---|
 | `W1` | **Legality checking** ⚠️ | All 33 checks implemented, 13 rulebook tests passing | ✅ | `F3` |
-| `W2` | **Collection entry** | You have entered the real collection; 20 random names spot-check correct | ⏳ **in flight** — 629 printings / 1,238 copies | `F3` |
+| `W2` | **Collection entry** | You have entered the real collection; 20 random names spot-check correct. **629 printings / 1,238 copies — every set but `OGS`**, the 24-card Proving Grounds supplement, deliberately held | ✅ | `F3` |
 | `W3` | **Deck builder** | A complete legal deck can be built end-to-end on desktop **and** phone | ⬜ *partly delivered* — many decks ([D-060](DECISIONS.md#d-060)), import, phone widths | `W1`, `W2` |
 | `W4` | **Deck statistics** | Tier 1 + Tier 2 render with correct visual separation, under 2 s | ⬜ | `W3` |
 | `W5` | **The log** | A match logs in under a minute; the record refuses to state a rate it has not earned | ✅ | `F2` |
@@ -162,9 +163,20 @@ new work appends the next free number and **nothing ever renumbers**.
 and two rules (`Signature`, `Unique`) were found only by reading the PDF directly — **there
 are probably more.**
 
-🏁 **Milestone — the collection is real.** `W2` is where you sit down with your boxes. From
-there Forge runs on real data, not fixtures. *This is the biggest practical risk in the
-project* — it's an evening of typing that everything else depends on.
+🏁 ✅ **Milestone passed — the collection is real.** Forge now runs on real data rather than
+fixtures, which every milestone after this one assumed. It was called *the biggest practical
+risk in the project*, and it behaved like one: it took several sittings rather than an
+evening, and it rewrote its own tool halfway through — six steps a card was what made the
+standalone version a thing you abandon, so entry moved into the app.
+
+⚠️ **`OGS` is deliberately absent** — 24 printings, the Origins supplement inside Proving
+Grounds, held back for now. Everything reading ownership will report those 24 as unowned,
+which is *true* until the set goes in. It is the one place a Forge answer will be confidently
+wrong about your boxes.
+
+**The spot-check gate — 20 random names against the boxes — has not been run.** The milestone
+is closed on judgement, not on evidence; it is worth an hour before `W4` starts trusting the
+ownership numbers with statistics.
 
 ---
 

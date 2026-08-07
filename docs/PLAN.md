@@ -4,8 +4,8 @@
 > where the risk sits. For *status* — where we are right now — see [`ROADMAP.md`](ROADMAP.md).
 >
 > **Created:** 2026-08-02 · **Rewritten:** 2026-08-03 (v5 — `D3` closed, `DESIGN LOCKED` lifted)
-> · **Status checked:** 2026-08-07 — the design and Foundation tracks are **complete**, `W1`
-> and `W5` with them, and **`W2` is in flight**. The architecture is
+> · **Status checked:** 2026-08-07 — the design and Foundation tracks are **complete**, and
+> `W1`, `W2` and `W5` with them. **`W3` is next and unblocked.** The architecture is
 > [`ARCHITECTURE.md`](ARCHITECTURE.md) — see the
 > [README](../README.md#-start-here--how-to-pick-this-up)
 
@@ -314,7 +314,7 @@ rulebooks (both now read in full — see [COMPENDIUM](reference/COMPENDIUM.md)).
 > Mitigation: read the rulebook line by line, never summaries; encode every rulebook
 > example as a test.
 
-### W2 — Collection entry ⏳ **IN FLIGHT**
+### W2 — Collection entry ✅ **COMPLETE 2026-08-07**
 
 **Size:** M · **Gate:** F3 · **Parallel with W1**
 
@@ -330,11 +330,16 @@ DRAFT/BUILT commitment model.
 > **Audit finding A3:** this was assumed rather than planned. It is now an explicit
 > milestone with a completion check — spot-check 20 random names against the boxes.
 >
-> ⏳ **In flight as of 2026-08-07: 629 printings / 1,238 copies**, already past the ~1,000
-> physical cards [`DISCOVERY.md`](DISCOVERY.md) estimated. **The route changed** — entry moved
-> into Forge itself (`+ Add cards`), so it writes to D1 as you type instead of through the
-> standalone tool's export. **The spot-check has not been run**, and it is the only thing the
-> milestone is still waiting on besides the rest of the pile.
+> ✅ **Closed 2026-08-07: 629 printings / 1,238 copies**, past the ~1,000 physical cards
+> [`DISCOVERY.md`](DISCOVERY.md) estimated. **The route changed on the way** — entry moved into
+> Forge itself (`+ Add cards`), writing to D1 as you type instead of through the standalone
+> tool's export, because six steps a card is what makes a tool you abandon.
+>
+> ⚠️ **Closed with two known gaps, both deliberate.** **`OGS` is not entered** — 24 printings,
+> the Origins supplement in Proving Grounds — so ownership reads them as unowned, correctly
+> but temporarily. And **the 20-name spot-check gate was not run**: this is closed on
+> judgement, not evidence. `W4` is where that starts to matter, because it puts statistics on
+> top of these numbers.
 
 ### W3 — Deck builder
 
