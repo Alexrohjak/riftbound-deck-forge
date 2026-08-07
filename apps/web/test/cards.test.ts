@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildPool, hd, isDeckable, nativeWidth, search, srcSet, thumb, zoneFor, type Card } from "../src/cards.js";
+import { buildPool, hd, isDeckable, nativeWidth, printingOf, search, srcSet, thumb, zoneFor, type Card } from "../src/cards.js";
 
 /**
  * The collapse is the part that can be silently wrong: merge two cards that share a name
@@ -95,6 +95,24 @@ describe("what belongs in a deck", () => {
     expect(isDeckable(TOKEN)).toBe(false);
     expect(isDeckable(LEGEND)).toBe(false);
     expect(isDeckable(DEMOLITIONIST)).toBe(true);
+  });
+});
+
+/**
+ * **A deck stores printings; the gallery collapses them.** Drawing a slot from
+ * `printings[0]` because the `Card` was already to hand is why picking an alternate art
+ * looked like it did nothing — the choice reached the deck and D1, and the tray kept
+ * drawing the base art of every card in it.
+ */
+describe("which art a deck slot draws", () => {
+  it("draws the printing the slot holds, not the card's default", () => {
+    expect(printingOf(DEMOLITIONIST, "ogn-030a-298")?.code).toBe("OGN-030a/298");
+    expect(printingOf(DEMOLITIONIST, "ven-168-166")?.code).toBe("VEN-168/166");
+  });
+
+  it("falls back to the default rather than to an empty slot", () => {
+    // A deck saved with a printing this pool no longer carries still shows you the card.
+    expect(printingOf(DEMOLITIONIST, "sfd-999-221")?.code).toBe("OGN-030/298");
   });
 });
 

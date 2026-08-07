@@ -1,7 +1,7 @@
 import type { Deck, LegalityResult, Zone } from "@forge/engine";
 import { mainDeckCount, zoneCount } from "@forge/engine";
 import { useState } from "react";
-import { hd, srcSet, type Card, type CardPool } from "./cards.js";
+import { hd, printingOf, srcSet, type Card, type CardPool } from "./cards.js";
 import { STEPS, type Step } from "./buildFlow.js";
 
 /**
@@ -55,8 +55,18 @@ export interface Target extends Occupant {
  * ⚠️ Fixed-position rather than a scaled-up tile: the tray scrolls, so a card that grew
  * inside it would be clipped by its own container at exactly the moment you wanted to read it.
  */
-function Peek({ card, at }: { card: Card; at: { x: number; y: number } }) {
-  const printing = card.printings[0];
+function Peek({
+  card,
+  cardId,
+  at,
+}: {
+  card: Card;
+  /** ⚠️ The printing the slot holds. A peek at the base art of the card you deliberately
+      sleeved in a showcase printing is a peek at the wrong object. */
+  cardId: string;
+  at: { x: number; y: number };
+}) {
+  const printing = printingOf(card, cardId);
   if (!printing) return null;
   // Flip to the left of the pointer when there is no room to the right.
   const flip = at.x > window.innerWidth - (card.landscape ? 460 : 340);
@@ -71,6 +81,41 @@ function Peek({ card, at }: { card: Card; at: { x: number; y: number } }) {
         left: flip ? at.x - (card.landscape ? 430 : 320) : at.x + 16,
         top: Math.min(at.y - 40, window.innerHeight - 380),
       }}
+    />
+  );
+}
+
+/**
+ * The art a filled slot draws.
+ *
+ * ⚠️ **Every one of these had reached for `card.printings[0]`.** The deck stores a printing
+ * and the tray drew the card's default, so picking an alternate art wrote through to D1 and
+ * changed nothing you could see — the bug looked like a broken picker and was three broken
+ * pictures. One component now, so the next slot cannot get it wrong on its own.
+ */
+function SlotArt({
+  card,
+  cardId,
+  width,
+  sizes,
+  lazy = false,
+}: {
+  card: Card;
+  cardId: string;
+  width: number;
+  sizes: string;
+  /** The tray scrolls; the Legend and Champion are always on screen. */
+  lazy?: boolean;
+}) {
+  const printing = printingOf(card, cardId);
+  if (!printing) return null;
+  return (
+    <img
+      src={hd(printing, width)}
+      srcSet={srcSet(printing)}
+      sizes={sizes}
+      alt={card.name}
+      {...(lazy ? { loading: "lazy" as const } : {})}
     />
   );
 }
@@ -92,16 +137,20 @@ function Slots({
   onRemove: (o: Occupant) => void;
   onSeek: () => void;
 }) {
-  const [peek, setPeek] = useState<{ card: Card; at: { x: number; y: number } } | null>(null);
+  const [peek, setPeek] = useState<
+    { card: Card; cardId: string; at: { x: number; y: number } } | null
+  >(null);
 
   return (
     <div className={`slots ${zone.toLowerCase()}`} onMouseLeave={() => setPeek(null)}>
-      {peek && <Peek card={peek.card} at={peek.at} />}
+      {peek && <Peek card={peek.card} cardId={peek.cardId} at={peek.at} />}
       {held.map((o, i) => (
         <div
           className="tray"
           key={`${o.cardId}-${i}`}
-          onMouseMove={(e) => setPeek({ card: o.card, at: { x: e.clientX, y: e.clientY } })}
+          onMouseMove={(e) =>
+            setPeek({ card: o.card, cardId: o.cardId, at: { x: e.clientX, y: e.clientY } })
+          }
           onMouseLeave={() => setPeek(null)}
         >
           <button
@@ -115,15 +164,7 @@ function Slots({
               onRemove(o);
             }}
           >
-            {o.card.printings[0] && (
-              <img
-                src={hd(o.card.printings[0], 150)}
-                srcSet={srcSet(o.card.printings[0])}
-                sizes="(max-width: 60rem) 22vw, 9vw"
-                alt={o.card.name}
-                loading="lazy"
-              />
-            )}
+            <SlotArt card={o.card} cardId={o.cardId} width={150} sizes="(max-width: 60rem) 22vw, 9vw" lazy />
           </button>
         </div>
       ))}
@@ -280,14 +321,12 @@ export function Workshop({
                   onRemove({ card: legend, cardId: deck.legendCardId, quantity: 1, zone: "MAIN", role: "legend" });
                 }}
               >
-                {legend.printings[0] && (
-                  <img
-                    src={hd(legend.printings[0], 400)}
-                    srcSet={srcSet(legend.printings[0])}
-                    sizes="(max-width: 60rem) 45vw, 20vw"
-                    alt={legend.name}
-                  />
-                )}
+                <SlotArt
+                  card={legend}
+                  cardId={deck.legendCardId}
+                  width={400}
+                  sizes="(max-width: 60rem) 45vw, 20vw"
+                />
               </button>
             ) : (
               <button
@@ -340,14 +379,12 @@ export function Workshop({
                   });
                 }}
               >
-                {champion.printings[0] && (
-                  <img
-                    src={hd(champion.printings[0], 400)}
-                    srcSet={srcSet(champion.printings[0])}
-                    sizes="(max-width: 60rem) 45vw, 20vw"
-                    alt={champion.name}
-                  />
-                )}
+                <SlotArt
+                  card={champion}
+                  cardId={deck.chosenChampionCardId}
+                  width={400}
+                  sizes="(max-width: 60rem) 45vw, 20vw"
+                />
               </button>
             ) : (
               <button

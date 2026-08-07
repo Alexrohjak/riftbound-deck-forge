@@ -230,6 +230,22 @@ export const srcSet = (printing: Printing): string => {
   return rungs.map((w) => `${printing.img}&w=${w}&q=82&fm=webp ${w}w`).join(", ");
 };
 
+/**
+ * The exact art a deck slot holds, rather than the card's default coat.
+ *
+ * ⚠️ **A deck stores printings; the gallery collapses them.** Everywhere the deck is *drawn*
+ * has both facts to hand — the `Card`, and the printing id the slot was saved with — and
+ * reaching for `printings[0]` because it is shorter silently discards the second one. That is
+ * what made picking an alternate art look like it did nothing: the choice was written to the
+ * deck and to D1, the detail view marked it correctly on reopen, and every tile in the tray
+ * carried on drawing the base art.
+ *
+ * Falls back to the default rather than to nothing, so a deck saved with a printing this
+ * pool no longer carries still draws the card instead of an empty slot.
+ */
+export const printingOf = (card: Card, cardId: string): Printing | undefined =>
+  card.printings.find((p) => p.id === cardId) ?? card.printings[0];
+
 /** Where a card belongs, from its type. Runes and battlefields are registered separately. */
 export function zoneFor(card: Card): Zone {
   if (card.types.includes("rune")) return "RUNE";
