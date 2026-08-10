@@ -95,7 +95,7 @@ export {
 } from "./advice/counsel.js";
 
 /** In-memory `CardIndex`, sufficient for tests and for the static `F2` pool. */
-export { staticCardIndex, type CardEntry } from "./cardIndex.js";
+export { staticCardIndex, cardFactsFrom, type CardEntry } from "./cardIndex.js";
 
 /**
  * The log — what you actually played, and what the record is allowed to claim about it.

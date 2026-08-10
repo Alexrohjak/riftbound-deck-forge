@@ -15,6 +15,7 @@
 import { readFileSync } from "node:fs";
 import {
   aroundCounsel,
+  cardFactsFrom,
   buildBrief,
   counterCounsel,
   legendCounsel,
@@ -163,20 +164,9 @@ function main(argv: string[]): number {
     if (!Array.isArray(raw.cards)) fail(`${poolPath} does not look like the generated card index.`);
     for (const card of raw.cards) {
       for (const printing of card.printings ?? []) {
-        cards[printing.id] = {
-          name: card.name as string,
-          types: card.types as string[],
-          superTypes: card.superTypes as string[],
-          tags: card.tags as string[],
-          text: (card.text as string) ?? "",
-          domains: card.domains as never,
-          energy: (card.energy as number) ?? null,
-          might: (card.might as number) ?? null,
-          banned: card.banned === true,
-          ...(card.produces ? { produces: card.produces as string[] } : {}),
-          ...(card.consumes ? { consumes: card.consumes as string[] } : {}),
-          ...(card.championTag ? { championTag: card.championTag as string } : {}),
-        } as CardEntry;
+        // ⚠️ One mapping, shared with the browser (D-047). Hand-rolling it here is what
+        // dropped `power`, `role` and `timing` without anything failing.
+        cards[printing.id] = cardFactsFrom(card);
       }
     }
   }
