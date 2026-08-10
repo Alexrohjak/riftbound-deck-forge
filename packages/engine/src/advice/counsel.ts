@@ -2,7 +2,7 @@ import type { CardFacts, CardIndex, Domain } from "../types.js";
 import type { PoolCard } from "./feedback.js";
 import { hasKeyword } from "../text.js";
 import { patternsOf, PATTERNS, type StrategicPattern } from "./patterns.js";
-import { SUPPORTS, isModelled } from "./synergy.js";
+import { SUPPORTS, isModelled, supplyOf, supplyKind, type SupplyKind } from "./synergy.js";
 
 /**
  * **What EE needs in order to answer a deckbuilding question** — EVALUATION §6.
@@ -139,15 +139,36 @@ export interface LegendCounsel {
   /** Patterns you own **nothing** for inside this identity — the actionable gap. */
   missing: Array<{ pattern: StrategicPattern; label: string }>;
   ownedInIdentity: number;
+  /**
+   * **What the Legend rewards, and whether your collection can feed it.**
+   *
+   * One entry per `consumes` tag on the Legend. `ownedFeeders` counts cards you own, legal in
+   * this identity, that supply it — through the same synergy graph every other tool uses.
+   *
+   * ⚠️ **`ownedFeeders` is `null` unless `supply` is `"counted"`.** A `self-satisfying` tag
+   * (`conquer`, `hold`, `attack`) is fed by having a board and taking a normal turn, not by a
+   * particular card, and an `unmodelled` one was never measured. Printing `0` for either
+   * beside a real count is how "you own nothing for this" gets said about something nobody
+   * counted.
+   */
+  rewards: Array<{ tag: string; ownedFeeders: number | null; supply: SupplyKind }>;
+  /** The Legend's ability with no condition attached — nothing for a deck to supply. */
+  unconditional: boolean;
 }
 
 /**
  * *"I like this Legend — what sort of cards go in it?"*
  *
- * ⚠️ **The Legend's own text is returned, not interpreted.** Legends carry no `consumes`
- * annotations, so what a Legend *rewards* cannot be computed — it is read, from the card and
- * from [`LEGEND-GUIDE.md`](../../../docs/reference/LEGEND-GUIDE.md), by the mouth. Guessing it
- * here would be the tool inventing the most important sentence in the answer.
+ * ⚠️ **`rewards` is read off the card, never inferred from its name.** For a long time this
+ * returned no such field, on the reasoning that Legends carried no `consumes` annotations and
+ * a tool that claimed to know would be inventing the answer's most important sentence. The
+ * first half was true and the second did not follow: the field was empty because the
+ * classification pass covered the 814 **main-deck** cards and a Legend is not one of them.
+ * All 49 are now annotated from their printed text, so this is read rather than guessed.
+ *
+ * ⚠️ **It is still not the whole answer.** A tag says *what* the Legend wants, not how to
+ * pilot it or what fights it; [`LEGEND-GUIDE.md`](../../../docs/reference/LEGEND-GUIDE.md)
+ * covers all 49 and the mouth is still required to read it.
  */
 export function legendCounsel(
   legendCardId: string,
@@ -196,6 +217,15 @@ export function legendCounsel(
       label: spec.label,
     })),
     ownedInIdentity: owned.length,
+    rewards: (legend.consumes ?? []).map((tag) => {
+      const test = supplyOf(tag);
+      return {
+        tag,
+        ownedFeeders: test ? owned.filter(({ facts }) => test(facts)).length : null,
+        supply: supplyKind(tag),
+      };
+    }),
+    unconditional: (legend.consumes ?? []).length === 0,
   };
 }
 
@@ -289,6 +319,19 @@ export interface CounterCounsel {
    * which covers all 49; the mouth is required to read it before speaking about a matchup.
    */
   scope: "domain-identity";
+  /**
+   * **The Legend's own engine** — what its ability asks the deck to supply, and how much of
+   * that its identity can actually field.
+   *
+   * This is the half that used to be missing entirely, which made all four Body + Order
+   * Legends return identical advice. `enablers` counts cards in *their* identity that feed
+   * the trigger — a rough measure of how reliably the engine turns on, and the difference
+   * between "deny the trigger" and "race it".
+   *
+   * ⚠️ **`enablers` is `null` unless `supply` is `"counted"`** — see `LegendCounsel.rewards`.
+   * A Legend that triggers on `conquer` is not one with zero enablers.
+   */
+  theirEngine: Array<{ tag: string; enablers: number | null; supply: SupplyKind }>;
   /** What that identity **can** do — never what an opponent is likely to hold (§7). */
   theirPatterns: Array<{ pattern: StrategicPattern; label: string; cards: number }>;
   /** Doctrine: what answers those, why, and what you own that does it. */
@@ -396,6 +439,14 @@ export function counterCounsel(
       ...(legend.text ? { text: legend.text } : {}),
     },
     scope: "domain-identity",
+    theirEngine: (legend.consumes ?? []).map((tag) => {
+      const test = supplyOf(tag);
+      return {
+        tag,
+        enablers: test ? theirs.filter(({ facts }) => test(facts)).length : null,
+        supply: supplyKind(tag),
+      };
+    }),
     theirPatterns,
     yourAnswers,
     ...(mineLegend && mineLegendCardId
@@ -446,11 +497,16 @@ export function mechanicCounsel(
     mechanic,
     known: wants.length > 0 || feeds.length > 0,
     /**
-     * ⚠️ **Whether `feeds` was measured at all.** When this is false the graph has no rule
-     * for the tag, so `feeds: []` means *"not modelled"* and must never be read — or spoken —
-     * as *"nothing in the pool supplies it"*.
+     * ⚠️ **How to read `feeds`, in the same three states the rest of the graph uses.**
+     *
+     * - `counted` — the list is a measurement; empty means empty.
+     * - `self-satisfying` — the mechanic needs a board and a normal turn (`conquer`, `hold`),
+     *   not a partner card. An empty `feeds` is correct and means *"nothing to build for"*.
+     * - `unmodelled` — never measured. An empty `feeds` means nothing at all.
+     *
+     * Only the first licenses the sentence *"nothing in your collection supplies it"*.
      */
-    feedsMeasured: isModelled(mechanic),
+    feedsSupply: supplyKind(mechanic),
     /** Cards that pay off the mechanic. */
     wants,
     /** Cards that supply it. */

@@ -124,7 +124,7 @@ grounding lines; and **editing requires connectivity** — offline you can look 
 ### 3 · Run the workspace
 
 `packages/engine` is the real thing — pure TypeScript, ⚖️ **all 33 legality checks**,
-the energy curve, commitment, the log's honesty thresholds, 343 tests:
+the energy curve, commitment, the log's honesty thresholds, 347 tests:
 
 ```bash
 npm install
@@ -350,7 +350,7 @@ system map and **where to put a new idea**.
 | [**`docs/reference/CARD-KNOWLEDGE.md`**](docs/reference/CARD-KNOWLEDGE.md) | **Interactions, engines, locks and sequences — every card read in release order. EE's design input.** |
 | [**`docs/reference/LEGEND-GUIDE.md`**](docs/reference/LEGEND-GUIDE.md) | **All 49 Legends — what each rewards, what fits, what fights it, and the deck shape that results.** |
 | [**`docs/reference/BATTLEFIELD-GUIDE.md`**](docs/reference/BATTLEFIELD-GUIDE.md) | **All 66 battlefields — the only card your opponent also gets to use. Judged on asymmetry.** |
-| [**`docs/reference/CARD-INDEX.md`**](docs/reference/CARD-INDEX.md) | **All 814 main-deck cards classified — what each produces, consumes, its timing and curve position. The synergy graph.** |
+| [**`docs/reference/CARD-INDEX.md`**](docs/reference/CARD-INDEX.md) | **All 814 main-deck cards classified — what each produces, consumes, its timing and curve position. The synergy graph.** ⚠️ **Plus all 49 Legends**, annotated separately: the original pass was scoped to the 40, and the Legend is not in it |
 | [**`docs/reference/DECKBUILDING.md`**](docs/reference/DECKBUILDING.md) | **What good players advise, and who advises it** — Riot's Primer, the one piece of maths, archetypes, and the places the schools genuinely disagree. EE's doctrine, never mistaken for rules |
 | [`docs/reference/DATA-SOURCES.md`](docs/reference/DATA-SOURCES.md) | Card data, the meta-data landscape, and what's off-limits |
 

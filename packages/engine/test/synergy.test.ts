@@ -115,12 +115,12 @@ describe("mechanic says whether it measured anything", () => {
 
   it("finds Might raisers as what feeds mighty", () => {
     const out = mechanicCounsel("mighty", pool);
-    expect(out.feedsMeasured).toBe(true);
+    expect(out.feedsSupply).toBe("counted");
     expect(out.feeds.map((c) => c.name)).toContain("Pumper");
   });
 
   it("flags an unmodelled tag rather than answering an empty feeds list", () => {
     const out = mechanicCounsel("not_a_real_mechanic", pool);
-    expect(out.feedsMeasured).toBe(false);
+    expect(out.feedsSupply).toBe("unmodelled");
   });
 });

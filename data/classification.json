@@ -16401,5 +16401,1032 @@
 "tags": [
 "Dragon"
 ]
+},
+{
+"name": "Bashful Bloom",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmmind",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"token"
+],
+"consumes": [
+"temporary"
+],
+"tags": [
+"Lillia"
+]
+},
+{
+"name": "Battle Mistress",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "bodychaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"token",
+"gold"
+],
+"consumes": [
+"recycle"
+],
+"tags": [
+"Sivir"
+]
+},
+{
+"name": "Blade Dancer",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmchaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"ready"
+],
+"consumes": [
+"choose_friendly",
+"conquer"
+],
+"tags": [
+"Irelia"
+]
+},
+{
+"name": "Blind Monk",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmbody",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"buff"
+],
+"consumes": [],
+"tags": [
+"Lee Sin"
+]
+},
+{
+"name": "Bloodharbor Ripper",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furychaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"bounce",
+"token",
+"gold"
+],
+"consumes": [],
+"tags": [
+"Pyke"
+]
+},
+{
+"name": "Bounty Hunter",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "bodychaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"move"
+],
+"consumes": [],
+"tags": [
+"Miss Fortune"
+]
+},
+{
+"name": "Butcher of the Sands",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furybody",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"ramp_energy"
+],
+"consumes": [],
+"tags": [
+"Renekton"
+]
+},
+{
+"name": "Chem-Baroness",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "mindorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"token",
+"gold"
+],
+"consumes": [
+"hold"
+],
+"tags": [
+"Renata Glasc"
+]
+},
+{
+"name": "Curator of the Sands",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmmind",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"rune"
+],
+"consumes": [
+"expensive"
+],
+"tags": [
+"Nasus"
+]
+},
+{
+"name": "Dark Child - Starter",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furychaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"rune"
+],
+"consumes": [],
+"tags": [
+"Annie"
+]
+},
+{
+"name": "Daughter of the Void",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furymind",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"rune"
+],
+"consumes": [
+"spell_played"
+],
+"tags": [
+"Kai'Sa"
+]
+},
+{
+"name": "Deceiver",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "mindorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"token",
+"temporary",
+"discard"
+],
+"consumes": [
+"conquer",
+"hold"
+],
+"tags": [
+"LeBlanc"
+]
+},
+{
+"name": "Defender of Tomorrow",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "mindbody",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"ready"
+],
+"consumes": [
+"gear_matters"
+],
+"tags": [
+"Jayce"
+]
+},
+{
+"name": "Emperor of the Sands",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"token"
+],
+"consumes": [
+"gear_matters"
+],
+"tags": [
+"Azir"
+]
+},
+{
+"name": "Eye of Twilight",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"buff"
+],
+"consumes": [],
+"tags": [
+"Shen"
+]
+},
+{
+"name": "Fire Below the Mountain",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmmind",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"rune"
+],
+"consumes": [
+"gear_matters"
+],
+"tags": [
+"Ornn"
+]
+},
+{
+"name": "Gloomist",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmchaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"draw"
+],
+"consumes": [
+"hold"
+],
+"tags": [
+"Vex"
+]
+},
+{
+"name": "Glorious Executioner",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furychaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"draw"
+],
+"consumes": [
+"combat_win"
+],
+"tags": [
+"Draven"
+]
+},
+{
+"name": "Grand Duelist",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "bodyorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"rune"
+],
+"consumes": [
+"becomes_mighty"
+],
+"tags": [
+"Fiora"
+]
+},
+{
+"name": "Grandmaster at Arms",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmbody",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [],
+"consumes": [
+"gear_matters"
+],
+"tags": [
+"Jax"
+]
+},
+{
+"name": "Green Father",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"token"
+],
+"consumes": [
+"conquer",
+"hold"
+],
+"tags": [
+"Ivern"
+]
+},
+{
+"name": "Hand of Noxus",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furyorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"ramp_energy"
+],
+"consumes": [
+"legion"
+],
+"tags": [
+"Darius"
+]
+},
+{
+"name": "Heart of the Tempest",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "orderchaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"empower",
+"pump"
+],
+"consumes": [
+"trash_matters",
+"hidden"
+],
+"tags": [
+"Yordle",
+"Kennen"
+]
+},
+{
+"name": "Herald of the Arcane",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "mindorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"token"
+],
+"consumes": [],
+"tags": [
+"Viktor"
+]
+},
+{
+"name": "Keeper of the Hammer",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "bodyorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"xp",
+"draw"
+],
+"consumes": [
+"hold"
+],
+"tags": [
+"Poppy"
+]
+},
+{
+"name": "Lady of Luminosity - Starter",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "mindorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"draw"
+],
+"consumes": [
+"spell_played",
+"expensive"
+],
+"tags": [
+"Lux"
+]
+},
+{
+"name": "Loose Cannon",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furychaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"draw"
+],
+"consumes": [
+"empty_hand"
+],
+"tags": [
+"Jinx"
+]
+},
+{
+"name": "Master of Shadows",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furychaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"empower",
+"discard",
+"draw"
+],
+"consumes": [
+"banish"
+],
+"tags": [
+"Zed"
+]
+},
+{
+"name": "Matriarch of War",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "bodyorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"empower",
+"ready"
+],
+"consumes": [
+"empowered"
+],
+"tags": [
+"Ambessa"
+]
+},
+{
+"name": "Mechanized Menace",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furymind",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [],
+"consumes": [
+"mech"
+],
+"tags": [
+"Rumble"
+]
+},
+{
+"name": "Might of Demacia - Starter",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "bodyorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"draw"
+],
+"consumes": [
+"conquer"
+],
+"tags": [
+"Garen"
+]
+},
+{
+"name": "Nine-Tailed Fox",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmmind",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"shrink"
+],
+"consumes": [
+"defend"
+],
+"tags": [
+"Ahri"
+]
+},
+{
+"name": "Piltover Enforcer",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furyorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"ready"
+],
+"consumes": [
+"conquer"
+],
+"tags": [
+"Vi"
+]
+},
+{
+"name": "Pridestalker",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furybody",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"pump"
+],
+"consumes": [
+"unit_played"
+],
+"tags": [
+"Rengar"
+]
+},
+{
+"name": "Prodigal Explorer",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "mindchaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"draw"
+],
+"consumes": [
+"spell_played"
+],
+"tags": [
+"Ezreal"
+]
+},
+{
+"name": "Purifier",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furybody",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"pump"
+],
+"consumes": [
+"gear_matters"
+],
+"tags": [
+"Lucian"
+]
+},
+{
+"name": "Radiant Dawn",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"buff"
+],
+"consumes": [
+"stun"
+],
+"tags": [
+"Leona"
+]
+},
+{
+"name": "Relentless Storm",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furybody",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"rune"
+],
+"consumes": [
+"plays_mighty"
+],
+"tags": [
+"Volibear"
+]
+},
+{
+"name": "Rogue Assassin",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furycalm",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"move",
+"ready"
+],
+"consumes": [],
+"tags": [
+"Akali"
+]
+},
+{
+"name": "Scorn of the Moon",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "mindchaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"ramp_energy"
+],
+"consumes": [],
+"tags": [
+"Diana"
+]
+},
+{
+"name": "Soul's Reflection",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "mindchaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"empower",
+"shrink"
+],
+"consumes": [
+"empowered"
+],
+"tags": [
+"Mel"
+]
+},
+{
+"name": "Swift Scout",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "mindchaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [],
+"consumes": [
+"hidden"
+],
+"tags": [
+"Teemo"
+]
+},
+{
+"name": "The Boss",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "bodyorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [],
+"consumes": [
+"buff_spend",
+"conquer"
+],
+"tags": [
+"Sett"
+]
+},
+{
+"name": "Unforgiven",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmchaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"move"
+],
+"consumes": [],
+"tags": [
+"Yasuo"
+]
+},
+{
+"name": "Virtuoso",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furymind",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"banish",
+"rune",
+"draw"
+],
+"consumes": [
+"spell_played",
+"expensive"
+],
+"tags": [
+"Jhin"
+]
+},
+{
+"name": "Void Burrower",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furyorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"draw"
+],
+"consumes": [
+"conquer"
+],
+"tags": [
+"Rek'Sai"
+]
+},
+{
+"name": "Voidreaver",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "bodychaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"xp",
+"buff",
+"move"
+],
+"consumes": [
+"combat_win"
+],
+"tags": [
+"Kha'Zix"
+]
+},
+{
+"name": "Wuju Bladesman - Starter",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmbody",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"pump"
+],
+"consumes": [
+"defend"
+],
+"tags": [
+"Master Yi"
+]
+},
+{
+"name": "Wuju Master",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmbody",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"pump",
+"ready"
+],
+"consumes": [
+"level"
+],
+"tags": [
+"Master Yi"
+]
 }
 ]

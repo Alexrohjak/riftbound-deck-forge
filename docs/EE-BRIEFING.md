@@ -133,12 +133,28 @@ node apps/cli/dist/index.js legend --legend <cardId> --pool … --collection …
 ```
 
 Returns the Legend's identity, its Champion options with ownership, everything owned that is
-legal under it **grouped by what the card does**, and the patterns owned nothing for.
+legal under it **grouped by what the card does**, the patterns owned nothing for, and
+**`rewards`** — what the Legend's ability asks the deck to supply, with how many owned cards
+in that identity feed it.
 
-⚠️ **What the Legend rewards is not in that output**, deliberately — Legends carry no
-`consumes` annotations, so a tool that claimed to know would be inventing the most important
-sentence in the answer. Read the Legend's own text (returned) **and**
-[`reference/LEGEND-GUIDE.md`](reference/LEGEND-GUIDE.md), which covers all 49.
+⚠️ **Read `supply` before `ownedFeeders`.** `counted` is a measurement. `self-satisfying`
+(`conquer`, `hold`, `attack`) means the trigger needs a board and a normal turn rather than a
+particular card, so `null` is correct and there is nothing to go and buy. `unmodelled` means
+nobody measured. Only `counted` licenses a sentence about how well the collection feeds it.
+
+⚠️ **A tag is not the answer, only its spine.** `rewards` says *what* the Legend wants; it says
+nothing about how to pilot it, what it folds to, or which of the three Champions to choose.
+[`reference/LEGEND-GUIDE.md`](reference/LEGEND-GUIDE.md) covers all 49 and you are still
+required to read the entry before answering.
+
+> **These annotations are new, and they are the reason this section changed.** It used to say
+> the Legend's reward *could not* be computed because Legends carry no `consumes` tags. They
+> carried none because the classification pass covered the 814 **main-deck** cards, and a
+> Legend is not in the 40 — a scoping gap mistaken for a limit. All 49 are annotated from
+> printed text now. ⚠️ **The distinction that pass had to preserve:** `Grand Duelist` wants a
+> unit to *become* Mighty (`becomes_mighty` — pumps feed it, printed 5-Might bodies do not,
+> CR 709), while `Relentless Storm` wants you to *play* a printed Mighty unit
+> (`plays_mighty` — the exact opposite shopping list). Same stat, opposite decks.
 
 ### *"I have one copy of this card and want a deck around it"*
 
@@ -182,11 +198,15 @@ domains and are not a deck — 32 cards of which 10 could coexist — and they c
 opponent's own Signature cards. Unfiltered, the headline answer to Grand Duelist was `Riposte`,
 legal only under a Fiora Legend (L21): to beat the deck, play the deck.
 
-⚠️ **The read is domain-level, and the output says so in `scope`.** Every Legend sharing those
-two domains gets the same list — four Body + Order Legends that ramp off Mighty, chain Empower,
-grind XP and rebuy buffed units come back identical. **What the Legend itself rewards is not in
-this tool.** Read [`LEGEND-GUIDE.md`](reference/LEGEND-GUIDE.md), which covers all 49, exactly
-as you must for the Legend question — the matchup-specific half of the answer only exists there.
+⚠️ **Two reads at two different levels, and mixing them up is the error.** `theirEngine` is the
+Legend's own trigger and how many cards in its identity feed it — this is what tells Grand
+Duelist from Keeper of the Hammer, and it is where *"deny the trigger"* versus *"race it"* comes
+from. `theirPatterns` is derived from the **domains** and `scope` says so: every Legend sharing
+those two domains gets that list verbatim. Quote the engine when you are being specific.
+
+⚠️ **Neither is a matchup plan.** [`LEGEND-GUIDE.md`](reference/LEGEND-GUIDE.md) covers all 49
+and is still required reading before you answer — the tags say what a deck wants, not how the
+game against it actually goes.
 
 ⚠️ This is the weakest of the four and you must say so. Without the rules core there is no
 refutation search: this is a professional's read of a matchup they have not playtested. Good,

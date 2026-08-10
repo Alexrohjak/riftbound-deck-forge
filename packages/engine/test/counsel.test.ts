@@ -93,9 +93,19 @@ describe("legendCounsel — what goes in this Legend", () => {
 
   it("returns the Legend's own text rather than an interpretation of it", () => {
     expect(counsel?.legend.text).toContain("one or fewer cards in hand");
-    // ⚠️ There is no "rewards" or "wants" field, on purpose: Legends carry no `consumes`
-    // annotations, so any such field would be the tool inventing the answer's best sentence.
-    expect(counsel).not.toHaveProperty("rewards");
+  });
+
+  /**
+   * ⚠️ This assertion used to be `expect(counsel).not.toHaveProperty("rewards")`, on the
+   * reasoning that Legends carry no `consumes` annotations so any such field would be
+   * invented. They carried none because the classification pass covered the 814 main-deck
+   * cards and a Legend is not one — a scoping gap, not a limit on what can be known. All 49
+   * are annotated from their printed text now, and this fixture Legend deliberately has none
+   * so the honest-empty case stays covered.
+   */
+  it("reports an unannotated Legend as unconditional rather than inventing a reward", () => {
+    expect(counsel?.rewards).toEqual([]);
+    expect(counsel?.unconditional).toBe(true);
   });
 
   it("offers every Champion carrying the tag, owned first, including ones you lack", () => {
@@ -180,8 +190,58 @@ describe("counterCounsel — what beats this Legend", () => {
     for (const answer of counsel?.yourAnswers ?? []) expect(threats.has(answer.threat)).toBe(true);
   });
 
-  it("says the read is domain-level, because every Legend sharing the domains gets this one", () => {
+  it("says the read is domain-level, because the pattern half is", () => {
     expect(counsel?.scope).toBe("domain-identity");
+  });
+});
+
+/**
+ * **The Legend's engine — the half that made four Body+Order Legends identical.**
+ *
+ * `theirPatterns` is derived from domains, so it cannot tell Grand Duelist from Relentless
+ * Storm. `theirEngine` is derived from the Legend's own `consumes`, so it must.
+ */
+describe("counterCounsel — reading the opponent's engine", () => {
+  const CARDS3: Record<string, CardEntry> = {
+    becomes: {
+      name: "Becomes Mighty Legend",
+      types: ["legend"],
+      domains: ["body", "order"],
+      championTag: "A",
+      consumes: ["becomes_mighty"],
+    },
+    plays: {
+      name: "Plays Mighty Legend",
+      types: ["legend"],
+      domains: ["body", "order"],
+      championTag: "B",
+      consumes: ["plays_mighty"],
+    },
+    pumper: { name: "Pumper", types: ["spell"], domains: ["body"], energy: 2, produces: ["pump"] },
+    fatty: { name: "Printed Fatty", types: ["unit"], domains: ["order"], energy: 6, might: 7 },
+  };
+  const idx = staticCardIndex(CARDS3);
+  const pool3: PoolCard[] = Object.entries(CARDS3).map(([cardId, entry]) => ({ cardId, facts: entry }));
+
+  const becomes = counterCounsel("becomes", idx, pool3, {});
+  const plays = counterCounsel("plays", idx, pool3, {});
+
+  it("distinguishes two Legends that share both domains", () => {
+    expect(becomes?.theirEngine).not.toEqual(plays?.theirEngine);
+    expect(becomes?.theirEngine[0]?.tag).toBe("becomes_mighty");
+    expect(plays?.theirEngine[0]?.tag).toBe("plays_mighty");
+  });
+
+  it("counts the pump as the becoming-Mighty enabler and the printed body as the playing one", () => {
+    // CR 709 — a printed 7-Might unit arrives Mighty and never *becomes* it.
+    expect(becomes?.theirEngine[0]?.enablers).toBe(1);
+    expect(plays?.theirEngine[0]?.enablers).toBe(1);
+    expect(becomes?.theirEngine[0]?.supply).toBe("counted");
+  });
+
+  it("still reports the domain-level pattern read as domain-level", () => {
+    expect(becomes?.theirPatterns).toEqual(plays?.theirPatterns);
+    expect(becomes?.scope).toBe("domain-identity");
   });
 });
 

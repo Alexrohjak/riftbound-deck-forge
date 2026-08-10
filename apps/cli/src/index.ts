@@ -89,12 +89,14 @@ const USAGE = `forge <legality|review|ask|log|brief|validate|legend|around|count
             what it makes. Plus every Legend whose identity admits it.
 
   counter   --legend <cardId> [--mine <cardId>]
-            "I hate playing into this Legend." What that identity CAN do — never what
-            an opponent is likely to hold (no meta data exists) — and, as labelled
-            doctrine with its reasoning, what answers each of those and what you own
-            that does it.
-            ⚠️ Read at DOMAIN level: every Legend sharing those two domains gets the
-            same list. What a Legend REWARDS is in docs/reference/LEGEND-GUIDE.md.
+            "I hate playing into this Legend." Two reads: "theirEngine" is the Legend's
+            OWN trigger and how many cards in its identity feed it; "theirPatterns" is
+            what that identity CAN do — never what an opponent is likely to hold (no
+            meta data exists). Plus, as labelled doctrine with its reasoning, what
+            answers each of those and what you own that does it.
+            ⚠️ "theirPatterns" is DOMAIN level — every Legend sharing those two domains
+            gets the same list. "theirEngine" is what tells them apart. Neither says how
+            to pilot the matchup: docs/reference/LEGEND-GUIDE.md covers all 49.
             --mine names the Legend you are playing, so the answers are ones you can
             legally register. Without it they span all six domains and are not a deck.
 
