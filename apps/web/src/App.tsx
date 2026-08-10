@@ -5,6 +5,7 @@ import {
   deckHash,
   energyCurve,
   findConflicts,
+  mainDeckCount,
   overCommitted,
   zoneCount,
   type Zone,
@@ -260,7 +261,19 @@ export function App() {
   }, []);
   const [base, setBase] = useState<Filters>(NO_FILTERS);
   const [shown, setShown] = useState(PAGE);
-  const [open, setOpen] = useState(true);
+  /**
+   * Whether the workshop is showing. Two different things behind one flag: on desktop it is
+   * a side panel that can be collapsed, on a phone it is an overlay over the gallery.
+   *
+   * ⚠️ **Starts closed on a phone.** Stacked below the gallery it meant scrolling past every
+   * card to see the deck and back up to find the next one — the single-column layout was
+   * honest about the space and useless to build in. Read once, with the CSS breakpoint's own
+   * unit rather than a pixel guess, and never re-read: after the first tap the answer is
+   * yours, not the viewport's.
+   */
+  const [open, setOpen] = useState(
+    () => !window.matchMedia("(max-width: 60rem)").matches,
+  );
   const [guided, setGuided] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   /**
@@ -714,8 +727,20 @@ export function App() {
           </button>
 
           <span className="count">{results.length}</span>
-          <button type="button" className="tab toggle" onClick={() => setOpen((o) => !o)}>
-            {open ? "Hide deck ›" : "‹ Deck"}
+          {/* ⚠️ Both labels are rendered and CSS picks one, rather than a media-query hook.
+              The chevrons describe a panel sliding aside, which is a lie on a phone where
+              the same flag opens an overlay — and the phone label carries the deck count, so
+              the button says how far along you are without being pressed. */}
+          <button
+            type="button"
+            className="tab toggle"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+          >
+            <span className="wide-only">{open ? "Hide deck ›" : "‹ Deck"}</span>
+            <span className="narrow-only">
+              {open ? "Close" : `Deck ${mainDeckCount(deck)}/40`}
+            </span>
           </button>
         </div>
 
@@ -924,6 +949,17 @@ export function App() {
                   }}
                 >
                   Guided build
+                </button>
+                {/* ⚠️ The overlay covers the toolbar, so the button that opened it is not
+                    reachable to close it. Lives in the workshop's own sticky header, which
+                    is the only thing guaranteed to be on screen. */}
+                <button
+                  type="button"
+                  className="ghost narrow-only"
+                  onClick={() => setOpen(false)}
+                  aria-label="Close the deck and go back to the cards"
+                >
+                  ✕ Cards
                 </button>
               </div>
             </header>
