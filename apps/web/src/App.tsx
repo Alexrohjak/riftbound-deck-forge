@@ -2,8 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   checkLegality,
   committedByPrinting,
+  championAccess,
   deckFacts,
   deckHash,
+  playableOptions,
+  runeFeasibility,
+  simulateOpenings,
   findConflicts,
   mainDeckCount,
   overCommitted,
@@ -39,7 +43,7 @@ import { filtersFor, runeSlots, stepFor, type Step } from "./buildFlow.js";
 import { Workshop, type Occupant, type Target } from "./Workshop.js";
 import { CardDetail } from "./CardDetail.js";
 import { useCommitments } from "./commitments.js";
-import { Statistics } from "./Statistics.js";
+import { Probabilities, Statistics } from "./Statistics.js";
 
 /**
  * Forge — a light table of cards, and a workbench tray beside it.
@@ -491,6 +495,20 @@ export function App() {
   const dismantle = useCallback(() => setState("DRAFT"), [setState]);
   /** `W4` — 🟢 Tier 1 facts. Deterministic, so they ride the same live recompute as legality. */
   const facts = useMemo(() => (pool ? deckFacts(deck, pool.index) : null), [deck, pool]);
+  /**
+   * 🟡 Tier 2. ⚠️ **Only computed while the Analysis view is open.** The simulation is
+   * 10,000 openings; running it on every keystroke in the gallery would spend that on a
+   * panel nobody is looking at. `view` is in the dependency list for exactly that reason.
+   */
+  const chances = useMemo(() => {
+    if (!pool || view !== "analysis") return null;
+    return {
+      runes: runeFeasibility(deck, pool.index),
+      champion: championAccess(deck, pool.index),
+      flexibility: playableOptions(deck, pool.index),
+      openings: simulateOpenings(deck, pool.index),
+    };
+  }, [deck, pool, view]);
 
   const copiesOfName = useCallback(
     (card: Card) =>
@@ -1014,6 +1032,7 @@ export function App() {
                     // data the workshop already has rather than recomputed here.
                     committed={conflicts.reduce((n, c) => n + c.committed, 0)}
                   />
+                  {chances && <Probabilities {...chances} />}
                   <Advisor deck={deck} pool={pool} owned={owned} />
                 </>
               )}

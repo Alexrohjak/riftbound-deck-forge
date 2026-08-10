@@ -1442,3 +1442,37 @@ body.resizing * { pointer-events: none; }
   background: var(--sunk); border-radius: var(--radius-sm); padding: var(--s1) var(--s2);
 }
 .keywords b { color: var(--ink); font-family: var(--mono); }
+
+/* 🟡 Tier 2 — probabilities. A different colour and a different word from Tier 1, because
+   DECK-STATS §1's one non-negotiable is that a lower tier can never pass for a higher one. */
+.panel.tier2 { border-left: 3px solid var(--warn, #c8973f); }
+.panel.tier2 h2 { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s2); }
+.panel.tier2 .tier { color: var(--warn, #c8973f); }
+
+/* Per-turn tables. Wide by nature, so they scroll inside themselves rather than pushing
+   the panel out — the workshop clips its overflow, so an unscrolled table loses columns. */
+.scroller { overflow-x: auto; }
+.turns { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+.turns th {
+  text-align: left; font-weight: 400; color: var(--dim);
+  padding: var(--s1) var(--s2) var(--s1) 0; white-space: nowrap;
+}
+.turns thead th {
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.06em;
+  color: var(--faint); border-bottom: 1px solid var(--line);
+}
+.turns td.num, .turns th.num { text-align: right; padding-left: var(--s2); }
+.turns td.num {
+  font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--ink);
+}
+.turns tbody tr + tr th, .turns tbody tr + tr td { border-top: 1px solid var(--sunk); }
+.turns .dot { margin-right: var(--s1); }
+
+/* The conditions the number is correct *given*. Revealed rather than always shown — four
+   assumption lists at once is the wall DECK-STATS S2 warns about — but on every panel. */
+.assume { margin-top: var(--s2); }
+.assume > button { font-size: 0.66rem; padding: 0; color: var(--faint); }
+.assume ul {
+  margin: var(--s1) 0 0; padding-left: var(--s4);
+  font-size: 0.66rem; color: var(--faint); line-height: 1.5;
+}

@@ -1,5 +1,6 @@
-import type { DeckFacts } from "@forge/engine";
-import { COUNTED_KEYWORDS } from "@forge/engine";
+import type { Access, DeckFacts, Flexibility, Openings, RuneFeasibility } from "@forge/engine";
+import { COUNTED_KEYWORDS, TURNS } from "@forge/engine";
+import { useState } from "react";
 
 /**
  * 🟢 **Tier 1 — facts** (DECK-STATS §3).
@@ -188,6 +189,204 @@ export function Statistics({ facts, committed }: { facts: DeckFacts; committed: 
             ? "Nothing this deck wants is sleeved into another built deck."
             : `${committed} ${committed === 1 ? "card is" : "cards are"} spoken for by another built deck — see the deck panel for which.`}
         </p>
+      </section>
+    </>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   🟡 Tier 2 — probabilities
+
+   ⚠️ **A different colour and a different word.** DECK-STATS §1's one non-negotiable is
+   that a lower tier can never pass for a higher one, and the way that holds is that these
+   never look like the green "fact" panels above them.
+
+   ⚠️ **The assumptions travel with the number.** They come back on the result from the
+   engine rather than being written here, so a component cannot render a percentage it has
+   no caveat for. Open item S3 asked whether they should always be visible or revealed on
+   interaction: revealed, because a panel that shows four assumption lists at once is the
+   wall S2 warns about — but the affordance is on every single number, not one per panel.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const pct = (p: number) => `${Math.round(p * 100)}%`;
+
+/** The conditions a probability is correct *given*. One per panel, opened on demand. */
+function Assumptions({ items }: { items: string[] }) {
+  const [open, setOpen] = useState(false);
+  if (items.length === 0) return null;
+  return (
+    <div className="assume">
+      <button type="button" className="ghost" onClick={() => setOpen((v) => !v)}>
+        {open ? "hide assumptions" : "correct given…"}
+      </button>
+      {open && (
+        <ul>
+          {items.map((a) => (
+            <li key={a}>{a}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/** A row of per-turn percentages. Turns run along the top, once, for every row. */
+function TurnHead({ label }: { label: string }) {
+  return (
+    <tr>
+      <th>{label}</th>
+      {Array.from({ length: TURNS }, (_, i) => (
+        <th key={i} className="num">
+          T{i + 1}
+        </th>
+      ))}
+    </tr>
+  );
+}
+
+export function Probabilities({
+  runes,
+  champion,
+  flexibility,
+  openings,
+}: {
+  runes: RuneFeasibility;
+  champion: Access;
+  flexibility: Flexibility;
+  openings: Openings;
+}) {
+  return (
+    <>
+      <section className="panel tier2">
+        <h2>
+          Rune feasibility<span className="tier">probability</span>
+        </h2>
+        {runes.rows.length === 0 ? (
+          <p className="empty">
+            Nothing in this deck asks for coloured Power yet — the runes are doing Energy work
+            only.
+          </p>
+        ) : (
+          <>
+            <p className="note">
+              The chance you can pay each Power cost your deck actually asks for, by turn.
+            </p>
+            <div className="scroller">
+              <table className="turns">
+                <thead>
+                  <TurnHead label="Cost" />
+                </thead>
+                <tbody>
+                  {runes.rows.map((row) => (
+                    <tr key={`${row.domain}-${row.cost}`}>
+                      <th>
+                        <i className={`dot ${row.domain}`} /> {row.cost} {row.domain}
+                        <span className="of"> · {row.cards} cards</span>
+                      </th>
+                      {row.p.map((p, i) => (
+                        <td key={i} className="num">
+                          {pct(p)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+        <Assumptions items={runes.assumptions} />
+      </section>
+
+      <section className="panel tier2">
+        <h2>
+          Finding your Champion<span className="tier">probability</span>
+        </h2>
+        {champion.copies === 0 ? (
+          <p className="empty">No Chosen Champion yet.</p>
+        ) : (
+          <div className="scroller">
+            <table className="turns">
+              <thead>
+                <TurnHead label="Seen by" />
+              </thead>
+              <tbody>
+                <tr>
+                  <th>
+                    {champion.copies} {champion.copies === 1 ? "copy" : "copies"}
+                  </th>
+                  {champion.p.map((p, i) => (
+                    <td key={i} className="num">
+                      {pct(p)}
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
+        <Assumptions items={champion.assumptions} />
+      </section>
+
+      <section className="panel tier2">
+        <h2>
+          Openings<span className="tier">probability</span>
+        </h2>
+        {/* A distribution, not an anecdote — this is what a Sample Hand should have been. */}
+        <dl className="facts">
+          <div>
+            <dt>Turn-one play</dt>
+            <dd>{pct(openings.turnOne)}</dd>
+          </div>
+          <div>
+            <dt>By turn two</dt>
+            <dd>{pct(openings.turnTwo)}</dd>
+          </div>
+        </dl>
+        <p className="note">
+          Across {openings.hands.toLocaleString("en-GB")} simulated openings — a distribution
+          rather than one hand, which tells you nothing.
+        </p>
+        <Assumptions items={openings.assumptions} />
+      </section>
+
+      <section className="panel tier2">
+        <h2>
+          Board and options by turn<span className="tier">probability</span>
+        </h2>
+        <div className="scroller">
+          <table className="turns">
+            <thead>
+              <TurnHead label="" />
+            </thead>
+            <tbody>
+              <tr>
+                <th>Might on board</th>
+                {openings.might.map((m, i) => (
+                  <td key={i} className="num">
+                    {m.toFixed(1)}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                {/* DECK-STATS §6: flexibility, defined — distinct cards you could cast. */}
+                <th>
+                  Castable cards<span className="of"> of {flexibility.distinct}</span>
+                </th>
+                {flexibility.options.map((n, i) => (
+                  <td key={i} className="num">
+                    {n}
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="note">
+          Expected Might replaces calling a deck "early" or "late"; castable cards is what
+          flexibility means when you define it.
+        </p>
+        <Assumptions items={[...openings.assumptions, ...flexibility.assumptions]} />
       </section>
     </>
   );

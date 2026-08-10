@@ -78,9 +78,17 @@ Whether one is available on turn *N* depends on which runes you happened to chan
 a **hypergeometric** problem over a 12-card deck, further complicated by recycling
 returning runes to it.
 
-> *"With a 7 Fury / 5 Calm split, you have a **74%** chance of paying `2 Fury Power`
-> on turn 3. Moving to 8/4 raises that to 86% — and drops turn-4 Calm feasibility
-> from 91% to 68%."*
+> *"With a 7 Fury / 5 Calm split, you have an **85%** chance of paying `2 Fury Power`
+> on turn 2. Moving to 8/4 raises that to 93% — and drops turn-2 Calm feasibility
+> from 58% to 41%."*
+
+> ⚠️ **The figures above were corrected on 2026-08-10, when this was implemented.** The
+> original example quoted 74% for `2 Fury Power` on **turn 3**; the exact answer is 99.2%,
+> because by turn 3 you have channelled six of twelve runes and seven of them are Fury.
+> Illustrative numbers written before the calculation existed are exactly the folklore this
+> tier is meant to prevent, so they are now computed values. **Turn 2 is also the better
+> illustration** — turn 3 is where nearly every split succeeds, and the trade-off the section
+> is about is only visible while the answer is still in doubt.
 
 **No other Riftbound tool can produce this**, because none knows the rune split and
 the deck's actual Power demands together. It is the single strongest argument for

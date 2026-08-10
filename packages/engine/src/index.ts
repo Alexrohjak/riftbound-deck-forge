@@ -16,6 +16,20 @@ export * from "./legality/index.js";
 /** Statistics. Tier 1 only so far — facts about the list, with no assumptions in them. */
 export { energyCurve, type EnergyCurve } from "./stats/energyCurve.js";
 export {
+  atLeast,
+  championAccess,
+  playableOptions,
+  runeFeasibility,
+  simulateOpenings,
+  RUNES_PER_TURN,
+  TURNS,
+  type Access,
+  type FeasibilityRow,
+  type Flexibility,
+  type Openings,
+  type RuneFeasibility,
+} from "./stats/probabilities.js";
+export {
   deckFacts,
   COUNTED_KEYWORDS,
   type DeckFacts,
