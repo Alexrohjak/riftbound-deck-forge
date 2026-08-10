@@ -250,3 +250,55 @@ describe("simulated openings", () => {
     expect(performance.now() - started).toBeLessThan(1_000);
   });
 });
+
+describe("two-domain Power is unknown, not absent", () => {
+  /**
+   * ⚠️ Found in review. `card.domain` is null whenever the Power colour cannot be attributed,
+   * and the old code resolved that to "you have 0 of that colour" — so 41 of 814 main-deck
+   * cards were excluded on every turn, forever, and a deck built on them reported almost
+   * nothing castable. Silently wrong is the one thing this tier cannot be.
+   */
+  const dual = staticCardIndex({
+    "rune-fury": { name: "Fury Rune", types: ["rune"], superTypes: ["basic"], domains: ["fury"] },
+    "rune-calm": { name: "Calm Rune", types: ["rune"], superTypes: ["basic"], domains: ["calm"] },
+    "dual-2p": {
+      name: "Dual Threat",
+      types: ["unit"],
+      domains: ["fury", "calm"],
+      energy: 1,
+      power: 2,
+      might: 4,
+    },
+    "plain": { name: "Plain", types: ["unit"], domains: ["fury"], energy: 1, power: 0, might: 1 },
+    "legend-x": { name: "A Legend", types: ["legend"], domains: ["fury", "calm"] },
+  });
+  const deck: Deck = {
+    id: "d",
+    name: "t",
+    state: "DRAFT",
+    legendCardId: "legend-x",
+    chosenChampionCardId: "",
+    slots: [
+      { cardId: "rune-fury", zone: "RUNE", quantity: 6 },
+      { cardId: "rune-calm", zone: "RUNE", quantity: 6 },
+      { cardId: "dual-2p", zone: "MAIN", quantity: 3 },
+      { cardId: "plain", zone: "MAIN", quantity: 3 },
+    ],
+  };
+
+  it("says how many it set aside rather than scoring them as uncastable", () => {
+    const f = playableOptions(deck, dual);
+    expect(f.assumptions.join(" ")).toMatch(/two-domain card/);
+    expect(f.assumptions.join(" ")).toMatch(/neither counted nor assumed uncastable/);
+  });
+
+  it("still counts the cards it can attribute", () => {
+    // The single-domain 1-drop is castable from turn one.
+    expect(playableOptions(deck, dual).options[0]).toBe(1);
+  });
+
+  it("declares expected Might a floor when it could not play those cards", () => {
+    const o = simulateOpenings(deck, dual, 500);
+    expect(o.assumptions.join(" ")).toMatch(/floor rather than an estimate/);
+  });
+});

@@ -234,6 +234,19 @@ export function playableOptions(deck: Deck, cards: CardIndex): Flexibility {
     });
   }
 
+  /**
+   * ⚠️ **Cards whose Power colour cannot be determined are set aside, not called uncastable.**
+   * A two-domain card carries a Power cost the data never attributes to one domain, and the
+   * previous version resolved `domain: null` to "you have 0 of that colour" — excluding them
+   * on every turn, forever, and reporting a deck built on them as having almost nothing to
+   * cast. 41 of 814 main-deck cards are dual-domain with a Power cost. Silently wrong in a
+   * panel whose entire claim is calibration is worse than visibly incomplete, so they are
+   * counted separately and named in the assumptions.
+   */
+  const unattributable = [...seen.values()].filter(
+    (c) => c.energy !== null && c.power > 0 && c.domain === null,
+  ).length;
+
   const options: number[] = [];
   for (let turn = 1; turn <= TURNS; turn++) {
     const available = RUNES_PER_TURN * turn;
@@ -241,9 +254,9 @@ export function playableOptions(deck: Deck, cards: CardIndex): Flexibility {
     for (const card of seen.values()) {
       if (card.energy === null) continue; // no cost data is not a castable card
       if (card.energy > available) continue;
-      // The colour has to be in the deck at all, or it is not an option however cheap it is.
       if (card.power > 0) {
-        const have = card.domain ? (runes.byDomain[card.domain] ?? 0) : 0;
+        if (card.domain === null) continue; // set aside; reported below, not scored as 0
+        const have = runes.byDomain[card.domain] ?? 0;
         if (have < card.power || card.power > available) continue;
       }
       n += 1;
@@ -258,6 +271,13 @@ export function playableOptions(deck: Deck, cards: CardIndex): Flexibility {
       `${RUNES_PER_TURN} runes channelled per turn, all available as Energy`,
       "the colour is assumed present if the Rune Deck runs enough of it — this is capacity, not a draw",
       "cards with no cost data are not counted as castable",
+      ...(unattributable > 0
+        ? [
+            `${unattributable} two-domain card${unattributable === 1 ? "" : "s"} set aside — ` +
+              "the data does not say which domain their Power is owed in, so they are neither " +
+              "counted nor assumed uncastable",
+          ]
+        : []),
     ],
   };
 }
@@ -321,10 +341,13 @@ export function simulateOpenings(deck: Deck, cards: CardIndex, hands = 10_000): 
   };
   if (library.length === 0) return empty;
 
+  /** See `playableOptions`: an unattributable Power colour is unknown, not absent. */
+  const unattributable = library.filter((c) => c.power > 0 && c.domain === null).length;
   const castable = (card: Card, turn: number): boolean => {
     if (card.energy === null || card.energy > RUNES_PER_TURN * turn) return false;
     if (card.power > 0) {
-      const have = card.domain ? (runes.byDomain[card.domain] ?? 0) : 0;
+      if (card.domain === null) return false;
+      const have = runes.byDomain[card.domain] ?? 0;
       if (have < card.power || card.power > RUNES_PER_TURN * turn) return false;
     }
     return true;
@@ -387,6 +410,13 @@ export function simulateOpenings(deck: Deck, cards: CardIndex, hands = 10_000): 
       `${CARDS_SEEN_BY_TURN_ONE} cards seen by the end of turn one, then one draw per turn`,
       "one card played per turn, greedily the most expensive affordable — not a pilot",
       "no mulligan modelling, no card effects, no opponent",
+      ...(unattributable > 0
+        ? [
+            `${unattributable} cop${unattributable === 1 ? "y" : "ies"} of two-domain cards ` +
+              "were never played — the data does not say which domain their Power is owed in, " +
+              "so expected Might is a floor rather than an estimate",
+          ]
+        : []),
     ],
   };
 }

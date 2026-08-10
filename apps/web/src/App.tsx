@@ -293,7 +293,7 @@ export function App() {
   const { decks, refresh: refreshDecks } = useDecks(deckId);
   // `holdings` in this file already means the collection summary — this is the other thing:
   // what every BUILT deck is physically holding.
-  const { holdings: sleeved, refresh: refreshCommitments } = useCommitments();
+  const { holdings: sleeved, loaded: commitmentsKnown, refresh: refreshCommitments } = useCommitments();
 
   const openDeck = useCallback((id: string) => {
     setActiveDeckId(id);
@@ -499,21 +499,66 @@ export function App() {
    * Commitments are derived from deck state, so they go stale exactly when a deck that
    * commits something is written. A `DRAFT` edit changes nothing and is not worth a request.
    */
-  const wasBuilt = useRef(deck.state === "BUILT");
+  /**
+   * Re-read commitments when a write **lands**.
+   *
+   * ⚠️ **On the transition into `saved`, not on `save.status === "saved"`.** The previous
+   * version also skipped the read for `DRAFT` decks, to save a request. Both were wrong
+   * together: `dismantle()` flips local state to `DRAFT` while the status is still `saved`
+   * from the *last* write, so the effect fired immediately, refetched against a server where
+   * the deck was still `BUILT`, and consumed the "was it built" flag. When the real write
+   * landed, nothing refreshed — so a dismantled deck's cards stayed spoken for until reload.
+   *
+   * The saved request was two queries over a few hundred rows. It was not worth a class of
+   * bug that only shows up as stale advice.
+   */
+  const wasSaved = useRef(save.status === "saved");
   useEffect(() => {
-    const matters = deck.state === "BUILT" || wasBuilt.current;
-    wasBuilt.current = deck.state === "BUILT";
-    if (matters && save.status === "saved") refreshCommitments();
-  }, [save.status, deck.state, refreshCommitments]);
+    const landed = !wasSaved.current && save.status === "saved";
+    wasSaved.current = save.status === "saved";
+    if (landed) refreshCommitments();
+  }, [save.status, refreshCommitments]);
+
+  /**
+   * Copies this deck asks for that another built deck is holding — DECK-STATS §3's
+   * "collection reality".
+   *
+   * ⚠️ Derived from the holdings themselves, never from `conflicts`. A conflict only exists
+   * when demand *exceeds* availability; cards that are spoken for but still coverable produce
+   * no conflict at all, and summing conflicts therefore reported zero while another deck held
+   * three of them.
+   */
+  const committedHere = useMemo(() => {
+    if (!pool) return 0;
+    const wanted = new Set(
+      deck.slots
+        .filter((s) => s.zone === "MAIN" || s.zone === "SIDEBOARD")
+        .map((s) => pool.byPrinting.get(s.cardId)?.name)
+        .filter((n): n is string => Boolean(n)),
+    );
+    const champion = pool.byPrinting.get(deck.chosenChampionCardId)?.name;
+    if (champion) wanted.add(champion);
+    return sleeved
+      .filter((h) => h.deckId !== deck.id)
+      .filter((h) => {
+        const name = pool.byPrinting.get(h.cardId)?.name;
+        return name !== undefined && wanted.has(name);
+      })
+      .reduce((n, h) => n + h.quantity, 0);
+  }, [deck, pool, sleeved]);
 
   /**
    * `DRAFT → BUILT` — the one gate (DATA-MODEL §3). Promotion is a claim that these cards
    * are physically in sleeves, and the same card cannot be in two sleeves at once.
    */
   const promote = useCallback(() => {
-    if (conflicts.length > 0) return;
+    // ⚠️ **Not knowing is not the same as nothing.** If `/commitments` has not answered —
+    // offline, 500, an expired Access session — `sleeved` is empty and every deck looks
+    // unconflicted. Promoting on that would sleeve a card another deck already holds, which
+    // is the one direction this feature must not fail in (`useCommitments`).
+    if (!commitmentsKnown || conflicts.length > 0) return;
     setState("BUILT");
-  }, [conflicts, setState]);
+  }, [commitmentsKnown, conflicts, setState]);
 
   /** Dismantling has no gate — un-sleeving a deck is always allowed, and releases its cards. */
   const dismantle = useCallback(() => setState("DRAFT"), [setState]);
@@ -532,7 +577,9 @@ export function App() {
       flexibility: playableOptions(deck, pool.index),
       openings: simulateOpenings(deck, pool.index),
     };
-  }, [deck, pool, view]);
+    // ⚠️ Keyed on the deck's *content hash*, not the deck object: `setName` rewrites `deck`
+    // on every character typed, and this memo runs 10,000 simulated openings synchronously.
+  }, [currentHash, deck, pool, view]);
 
   /** By name, Chosen Champion included — see `copiesInDeck`. */
   const copiesOfName = useCallback(
@@ -1037,7 +1084,13 @@ export function App() {
               // take it off when you have decided, not as a side effect of trying it.
               onBenchAdd={(cardId) => {
                 const card = pool.byPrinting.get(cardId);
-                if (card) add(card, printingOf(card, cardId));
+                if (!card) return;
+                // ⚠️ **The Bench obeys the same cap as the gallery.** Every tile refuses a
+                // click at `copyLimit`; this path called `add()` unguarded, so five clicks on
+                // a benched card put five copies of it in a deck you own one of — reopening
+                // exactly what `1b64b3b` closed, by a route that did not exist when it did.
+                if (copiesOfName(card) >= copyLimit(card, owned, tracked)) return;
+                add(card, printingOf(card, cardId));
               }}
               onBenchRemove={unbenchCard}
               onPromote={promote}
@@ -1062,7 +1115,12 @@ export function App() {
                     // Copies this deck asks for that another BUILT deck is holding — the
                     // "collection reality" DECK-STATS §3 asks for, read from the commitment
                     // data the workshop already has rather than recomputed here.
-                    committed={conflicts.reduce((n, c) => n + c.committed, 0)}
+                    // ⚠️ Counted from the holdings, **not** from the conflict list. Own 4,
+                    // ask for 1, another built deck holding 3 produces no conflict — and the
+                    // old sum then asserted "nothing is sleeved", which is false, in a panel
+                    // labelled `fact`.
+                    committed={committedHere}
+                    committedKnown={commitmentsKnown}
                   />
                   {chances && <Probabilities {...chances} />}
                   <Advisor deck={deck} pool={pool} owned={owned} />

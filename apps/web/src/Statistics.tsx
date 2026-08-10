@@ -84,7 +84,16 @@ function PowerAgainstRunes({ facts }: { facts: DeckFacts }) {
   );
 }
 
-export function Statistics({ facts, committed }: { facts: DeckFacts; committed: number }) {
+export function Statistics({
+  facts,
+  committed,
+  committedKnown,
+}: {
+  facts: DeckFacts;
+  committed: number;
+  /** ⚠️ False until `/commitments` has answered. Absent is not the same as none. */
+  committedKnown: boolean;
+}) {
   const { types, might } = facts;
   const keywords = COUNTED_KEYWORDS.filter((k) => (facts.keywords[k] ?? 0) > 0);
 
@@ -185,9 +194,11 @@ export function Statistics({ facts, committed }: { facts: DeckFacts; committed: 
           Collection reality<span className="tier">fact</span>
         </h2>
         <p className="note">
-          {committed === 0
-            ? "Nothing this deck wants is sleeved into another built deck."
-            : `${committed} ${committed === 1 ? "card is" : "cards are"} spoken for by another built deck — see the deck panel for which.`}
+          {!committedKnown
+            ? "Not read yet — this says nothing about your other decks until it has."
+            : committed === 0
+              ? "Nothing this deck wants is sleeved into another built deck."
+              : `${committed} ${committed === 1 ? "card is" : "cards are"} spoken for by another built deck — see the deck panel for which.`}
         </p>
       </section>
     </>
