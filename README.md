@@ -124,7 +124,7 @@ grounding lines; and **editing requires connectivity** — offline you can look 
 ### 3 · Run the workspace
 
 `packages/engine` is the real thing — pure TypeScript, ⚖️ **all 33 legality checks**,
-the energy curve, commitment, the log's honesty thresholds, 246 tests:
+the energy curve, commitment, the log's honesty thresholds, 327 tests:
 
 ```bash
 npm install
@@ -259,6 +259,34 @@ Then load `restore.json` with **Import a collection file** in Forge's *Owned* vi
 > file to cover a risk that was already covered. Full reasoning in
 > [D-051](docs/DECISIONS.md#d-051).
 
+### 6 · `S6` — asking EE a question
+
+**EE's mouth is this terminal** ([D-043](docs/DECISIONS.md#d-043)), and
+[**`docs/EE-BRIEFING.md`**](docs/EE-BRIEFING.md) is what binds it: the answer budget, the
+tiering, the never-list, and the rule that matters most — **every number in an answer comes
+from a tool call actually made**.
+
+```bash
+npm run state          # live D1 → state/forge-state.json. First thing, every session.
+
+P="--pool apps/web/public/cards.json --collection state/forge-state.json"
+node apps/cli/dist/index.js legend   --legend <cardId> $P   # what goes in this Legend
+node apps/cli/dist/index.js around   --card   <cardId> $P   # build around my one copy
+node apps/cli/dist/index.js counter  --legend <cardId> $P   # what beats this Legend
+node apps/cli/dist/index.js mechanic --name   <tag>    $P   # play around this mechanic
+```
+
+⚠️ **Without `--collection` every ownership number is zero**, and an answer built on that is
+confidently wrong about the one thing Forge exists to know. `state/` is gitignored: it changes
+whenever you enter a card, and a stale copy in git would be worse than none.
+
+⚠️ **The four tools return data, never prose.** A tool that could write the sentence could
+invent it. Judgement comes from the mouth reading them beside
+[`reference/`](docs/reference/) — 39,000 words covering all 49 Legends, all 814 main-deck
+cards and both rulebooks.
+
+---
+
 > 📄 **Write a document when there is something to record, not to feel productive.**
 > This replaces the blanket "stop writing documents" rule, which had done its job: it was
 > written when the project had ~66,000 words of docs against a few hundred lines of code,
@@ -284,6 +312,7 @@ system map and **where to put a new idea**.
 | [**`docs/spec/OVERVIEW.md`**](docs/spec/OVERVIEW.md) | **System map — how everything relates, and where new ideas go. Read before adding a feature.** |
 | [`docs/PLAN.md`](docs/PLAN.md) | The detail layer — gates, "done when", validation and risks |
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | 62 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
+| [**`docs/EE-BRIEFING.md`**](docs/EE-BRIEFING.md) | **What binds EE when it answers — the answer budget, the tiering, and "never author a number". Read before asking it anything.** |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
 | [**`docs/ARCHITECTURE.md`**](docs/ARCHITECTURE.md) | **How it's built — stack, hosting, verified £0/month cost, and what's ruled out. Read before writing code.** |
 | [`docs/AUDIT.md`](docs/AUDIT.md) | First-principles audit of the project's own assumptions |
@@ -299,6 +328,7 @@ system map and **where to put a new idea**.
 | [`apps/api/`](apps/api/) | One Cloudflare Worker over D1. No idle state |
 | [**`tools/collection/`**](tools/collection/) | **The collection tool — keyboard entry over all 1,180 printings, live matches with images, JSON export. Working, and in use.** |
 | [`tools/check-docs.py`](tools/check-docs.py) | Fails when the docs contradict themselves — milestone arithmetic, the two status boards, decision counts, links. Run it after editing any planning doc |
+| [`scripts/pull-state.mjs`](scripts/pull-state.mjs) | `npm run state` — live D1 into `state/forge-state.json`, so no EE answer is built on a stale file. **Read-only**, and it refuses to write an empty collection: "you own none of that" is a plausible-looking answer and a catastrophic one |
 | [`scripts/check-engine-purity.mjs`](scripts/check-engine-purity.mjs) | Fails if the engine imports `fs`, `fetch` or the DOM — that would break one of its two consumers, and it would be the one nobody ran |
 
 ### Specification — what we're building

@@ -24,10 +24,10 @@
 | **Track** | **S — The Strategist (EE)** |
 | **Progress** | **11 of 17** milestones · `D1`–`D3`, `F1`–`F3`, **all of `W`** complete |
 | **🎯 Next** | **`S6` — EE's mouth**, re-gated off `S2` by [D-062](DECISIONS.md#d-062): the four deckbuilding questions need no rules core. Tool surface, export contract and briefing — then `S1a` for the combat half |
-| **Active** | 🟡 **`S6` — the deckbuilding conversation.** `legend`, `around`, `counter` and `mechanic` answer *"what goes in this Legend"*, *"build around my one copy"*, *"what beats this"* and *"play around this mechanic"* — grounded in the live collection via `npm run state`, with [`EE-BRIEFING.md`](EE-BRIEFING.md) binding the mouth. 🏁 **THE WORKBENCH IS DONE.** All five `W` milestones are closed, which is the point the plan marks as *"if the project stopped here it would still be worth having"*. ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone.** Closing it took the **commitment model** (D-017 finally wired end to end), **the Bench**, and **[D-061](DECISIONS.md#d-061) — runes leave the collection**, which was found by building that first deck and discovering it could never be marked as built |
+| **Active** | 🟡 **`S6` — the deckbuilding conversation.** `legend`, `around`, `counter` and `mechanic` answer *"what goes in this Legend"*, *"build around my one copy"*, *"what beats this"* and *"play around this mechanic"* — grounded in the live collection via `npm run state`, with [`EE-BRIEFING.md`](EE-BRIEFING.md) binding the mouth. **Built, not yet proven**: the gate is you reading real answers and saying which you would act on |
 | **Blocked** | Nothing. ✅ **X8 closed** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. **Live and proven in production** |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
-| **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve, **commitment**, the `S5` brief and gate) · `apps/web` (935 cards, search, alternate arts, many decks, card entry, import, **the Bench**, **a phone overlay**) · `apps/cli` · `apps/api` (decks + collection + **commitments** + the log + nightly backup) · CI · **246 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
+| **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve, **commitment**, the `S5` brief and gate) · `apps/web` (935 cards, search, alternate arts, many decks, card entry, import, **the Bench**, **a phone overlay**) · `apps/cli` (+ the four `S6` question tools) · `apps/api` (decks + collection + **commitments** + the log + nightly backup) · CI · **327 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
 
 ```
 D ─ Design         ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
@@ -202,7 +202,7 @@ find a pile you never entered.
 | `S1a` | **Rules engine — core** 🔴 | State, legal actions, combat under Tank/Backline/lethal-first/no-overkill, replacement effects, layers. Each of the 21 rule-warping cards has a regression test | ⬜ | `F3` |
 | `S1b` | **Chains and showdowns** | CR 355–359, 370–375, 465.2 worked examples pass as fixtures; LIFO and Reaction-only-when-closed hold as property tests | 💤 **deferred** | `S1a` |
 | `S2` | **Analysis** | EE answers Q-CARD, Q-COMPARE and Q-LEGEND correctly, headlessly | ⬜ | `S1a` |
-| `S6` | **EE's mouth** | Tool surface + export contract + briefing. A real question answered end-to-end from Claude Code, with every number traceable to a tool call | ⬜ | `S2` |
+| `S6` | **EE's mouth** | Tool surface + export contract + briefing. A real question answered end-to-end from Claude Code, with every number traceable to a tool call | 🟡 built, unproven | ~~`S2`~~ — none ([D-062](DECISIONS.md#d-062)) |
 | `S5` | **Deck generation** ⭐ | All four modes produce legal, owned, explained candidates you'd actually sleeve | ⬜ *partly delivered* — the **brief** and the **gate** exist in the engine and the CLI (`brief`, `validate`); no mode generates yet | `S2`, `W2` |
 | ~~`S1`~~ | ~~Rules engine~~ | — | ↔️ **split** into `S1a` + `S1b` — [D-044](DECISIONS.md#d-044) | — |
 | ~~`S3`~~ | ~~Plain-English answers~~ | — | ❌ **retired** — [D-043](DECISIONS.md#d-043) | — |
@@ -271,7 +271,7 @@ Carried deliberately, not forgotten.
 | **X6** | Custom domain, or is `forge.<subdomain>.workers.dev` enough? Cosmetic and reversible | `F1` |
 | ~~**X7**~~ | ✅ **Answered** — [D-050](DECISIONS.md#d-050) removed the Pages project, so the docs site is a separate question, deferred until the docs need a URL | — |
 | **X8** | ✅ **Answered** — [D-051](DECISIONS.md#d-051). Nightly Cron Trigger commits a JSON snapshot to the `backups` branch of this repo. **Not R2**: a backup in the same Cloudflare account does not survive losing the account, and Time Travel already covers 7 days | — |
-| **X9** | Does `apps/cli` gain an MCP wrapper, or is shelling out enough? | `S6`, on evidence |
+| **X9** | Does `apps/cli` (+ the four `S6` question tools) gain an MCP wrapper, or is shelling out enough? | `S6`, on evidence |
 | **G1–G4** | Generation: how many candidates? How is a no-identity seed handled? Does it propose battlefields? | `S5` |
 | **E2–E7** | EE modelling depth — battlefield abilities, Legend abilities, refutation search depth, hidden cards, multi-unit boards | `S1a` |
 | **A6** | ✅ **Upheld** — [D-048](DECISIONS.md#d-048). There is no always-on server: static files, per-request functions and managed SQLite have no idle state | — |
