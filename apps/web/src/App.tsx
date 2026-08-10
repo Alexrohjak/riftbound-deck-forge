@@ -726,8 +726,20 @@ export function App() {
           <button
             type="button"
             className={base.owned ? "tab owned on" : "tab owned"}
+            /**
+             * ⚠️ **Owned composes with the guided flow; it does not cancel it.**
+             *
+             * The guided build owns exactly two things — the **tab** and the **identity** —
+             * because those are what the step decides. Everything else is a filter and stacks
+             * on top: `filtersFor` spreads `base` through unchanged, so "only what I own"
+             * narrows a guided step rather than fighting it. Narrowing the Champion step to
+             * the champions you actually have is the single most useful combination there is,
+             * and this used to drop you out of the flow for asking.
+             *
+             * `setTab` still exits guided, and should: the flow *overrides* the tab, so a tab
+             * press inside it would otherwise do nothing you could see.
+             */
             onClick={() => {
-              setGuided(false);
               setBase((f) => ({
                 ...f,
                 owned: !f.owned,
