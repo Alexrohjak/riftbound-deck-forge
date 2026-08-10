@@ -2,6 +2,7 @@ import type { CardFacts, CardIndex, Domain } from "../types.js";
 import type { PoolCard } from "./feedback.js";
 import { hasKeyword } from "../text.js";
 import { patternsOf, PATTERNS, type StrategicPattern } from "./patterns.js";
+import { SUPPORTS, isModelled } from "./synergy.js";
 
 /**
  * **What EE needs in order to answer a deckbuilding question** — EVALUATION §6.
@@ -17,22 +18,10 @@ import { patternsOf, PATTERNS, type StrategicPattern } from "./patterns.js";
  * travels with its reasoning so it can be disagreed with (D-045).
  */
 
-/** What satisfies a `consumes` tag — the synergy graph, stated rather than inferred. */
-const SUPPORTS: Record<string, (facts: CardFacts) => boolean> = {
-  token_matters: (f) => (f.produces ?? []).includes("token"),
-  trash_matters: (f) => (f.produces ?? []).some((p) => ["trashplay", "discard", "banish"].includes(p)),
-  gear_matters: (f) => (f.types ?? []).includes("gear"),
-  empowered: (f) => (f.produces ?? []).includes("empower"),
-  discard_matters: (f) => (f.produces ?? []).includes("discard"),
-  xp_spend: (f) => (f.produces ?? []).includes("xp"),
-  buff_spend: (f) => (f.produces ?? []).includes("buff"),
-  hidden: (f) => hasKeyword(f.text, "Hidden"),
-  flow: (f) => (f.produces ?? []).includes("trashplay"),
-  move_trigger: (f) => (f.produces ?? []).includes("move"),
-  death: (f) => (f.produces ?? []).some((p) => ["kill", "damage"].includes(p)),
-  spell_played: (f) => (f.types ?? []).includes("spell"),
-  unit_played: (f) => (f.types ?? []).includes("unit"),
-};
+/**
+ * ⚠️ **The synergy graph lives in one file** — [`synergy.ts`](./synergy.ts). It used to be
+ * declared here and again, differently, in `doctrine.ts`.
+ */
 
 /**
  * Which patterns answer which — **doctrine, not rules**.
@@ -403,6 +392,12 @@ export function mechanicCounsel(
   return {
     mechanic,
     known: wants.length > 0 || feeds.length > 0,
+    /**
+     * ⚠️ **Whether `feeds` was measured at all.** When this is false the graph has no rule
+     * for the tag, so `feeds: []` means *"not modelled"* and must never be read — or spoken —
+     * as *"nothing in the pool supplies it"*.
+     */
+    feedsMeasured: isModelled(mechanic),
     /** Cards that pay off the mechanic. */
     wants,
     /** Cards that supply it. */

@@ -148,8 +148,40 @@ function main(argv: string[]): number {
   };
 
   let cards: Record<string, CardEntry> = {};
+  /**
+   * ⚠️ **Shape-checked, because the wrong shape here is silent.** `--cards` is a
+   * `printing id -> facts` map. Handing it the generated pool index instead — an object with
+   * a `cards` array — used to be accepted: every id lookup missed, every card came back
+   * factless, and `review` answered with a full, confident analysis reading `uncosted: 40`,
+   * `0 units`, `0 removal` and an archetype of "control" for a deck of twenty units. Nothing
+   * failed, so nothing said the answer was worthless.
+   *
+   * `--pool` and `--collection` both already refuse a wrong shape for exactly this reason
+   * (the collection comment below records the same lesson). This is the third door.
+   */
   const cardsPath = flag("--cards");
-  if (cardsPath) cards = readJson(cardsPath) as Record<string, CardEntry>;
+  if (cardsPath) {
+    const raw = readJson(cardsPath);
+    if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
+      fail(`${cardsPath} must be an object of printing id -> card facts.`);
+    }
+    if ("cards" in (raw as Record<string, unknown>)) {
+      fail(
+        `${cardsPath} looks like the generated card index, which --cards cannot read. ` +
+          `Pass it as --pool instead.`,
+      );
+    }
+    const bad = Object.entries(raw as Record<string, unknown>).find(
+      ([, entry]) => typeof entry !== "string" && (entry === null || typeof entry !== "object"),
+    );
+    if (bad) {
+      fail(
+        `${cardsPath} entry "${bad[0]}" is neither a name nor a facts object. ` +
+          `--cards takes "<name>" or { "name", "domains", "energy" } per printing.`,
+      );
+    }
+    cards = raw as Record<string, CardEntry>;
+  }
 
   /**
    * `--pool` reads the index the app already generates, which carries every printing with

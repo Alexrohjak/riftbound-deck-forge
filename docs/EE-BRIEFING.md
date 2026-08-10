@@ -162,6 +162,12 @@ node apps/cli/dist/index.js mechanic --name <gear_matters|flow|token_matters|…
 Both halves come back: cards that pay the mechanic off, and cards that feed it. A mechanic
 deck that is all payoff and no fuel is the most common way this goes wrong.
 
+⚠️ **Read `feedsMeasured` before you read `feeds`.** When it is `false` the synergy graph has
+no rule for that tag, so an empty `feeds` means *"not modelled"* — say that, and never
+*"nothing in your collection supplies it"*. The two are opposites and only one is safe to say.
+This field exists because `mechanic --name mighty` once answered `feeds: 0` against a
+collection holding **60** cards that raise Might.
+
 ### *"I hate playing into this Legend — what beats it?"*
 
 ```bash

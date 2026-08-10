@@ -1,6 +1,7 @@
 import type { CardIndex, Deck } from "../types.js";
 import { countedEntries } from "../legality/entries.js";
 import { CARDS_SEEN_BY_TURN_ONE, deckShape, type DeckShape } from "./shape.js";
+import { SELF_SATISFYING, supplyOf } from "./synergy.js";
 
 /**
  * What good players advise, and **who advises it**.
@@ -77,7 +78,6 @@ export function capabilities(deck: Deck, cards: CardIndex): Capabilities {
   let bodies = 0;
 
   const wants = new Map<string, number>();
-  const supplies = new Map<string, number>();
 
   for (const e of main) {
     const produces = e.facts?.produces ?? [];
@@ -90,24 +90,26 @@ export function capabilities(deck: Deck, cards: CardIndex): Capabilities {
       combatTricks += e.quantity;
     }
     for (const c of consumes) wants.set(c, (wants.get(c) ?? 0) + e.quantity);
-    for (const p of produces) supplies.set(p, (supplies.get(p) ?? 0) + e.quantity);
   }
 
-  // "gear_matters" is satisfied by gear existing, not by a `produces` tag — so the payoff
-  // tags are matched against the thing they name.
-  const SATISFIED_BY: Record<string, (n: string) => boolean> = {
-    gear_matters: (n) => n === "gear",
-    token_matters: (n) => n === "token",
-    trash_matters: (n) => n === "trashplay",
-  };
-
+  /**
+   * ⚠️ **Supply is counted through the shared synergy graph, never by matching the tag name
+   * against `produces`.** That fallback used to live here and could not match: no card
+   * produces `unit_played` or `empowered`, so seventeen of the twenty tags in the pool
+   * resolved to a supply of zero no matter what the deck held. A deck of twenty units was
+   * told *"6 cards care about unit_played, and only 0 supply it"* — `source: "computed"`,
+   * `confidence: "fact"`, and false. `SUPPORTS` is now the single definition (`synergy.ts`).
+   *
+   * A tag the graph does not model is **skipped, not scored zero**. Silence is the only
+   * honest output for something that was never measured.
+   */
   const danglingSynergies = [...wants]
-    .map(([needs, count]) => {
-      const test = SATISFIED_BY[needs];
-      const supply = test
-        ? [...supplies].filter(([tag]) => test(tag)).reduce((n, [, v]) => n + v, 0)
-        : (supplies.get(needs) ?? 0);
-      return { needs, wants: count, supplies: supply };
+    .flatMap(([needs, count]) => {
+      if (SELF_SATISFYING.has(needs)) return [];
+      const test = supplyOf(needs);
+      if (!test) return [];
+      const supply = main.reduce((n, e) => (e.facts && test(e.facts) ? n + e.quantity : n), 0);
+      return [{ needs, wants: count, supplies: supply }];
     })
     // Only worth mentioning when the payoff is real and the enabler is thin.
     .filter((s) => s.wants >= 3 && s.supplies * 2 < s.wants)
