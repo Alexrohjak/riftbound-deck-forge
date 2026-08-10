@@ -152,32 +152,6 @@ h2 {
   display: grid; gap: var(--s3); align-content: start;
   position: sticky; top: 0; max-height: 100vh; overflow-y: auto; overflow-x: hidden;
 }
-/* ── the workshop is a panel on desktop and an overlay on a phone ───────────── */
-/* Stacked below the gallery it was honest about the space and useless to build in: you
-   scrolled past 854 cards to see the deck, then back up to find the next one. Same flag,
-   same markup — a phone just needs it on top of the cards rather than after them. */
-@media (max-width: 60rem) {
-  .workshop {
-    position: fixed; inset: 0; z-index: 40;
-    max-height: none; overflow-y: auto;
-    border-left: 0; border-top: 0;
-    background: var(--panel);
-    /* The notch and the home indicator both eat into a fixed element. */
-    padding: max(var(--s3), env(safe-area-inset-top)) var(--s3)
-             max(var(--s5), env(safe-area-inset-bottom));
-  }
-  /* Always reachable: the close button rides with it however far the deck scrolls. */
-  .workshop header {
-    position: sticky; top: 0; z-index: 1;
-    margin: calc(var(--s3) * -1) calc(var(--s3) * -1) 0;
-    padding: var(--s3);
-    background: var(--panel);
-    border-bottom: 1px solid var(--line);
-  }
-  /* The gallery must not scroll behind the overlay — a phone treats that as the page. */
-  body:has(.workshop) { overflow: hidden; }
-}
-
 /* One button, two truths: chevrons describe a side panel, and mean nothing over cards. */
 .narrow-only { display: none; }
 @media (max-width: 60rem) {
@@ -1341,3 +1315,41 @@ body.resizing * { pointer-events: none; }
 }
 .stale span { flex: 1; min-width: 12rem; color: var(--dim); }
 .stale .primary { padding: var(--s1) var(--s4); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   The workshop is a panel on desktop and an overlay on a phone
+
+   Stacked below the gallery it was honest about the space and useless to build in: you
+   scrolled past 854 cards to see the deck, then back up to find the next one. Same flag,
+   same markup — a phone just needs it on top of the cards rather than after them.
+
+   ⚠️ **This block lives at the end of the file on purpose.** A media query adds no
+   specificity, so the plain `.workshop` rules further up — which set a desktop `padding`
+   and `gap` sized for a third-of-the-window panel — beat it from below wherever they
+   appear later in the source. The first version of this sat at line 159 and silently lost
+   its padding and its safe-area insets to two rules it had never heard of.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 60rem) {
+  .workshop {
+    position: fixed; inset: 0; z-index: 40;
+    width: auto; max-width: none; max-height: none;
+    overflow-y: auto; overflow-x: hidden;
+    border-left: 0; border-top: 0;
+    background: var(--panel);
+    /* Phone padding, not the panel's. The notch and the home indicator both eat into a
+       fixed element, and `viewport-fit=cover` means nothing reserves that space for us. */
+    padding: max(var(--s3), env(safe-area-inset-top)) var(--s3)
+             max(var(--s5), env(safe-area-inset-bottom));
+    gap: var(--s3);
+  }
+  /* Always reachable: the way out rides with the header however far the deck scrolls. */
+  .workshop header {
+    position: sticky; top: 0; z-index: 1;
+    margin: calc(var(--s3) * -1) calc(var(--s3) * -1) 0;
+    padding: var(--s3);
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+  }
+  /* The gallery must not scroll behind the overlay — a phone reads that as the page. */
+  body:has(.workshop) { overflow: hidden; }
+}
