@@ -278,6 +278,22 @@ function main(argv: string[]): number {
 
     if (!deckPath) fail("validate needs a proposal.json.");
     const proposal = readJson(deckPath) as Proposal;
+    /**
+     * ⚠️ **Shape-check before handing it to the engine.** A `Deck` and a `Proposal` look
+     * alike enough to confuse — a Deck has `slots`, a Proposal has `main`/`runes`/
+     * `battlefields` — and passing the wrong one crashed with a stack trace. This file's own
+     * header says a caller must never read a crash as a pass; an unhandled TypeError on
+     * stderr with no exit contract is exactly that failure.
+     */
+    for (const field of ["main", "runes", "battlefields"] as const) {
+      if (!Array.isArray(proposal?.[field])) {
+        fail(
+          `${deckPath} is not a proposal: "${field}" must be an array of ` +
+            `{ cardId, quantity }. A saved Deck uses "slots" instead — those are different ` +
+            `shapes, see docs/spec/GENERATOR.md.`,
+        );
+      }
+    }
     const verdict = validateProposal(proposal, brief, cardIndex, collection);
     process.stdout.write(`${JSON.stringify(verdict, null, 2)}\n`);
     // ⚠️ Exit 1 means "the deck has problems", the same as `legality`. A repair loop reads
