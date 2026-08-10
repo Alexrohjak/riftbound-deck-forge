@@ -1352,4 +1352,53 @@ body.resizing * { pointer-events: none; }
   }
   /* The gallery must not scroll behind the overlay — a phone reads that as the page. */
   body:has(.workshop) { overflow: hidden; }
+
+  /* ── everything in here was sized for a panel, and a phone is narrower ──────
+     The workshop's rows are flex with no wrap, which is correct at 27rem and clips at
+     23rem — and `overflow-x: hidden` meant it clipped *silently* rather than scrolling,
+     so the header lost its close button off the right edge. Anything that cannot fit
+     now wraps instead of being chopped.
+
+     ⚠️ Width alone is not the variable. A phone's text can be inflated by the reader's
+     own font-size setting, so a row that fits at 390px on one device overflows on the
+     same device held by someone who has turned the type up. Wrapping survives that;
+     measuring does not. */
+  .workshop header { flex-wrap: wrap; gap: var(--s2); }
+  .workshop header h1 { min-width: 0; }
+  .headtools { flex-wrap: wrap; gap: var(--s2); min-width: 0; }
+
+  /* The tally's numbers read from across the room on a desktop panel. On a phone that
+     ambition is what pushes four columns off the edge. */
+  .stat { padding: var(--s2) var(--s1); }
+  .stat b { font-size: 1.25rem; }
+  .stat b .of { font-size: 0.8rem; }
+  .stat span { font-size: 0.55rem; }
+
+  /* Nothing in the panel may set its own floor and push the rest out. */
+  .workshop select, .workshop input, .deckbar { max-width: 100%; min-width: 0; }
+
+  /* Two columns capped at 11rem each need 22rem plus the gap, which a phone does not have —
+     so the pair overflowed and took the "1 / 1" counts off the edge with it. Share the
+     width that exists instead of asking for a width that does not. */
+  .bay.singles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* Fluid columns are not enough on their own: the heading is a nowrap flex row whose
+     min-content is 179px against a 143px column, so it overflowed the track it was given
+     and its "1 / 1" fell off the side. Measured, not guessed. Let the count drop to a
+     second line, and stop the tracking from spending width the phone has not got. */
+  /* The heading is a nowrap flex row inside a grid item inside a grid, and its min-content
+     was measured at 179px against a 143px track — so it hung over the edge and its count
+     was the part that fell off. Wrapping and `min-width: 0` are both here because both are
+     correct, but the count is also simply **dropped** on a phone rather than fought for:
+     the Legend and the Champion are one card each, and the slot underneath already says
+     whether it is filled. "1 / 1" is the least information on the screen and it was costing
+     the most width. */
+  .bay.singles > div { min-width: 0; }
+  .bay.singles h2 { min-width: 0; flex-wrap: wrap; letter-spacing: 0.04em; overflow: hidden; }
+  .bay.singles h2 .of { display: none; }
+
+  /* ⚠️ **3 across, not 13.** 39 is 3 x 13, and the wide tray uses 13 so the last row comes
+     out flush — a short final row reads as a hole in the deck rather than as the shape of
+     what is missing. That reasoning holds here, which is why this is 3 and not 6: both are
+     legible on a phone, only one divides 39. At 13 the cards were 26px slivers. */
+  .slots.main { grid-template-columns: repeat(3, 1fr); }
 }
