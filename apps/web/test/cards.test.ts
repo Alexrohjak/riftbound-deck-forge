@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildPool, hd, isDeckable, nativeWidth, printingOf, search, srcSet, thumb, zoneFor, type Card } from "../src/cards.js";
+import { buildPool, copiesInDeck, hd, isDeckable, nativeWidth, printingOf, search, srcSet, thumb, zoneFor, type Card } from "../src/cards.js";
 
 /**
  * The collapse is the part that can be silently wrong: merge two cards that share a name
@@ -255,5 +255,62 @@ describe("thumbnails", () => {
     expect(url).toContain("w=96");
     expect(url).toContain("fm=webp");
     expect(url.startsWith(printing.img)).toBe(true);
+  });
+});
+
+describe("copiesInDeck — the Chosen Champion is a copy", () => {
+  /**
+   * ⚠️ Reported from a real build: three copies of the Zed champion owned, one chosen as the
+   * Chosen Champion, and the gallery still offered three more — four copies of a card the
+   * rules cap at three and the boxes cap at three. The Champion lives in its own field
+   * (DATA-MODEL §1) and counting only `slots` made it invisible to the tile's copy cap.
+   */
+  const pool = buildPool({
+    cards: [
+      {
+        name: "Zed, Shadow",
+        types: ["unit"],
+        superTypes: ["champion"],
+        tags: ["Zed"],
+        domains: ["chaos"],
+        energy: 3,
+        might: 3,
+        printings: [{ id: "z-1", code: "A-001/100", set: "A", n: 1 }],
+      },
+      {
+        name: "Other Card",
+        types: ["unit"],
+        domains: ["chaos"],
+        energy: 2,
+        might: 2,
+        printings: [{ id: "o-1", code: "A-002/100", set: "A", n: 2 }],
+      },
+    ],
+  } as never);
+
+  const deck = (chosen: string, quantity: number) => ({
+    id: "d",
+    name: "t",
+    state: "DRAFT" as const,
+    legendCardId: "",
+    chosenChampionCardId: chosen,
+    slots: quantity > 0 ? [{ cardId: "z-1", zone: "MAIN" as const, quantity }] : [],
+  });
+
+  it("counts the Champion even when it is in no slot", () => {
+    expect(copiesInDeck(deck("z-1", 0), pool, "Zed, Shadow")).toBe(1);
+  });
+
+  it("adds the Champion to the copies already in the Main Deck", () => {
+    // Two in slots plus the Champion is three — the cap, not two.
+    expect(copiesInDeck(deck("z-1", 2), pool, "Zed, Shadow")).toBe(3);
+  });
+
+  it("does not count a Champion of a different name", () => {
+    expect(copiesInDeck(deck("z-1", 0), pool, "Other Card")).toBe(0);
+  });
+
+  it("is unaffected when no Champion is chosen", () => {
+    expect(copiesInDeck(deck("", 2), pool, "Zed, Shadow")).toBe(2);
   });
 });

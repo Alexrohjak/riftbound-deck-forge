@@ -1,4 +1,4 @@
-import { staticCardIndex, type CardFacts, type CardIndex, type Domain, type Zone,
+import { cardFactsFrom, staticCardIndex, type CardFacts, type CardIndex, type Deck, type Domain, type Zone,
   type PoolCard,
 } from "@forge/engine";
 
@@ -96,26 +96,10 @@ export function buildPool(raw: RawIndex): CardPool {
       // ⚠️ Supply everything the engine can use. Omitting a field does not weaken a check,
       // it *disables* it — a name-only index silently skips the ban list, the Signature cap
       // and Unique, and reports a smaller `checked` list rather than a wrong verdict.
-      facts[printing.id] = {
-        name: card.name,
-        types: card.types,
-        superTypes: card.superTypes,
-        tags: card.tags,
-        text: card.text,
-        ...(card.role ? { role: card.role } : {}),
-        ...(card.timing ? { timing: card.timing } : {}),
-        ...(card.produces ? { produces: card.produces } : {}),
-        ...(card.consumes ? { consumes: card.consumes } : {}),
-        domains: card.domains,
-        energy: card.energy,
-        might: card.might,
-        // W4 — Power demand by domain is the figure the rune split is reconciled against.
-        power: card.power,
-        // Always present, never conditional: absent would read as "unknown", and the
-        // format checks would switch themselves off for a pool with nothing banned in it.
-        banned: card.banned === true,
-        ...(card.championTag ? { championTag: card.championTag } : {}),
-      };
+      // ⚠️ One mapping, shared with the CLI (D-047). Both consumers used to build this by
+      // hand and they drifted: the CLI's lost `power`, `role` and `timing` without anything
+      // failing. Whichever side is "correct" today, two of them is the bug.
+      facts[printing.id] = cardFactsFrom(card as unknown as Record<string, unknown>);
     }
   }
 
@@ -305,4 +289,22 @@ export function symbols(text: string): string {
     .replace(/:rb_exhaust:/g, "[exhaust]")
     .replace(/:rb_might:/g, "Might")
     .replace(/:([a-z0-9_]+):/g, "");
+}
+
+/**
+ * Copies of a card already committed to a deck, **counted by name** (DATA-MODEL §2).
+ *
+ * ⚠️ **The Chosen Champion counts.** It is a Main Deck card that happens to live in its own
+ * field, so it counts toward L13's three-per-name and toward what your boxes can supply.
+ * Counting only `slots` let you choose a Champion and then add three more copies of it — four
+ * in a 40 that allows three, and one more than you owned. The engine caught the violation; the
+ * tile that should have refused the click did not, which is the worse of the two failures
+ * because it happens first.
+ */
+export function copiesInDeck(deck: Deck, pool: CardPool, name: string): number {
+  const inSlots = deck.slots
+    .filter((s) => pool.byPrinting.get(s.cardId)?.name === name)
+    .reduce((n, s) => n + s.quantity, 0);
+  const champion = pool.byPrinting.get(deck.chosenChampionCardId);
+  return inSlots + (champion?.name === name ? 1 : 0);
 }

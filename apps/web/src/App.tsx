@@ -15,6 +15,7 @@ import {
   type Zone,
 } from "@forge/engine";
 import {
+  copiesInDeck,
   hd,
   loadPool,
   printingOf,
@@ -411,7 +412,30 @@ export function App() {
    */
   const tracked = holdings.printings > 0;
 
-  useEffect(() => setShown(PAGE), [filters]);
+  /**
+   * Paging resets when the *criteria* change — not when the object holding them is rebuilt.
+   *
+   * ⚠️ **This was a bug you could not work around.** `filters` is a memo over `deck`, so
+   * every card added produced a new object with identical contents; the effect then reset the
+   * gallery to its first 60 cards. Building a deck from a late set meant scrolling the whole
+   * pool again after every single pick. Depending on the contents rather than the identity is
+   * the difference between "the filters changed" and "React made a new object".
+   */
+  const filterKey = useMemo(
+    () =>
+      JSON.stringify([
+        filters.tab,
+        filters.query,
+        filters.owned,
+        filters.sort,
+        [...filters.domains].sort(),
+        [...filters.types].sort(),
+        filters.identity ? [...filters.identity].sort() : null,
+        filters.championTag ?? null,
+      ]),
+    [filters],
+  );
+  useEffect(() => setShown(PAGE), [filterKey]);
 
   useEffect(() => {
     const node = sentinel.current;
@@ -510,13 +534,9 @@ export function App() {
     };
   }, [deck, pool, view]);
 
+  /** By name, Chosen Champion included — see `copiesInDeck`. */
   const copiesOfName = useCallback(
-    (card: Card) =>
-      pool
-        ? deck.slots
-            .filter((s) => pool.byPrinting.get(s.cardId)?.name === card.name)
-            .reduce((n, s) => n + s.quantity, 0)
-        : 0,
+    (card: Card) => (pool ? copiesInDeck(deck, pool, card.name) : 0),
     [deck, pool],
   );
 
