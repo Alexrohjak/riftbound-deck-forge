@@ -343,16 +343,23 @@ DRAFT/BUILT commitment model.
 
 ### W3 — Deck builder
 
-**Size:** L · **Gate:** W1 + W2
+**Size:** L · **Gate:** W1 + W2 · ✅ **Closed 2026-08-10**
 
-> **⚠️ Partly delivered early: Forge now holds more than one deck** ([D-060](DECISIONS.md#d-060)).
-> Pulled forward because `S5` needs somewhere to *put* a proposal — a generated deck you can
-> only accept by overwriting the deck you already liked is an ultimatum, not a proposal. It
-> also makes the match log mean what it was designed to mean: every game was attaching to the
-> single id `main`, so *"which build went 4-1"* had one possible answer.
+> 🏁 **Passed on evidence, not judgement.** A complete legal deck was built end to end on
+> desktop and then on a phone — 40/40, 12/12, 3/3, all 33 checks passing, from the real
+> collection.
 >
-> **The milestone stays open.** Its completion test is a full legal deck built end-to-end on
-> desktop **and phone**, and the phone half is unverified.
+> **Three things closed it**, and all three were found by building that deck rather than by
+> reading the plan:
+>
+> 1. **The commitment model** ([D-017](DECISIONS.md#d-017)) existed in the engine and the API
+>    and had never been wired to the browser, so two decks could both claim your only copy of
+>    a card and Forge called both legal.
+> 2. **The Bench** — the table had been in the schema since Discovery with nothing ever
+>    writing a row to it.
+> 3. **[D-061](DECISIONS.md#d-061) — runes are not collected.** The first complete deck
+>    reported twelve copies short of cards nobody tracks, and could therefore never be marked
+>    as built. A milestone-blocking bug that only a finished deck could surface.
 
 The centrepiece. Gallery owned-by-default with ownership as a filter dimension · filters ·
 zones (Legend, Champion, Main, Runes, Battlefields, Sideboard) · **The Bench** (staging

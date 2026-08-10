@@ -22,21 +22,21 @@
 | | |
 |---|---|
 | **Track** | **W — The Workbench** |
-| **Progress** | **9 of 17** milestones · `D1`–`D3`, `F1`–`F3`, `W1`, `W2`, `W5` complete |
-| **🎯 Next** | **`W3` — the deck builder**, and it is no longer waiting on anything. `W1` gave it the rules, `W2` gave it the cards; what is left is building a complete legal deck end-to-end on desktop **and** phone |
-| **Active** | **Nothing in flight.** ✅ `W2` is closed — **629 printings / 1,238 copies**, every set but `OGS`. Entering it for real is what produced the last week of fixes: the copy cap follows the boxes, the browsing tab holds 854 cards, and the tray draws the printing you picked |
+| **Progress** | **10 of 17** milestones · `D1`–`D3`, `F1`–`F3`, `W1`, `W2`, `W3`, `W5` complete |
+| **🎯 Next** | **`W4` — deck statistics.** Tier 1 facts and Tier 2 probabilities, with the **rune feasibility curve** as the flagship ([D-023](DECISIONS.md#d-023)) — the one calculation no other Riftbound tool can perform, because none knows your rune split and your deck's Power demands together |
+| **Active** | **Nothing in flight.** ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone.** Closing it took the **commitment model** (D-017 finally wired end to end), **the Bench**, and **[D-061](DECISIONS.md#d-061) — runes leave the collection**, which was found by building that first deck and discovering it could never be marked as built |
 | **Blocked** | Nothing. ✅ **X8 closed** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. **Live and proven in production** |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
-| **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve, the `S5` brief and gate) · `apps/web` (935 cards, search, alternate arts, many decks, card entry, import) · `apps/cli` · `apps/api` (decks + collection + the log + nightly backup) · CI · **225 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
+| **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve, **commitment**, the `S5` brief and gate) · `apps/web` (935 cards, search, alternate arts, many decks, card entry, import, **the Bench**, **a phone overlay**) · `apps/cli` · `apps/api` (decks + collection + **commitments** + the log + nightly backup) · CI · **246 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
 
 ```
 D ─ Design         ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
 F ─ Foundation     ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
-W ─ Workbench      ▓▓▓▓▓▓▓░░░░░  3/5   ← you are here
+W ─ Workbench      ▓▓▓▓▓▓▓▓▓░░░  4/5   ← you are here
 S ─ Strategist     ░░░░░░░░░░░░  0/5
 L ─ Later          ░░░░░░░░░░░░  0/1
                                  ────
-                                 9/17
+                                 10/17
 ```
 
 > **The count is unchanged; the shape is not.** [D-043](DECISIONS.md#d-043) retired `S3` and
@@ -49,6 +49,7 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 
 | ID | Milestone | What it produced | Date |
 |---|---|---|---|
+| `W3` | **Deck builder** 🏁 | A complete legal deck built end to end on **desktop and phone**. Brought the **commitment model** with it ([D-017](DECISIONS.md#d-017)) — sleeved cards leave the pool and say which deck holds them — plus **the Bench**, and **[D-061](DECISIONS.md#d-061)**: runes are no longer collected | 2026-08-10 |
 | `W2` | **Collection entry** 🏁 | **629 printings · 1,238 copies**, entered through `+ Add cards` in the app rather than the standalone tool. Every set but `OGS`. Forge stops being a demo here | 2026-08-07 |
 | `W1` | **Legality checking** ⚠️ | **All 33 checks**, and the rulebook's own 13 worked examples as tests. Ownership is a *warning*, never a violation. Coverage is reported per verdict, so an index that cannot see the ban list says so | 2026-08-04 |
 | `F3` | **Card data** | All **935 cards / 1,180 printings**, alternate arts collapsed behind each card, champion tags derived from Signature cards (L32, 49/49), ban list overlaid. 101 KB gzipped, fetched not bundled | 2026-08-04 |
@@ -61,14 +62,15 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 
 ### Shipped since, without closing a milestone
 
-**Using Forge to enter a real collection is what produced all of it**, which is the argument
-`F2` was sequenced on. **Many decks** ([D-060](DECISIONS.md#d-060)) and **deck import**, both
-pulled forward from `W3`. **Card entry moved into the app** — the standalone tool cost six
-steps a card. The **`S5` brief and gate** in the engine and CLI, ahead of `S2`. And a run of
-corrections only real use could surface: the copy cap now follows the boxes rather than
-counting to three, the browsing tab holds the 854 cards you build with, the tray draws the
-printing you picked rather than the card's default art, and the page tells you when it is
-running an old build.
+The **`S5` brief and gate** in the engine and CLI, ahead of `S2` — the engine states the
+constraints and refuses a bad answer, so generation has something to land in.
+
+Everything else that used to be listed here has since closed inside `W2` and `W3`: many
+decks, deck import, card entry moving into the app, and the run of corrections only real use
+could surface. **That is the pattern worth keeping**, not the list — every one of them was
+found by using Forge for its actual purpose rather than by reading the code. `D-061` is the
+sharpest example: runes had been silently uncollectable since Discovery, and it took building
+one complete deck to notice that no deck could ever be marked as built.
 
 ---
 
@@ -155,7 +157,7 @@ new work appends the next free number and **nothing ever renumbers**.
 |---|---|---|---|---|
 | `W1` | **Legality checking** ⚠️ | All 33 checks implemented, 13 rulebook tests passing | ✅ | `F3` |
 | `W2` | **Collection entry** | You have entered the real collection; 20 random names spot-check correct. **629 printings / 1,238 copies — every set but `OGS`**, the 24-card Proving Grounds supplement, deliberately held | ✅ | `F3` |
-| `W3` | **Deck builder** | A complete legal deck can be built end-to-end on desktop **and** phone | ⬜ *partly delivered* — many decks ([D-060](DECISIONS.md#d-060)), import, phone widths | `W1`, `W2` |
+| `W3` | **Deck builder** | A complete legal deck can be built end-to-end on desktop **and** phone | ✅ | `W1`, `W2` |
 | `W4` | **Deck statistics** | Tier 1 + Tier 2 render with correct visual separation, under 2 s | ⬜ | `W3` |
 | `W5` | **The log** | A match logs in under a minute; the record refuses to state a rate it has not earned | ✅ | `F2` |
 

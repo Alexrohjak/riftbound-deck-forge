@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ **The Foundation track is complete.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** — ask it to look a deck over, tell it what went wrong in a game, and every claim carries its source and how much confidence it earns · ✅ **`W2` is closed — the collection is real**: **629 printings / 1,238 copies**, every set but `OGS`, and **the deck can no longer take three copies of a card you own one of** · 🎯 `W3` next · **nightly backups run off-vendor**
+> **Status:** ✅ **The Workbench builds decks.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** · ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone**, which brought **commitment** (sleeved cards leave the pool and say which deck holds them), **the Bench**, and **[D-061](docs/DECISIONS.md#d-061): runes are no longer collected** · 🎯 `W4` next — deck statistics · **nightly backups run off-vendor**
 
 ---
 
@@ -43,28 +43,38 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here — how to pick this up
 
-*Last worked on 2026-08-07. This section is the recipe; the live status board is
+*Last worked on 2026-08-10. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
 **Where things stand.** 🔓 The whole design track is done and `DESIGN LOCKED` has lifted.
 ✅ **`F1`, `F2` and `F3` are all closed** — Forge is live, private, deploys itself on every push
 to `main`, and **is now a deckbuilder you can actually use** (§4).
 
-✅ **`W2` is closed — Forge runs on your cards now.** **629 printings / 1,238 copies**,
+✅ **`W2` is closed — Forge runs on your cards now.** **672 printings / 1,550 copies**,
 entered through `+ Add cards` inside Forge rather than through the standalone tool.
 ⚖️ **`W1` is done** too: all 33 legality checks, with the rulebook's own 13 worked examples
 as tests.
+
+🏁 ✅ **`W3` is closed — a complete legal deck has been built end to end, on desktop and on a
+phone.** Closing it took three things that only a *finished* deck could surface: the
+**commitment model** ([D-017](docs/DECISIONS.md#d-017)) had never been wired to the browser, so
+two decks could both claim your only copy of a card; **the Bench** table had sat in the schema
+since Discovery with nothing ever writing to it; and **[D-061](docs/DECISIONS.md#d-061)** —
+the first complete deck reported twelve copies short of runes and could therefore never be
+marked as built. Runes have left the collection entirely.
 
 > ⚠️ **Two things `W2` is closed *without*.** **`OGS` is not entered** — the 24-printing
 > Origins supplement inside Proving Grounds, held back on purpose — so everything that reads
 > ownership will call those 24 unowned, which is true until the set goes in and is the one
 > place Forge will be confidently wrong about your boxes. And **the 20-name spot-check has not
-> been run**: the milestone is closed on judgement rather than evidence, which is worth an
-> hour before `W4` starts putting statistics on top of these numbers.
+> been run**: the milestone is closed on judgement rather than evidence. **`W4` is now next**,
+> which is exactly where that starts to matter.
 
-**🎯 Next is `W3`** — the deck builder, and it is no longer waiting on anything: `W1` gave it
-the rules and `W2` gave it the cards. What is left is building a complete legal deck
-end-to-end on desktop **and** phone. ✅ **`X8` is closed** ([D-051](docs/DECISIONS.md#d-051)):
+**🎯 Next is `W4`** — deck statistics: Tier 1 facts and Tier 2 probabilities, with the **rune
+feasibility curve** as the flagship ([D-023](docs/DECISIONS.md#d-023)). ⚠️ **This is the
+milestone the `W2` spot-check was worth an hour before** — `W4` is where statistics start
+quoting the ownership numbers back at you, and those numbers are still closed on judgement.
+✅ **`X8` is closed** ([D-051](docs/DECISIONS.md#d-051)):
 a nightly cron commits a JSON snapshot to this repo rather than to R2, because a backup in
 the same Cloudflare account does not survive losing the account. **Live and proven in
 production** — §5.
@@ -106,7 +116,7 @@ grounding lines; and **editing requires connectivity** — offline you can look 
 ### 3 · Run the workspace
 
 `packages/engine` is the real thing — pure TypeScript, ⚖️ **all 33 legality checks**,
-the energy curve, the log's honesty thresholds, 225 tests:
+the energy curve, commitment, the log's honesty thresholds, 246 tests:
 
 ```bash
 npm install
@@ -157,9 +167,11 @@ list always says which checks actually ran.
 | **Many decks** | Start one, rename one, destroy one, switch between them ([D-060](docs/DECISIONS.md#d-060)). A deck imports from a list, and so does the collection |
 | **Alternate arts** | Collapsed behind each card; pick which printing a deck slot uses, and **the tray draws the printing you picked** |
 | **Live legality** | ⚖️ **All 33 checks**, including the ban list, the Signature cap and `[Unique]`. Violations name the check *and* its rulebook citation. Ownership appears as a **warning**, never a violation — but the **workshop will not take more copies than the boxes hold** ([DATA-MODEL §2](docs/spec/DATA-MODEL.md)) |
+| **Commitment** | A deck marked **Built** takes its cards out of the pool, and an unavailable card **names the deck holding it** ([D-017](docs/DECISIONS.md#d-017)). Promotion is refused while another deck holds the cards — the one place ownership hardens into a gate. ⚠️ **Runes are exempt** ([D-061](docs/DECISIONS.md#d-061)) |
+| **The Bench** | Cards parked while you decide, saved with the deck. **Never validated, never committed** — structurally, not by discipline: the engine's `Deck` type has no bench on it |
 | **The energy curve** | A histogram, never a mean ([DECK-STATS §6](docs/spec/DECK-STATS.md)). Cards with no cost data are kept out of the buckets rather than folded into zero |
 | **One Worker, one origin** | Serves the SPA *and* the API ([D-050](docs/DECISIONS.md#d-050) — Cloudflare closed Pages to new projects) |
-| **D1** | `forge`, schema applied. Decks, slots, bench, deck history, matches, events — and the **real collection: 629 printings / 1,238 copies**, every set but `OGS` |
+| **D1** | `forge`, schema applied. Decks, slots, bench, deck history, matches, events — and the **real collection: 672 printings / 1,550 copies**, every set but `OGS` |
 | **Zero Trust Access** | Self-hosted app, allow-list of one email, 7-day sessions. Verified enforcing |
 | **Automatic deploys** | `main` → build → deploy, via Workers Builds. **`npm run build` is the gate** — see below |
 
