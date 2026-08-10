@@ -109,6 +109,8 @@ export function buildPool(raw: RawIndex): CardPool {
         domains: card.domains,
         energy: card.energy,
         might: card.might,
+        // W4 — Power demand by domain is the figure the rune split is reconciled against.
+        power: card.power,
         // Always present, never conditional: absent would read as "unknown", and the
         // format checks would switch themselves off for a pool with nothing banned in it.
         banned: card.banned === true,

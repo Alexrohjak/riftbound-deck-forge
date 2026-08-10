@@ -15,6 +15,14 @@ export * from "./legality/index.js";
 
 /** Statistics. Tier 1 only so far — facts about the list, with no assumptions in them. */
 export { energyCurve, type EnergyCurve } from "./stats/energyCurve.js";
+export {
+  deckFacts,
+  COUNTED_KEYWORDS,
+  type DeckFacts,
+  type MightSpread,
+  type Tally,
+  type TypeSplit,
+} from "./stats/facts.js";
 
 /**
  * EE's analytical surface — what a deck *is*, and what good players would say about it.

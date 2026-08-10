@@ -1,5 +1,5 @@
 import type { CardIndex, Deck } from "../types.js";
-import { zoneCount } from "../legality/shape.js";
+import { mainDeckCount } from "../legality/shape.js";
 
 /**
  * The energy curve — **a histogram, never a mean** (DECK-STATS §6).
@@ -52,7 +52,10 @@ export function energyCurve(deck: Deck, cards: CardIndex): EnergyCurve {
   for (const slot of deck.slots) {
     if (slot.zone === "MAIN") add(slot.cardId, slot.quantity);
   }
-  add(deck.chosenChampionCardId, 1);
+  // ⚠️ **An unchosen Champion is not a card.** The field is `""` until you pick one, and
+  // adding it regardless put a phantom into `unknown` and a phantom into `mainDeckSize` —
+  // the same off-by-one D-060 found in `mainDeckCount`, which is why this now defers to it.
+  if (deck.chosenChampionCardId) add(deck.chosenChampionCardId, 1);
 
-  return { counts, unknown, counted, mainDeckSize: zoneCount(deck, "MAIN") + 1 };
+  return { counts, unknown, counted, mainDeckSize: mainDeckCount(deck) };
 }

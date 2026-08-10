@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   checkLegality,
   committedByPrinting,
+  deckFacts,
   deckHash,
-  energyCurve,
   findConflicts,
   mainDeckCount,
   overCommitted,
@@ -39,6 +39,7 @@ import { filtersFor, runeSlots, stepFor, type Step } from "./buildFlow.js";
 import { Workshop, type Occupant, type Target } from "./Workshop.js";
 import { CardDetail } from "./CardDetail.js";
 import { useCommitments } from "./commitments.js";
+import { Statistics } from "./Statistics.js";
 
 /**
  * Forge — a light table of cards, and a workbench tray beside it.
@@ -126,25 +127,6 @@ function SaveBadge({ save }: { save: SaveState }) {
     );
   }
   return <span className="save">{{ loading: "loading…", saving: "saving…", saved: "saved" }[save.status]}</span>;
-}
-
-function EnergyCurve({ counts, unknown, counted }: ReturnType<typeof energyCurve>) {
-  if (counted < 5) return <p className="empty">The curve needs a few more cards to describe.</p>;
-  const peak = Math.max(1, ...counts);
-  return (
-    <>
-      <div className="curve">
-        {counts.map((count, energy) => (
-          <div className="bar" key={energy}>
-            <span className="count">{count || ""}</span>
-            <span className="stem" style={{ height: `${(count / peak) * 100}%` }} />
-            <span className="tick">{energy}</span>
-          </div>
-        ))}
-      </div>
-      {unknown > 0 && <p className="empty">{unknown} card(s) with no cost data — not shown.</p>}
-    </>
-  );
 }
 
 /**
@@ -507,7 +489,8 @@ export function App() {
 
   /** Dismantling has no gate — un-sleeving a deck is always allowed, and releases its cards. */
   const dismantle = useCallback(() => setState("DRAFT"), [setState]);
-  const curve = useMemo(() => (pool ? energyCurve(deck, pool.index) : null), [deck, pool]);
+  /** `W4` — 🟢 Tier 1 facts. Deterministic, so they ride the same live recompute as legality. */
+  const facts = useMemo(() => (pool ? deckFacts(deck, pool.index) : null), [deck, pool]);
 
   const copiesOfName = useCallback(
     (card: Card) =>
@@ -527,7 +510,7 @@ export function App() {
       </main>
     );
   }
-  if (!pool || !legality || !curve) {
+  if (!pool || !legality || !facts) {
     return (
       <main className="boot">
         <h1>Forge</h1>
@@ -1022,12 +1005,15 @@ export function App() {
                 }));
               }}
             >
-              {view === "analysis" && (
+              {view === "analysis" && facts && (
                 <>
-                  <section className="panel">
-                    <h2>Energy curve</h2>
-                    <EnergyCurve {...curve} />
-                  </section>
+                  <Statistics
+                    facts={facts}
+                    // Copies this deck asks for that another BUILT deck is holding — the
+                    // "collection reality" DECK-STATS §3 asks for, read from the commitment
+                    // data the workshop already has rather than recomputed here.
+                    committed={conflicts.reduce((n, c) => n + c.committed, 0)}
+                  />
                   <Advisor deck={deck} pool={pool} owned={owned} />
                 </>
               )}

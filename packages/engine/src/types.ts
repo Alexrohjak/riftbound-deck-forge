@@ -87,6 +87,16 @@ export interface CardFacts {
    * different again from the field being absent, meaning *not supplied*.
    */
   energy?: number | null;
+  /**
+   * **Power** cost — the coloured half of a card's cost, paid by recycling a rune of the
+   * card's own domain (CR 164.2.b). `null` where the card has no such stat.
+   *
+   * ⚠️ The amount is known; **which domain it is owed in is not stated separately**. For a
+   * single-domain card it is that domain, which is why `DECK-STATS` can reconcile demand
+   * against the rune split at all. A two-domain card's split is genuinely unavailable from
+   * the card data, and `deckFacts` reports it as ambiguous rather than guessing.
+   */
+  power?: number | null;
 }
 
 /**

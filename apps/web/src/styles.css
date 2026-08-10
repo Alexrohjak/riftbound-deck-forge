@@ -1402,3 +1402,43 @@ body.resizing * { pointer-events: none; }
      legible on a phone, only one divides 39. At 13 the cards were 26px slivers. */
   .slots.main { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   W4 — statistics, and the tier they belong to
+
+   ⚠️ **The tier is the visual language, not a footnote** (DECK-STATS §1). A Tier 3 estimate
+   must never be able to pass for a Tier 1 fact, and the way that holds is that every panel
+   wears its tier on the outside. Green rule + "fact" here; Tier 2 will take its own colour
+   and the word "probability", so the difference reads before any number does.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.panel.tier1 { border-left: 3px solid var(--ok, #4f9d69); }
+.panel.tier1 h2 { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s2); }
+.tier {
+  font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ok, #4f9d69);
+  border: 1px solid currentColor; border-radius: 999px; padding: 1px var(--s2);
+}
+
+/* A count we could not take. Deliberately not styled as an error — it is a limit of the
+   card data, not a mistake in the deck. */
+.unseen { margin: var(--s2) 0 0; font-size: 0.68rem; color: var(--faint); }
+.note { margin: var(--s2) 0 0; font-size: 0.7rem; color: var(--dim); }
+
+/* Power demand beside the rune split — two numbers, never divided into one ratio. */
+.reconcile { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+.reconcile th {
+  text-align: left; font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--faint); font-weight: 400;
+  padding-bottom: var(--s1); border-bottom: 1px solid var(--line);
+}
+.reconcile th:not(:first-child), .reconcile td.num { text-align: right; }
+.reconcile td { padding: var(--s1) 0; border-bottom: 1px solid var(--sunk); }
+.reconcile td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.reconcile .dot { margin-right: var(--s1); }
+
+.keywords { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--s2); }
+.keywords li {
+  font-size: 0.7rem; color: var(--dim);
+  background: var(--sunk); border-radius: var(--radius-sm); padding: var(--s1) var(--s2);
+}
+.keywords b { color: var(--ink); font-family: var(--mono); }

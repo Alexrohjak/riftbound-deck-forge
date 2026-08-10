@@ -24,7 +24,7 @@
 | **Track** | **W — The Workbench** |
 | **Progress** | **10 of 17** milestones · `D1`–`D3`, `F1`–`F3`, `W1`, `W2`, `W3`, `W5` complete |
 | **🎯 Next** | **`W4` — deck statistics.** Tier 1 facts and Tier 2 probabilities, with the **rune feasibility curve** as the flagship ([D-023](DECISIONS.md#d-023)) — the one calculation no other Riftbound tool can perform, because none knows your rune split and your deck's Power demands together |
-| **Active** | **Nothing in flight.** ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone.** Closing it took the **commitment model** (D-017 finally wired end to end), **the Bench**, and **[D-061](DECISIONS.md#d-061) — runes leave the collection**, which was found by building that first deck and discovering it could never be marked as built |
+| **Active** | 🟡 **`W4` — Tier 1 facts are in.** Power demand reconciled against the rune split, type split, Might spread, keyword counts, Signature count and collection reality, each wearing its tier in the visual language rather than a footnote. **Tier 2 next**, flagship first. ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone.** Closing it took the **commitment model** (D-017 finally wired end to end), **the Bench**, and **[D-061](DECISIONS.md#d-061) — runes leave the collection**, which was found by building that first deck and discovering it could never be marked as built |
 | **Blocked** | Nothing. ✅ **X8 closed** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. **Live and proven in production** |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
 | **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve, **commitment**, the `S5` brief and gate) · `apps/web` (935 cards, search, alternate arts, many decks, card entry, import, **the Bench**, **a phone overlay**) · `apps/cli` · `apps/api` (decks + collection + **commitments** + the log + nightly backup) · CI · **246 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
@@ -158,7 +158,7 @@ new work appends the next free number and **nothing ever renumbers**.
 | `W1` | **Legality checking** ⚠️ | All 33 checks implemented, 13 rulebook tests passing | ✅ | `F3` |
 | `W2` | **Collection entry** | You have entered the real collection; 20 random names spot-check correct. **629 printings / 1,238 copies — every set but `OGS`**, the 24-card Proving Grounds supplement, deliberately held | ✅ | `F3` |
 | `W3` | **Deck builder** | A complete legal deck can be built end-to-end on desktop **and** phone | ✅ | `W1`, `W2` |
-| `W4` | **Deck statistics** | Tier 1 + Tier 2 render with correct visual separation, under 2 s | ⬜ | `W3` |
+| `W4` | **Deck statistics** | Tier 1 + Tier 2 render with correct visual separation, under 2 s | 🟡 Tier 1 done | `W3` |
 | `W5` | **The log** | A match logs in under a minute; the record refuses to state a rate it has not earned | ✅ | `F2` |
 
 ⚠️ **`W1` is the highest correctness risk in the project.** Everything downstream trusts it,
