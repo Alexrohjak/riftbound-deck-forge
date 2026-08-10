@@ -43,8 +43,47 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here — how to pick this up
 
-*Last worked on 2026-08-10. This section is the recipe; the live status board is
+*Last worked on 2026-08-11. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
+
+> ## 🛑 Do this first — the Workbench is showing no decks
+>
+> **Reported 2026-08-11, unresolved. Pick this up before anything else.** After the night's
+> five commits, opening the app showed **no saved decks and nothing would open**. Diagnosis got
+> as far as this and stopped:
+>
+> **The data is fine — this is the client, not the database.** Verified directly in D1 at
+> 22:21 UTC: `grand-duelist-vs-ivern` (39 main + champion · 12 runes · 3 battlefields · 10
+> sideboard) and `main` / "First deck" (12 runes). Both rows sane, `listDecks` reads them.
+> **Do not re-import or rebuild anything on the assumption decks were lost.**
+>
+> **The unrun diagnostic:** what the app actually renders — blank page or empty list — and any
+> console error. Nobody has seen it. The browser could not be driven from here because the app
+> sits behind Cloudflare Access and signing in is not something the assistant does.
+>
+> **The suspicion, unproven:** the night's commits changed `packages/engine`, which the web app
+> bundles. `apps/web/src/Advisor.tsx` imports both `capabilities` and `review`, and
+> `capabilities` changed (`danglingSynergies` now skips unmodelled tags). Typecheck, 347 tests
+> and the build gate are all green, so there is no failing signal — which is itself worth
+> distrusting.
+>
+> **Rollback, if the app is wanted working before the cause is found:**
+> `npx wrangler rollback 32ebcf2c-a7aa-4aba-9a07-d5c55d55c8a8` from `apps/api` — deployed
+> 19:24 UTC, the last version before any of the night's changes. Decks live in D1 and are
+> untouched by a rollback. It costs the night's engine fixes until redeployed.
+>
+> ### Two other loose ends
+>
+> ⚠️ **"First deck" was emptied mid-session and nobody knows by what.** `deck_history` shows it
+> go **17 slots → 4 → 2 in seven seconds at 22:13:28–35 UTC** — three minutes after the first
+> `npm run deck`, and 41 seconds after a deploy. `push-deck.mjs` targets only its own deck id
+> and now proves it, but that guard was added *after* this happened, so it did not witness it.
+> **The 17-card contents are recoverable from `deck_history` seq 151** (`deck_id = 'main'`).
+> Alexander said it did not matter; it is written down because a database losing rows without
+> an explanation is not a closed question.
+>
+> ⚠️ **Nobody has seen the Sideboard bay render.** The ten cards round-trip through D1
+> correctly; whether `Workshop.tsx` draws them has still only been verified in code.
 
 **Where things stand.** 🔓 The whole design track is done and `DESIGN LOCKED` has lifted.
 ✅ **`F1`, `F2` and `F3` are all closed** — Forge is live, private, deploys itself on every push
