@@ -40,6 +40,19 @@ export function setActiveDeckId(id: string) {
   }
 }
 
+/**
+ * A card parked while you decide — DATA-MODEL §1.
+ *
+ * ⚠️ **Deliberately not part of `Deck`.** The Bench is never validated and never committed,
+ * and the strongest guarantee of that is structural: the object handed to `checkLegality`,
+ * `findConflicts` and `deckHash` has no bench in it, so none of them can accidentally start
+ * counting one. Benching a card therefore also cannot produce a new deck version.
+ */
+export interface BenchEntry {
+  cardId: string;
+  note?: string;
+}
+
 export interface DeckSummary {
   id: string;
   name: string;
@@ -87,11 +100,14 @@ function withQuantity(deck: Deck, cardId: string, zone: Zone, quantity: number):
 
 export function useDeck(deckId: string) {
   const [deck, setDeck] = useState<Deck>(() => emptyDeck(deckId));
+  const [bench, setBench] = useState<BenchEntry[]>([]);
   const [save, setSave] = useState<SaveState>({ status: "loading" });
 
-  // The deck to save, held in a ref so the debounce timer always writes the newest state
-  // rather than the one captured when the timer was set.
-  const pending = useRef<Deck | null>(null);
+  // What to save, held in a ref so the debounce timer always writes the newest state rather
+  // than the one captured when the timer was set. The bench travels with the deck because a
+  // `PUT` replaces the deck's slots wholesale — a bench-only edit still has to send the deck
+  // it belongs to, or the save would blank the very slots it was not changing.
+  const pending = useRef<{ deck: Deck; bench: BenchEntry[] } | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   /** True once the server's answer is known — see the guard in `push`. */
   const loaded = useRef(false);
@@ -119,10 +135,10 @@ export function useDeck(deckId: string) {
       // save could land on whatever deck happened to be open when the timer fired. Using
       // `next.id` makes a pending edit self-addressing, which is what lets it be flushed
       // *after* you have switched away.
-      const response = await fetch(`/decks/${encodeURIComponent(next.id)}`, {
+      const response = await fetch(`/decks/${encodeURIComponent(next.deck.id)}`, {
         method: "PUT",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(next),
+        body: JSON.stringify({ ...next.deck, bench: next.bench }),
       });
       if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
       setSave({ status: "saved" });
@@ -154,10 +170,11 @@ export function useDeck(deckId: string) {
       try {
         const response = await fetch(`/decks/${encodeURIComponent(deckId)}`);
         if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-        const body = (await response.json()) as { deck: Deck | null };
+        const body = (await response.json()) as { deck: Deck | null; bench?: BenchEntry[] };
         if (cancelled) return;
         // A deck that does not exist yet is not an error — it is the first run.
         setDeck(body.deck ? { ...emptyDeck(deckId), ...body.deck } : emptyDeck(deckId));
+        setBench(body.bench ?? []);
         // A deck that does not exist yet still counts as loaded: we know the server has
         // nothing, so writing the first one over it destroys nothing.
         loaded.current = true;
@@ -172,17 +189,69 @@ export function useDeck(deckId: string) {
     };
   }, [deckId, push]);
 
+  /** The newest bench, so a deck edit saves the bench it currently has rather than a stale one. */
+  const benchNow = useRef<BenchEntry[]>([]);
+  useEffect(() => {
+    benchNow.current = bench;
+  }, [bench]);
+
+  const schedule = useCallback(() => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(push, SAVE_DEBOUNCE_MS);
+  }, [push]);
+
   const edit = useCallback(
     (change: (current: Deck) => Deck) => {
       setDeck((current) => {
         const next = change(current);
-        pending.current = next;
-        if (timer.current) clearTimeout(timer.current);
-        timer.current = setTimeout(push, SAVE_DEBOUNCE_MS);
+        pending.current = { deck: next, bench: benchNow.current };
+        schedule();
         return next;
       });
     },
-    [push],
+    [schedule],
+  );
+
+  /**
+   * Change the Bench. ⚠️ Goes through the same debounce and the same `PUT` as a deck edit —
+   * *"saved with the deck"* (DATA-MODEL §1) is the whole point, because a scratchpad that
+   * does not survive closing the tab is a scratchpad you stop using.
+   */
+  const editBench = useCallback(
+    (change: (current: BenchEntry[]) => BenchEntry[]) => {
+      setBench((current) => {
+        const next = change(current);
+        benchNow.current = next;
+        // Read the deck from the pending write when there is one, so a bench edit inside the
+        // debounce window cannot resurrect the deck as it was before the edit it is chasing.
+        setDeck((currentDeck) => {
+          pending.current = { deck: pending.current?.deck ?? currentDeck, bench: next };
+          return currentDeck;
+        });
+        schedule();
+        return next;
+      });
+    },
+    [schedule],
+  );
+
+  /** Park a card, or clear its note by re-benching it. A card is on the bench or it is not. */
+  const benchCard = useCallback(
+    (cardId: string, note?: string) =>
+      editBench((current) => {
+        // Built rather than spread: `note` is genuinely optional, so an explicit `undefined`
+        // is a different thing from an absent key under `exactOptionalPropertyTypes`.
+        const entry: BenchEntry = note === undefined ? { cardId } : { cardId, note };
+        return current.some((e) => e.cardId === cardId)
+          ? current.map((e) => (e.cardId === cardId ? entry : e))
+          : [...current, entry];
+      }),
+    [editBench],
+  );
+
+  const unbenchCard = useCallback(
+    (cardId: string) => editBench((current) => current.filter((e) => e.cardId !== cardId)),
+    [editBench],
   );
 
   const setQuantity = useCallback(
@@ -257,6 +326,9 @@ export function useDeck(deckId: string) {
 
   return {
     deck,
+    bench,
+    benchCard,
+    unbenchCard,
     save,
     setQuantity,
     replacePrinting,

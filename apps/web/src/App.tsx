@@ -9,7 +9,16 @@ import {
   zoneCount,
   type Zone,
 } from "@forge/engine";
-import { hd, loadPool, srcSet, zoneFor, type Card, type CardPool, type Printing } from "./cards.js";
+import {
+  hd,
+  loadPool,
+  printingOf,
+  srcSet,
+  zoneFor,
+  type Card,
+  type CardPool,
+  type Printing,
+} from "./cards.js";
 import {
   activeDeckId,
   newDeckId,
@@ -269,6 +278,9 @@ export function App() {
   const [deckId, setDeckId] = useState(activeDeckId);
   const {
     deck,
+    bench,
+    benchCard,
+    unbenchCard,
     save,
     setQuantity,
     replacePrinting,
@@ -950,6 +962,15 @@ export function App() {
               legality={legality}
               conflicts={conflicts}
               overCommitments={overCommitments}
+              bench={bench}
+              // ⚠️ Adding from the bench leaves it on the bench. Parking a card is not a
+              // decision, so acting on one is not a decision to stop considering it — you
+              // take it off when you have decided, not as a side effect of trying it.
+              onBenchAdd={(cardId) => {
+                const card = pool.byPrinting.get(cardId);
+                if (card) add(card, printingOf(card, cardId));
+              }}
+              onBenchRemove={unbenchCard}
               onPromote={promote}
               onDismantle={dismantle}
               step={step}
@@ -1010,6 +1031,12 @@ export function App() {
           }}
           onRemove={() => {
             removeTarget(detail);
+            setDetail(null);
+          }}
+          benched={bench.some((e) => e.cardId === detail.cardId)}
+          onBench={() => {
+            if (bench.some((e) => e.cardId === detail.cardId)) unbenchCard(detail.cardId);
+            else benchCard(detail.cardId);
             setDetail(null);
           }}
           onClose={() => setDetail(null)}

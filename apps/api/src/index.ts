@@ -274,6 +274,16 @@ async function readDeck(env: Env, id: string) {
     .bind(id)
     .all<SlotRow>();
 
+  // ⚠️ **The Bench is a sibling of the deck, not part of it** (DATA-MODEL §1). It is never
+  // validated, and the strongest way to guarantee that is for the object the rules engine
+  // receives not to contain it — `Deck` has no `bench` field, so no check can read one by
+  // accident. Keeping them apart here is what makes that hold end to end.
+  const bench = await env.DB.prepare(
+    "SELECT card_id, note FROM bench WHERE deck_id = ? ORDER BY card_id",
+  )
+    .bind(id)
+    .all<{ card_id: string; note: string | null }>();
+
   return {
     deck: {
       id: deck.id,
@@ -287,6 +297,7 @@ async function readDeck(env: Env, id: string) {
         quantity: row.quantity,
       })),
     },
+    bench: bench.results.map((row) => ({ cardId: row.card_id, note: row.note ?? undefined })),
   };
 }
 
@@ -299,6 +310,7 @@ async function writeDeck(env: Env, id: string, request: Request) {
     legendCardId?: unknown;
     chosenChampionCardId?: unknown;
     slots?: unknown;
+    bench?: unknown;
   };
   try {
     body = (await request.json()) as typeof body;
@@ -344,6 +356,33 @@ async function writeDeck(env: Env, id: string, request: Request) {
       });
   }
 
+  /**
+   * The Bench, when the caller sent one.
+   *
+   * ⚠️ **Absent is not empty.** A body with no `bench` key leaves the bench untouched,
+   * because a client that does not know about the Bench must not be able to clear it by
+   * saving a deck — the same reasoning that already keeps this endpoint from deleting the
+   * deck row outright. Sending `"bench": []` is how you deliberately empty it.
+   */
+  const bench =
+    body.bench === undefined
+      ? null
+      : (() => {
+          if (!Array.isArray(body.bench)) return null;
+          const rows = new Map<string, { cardId: string; note: string | null }>();
+          for (const raw of body.bench) {
+            const entry = raw as { cardId?: unknown; note?: unknown };
+            if (typeof entry.cardId !== "string" || !entry.cardId) continue;
+            // (deck_id, card_id) is the primary key — a card is on the bench or it is not,
+            // so a repeat is the same entry rather than a second one.
+            rows.set(entry.cardId, {
+              cardId: entry.cardId,
+              note: typeof entry.note === "string" && entry.note.trim() ? entry.note.trim() : null,
+            });
+          }
+          return [...rows.values()];
+        })();
+
   // One batch, so a half-written deck is not reachable. deck_slots cascades on delete,
   // but the row is upserted rather than deleted — deleting the deck would take the bench
   // with it, and the bench is not this endpoint's to discard.
@@ -364,6 +403,18 @@ async function writeDeck(env: Env, id: string, request: Request) {
         "INSERT INTO deck_slots (deck_id, card_id, zone, quantity) VALUES (?, ?, ?, ?)",
       ).bind(id, slot.card_id, slot.zone, slot.quantity),
     ),
+    ...(bench === null
+      ? []
+      : [
+          env.DB.prepare("DELETE FROM bench WHERE deck_id = ?").bind(id),
+          ...bench.map((entry) =>
+            env.DB.prepare("INSERT INTO bench (deck_id, card_id, note) VALUES (?, ?, ?)").bind(
+              id,
+              entry.cardId,
+              entry.note,
+            ),
+          ),
+        ]),
   ]);
 
   // The deck's new shape becomes a history row — but only when it actually changed

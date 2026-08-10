@@ -15,8 +15,10 @@ export function CardDetail({
   cardId,
   role,
   owned,
+  benched,
   onPickArt,
   onRemove,
+  onBench,
   onClose,
 }: {
   card: Card;
@@ -24,8 +26,12 @@ export function CardDetail({
   cardId: string;
   role: Role;
   owned: number;
+  /** Whether this printing is already parked on the Bench. */
+  benched: boolean;
   onPickArt: (printing: Printing) => void;
   onRemove: () => void;
+  /** Park it, or take it off. The Bench is a scratchpad — this decides nothing. */
+  onBench: () => void;
   onClose: () => void;
 }) {
   const panel = useRef<HTMLDivElement>(null);
@@ -145,6 +151,10 @@ export function CardDetail({
 
           <footer>
             <span className="of">{current?.code}</span>
+            {/* Deciding later is a real answer, and the Bench is where it goes. */}
+            <button type="button" className="ghost" onClick={onBench}>
+              {benched ? "Take off the bench" : "Bench it"}
+            </button>
             <button type="button" className="danger" onClick={onRemove}>
               {role === "legend"
                 ? "Clear Legend"

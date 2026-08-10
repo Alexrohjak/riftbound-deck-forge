@@ -1,8 +1,9 @@
 import type { Conflict, Deck, LegalityResult, Zone } from "@forge/engine";
 import { conflictSentence, mainDeckCount, zoneCount } from "@forge/engine";
 import { useState } from "react";
-import { hd, printingOf, srcSet, type Card, type CardPool } from "./cards.js";
+import { hd, printingOf, srcSet, zoneFor, type Card, type CardPool } from "./cards.js";
 import { STEPS, type Step } from "./buildFlow.js";
+import type { BenchEntry } from "./deckStore.js";
 
 /**
  * The tray: one card-shaped slot for every card the deck needs, filled or not.
@@ -259,12 +260,104 @@ function Commitment({
   );
 }
 
+/**
+ * The Bench — cards under consideration, saved with the deck (DATA-MODEL §1).
+ *
+ * **Never validated, never committed.** It is the one concept adopted wholesale from
+ * Piltover Archive ([D-014](docs/DECISIONS.md#d-014)), and what it buys is that a long
+ * tinkering session survives being closed: the four cards you were undecided about are still
+ * there tomorrow, instead of living in your head until you shut the tab.
+ *
+ * ⚠️ Drawn as a shelf of small arts rather than a list of names. You are deciding between
+ * *cards*, and a card is a picture — a row of text would make you remember what each one
+ * does, which is exactly the work the Bench exists to save you.
+ */
+function Bench({
+  entries,
+  pool,
+  onOpen,
+  onAdd,
+  onRemove,
+}: {
+  entries: BenchEntry[];
+  pool: CardPool;
+  onOpen: (o: Occupant) => void;
+  onAdd: (cardId: string) => void;
+  onRemove: (cardId: string) => void;
+}) {
+  const [peek, setPeek] = useState<{ card: Card; cardId: string; at: { x: number; y: number } } | null>(
+    null,
+  );
+  if (entries.length === 0) return null;
+  return (
+    <section className="bay bench">
+      <h2>
+        The Bench<span className="of">{entries.length} parked</span>
+      </h2>
+      <p className="hint">
+        Cards you are still deciding about. Saved with the deck, and deliberately not counted
+        by anything — click to add one to the deck, right-click to let it go.
+      </p>
+      <div className="slots">
+        {entries.map((entry) => {
+          const card = pool.byPrinting.get(entry.cardId);
+          if (!card) return null;
+          const occupant = { card, cardId: entry.cardId, quantity: 1 };
+          return (
+            <div
+              key={entry.cardId}
+              onMouseMove={(e) =>
+                setPeek({ card, cardId: entry.cardId, at: { x: e.clientX, y: e.clientY } })
+              }
+              onMouseLeave={() => setPeek(null)}
+            >
+              <button
+                type="button"
+                className="slot filled"
+                title={`${card.name}${entry.note ? ` — ${entry.note}` : ""} — click to add to the deck, right-click to take off the bench`}
+                aria-label={`${card.name} — on the bench`}
+                onClick={() => onAdd(entry.cardId)}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  onRemove(entry.cardId);
+                }}
+              >
+                <SlotArt
+                  card={card}
+                  cardId={entry.cardId}
+                  width={150}
+                  sizes="(max-width: 60rem) 22vw, 9vw"
+                  lazy
+                />
+              </button>
+              {entry.note && <span className="note">{entry.note}</span>}
+              {/* Opening the card is still available, just not the primary action here. */}
+              <button
+                type="button"
+                className="ghost tiny"
+                onClick={() => onOpen(occupant)}
+                aria-label={`${card.name} — details`}
+              >
+                ?
+              </button>
+            </div>
+          );
+        })}
+      </div>
+      {peek && <Peek card={peek.card} cardId={peek.cardId} at={peek.at} />}
+    </section>
+  );
+}
+
 export function Workshop({
   deck,
   pool,
   legality,
   conflicts,
   overCommitments,
+  bench,
+  onBenchAdd,
+  onBenchRemove,
   onPromote,
   onDismantle,
   step,
@@ -283,6 +376,11 @@ export function Workshop({
   conflicts: Conflict[];
   /** Cards sleeved into more decks than the boxes can supply — DATA-MODEL §4. */
   overCommitments: Conflict[];
+  /** Cards parked while you decide. Never validated — see `Bench`. */
+  bench: BenchEntry[];
+  /** Move a benched card into the deck. It stays on the bench: parking is not a commitment. */
+  onBenchAdd: (cardId: string) => void;
+  onBenchRemove: (cardId: string) => void;
   onPromote: () => void;
   onDismantle: () => void;
   step: Step;
@@ -500,6 +598,13 @@ export function Workshop({
       {bay("RUNE")}
       {bay("BATTLEFIELD")}
       {bay("SIDEBOARD")}
+      <Bench
+        entries={bench}
+        pool={pool}
+        onOpen={(o) => onOpen({ ...o, zone: zoneFor(o.card), role: "slot" })}
+        onAdd={onBenchAdd}
+        onRemove={onBenchRemove}
+      />
       </>}
 
       {children}
