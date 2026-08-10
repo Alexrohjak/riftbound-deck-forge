@@ -459,7 +459,13 @@ a point.
 **pumps count**, unlike `Relentless Storm` which needs it printed.
 
 ✅ **Fits.** Cheap 3–4 Might bodies plus pump effects, so you cross the threshold on demand:
-**`Discipline`** (+2), **`Bonds of Strength`**, **`Grand Strategem`**, buffs.
+**`Bonds of Strength`** (+1 to two units, Repeatable), **`Grand Strategem`** (+5 to *all* your
+units — the widest trigger in the game), **`Punch First`**, **`Grim Resolve`**, buffs.
+
+> ⚠️ **This line used to name `Discipline`, which is a `Calm` card and therefore illegal in
+> Body + Order.** Caught when the deck built from this entry was checked against the pool. A
+> named card in this guide is a recommendation the mouth is told to trust, so an out-of-identity
+> one is worse than no recommendation — check the domain before adding a name here.
 ⭐ **`Fiora, Worthy`** (*when a unit becomes Mighty, pay Order to **ready** it*) is the same
 trigger again. **`Fiora, Victorious`** (M4) turns on `Deflect`, `Ganking` and `Shield` the
 moment she becomes Mighty — a single buff transforms her.

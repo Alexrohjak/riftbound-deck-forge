@@ -179,6 +179,96 @@ describe("counterCounsel — what beats this Legend", () => {
     const threats = new Set(ANSWERS.map((a) => a.threat));
     for (const answer of counsel?.yourAnswers ?? []) expect(threats.has(answer.threat)).toBe(true);
   });
+
+  it("says the read is domain-level, because every Legend sharing the domains gets this one", () => {
+    expect(counsel?.scope).toBe("domain-identity");
+  });
+});
+
+/**
+ * ⚠️ **`--mine`, and the answer that was the opponent's own card.**
+ *
+ * Unfiltered, `counter` recommended 32 cards spanning all six domains — 10 of which could
+ * share a deck — and its top answer to Grand Duelist was `Riposte`, a Fiora Signature card
+ * that L21 makes illegal under any other Legend. In other words: to beat the deck, play the
+ * deck. Naming your own Legend applies the two checks that bind.
+ */
+describe("counterCounsel — answers you can actually register", () => {
+  const CARDS2: Record<string, CardEntry> = {
+    theirs: {
+      name: "Their Legend",
+      types: ["legend"],
+      domains: ["fury", "chaos"],
+      championTag: "Jinx",
+      text: "…",
+    },
+    mine: { name: "My Legend", types: ["legend"], domains: ["calm", "order"], championTag: "Poppy" },
+    bomb: { name: "Big Bomb", types: ["unit"], domains: ["fury"], energy: 8, might: 8 },
+    fury: {
+      name: "Fury Answer",
+      types: ["spell"],
+      domains: ["fury"],
+      energy: 2,
+      role: "removal-kill",
+      produces: ["kill"],
+      text: "Kill a unit.",
+    },
+    calm: {
+      name: "Calm Answer",
+      types: ["spell"],
+      domains: ["calm"],
+      energy: 2,
+      role: "removal-kill",
+      produces: ["kill"],
+      text: "Kill a unit.",
+    },
+    sig: {
+      name: "Their Signature",
+      types: ["spell"],
+      superTypes: ["signature"],
+      tags: ["Jinx"],
+      domains: ["calm"],
+      energy: 2,
+      role: "removal-kill",
+      produces: ["kill"],
+      text: "Kill a unit.",
+    },
+  };
+  const idx = staticCardIndex(CARDS2);
+  const pool2: PoolCard[] = Object.entries(CARDS2).map(([cardId, entry]) => ({ cardId, facts: entry }));
+  const own2 = { fury: 2, calm: 2, sig: 2 };
+  const named = (c: ReturnType<typeof counterCounsel>) =>
+    c?.yourAnswers.flatMap((a) => a.with.flatMap((g) => g.candidates.map((x) => x.name))) ?? [];
+
+  it("without --mine, keeps every domain — and cannot be a deck", () => {
+    const all = named(counterCounsel("theirs", idx, pool2, own2));
+    expect(all).toContain("Fury Answer");
+    expect(all).toContain("Calm Answer");
+    expect(counterCounsel("theirs", idx, pool2, own2)?.playableUnder).toBeUndefined();
+  });
+
+  it("with --mine, drops what falls outside your Domain Identity", () => {
+    const all = named(counterCounsel("theirs", idx, pool2, own2, 5, "mine"));
+    expect(all).toContain("Calm Answer");
+    expect(all).not.toContain("Fury Answer");
+  });
+
+  it("with --mine, drops their Signature card — L21 makes it illegal in your deck", () => {
+    // In identity (Calm) and owned, so only the champion tag can exclude it. It must.
+    expect(named(counterCounsel("theirs", idx, pool2, own2, 5, "mine"))).not.toContain(
+      "Their Signature",
+    );
+  });
+
+  it("names the Legend it filtered to, so the constraint is visible in the answer", () => {
+    expect(counterCounsel("theirs", idx, pool2, own2, 5, "mine")?.playableUnder?.name).toBe(
+      "My Legend",
+    );
+  });
+
+  it("is null for a --mine id that is not in the pool, rather than silently unfiltered", () => {
+    expect(counterCounsel("theirs", idx, pool2, own2, 5, "nope")).toBeNull();
+  });
 });
 
 describe("mechanicCounsel — playing around a mechanic", () => {

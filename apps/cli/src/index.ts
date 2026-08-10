@@ -88,11 +88,15 @@ const USAGE = `forge <legality|review|ask|log|brief|validate|legend|around|count
             graph both ways: what satisfies what this card asks for, and what wants
             what it makes. Plus every Legend whose identity admits it.
 
-  counter   --legend <cardId>
+  counter   --legend <cardId> [--mine <cardId>]
             "I hate playing into this Legend." What that identity CAN do — never what
             an opponent is likely to hold (no meta data exists) — and, as labelled
             doctrine with its reasoning, what answers each of those and what you own
             that does it.
+            ⚠️ Read at DOMAIN level: every Legend sharing those two domains gets the
+            same list. What a Legend REWARDS is in docs/reference/LEGEND-GUIDE.md.
+            --mine names the Legend you are playing, so the answers are ones you can
+            legally register. Without it they span all six domains and are not a deck.
 
   mechanic  --name <tag>
             gear_matters | flow | token_matters | trash_matters | hidden | … or a
@@ -255,11 +259,19 @@ function main(argv: string[]): number {
     if (command === "legend" || command === "counter") {
       const legendCardId = flag("--legend");
       if (!legendCardId) fail(`${command} needs --legend <cardId>.`);
+      // `--mine` names the Legend *you* are playing, so `counter` can drop answers you
+      // could never register. Optional: without it the answers span every domain at once.
+      const mine = flag("--mine");
       const counsel =
         command === "legend"
           ? legendCounsel(legendCardId, cardIndex, pool, collection)
-          : counterCounsel(legendCardId, cardIndex, pool, collection);
-      return emit(counsel, `No card with id "${legendCardId}" in the pool.`);
+          : counterCounsel(legendCardId, cardIndex, pool, collection, 5, mine);
+      return emit(
+        counsel,
+        mine
+          ? `No card with id "${legendCardId}" or "${mine}" in the pool.`
+          : `No card with id "${legendCardId}" in the pool.`,
+      );
     }
     if (command === "around") {
       const cardId = flag("--card");

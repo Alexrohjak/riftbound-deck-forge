@@ -171,11 +171,22 @@ collection holding **60** cards that raise Might.
 ### *"I hate playing into this Legend — what beats it?"*
 
 ```bash
-node apps/cli/dist/index.js counter --legend <cardId> --pool … --collection …
+node apps/cli/dist/index.js counter --legend <cardId> [--mine <yourLegendId>] --pool … --collection …
 ```
 
 Returns what that identity **can** do, and — as **labelled doctrine with its reasoning** —
 what answers each of those, and what is owned that does it.
+
+⚠️ **Pass `--mine` whenever you know what he is playing.** Without it the answers span all six
+domains and are not a deck — 32 cards of which 10 could coexist — and they can include the
+opponent's own Signature cards. Unfiltered, the headline answer to Grand Duelist was `Riposte`,
+legal only under a Fiora Legend (L21): to beat the deck, play the deck.
+
+⚠️ **The read is domain-level, and the output says so in `scope`.** Every Legend sharing those
+two domains gets the same list — four Body + Order Legends that ramp off Mighty, chain Empower,
+grind XP and rebuy buffed units come back identical. **What the Legend itself rewards is not in
+this tool.** Read [`LEGEND-GUIDE.md`](reference/LEGEND-GUIDE.md), which covers all 49, exactly
+as you must for the Legend question — the matchup-specific half of the answer only exists there.
 
 ⚠️ This is the weakest of the four and you must say so. Without the rules core there is no
 refutation search: this is a professional's read of a matchup they have not playtested. Good,

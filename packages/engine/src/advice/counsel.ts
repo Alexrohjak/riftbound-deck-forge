@@ -280,6 +280,15 @@ export function aroundCounsel(
 
 export interface CounterCounsel {
   against: { cardId: string; name: string; domains: readonly Domain[]; championTag?: string; text?: string };
+  /**
+   * ⚠️ **Read at the level this was computed.** `theirPatterns` is derived from the Legend's
+   * **domain identity**, not from its ability — so every Legend sharing those two domains
+   * produces the same list. Four Body + Order Legends that ramp off Mighty, chain Empower,
+   * grind XP and rebuy buffed units are indistinguishable here, and they are not the same
+   * matchup. What a Legend *rewards* is in [`LEGEND-GUIDE.md`](../../../../docs/reference/LEGEND-GUIDE.md),
+   * which covers all 49; the mouth is required to read it before speaking about a matchup.
+   */
+  scope: "domain-identity";
   /** What that identity **can** do — never what an opponent is likely to hold (§7). */
   theirPatterns: Array<{ pattern: StrategicPattern; label: string; cards: number }>;
   /** Doctrine: what answers those, why, and what you own that does it. */
@@ -289,6 +298,15 @@ export interface CounterCounsel {
     because: string;
     with: ByPattern[];
   }>;
+  /**
+   * The Legend the answers were filtered to be legal under, when one was named.
+   *
+   * ⚠️ **Absent means the answers are not a deck.** Unfiltered, they span all six domains and
+   * no Legend can play them — a Legend carries exactly two. Worse, they can include the
+   * opponent's own Signature cards: the top answer to Grand Duelist was `Riposte`, playable
+   * only under a Fiora Legend (L21), which is the deck being countered.
+   */
+  playableUnder?: { cardId: string; name: string; domains: readonly Domain[] };
 }
 
 /**
@@ -304,11 +322,15 @@ export function counterCounsel(
   pool: readonly PoolCard[],
   collection: Readonly<Record<string, number>> = {},
   depth = 5,
+  /** Your own Legend, when you have chosen one — see `playableUnder`. */
+  mineLegendCardId?: string,
 ): CounterCounsel | null {
   const legend = cards.factsOf?.(legendCardId);
   if (!legend) return null;
   const identity = (legend.domains ?? []) as readonly Domain[];
   const byName = ownedByName(pool, collection);
+  const mineLegend = mineLegendCardId ? cards.factsOf?.(mineLegendCardId) : undefined;
+  if (mineLegendCardId && !mineLegend) return null;
 
   const theirs = pool.filter(
     ({ facts }) => isMainDeckCard(facts) && facts.banned !== true && insideIdentity(facts, identity),
@@ -320,9 +342,30 @@ export function counterCounsel(
     }
   }
 
-  // Yours: everything you own, whatever identity — you are choosing your own Legend.
+  /**
+   * Yours: everything you own — narrowed to what you could actually register, once you say
+   * what you are playing.
+   *
+   * ⚠️ **Without `--mine` this is every domain at once.** That was deliberate ("you are
+   * choosing your own Legend") and it produced advice no one can follow: 32 cards across all
+   * six domains, of which 10 could share a deck. Naming your Legend applies the two checks
+   * that actually bind — Domain Identity, and the Signature tag (L21) that made the
+   * opponent's own signature spell the headline answer to their deck.
+   */
+  const mineIdentity = (mineLegend?.domains ?? []) as readonly Domain[];
+  const registerableByMe = ({ facts }: PoolCard): boolean => {
+    if (!mineLegend) return true;
+    if (!insideIdentity(facts, mineIdentity)) return false;
+    if (!(facts.superTypes ?? []).includes("signature")) return true;
+    // L21 — a Signature card is legal only under the Legend whose champion tag it carries.
+    return (facts.tags ?? []).includes(mineLegend.championTag ?? " ");
+  };
   const mine = pool.filter(
-    ({ facts }) => isMainDeckCard(facts) && facts.banned !== true && (byName.get(facts.name) ?? 0) > 0,
+    (entry) =>
+      isMainDeckCard(entry.facts) &&
+      entry.facts.banned !== true &&
+      (byName.get(entry.facts.name) ?? 0) > 0 &&
+      registerableByMe(entry),
   );
 
   const theirPatterns = PATTERNS.filter((s) => theirCounts.has(s.pattern))
@@ -352,8 +395,18 @@ export function counterCounsel(
       ...(legend.championTag ? { championTag: legend.championTag } : {}),
       ...(legend.text ? { text: legend.text } : {}),
     },
+    scope: "domain-identity",
     theirPatterns,
     yourAnswers,
+    ...(mineLegend && mineLegendCardId
+      ? {
+          playableUnder: {
+            cardId: mineLegendCardId,
+            name: mineLegend.name,
+            domains: mineIdentity,
+          },
+        }
+      : {}),
   };
 }
 
