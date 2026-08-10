@@ -8,7 +8,14 @@
  * deck back.
  *
  *     npm run deck -- <proposal.json> --name "Grand Duelist vs Ivern"
- *     npm run deck -- <proposal.json> --name "…" --id fiora-ivern   # overwrite in place
+ *     npm run deck -- <proposal.json> --name "…" --replace          # overwrite that deck
+ *     npm run deck -- <proposal.json> --name "…" --id fiora-v2      # pick the id yourself
+ *
+ * ⚠️ **Adding never overwrites.** The id is slugged from the name, so asking twice for "a
+ * Fiora deck" would have written both to `fiora-deck` and silently destroyed the first —
+ * including any edits made on the Workbench in between. A name already in use now takes the
+ * next free suffix and says so. `--replace` is the only way to overwrite, and it is a
+ * deliberate word rather than a side effect of repeating yourself.
  *
  * ⚠️ **`decks` and `deck_slots` only. Never `collection`.** `pull-state.mjs` is read-only
  * because the collection describes physical reality and a second door into it is a way to
@@ -31,6 +38,21 @@ import { checkLegality, staticCardIndex, cardFactsFrom } from "../packages/engin
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
+/**
+ * One statement batch against the live database. Mirrors `pull-state.mjs`'s reader —
+ * `wrangler --json` prefixes its own logging, so the payload is the last top-level array.
+ */
+function d1(sql) {
+  const raw = execFileSync(
+    "npx",
+    ["wrangler", "d1", "execute", "forge", "--remote", "--command", sql, "--json"],
+    { cwd: join(ROOT, "apps", "api"), encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+  );
+  const start = raw.indexOf("[\n  {");
+  if (start === -1) return [];
+  return JSON.parse(raw.slice(start))[0]?.results ?? [];
+}
+
 const argv = process.argv.slice(2);
 const flag = (name) => {
   const i = argv.indexOf(name);
@@ -52,14 +74,25 @@ if (!proposalPath) {
 
 const proposal = JSON.parse(readFileSync(proposalPath, "utf8"));
 const name = flag("--name") ?? proposal.name ?? "EE proposal";
-/** Slugged from the name so re-running with the same name overwrites rather than piling up. */
-const id =
-  flag("--id") ??
-  name
+const replace = argv.includes("--replace");
+const slug = (s) =>
+  s
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
     .slice(0, 40);
+
+/** ⚠️ Read before writing, so a new deck can never land on top of an existing one. */
+const existing = new Set(
+  d1(`SELECT id FROM decks;`).map((r) => r.id),
+);
+
+let id = flag("--id") ?? slug(name);
+if (existing.has(id) && !replace) {
+  const base = id;
+  for (let n = 2; existing.has(id); n++) id = `${base}-${n}`.slice(0, 40);
+}
+const overwriting = replace && existing.has(id);
 
 // ── shape ───────────────────────────────────────────────────────────────────
 const zoneOf = { main: "MAIN", runes: "RUNE", battlefields: "BATTLEFIELD", sideboard: "SIDEBOARD" };
@@ -115,15 +148,41 @@ const statements = [
   ),
 ];
 
-execFileSync(
-  "npx",
-  ["wrangler", "d1", "execute", "forge", "--remote", "--command", statements.join("\n"), "--json"],
-  { cwd: join(ROOT, "apps", "api"), encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+/**
+ * ⚠️ **Prove the other decks were untouched.** Nothing here targets another deck's id, but
+ * "nothing should have" is not evidence, and a writer aimed at the database that holds every
+ * deck you own is exactly where a silent clobber would live. Counting rows either side costs
+ * one query and turns a belief into a check.
+ */
+const before = Object.fromEntries(
+  d1(`SELECT deck_id, COUNT(*) AS n FROM deck_slots GROUP BY deck_id;`).map((r) => [r.deck_id, r.n]),
 );
+
+d1(statements.join("\n"));
+
+const after = Object.fromEntries(
+  d1(`SELECT deck_id, COUNT(*) AS n FROM deck_slots GROUP BY deck_id;`).map((r) => [r.deck_id, r.n]),
+);
+const collateral = [...new Set([...Object.keys(before), ...Object.keys(after)])]
+  .filter((d) => d !== id)
+  .filter((d) => (before[d] ?? 0) !== (after[d] ?? 0));
+if (collateral.length > 0) {
+  process.stderr.write(
+    `\n⚠️  OTHER DECKS CHANGED — this should be impossible, please report it:\n` +
+      collateral.map((d) => `     ${d}: ${before[d] ?? 0} → ${after[d] ?? 0} slots\n`).join("") +
+      `   deck_history holds prior contents; restore from there.\n`,
+  );
+  process.exitCode = 1;
+}
 
 const count = (zone) => slots.filter((s) => s.zone === zone).reduce((n, s) => n + s.quantity, 0);
 process.stdout.write(
-  `✓ "${name}" (${id}) on the Workbench — ${count("MAIN") + 1} main incl. champion · ` +
-    `${count("RUNE")} runes · ${count("BATTLEFIELD")} battlefields · ${count("SIDEBOARD")} sideboard\n` +
-    `  https://forge.alexander-rohde-jakobsen.workers.dev\n`,
+  `${overwriting ? "↻ replaced" : "✓ added"} "${name}" (${id}) — ` +
+    `${count("MAIN") + 1} main incl. champion · ${count("RUNE")} runes · ` +
+    `${count("BATTLEFIELD")} battlefields · ${count("SIDEBOARD")} sideboard\n` +
+    `  ${existing.size + (overwriting ? 0 : 1)} deck(s) on the Workbench · ` +
+    `https://forge.alexander-rohde-jakobsen.workers.dev\n`,
 );
+if (id !== (flag("--id") ?? slug(name))) {
+  process.stdout.write(`  note: "${slug(name)}" was taken, so this became "${id}". Nothing was overwritten.\n`);
+}

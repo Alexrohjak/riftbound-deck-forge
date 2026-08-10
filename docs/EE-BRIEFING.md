@@ -99,9 +99,12 @@ so it can be seen, sorted and changed where the printings are drawn and legality
 npm run deck -- <proposal.json> --name "What the deck is"
 ```
 
-It runs all 33 checks first and refuses to write an illegal deck. Re-running with the same
-name overwrites in place rather than piling up near-duplicates. It writes `decks` and
-`deck_slots` **only** — never `collection`, for the reason `pull-state.mjs` gives.
+It runs all 33 checks first and refuses to write an illegal deck. It writes `decks` and
+`deck_slots` **only** — never `collection`, for the reason `pull-state.mjs` gives — and it
+counts every other deck's rows either side of the write, failing loudly if any changed.
+
+⚠️ **Adding never overwrites.** A name already in use takes the next free suffix and says so.
+`--replace` is the only way to overwrite an existing deck, and it has to be typed.
 
 **And it carries a sideboard of ten** — the cap is exactly ten (TR 601.1.c.1), and the
 Workbench draws the bay whenever it is non-empty. Ten is a budget to spend across three
