@@ -242,6 +242,19 @@ export function useDeck(deckId: string) {
   /** `W3` — the one thing you edit *about* a deck rather than *in* it. */
   const setName = useCallback((name: string) => edit((current) => ({ ...current, name })), [edit]);
 
+  /**
+   * `DRAFT ↔ BUILT` — the commitment switch (D-017, DATA-MODEL §3).
+   *
+   * ⚠️ **The gate lives with the caller, not here.** Promotion requires zero conflicts, and
+   * deciding that needs the collection and every other deck's contents — neither of which
+   * this store has. `canPromote` in the engine is the rule; this only records the answer.
+   * Dismantling has no gate at all: un-sleeving a deck is always allowed.
+   */
+  const setState = useCallback(
+    (state: DeckState) => edit((current) => ({ ...current, state })),
+    [edit],
+  );
+
   return {
     deck,
     save,
@@ -251,6 +264,7 @@ export function useDeck(deckId: string) {
     setChampion,
     setSlots,
     setName,
+    setState,
     clear,
   };
 }

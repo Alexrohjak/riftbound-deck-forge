@@ -202,6 +202,27 @@ h2 {
 .warnings b { color: var(--ink); }
 .cite { font-family: var(--mono); font-size: 0.9em; color: var(--faint); }
 
+/* ── commitment: DRAFT or BUILT, and what stands between them (D-017) ───────── */
+.commitment {
+  margin-top: var(--s2); padding: var(--s2) var(--s3);
+  border-radius: var(--radius-sm); background: var(--sunk);
+  border-left: 3px solid var(--line-strong);
+}
+/* Built is the state that costs you cards elsewhere, so it is the one that looks different. */
+.commitment.built { border-left-color: var(--ink); }
+.commitment .state { display: flex; align-items: baseline; gap: var(--s2); flex-wrap: wrap; }
+.commitment .state b { font-size: 0.78rem; letter-spacing: 0.02em; }
+.commitment .state span { font-size: 0.7rem; color: var(--dim); flex: 1 1 12rem; }
+/* Pressable but refusing — a button that cannot say why is a dead end (D-017). */
+.commitment .state button[aria-disabled="true"] { opacity: 0.5; }
+.commitment ul {
+  margin: var(--s2) 0 0; padding: 0; list-style: none;
+  font-size: 0.72rem; color: var(--dim);
+}
+.commitment li + li { margin-top: var(--s1); }
+.commitment .over { color: var(--alert); }
+.commitment .over b { color: var(--alert); }
+
 .panel { background: var(--sunk); border-radius: var(--radius-sm); padding: var(--s3); }
 
 /* ── energy curve ──────────────────────────────────────────────────────────── */

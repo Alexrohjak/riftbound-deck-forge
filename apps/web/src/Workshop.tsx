@@ -1,5 +1,5 @@
-import type { Deck, LegalityResult, Zone } from "@forge/engine";
-import { mainDeckCount, zoneCount } from "@forge/engine";
+import type { Conflict, Deck, LegalityResult, Zone } from "@forge/engine";
+import { conflictSentence, mainDeckCount, zoneCount } from "@forge/engine";
 import { useState } from "react";
 import { hd, printingOf, srcSet, type Card, type CardPool } from "./cards.js";
 import { STEPS, type Step } from "./buildFlow.js";
@@ -181,10 +181,92 @@ function Slots({
   );
 }
 
+/**
+ * `DRAFT` or `BUILT`, and what stands between them — D-017, DATA-MODEL §3.
+ *
+ * ⚠️ **A conflict is an address, never a dead end.** The whole point of commitment is that
+ * an unavailable card tells you where it went, so every line here names the deck holding the
+ * cards and the button offers the way out rather than just refusing.
+ */
+function Commitment({
+  deck,
+  conflicts,
+  overCommitments,
+  onPromote,
+  onDismantle,
+}: {
+  deck: Deck;
+  conflicts: Conflict[];
+  overCommitments: Conflict[];
+  onPromote: () => void;
+  onDismantle: () => void;
+}) {
+  const built = deck.state === "BUILT";
+  return (
+    <section className={`commitment${built ? " built" : ""}`}>
+      <div className="state">
+        <b>{built ? "Built" : "Draft"}</b>
+        <span>
+          {built
+            ? "these cards are in sleeves and unavailable to other decks"
+            : "a plan — commits nothing, and any number may exist"}
+        </span>
+        {built ? (
+          <button type="button" className="ghost" onClick={onDismantle}>
+            Dismantle
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="ghost"
+            onClick={onPromote}
+            // ⚠️ Not `disabled`: a button that cannot be pressed and cannot say why is the
+            // dead end D-017 forbids. It stays pressable and explains, and the conflicts
+            // below name the deck to dismantle.
+            aria-disabled={conflicts.length > 0}
+            title={
+              conflicts.length > 0
+                ? "Some of these cards are in another built deck — dismantle it first"
+                : "Mark this deck as physically sleeved"
+            }
+          >
+            Mark as built
+          </button>
+        )}
+      </div>
+
+      {/* Loud, and never auto-corrected — Forge must not decide which deck loses a card. */}
+      {overCommitments.length > 0 && (
+        <ul className="over">
+          {overCommitments.map((c) => (
+            <li key={c.name}>
+              <b>Over-committed</b> {c.committed} copies of {c.name} are in decks, and you own{" "}
+              {c.owned}. Something was traded away — {c.holders.map((h) => h.deckName).join(", ")}{" "}
+              {c.holders.length === 1 ? "holds" : "hold"} them.
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {conflicts.length > 0 && (
+        <ul className="conflicts">
+          {conflicts.map((c) => (
+            <li key={c.name}>{conflictSentence(c)}</li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 export function Workshop({
   deck,
   pool,
   legality,
+  conflicts,
+  overCommitments,
+  onPromote,
+  onDismantle,
   step,
   guided,
   occupants,
@@ -197,6 +279,12 @@ export function Workshop({
   deck: Deck;
   pool: CardPool;
   legality: LegalityResult;
+  /** What this deck asks for and cannot have, with the deck holding it (D-017). */
+  conflicts: Conflict[];
+  /** Cards sleeved into more decks than the boxes can supply — DATA-MODEL §4. */
+  overCommitments: Conflict[];
+  onPromote: () => void;
+  onDismantle: () => void;
   step: Step;
   guided: boolean;
   occupants: (zone: Zone) => Occupant[];
@@ -299,6 +387,15 @@ export function Workshop({
           ))}
         </ul>
       )}
+
+      <Commitment
+        deck={deck}
+        conflicts={conflicts}
+        overCommitments={overCommitments}
+        onPromote={onPromote}
+        onDismantle={onDismantle}
+      />
+
 
       {showDeck && <>
       <section className="bay singles">

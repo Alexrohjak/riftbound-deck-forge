@@ -16,6 +16,7 @@
  */
 import type { D1Database } from "@cloudflare/workers-types";
 import { runBackup, type BackupEnv } from "./backup.js";
+import { readCommitments } from "./commitments.js";
 import {
   appendHistory,
   deleteMatch,
@@ -453,6 +454,13 @@ export default {
 
     if (pathname === "/decks") {
       if (request.method === "GET") return listDecks(env).then(json);
+      return json({ error: "Use GET." }, 405);
+    }
+
+    // What is already in sleeves (D-017). Read-only by construction — there is no way to
+    // write a commitment, because promoting a deck to BUILT is the only thing that makes one.
+    if (pathname === "/commitments") {
+      if (request.method === "GET") return readCommitments(env.DB).then(json);
       return json({ error: "Use GET." }, 405);
     }
 

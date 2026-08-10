@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { checkLegality, deckHash, energyCurve, zoneCount, type Zone } from "@forge/engine";
+import {
+  checkLegality,
+  committedByPrinting,
+  deckHash,
+  energyCurve,
+  findConflicts,
+  overCommitted,
+  zoneCount,
+  type Zone,
+} from "@forge/engine";
 import { hd, loadPool, srcSet, zoneFor, type Card, type CardPool, type Printing } from "./cards.js";
 import {
   activeDeckId,
@@ -19,6 +28,7 @@ import { apply, copyLimit, DOMAIN_LIST, MAX_COPIES, NO_FILTERS, orderShelf, owne
 import { filtersFor, runeSlots, stepFor, type Step } from "./buildFlow.js";
 import { Workshop, type Occupant, type Target } from "./Workshop.js";
 import { CardDetail } from "./CardDetail.js";
+import { useCommitments } from "./commitments.js";
 
 /**
  * Forge — a light table of cards, and a workbench tray beside it.
@@ -257,9 +267,21 @@ export function App() {
   const sentinel = useRef<HTMLDivElement | null>(null);
   /** Which deck is open. Local to this browser — see `activeDeckId`. */
   const [deckId, setDeckId] = useState(activeDeckId);
-  const { deck, save, setQuantity, replacePrinting, setLegend, setChampion, setSlots, setName } =
-    useDeck(deckId);
+  const {
+    deck,
+    save,
+    setQuantity,
+    replacePrinting,
+    setLegend,
+    setChampion,
+    setSlots,
+    setName,
+    setState,
+  } = useDeck(deckId);
   const { decks, refresh: refreshDecks } = useDecks(deckId);
+  // `holdings` in this file already means the collection summary — this is the other thing:
+  // what every BUILT deck is physically holding.
+  const { holdings: sleeved, refresh: refreshCommitments } = useCommitments();
 
   const openDeck = useCallback((id: string) => {
     setActiveDeckId(id);
@@ -403,10 +425,63 @@ export function App() {
     return () => io.disconnect();
   }, [listLength]);
 
-  const legality = useMemo(
-    () => (pool ? checkLegality(deck, pool.index, { ownership: { collection: owned } }) : null),
-    [deck, pool, owned],
+  /**
+   * Copies held by **other** built decks (D-017).
+   *
+   * ⚠️ Excluding this deck is what makes editing a `BUILT` deck possible — measured against
+   * commitments that include its own contents, every card in it reads as spoken for.
+   */
+  const committed = useMemo(
+    () => committedByPrinting(sleeved, deck.id),
+    [sleeved, deck.id],
   );
+
+  const legality = useMemo(
+    () =>
+      pool
+        ? checkLegality(deck, pool.index, { ownership: { collection: owned, committed } })
+        : null,
+    [deck, pool, owned, committed],
+  );
+
+  /** What this deck asks for and cannot have — with the address of whatever holds it. */
+  const conflicts = useMemo(
+    () => (pool ? findConflicts(deck, pool.index, owned, sleeved) : []),
+    [deck, pool, owned, sleeved],
+  );
+
+  /**
+   * Cards sleeved into more decks than the boxes can supply. Not this deck's fault and not
+   * this deck's to fix, so it is reported wherever you are — you traded away a card that is
+   * still in a sleeve, and only you know which deck came apart (DATA-MODEL §4).
+   */
+  const overCommitments = useMemo(
+    () => (pool ? overCommitted(pool.index, owned, sleeved) : []),
+    [pool, owned, sleeved],
+  );
+
+  /**
+   * Commitments are derived from deck state, so they go stale exactly when a deck that
+   * commits something is written. A `DRAFT` edit changes nothing and is not worth a request.
+   */
+  const wasBuilt = useRef(deck.state === "BUILT");
+  useEffect(() => {
+    const matters = deck.state === "BUILT" || wasBuilt.current;
+    wasBuilt.current = deck.state === "BUILT";
+    if (matters && save.status === "saved") refreshCommitments();
+  }, [save.status, deck.state, refreshCommitments]);
+
+  /**
+   * `DRAFT → BUILT` — the one gate (DATA-MODEL §3). Promotion is a claim that these cards
+   * are physically in sleeves, and the same card cannot be in two sleeves at once.
+   */
+  const promote = useCallback(() => {
+    if (conflicts.length > 0) return;
+    setState("BUILT");
+  }, [conflicts, setState]);
+
+  /** Dismantling has no gate — un-sleeving a deck is always allowed, and releases its cards. */
+  const dismantle = useCallback(() => setState("DRAFT"), [setState]);
   const curve = useMemo(() => (pool ? energyCurve(deck, pool.index) : null), [deck, pool]);
 
   const copiesOfName = useCallback(
@@ -873,6 +948,10 @@ export function App() {
               deck={deck}
               pool={pool}
               legality={legality}
+              conflicts={conflicts}
+              overCommitments={overCommitments}
+              onPromote={promote}
+              onDismantle={dismantle}
               step={step}
               guided={guided}
               occupants={occupants}

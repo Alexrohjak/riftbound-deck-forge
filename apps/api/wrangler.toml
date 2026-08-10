@@ -28,6 +28,7 @@ run_worker_first = [
   "/collection",
   "/decks",
   "/decks/*",
+  "/commitments",
   "/matches",
   "/matches/*",
   "/events",

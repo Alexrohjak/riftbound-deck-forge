@@ -119,4 +119,14 @@ export { checkUnique, isUnique, MAX_UNIQUE_COPIES } from "./unique.js";
 export { checkFormat } from "./format.js";
 export { checkRunes } from "./runes.js";
 export { checkOwnership } from "./ownership.js";
+export {
+  canPromote,
+  committedByPrinting,
+  conflictSentence,
+  findConflicts,
+  overCommitted,
+  type Conflict,
+  type Holder,
+  type Holding,
+} from "./commitment.js";
 export { deckEntries, countedEntries } from "./entries.js";
