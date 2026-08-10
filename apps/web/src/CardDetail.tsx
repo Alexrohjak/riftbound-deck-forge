@@ -117,7 +117,15 @@ export function CardDetail({
             )}
             <div>
               <dt>Owned</dt>
-              <dd>{owned > 0 ? owned : "none yet"}</dd>
+              {/* ⚠️ "none yet" would be a false statement about a rune (D-061) — Forge does
+                  not track them, which is not the same as you not having any. */}
+              <dd>
+                {card.types.includes("rune")
+                  ? "always on hand"
+                  : owned > 0
+                    ? owned
+                    : "none yet"}
+              </dd>
             </div>
           </dl>
 

@@ -192,6 +192,11 @@ committed(name)  = Σ quantity across all BUILT decks
 available(name)  = owned − committed
 ```
 
+> ⚠️ **Runes sit outside all three** ([D-061](../DECISIONS.md#d-061)). They are never owned,
+> never committed and never contended for — a sleeved rune is not a claim on the collection,
+> and no deck is ever short of one. Keyed on the **zone**, not the card type, so a card index
+> without type data cannot silently start counting them again.
+
 ### Conflicts, not blocks
 
 A DRAFT deck **may** exceed availability. Doing so raises a **conflict**, which is

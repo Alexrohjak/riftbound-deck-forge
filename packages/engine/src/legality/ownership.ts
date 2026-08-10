@@ -1,5 +1,5 @@
 import type { CardIndex, Deck, OwnershipContext, Warning } from "../types.js";
-import { deckEntries } from "./entries.js";
+import { deckEntries, isCollected } from "./entries.js";
 
 /**
  * L26 · L27 — ownership. **Warnings, never violations.**
@@ -53,9 +53,12 @@ export function checkOwnership(
 
   // Needed per name, summed across zones — the same card in the Main Deck and the sideboard
   // is still one physical card that cannot be in two sleeves at once.
+  //
+  // ⚠️ Runes are exempt (D-061, `isCollected`): Forge treats them as always on hand, so a
+  // deck is never short of them and they never appear in a shortage sentence.
   const needed = new Map<string, number>();
   for (const e of deckEntries(deck, cards)) {
-    if (!e.cardId) continue;
+    if (!e.cardId || !isCollected(e)) continue;
     needed.set(e.name, (needed.get(e.name) ?? 0) + e.quantity);
   }
 

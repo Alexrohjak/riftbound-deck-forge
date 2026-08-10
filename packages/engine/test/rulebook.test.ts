@@ -187,10 +187,14 @@ describe("the baseline is genuinely legal", () => {
    * printing it happened to pick, which is rarely the one in your box.
    */
   it("counts copies across arts, because a sleeve does not care which picture it is", () => {
+    // ⚠️ Deliberately **not** a rune. This used to use Fury Rune, which stopped testing
+    // anything the moment D-061 exempted runes from ownership — the assertion would have
+    // passed for the wrong reason. The rule under test is name-level counting across
+    // printings, so the fixture has to be a card ownership still applies to.
     const arts = staticCardIndex({
-      "art-a": { name: "Fury Rune", types: ["rune"] },
-      "art-b": { name: "Fury Rune", types: ["rune"] },
-      "art-c": { name: "Fury Rune", types: ["rune"] },
+      "art-a": { name: "Scrappy Bot", types: ["unit"] },
+      "art-b": { name: "Scrappy Bot", types: ["unit"] },
+      "art-c": { name: "Scrappy Bot", types: ["unit"] },
     });
     const d = {
       id: "d",
@@ -198,7 +202,7 @@ describe("the baseline is genuinely legal", () => {
       state: "DRAFT" as const,
       legendCardId: "",
       chosenChampionCardId: "",
-      slots: [{ cardId: "art-a", zone: "RUNE" as const, quantity: 3 }],
+      slots: [{ cardId: "art-a", zone: "MAIN" as const, quantity: 3 }],
     };
     const spread = checkLegality(d, arts, {
       ownership: { collection: { "art-a": 1, "art-b": 1, "art-c": 1 } },
@@ -213,7 +217,10 @@ describe("the baseline is genuinely legal", () => {
   it("does not invent a card out of an unchosen Champion", () => {
     // The field is "" before you pick one. It used to become a nameless entry that counted
     // toward the 40 and reported as missing: "3 copies short across 2 names — , Fury Rune".
-    const arts = staticCardIndex({ "art-a": { name: "Fury Rune", types: ["rune"] } });
+    //
+    // ⚠️ A MAIN card rather than a rune, so the absence of L26 still means "no phantom" —
+    // under D-061 a rune-only deck would be silent whether the bug were fixed or not.
+    const arts = staticCardIndex({ "art-a": { name: "Scrappy Bot", types: ["unit"] } });
     const result = checkLegality(
       {
         id: "d",
@@ -221,12 +228,46 @@ describe("the baseline is genuinely legal", () => {
         state: "DRAFT" as const,
         legendCardId: "",
         chosenChampionCardId: "",
-        slots: [{ cardId: "art-a", zone: "RUNE" as const, quantity: 3 }],
+        slots: [{ cardId: "art-a", zone: "MAIN" as const, quantity: 3 }],
       },
       arts,
       { ownership: { collection: { "art-a": 3 } } },
     );
     expect(result.warnings.map((w) => w.check)).not.toContain("L26");
+  });
+
+  /**
+   * D-061 — runes are not collected.
+   *
+   * Every deck registers exactly twelve (L4) from a pool of six names, and a Legend fills
+   * them for you. Counting them made every deck ever built report twelve copies short of
+   * cards nobody tracks, and — once commitment existed — made every deck impossible to mark
+   * as built. Forge now believes you always have runes on hand.
+   */
+  it("never reports a rune as short, however many the deck registers (D-061)", () => {
+    const arts = staticCardIndex({
+      "rune-fury": { name: "Fury Rune", types: ["rune"] },
+      "unit-a": { name: "Scrappy Bot", types: ["unit"] },
+    });
+    const result = checkLegality(
+      {
+        id: "d",
+        name: "t",
+        state: "DRAFT" as const,
+        legendCardId: "",
+        chosenChampionCardId: "",
+        slots: [
+          { cardId: "rune-fury", zone: "RUNE" as const, quantity: 12 },
+          { cardId: "unit-a", zone: "MAIN" as const, quantity: 3 },
+        ],
+      },
+      arts,
+      // Owning none of either. The unit is reported; the runes are not.
+      { ownership: { collection: {} } },
+    );
+    const l26 = result.warnings.find((w) => w.check === "L26");
+    expect(l26?.message).toBe("3 copies short across 1 name — Scrappy Bot.");
+    expect(l26?.message).not.toContain("Fury Rune");
   });
 });
 
@@ -425,14 +466,16 @@ describe("the 33 are exactly accounted for", () => {
 
 describe("ownership warnings synthesise (D-039)", () => {
   it("states the count and names a few, rather than listing every card", () => {
-    // A full deck you own none of once produced a paragraph naming all 18 names. True,
+    // A full deck you own none of once produced a paragraph naming every name. True,
     // unreadable, and the exact failure "synthesise, never enumerate" exists to prevent.
-    // 55 = 39 Main + Champion + 12 Runes + 3 Battlefields.
+    //
+    // 43 = 39 Main + Champion + 3 Battlefields. **The 12 runes are absent by design**
+    // (D-061): Forge does not track them, so a deck is never short of one.
     const result = checkLegality(deck(), cards, { ownership: { collection: {} } });
     const l26 = result.warnings.find((w) => w.check === "L26");
 
-    expect(l26?.message).toMatch(/^55 copies short across 18 names — /);
-    expect(l26?.message).toMatch(/and 15 more\.$/);
+    expect(l26?.message).toMatch(/^43 copies short across 17 names — /);
+    expect(l26?.message).toMatch(/and 14 more\.$/);
     // Three names is grounding; fourteen is a wall.
     expect(l26?.message.split(",").length).toBeLessThanOrEqual(3);
   });

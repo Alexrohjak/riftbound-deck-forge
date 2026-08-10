@@ -69,6 +69,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-058](#d-058) | **The collection is imported from inside the app** — `curl` cannot get past Access, and looks like it worked | ✅ |
 | [D-059](#d-059) | **Card entry moves into Forge** — a workflow you have to rehearse is one you stop using | ✅ |
 | [D-060](#d-060) | **Forge holds many decks** — starting one and destroying one were the same act | ✅ |
+| [D-061](#d-061) | **Runes are not collected** — Forge believes you always have them | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -2362,3 +2363,71 @@ under**, and adding a dimension is exactly when that assumption expires.
 | Wait and do all of `W3` at once | `S5` is blocked on the deck-slot half of it, and the rest of `W3` is not |
 | Keep the active deck id on the server | Opening Forge on a phone would drag the desktop to a different deck mid-edit |
 | Cascade matches when a deck is deleted | Destroys the one record that cannot be reconstructed, to tidy a foreign key |
+
+---
+
+<a id="d-061"></a>
+
+## D-061 — Runes are not collected: Forge believes you always have them
+
+**Date:** 2026-08-10
+**Status:** Accepted — amends [DATA-MODEL §3](spec/DATA-MODEL.md) and the ownership half of
+[LEGALITY](spec/LEGALITY.md)
+
+### What was wrong
+
+Discovered by building a complete deck end to end for the first time, against the real
+collection. The deck came out **40/40, 12/12, 3/3, all 33 checks passing** — and carried a
+warning it could never shed:
+
+> `L26` 12 copies short across 2 names — Chaos Rune, Fury Rune.
+
+**Nought of the 18 rune printings were ever entered**, and they never will be in a way that
+helps: a Legend auto-fills twelve runes, there are six rune names in the entire game, and
+they are a fixture of the format rather than something you hunt for. Every deck ever built
+reported twelve copies short of cards nobody tracks.
+
+[D-017](#d-017)'s commitment model then turned that cosmetic warning into a wall. Promotion
+requires zero conflicts; a card you own none of is a conflict; so **`Mark as built` was
+refused on every deck, permanently, with no action that could clear it.** The remedy a
+conflict offers is *dismantle the holding deck* — and there is no holding deck, because
+there is no card.
+
+### Decided
+
+**Runes are exempt from ownership entirely.** Everything else about them is unchanged — a
+Legend still fills twelve in a 6-6 split, `L4` still demands exactly twelve, and `L8`–`L12`
+still police what may go in the Rune Deck. What changes is that Forge stops asking whether
+you have them.
+
+- `L26`/`L27` skip rune entries, so no deck is ever short of a rune
+- Commitment skips them on **both** sides: a sleeved rune is not a claim on the collection,
+  and a deck never contends for one. Without the supply half, twelve runes per built deck
+  would pile up against a collection holding none and fire the **over-commitment** alarm —
+  the loudest signal in the system, about the one thing that cannot be wrong
+- The copy cap already exempted them; the Owned filter now does too, so the Rune tab is not
+  empty the moment you filter to what you own
+- The card detail says **"always on hand"** rather than "none yet", which was a false
+  statement about a card Forge had decided not to track
+
+### ⚠️ Keyed on the zone, not the card type
+
+`isCollected` tests `zone !== "RUNE"` rather than `types.includes("rune")`. The zone is
+structural and always known; `types` depends on what the caller's `CardIndex` carries, so a
+name-only index would silently start counting runes again — and it would be the CLI, the
+consumer least likely to be watched. `L8`–`L12` already guarantee only runes reach the Rune
+Deck, which is what makes the zone a safe proxy.
+
+### What this costs
+
+Forge can no longer tell you that you are physically out of runes. That is the honest trade,
+and it is cheap: twelve of six names, supplied with the product, versus a warning on every
+deck forever and a promotion gate that never opens.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Enter the 18 rune printings and change nothing | Fixes today's collection, not the model. Every new set's runes would re-open it, and the count would be fiction anyway — nobody counts their runes |
+| Block promotion only on *contention*, warn on shortage | Right instinct, wrong layer — it would have hidden the rune problem behind a softer gate while leaving "12 copies short" on every deck forever |
+| Treat runes as owned by writing rows into the collection | A lie in the one table that is supposed to describe physical reality, and it would corrupt the backup and the spot-check |

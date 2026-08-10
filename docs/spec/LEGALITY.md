@@ -107,8 +107,13 @@ These six were absent from the original 27. See
 
 | # | Check |
 |---|---|
-| L26 | Every card is owned in sufficient quantity |
+| L26 | Every card is owned in sufficient quantity — **runes excepted** ([D-061](../DECISIONS.md#d-061)) |
 | L27 | No card conflicts with a `BUILT` deck's commitment — [DATA-MODEL.md §3](DATA-MODEL.md#3-commitment) |
+
+> ⚠️ **Runes are not collected** ([D-061](../DECISIONS.md#d-061)). A Legend fills twelve, six
+> names exist in the whole game, and they ship with the product — so Forge treats them as
+> always on hand and never reports a deck short of one. `L4` and `L8`–`L12` are untouched:
+> the Rune Deck must still be exactly twelve, and still only runes.
 
 > **L26/L27 are warnings, not legality failures.** A deck can be perfectly legal and
 > unbuildable. **These must never be conflated** — the distinction is the point of

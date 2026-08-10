@@ -41,6 +41,21 @@ export function deckEntries(deck: Deck, cards: CardIndex): Entry[] {
 }
 
 /**
+ * Whether an entry is a card the collection is expected to account for — **D-061**.
+ *
+ * Runes are not collected. Every deck registers exactly twelve (L4) and there are only six
+ * names in the game, so a rune is a fixture of the format rather than a card you go and
+ * find. Counting them made every deck ever built report twelve copies short of cards nobody
+ * tracks, and made a deck impossible to mark as built.
+ *
+ * ⚠️ **Keyed on the zone, not on the card's type.** The zone is structural and always known;
+ * `types` depends on what the caller's `CardIndex` happens to carry, so a name-only index
+ * would silently start counting runes again. L8–L12 already guarantee only runes reach the
+ * Rune Deck, which is what makes the zone a safe proxy.
+ */
+export const isCollected = (entry: Entry): boolean => entry.zone !== "RUNE";
+
+/**
  * The zones copy limits span: Main Deck + sideboard, and nothing else (L16, TR 601.1.c.3).
  * Runes and battlefields are registered separately and counted by their own rules.
  */

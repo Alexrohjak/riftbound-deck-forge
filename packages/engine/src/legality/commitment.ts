@@ -1,5 +1,5 @@
 import type { CardIndex, Deck } from "../types.js";
-import { deckEntries } from "./entries.js";
+import { deckEntries, isCollected } from "./entries.js";
 
 /**
  * Commitment — *"cards sleeved into a built deck stop being available"* (D-017,
@@ -89,7 +89,7 @@ function byName(
 }
 
 /**
- * Every card this deck physically needs — `deckEntries` plus the Legend.
+ * Every card this deck physically needs — `deckEntries`, minus runes, plus the Legend.
  *
  * ⚠️ **The Legend is counted here and nowhere else in the engine.** `deckEntries` omits it,
  * so L26/L27 stay silent about Legends exactly as they always have; commitment cannot,
@@ -97,13 +97,16 @@ function byName(
  * asymmetry is deliberate: ownership asks *what may I build*, and a Legend you have not
  * registered is a gap in the collection rather than an illegal deck — but commitment asks
  * *what is in a sleeve right now*, and there the Legend is as physical as anything else.
+ *
+ * ⚠️ **Runes are exempt** (D-061). Forge treats them as always on hand, so twelve of them
+ * can never contend with another deck and can never block promotion.
  */
 function sleeveDemand(deck: Deck, cards: CardIndex): Map<string, number> {
   const want = new Map<string, number>();
   const add = (name: string, quantity: number) =>
     want.set(name, (want.get(name) ?? 0) + quantity);
   for (const e of deckEntries(deck, cards)) {
-    if (!e.cardId) continue;
+    if (!e.cardId || !isCollected(e)) continue;
     add(e.name, e.quantity);
   }
   if (deck.legendCardId) {

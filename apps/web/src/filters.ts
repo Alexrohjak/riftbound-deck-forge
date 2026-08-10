@@ -106,6 +106,15 @@ const compare = (
 export const ownedCount = (card: Card, collection: Readonly<Record<string, number>>): number =>
   card.printings.reduce((n, p) => n + (collection[p.id] ?? 0), 0);
 
+/**
+ * Cards Forge treats as always on hand — **D-061**.
+ *
+ * Runes are a fixture of the format rather than something you collect: every deck registers
+ * exactly twelve, there are six names in the game, and a Legend fills them for you. Forge
+ * therefore never asks whether you own one.
+ */
+export const alwaysOnHand = (card: Card): boolean => card.types.includes("rune");
+
 /** L13 — three copies of a name. The game's cap, and the only one Forge can apply blind. */
 export const MAX_COPIES = 3;
 
@@ -136,7 +145,7 @@ export const copyLimit = (
   collection: Readonly<Record<string, number>>,
   tracked: boolean,
 ): number => {
-  if (card.types.includes("rune") || card.types.includes("legend")) return Infinity;
+  if (alwaysOnHand(card) || card.types.includes("legend")) return Infinity;
   if (!tracked) return MAX_COPIES;
   return Math.min(MAX_COPIES, ownedCount(card, collection));
 };
@@ -147,7 +156,10 @@ export function apply(
   collection: Readonly<Record<string, number>> = {},
 ): Card[] {
   const picked = cards.filter((card) => {
-    if (f.owned && ownedCount(card, collection) === 0) return false;
+    // ⚠️ Runes survive the Owned filter with no rows behind them (D-061). Hiding them would
+    // empty the Rune tab the moment you filtered to what you own, for cards Forge has
+    // decided you always have.
+    if (f.owned && !alwaysOnHand(card) && ownedCount(card, collection) === 0) return false;
     if (!inTab(card, f.tab)) return false;
     if (f.identity && !insideIdentity(card, f.identity)) return false;
     if (f.championTag) {
