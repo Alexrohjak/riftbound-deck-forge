@@ -21,10 +21,10 @@
 
 | | |
 |---|---|
-| **Track** | **W — The Workbench** |
-| **Progress** | **10 of 17** milestones · `D1`–`D3`, `F1`–`F3`, `W1`, `W2`, `W3`, `W5` complete |
-| **🎯 Next** | **`W4` — deck statistics.** Tier 1 facts and Tier 2 probabilities, with the **rune feasibility curve** as the flagship ([D-023](DECISIONS.md#d-023)) — the one calculation no other Riftbound tool can perform, because none knows your rune split and your deck's Power demands together |
-| **Active** | 🟡 **`W4` — both tiers are in.** Tier 1 facts in green, Tier 2 probabilities in amber, each number carrying the assumptions it is correct *given*. The flagship **rune feasibility curve** computes exactly. **Left: your own read of it on a phone**, which is where `PLAN`'s Monte Carlo risk lives. ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone.** Closing it took the **commitment model** (D-017 finally wired end to end), **the Bench**, and **[D-061](DECISIONS.md#d-061) — runes leave the collection**, which was found by building that first deck and discovering it could never be marked as built |
+| **Track** | **S — The Strategist (EE)** |
+| **Progress** | **11 of 17** milestones · `D1`–`D3`, `F1`–`F3`, **all of `W`** complete |
+| **🎯 Next** | **`S1a` — the rules engine core.** 🔴 The largest single component in the project: game state, legal actions, combat under Tank/lethal-first/no-overkill, replacement effects, layers. ⚠️ **Rules must be data, not code** — 21 cards rewrite rules an engine would hardcode |
+| **Active** | 🏁 **Nothing in flight — THE WORKBENCH IS DONE.** All five `W` milestones are closed, which is the point the plan marks as *"if the project stopped here it would still be worth having"*. ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone.** Closing it took the **commitment model** (D-017 finally wired end to end), **the Bench**, and **[D-061](DECISIONS.md#d-061) — runes leave the collection**, which was found by building that first deck and discovering it could never be marked as built |
 | **Blocked** | Nothing. ✅ **X8 closed** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. **Live and proven in production** |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
 | **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve, **commitment**, the `S5` brief and gate) · `apps/web` (935 cards, search, alternate arts, many decks, card entry, import, **the Bench**, **a phone overlay**) · `apps/cli` · `apps/api` (decks + collection + **commitments** + the log + nightly backup) · CI · **246 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
@@ -32,11 +32,11 @@
 ```
 D ─ Design         ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
 F ─ Foundation     ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
-W ─ Workbench      ▓▓▓▓▓▓▓▓▓░░░  4/5   ← you are here
-S ─ Strategist     ░░░░░░░░░░░░  0/5
+W ─ Workbench      ▓▓▓▓▓▓▓▓▓▓▓▓  5/5   ✅ complete
+S ─ Strategist     ░░░░░░░░░░░░  0/5   ← you are here
 L ─ Later          ░░░░░░░░░░░░  0/1
                                  ────
-                                 10/17
+                                 11/17
 ```
 
 > **The count is unchanged; the shape is not.** [D-043](DECISIONS.md#d-043) retired `S3` and
@@ -49,6 +49,7 @@ L ─ Later          ░░░░░░░░░░░░  0/1
 
 | ID | Milestone | What it produced | Date |
 |---|---|---|---|
+| `W4` | **Deck statistics** 🏁 | 🟢 Tier 1 facts and 🟡 Tier 2 probabilities, visually separated so a probability can never pass for a fact. The flagship **rune feasibility curve** computes exactly — and corrected a **fabricated figure in the spec itself**, which had illustrated it with a number no model produces | 2026-08-10 |
 | `W3` | **Deck builder** 🏁 | A complete legal deck built end to end on **desktop and phone**. Brought the **commitment model** with it ([D-017](DECISIONS.md#d-017)) — sleeved cards leave the pool and say which deck holds them — plus **the Bench**, and **[D-061](DECISIONS.md#d-061)**: runes are no longer collected | 2026-08-10 |
 | `W2` | **Collection entry** 🏁 | **629 printings · 1,238 copies**, entered through `+ Add cards` in the app rather than the standalone tool. Every set but `OGS`. Forge stops being a demo here | 2026-08-07 |
 | `W1` | **Legality checking** ⚠️ | **All 33 checks**, and the rulebook's own 13 worked examples as tests. Ownership is a *warning*, never a violation. Coverage is reported per verdict, so an index that cannot see the ban list says so | 2026-08-04 |
@@ -158,7 +159,7 @@ new work appends the next free number and **nothing ever renumbers**.
 | `W1` | **Legality checking** ⚠️ | All 33 checks implemented, 13 rulebook tests passing | ✅ | `F3` |
 | `W2` | **Collection entry** | You have entered the real collection; 20 random names spot-check correct. **629 printings / 1,238 copies — every set but `OGS`**, the 24-card Proving Grounds supplement, deliberately held | ✅ | `F3` |
 | `W3` | **Deck builder** | A complete legal deck can be built end-to-end on desktop **and** phone | ✅ | `W1`, `W2` |
-| `W4` | **Deck statistics** | Tier 1 + Tier 2 render with correct visual separation, under 2 s | 🟡 both tiers in, unverified on a phone | `W3` |
+| `W4` | **Deck statistics** | Tier 1 + Tier 2 render with correct visual separation, under 2 s | ✅ | `W3` |
 | `W5` | **The log** | A match logs in under a minute; the record refuses to state a rate it has not earned | ✅ | `F2` |
 
 ⚠️ **`W1` is the highest correctness risk in the project.** Everything downstream trusts it,

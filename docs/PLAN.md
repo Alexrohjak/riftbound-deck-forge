@@ -371,14 +371,31 @@ DRAFT → BUILT promotion · **full phone parity**.
 
 ### W4 — Deck statistics
 
-**Size:** M–L · **Gate:** W3 · Spec: [`spec/DECK-STATS.md`](spec/DECK-STATS.md)
+**Size:** M–L · **Gate:** W3 · Spec: [`spec/DECK-STATS.md`](spec/DECK-STATS.md) ·
+✅ **Closed 2026-08-10**
 
 Tier 1 facts and Tier 2 probabilities, including the flagship **rune feasibility curve**
-([D-023](DECISIONS.md#d-023)). Tier 3 deliberately absent, and the panel must read as
-complete without it.
+([D-023](DECISIONS.md#d-023)). Tier 3 deliberately absent, and the panel reads as complete
+without it.
 
 **Done when:** both tiers render with correct visual separation, inside the <2 s target.
-**Risk:** Monte Carlo performance on a phone. Measure early; move server-side if needed.
+✅ Verified on the device: no lag, and the two tiers read apart without a legend.
+**Risk — retired:** Monte Carlo performance on a phone. 10,000 seeded openings run in well
+under a second, and Tier 2 computes only while the Analysis view is open, so nothing is
+spent on a panel nobody is looking at.
+
+> ⚠️ **This milestone corrected its own spec.** [DECK-STATS §2](spec/DECK-STATS.md)
+> illustrated the flagship with *"74% to pay 2 Fury Power on turn 3 with a 7/5 split"*. The
+> exact answer is **99.2%** — by turn 3 you have channelled six of twelve runes and seven are
+> Fury — and no variant of the model produces 74%. It was written before the calculation
+> existed. **An illustrative number in a spec is precisely the folklore this tier exists to
+> prevent**, so the figures there are now computed and carry a correction note.
+>
+> The implementation also caught the failure mode the tier is most vulnerable to: the obvious
+> hypergeometric recurrence returns **100%** where the answer is 99.24%, because it derives
+> each point mass from the previous one and `P(X = 0)` is legitimately zero whenever the deck
+> holds fewer misses than you draw. A plausible-looking wrong number is worse here than an
+> obviously broken one.
 
 > ### 🏁 MILESTONE — THE WORKBENCH IS DONE
 > The workbench is usable for real deckbuilding. **If the project stopped here it would

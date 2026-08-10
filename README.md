@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ **The Workbench builds decks.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** · ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone**, which brought **commitment** (sleeved cards leave the pool and say which deck holds them), **the Bench**, and **[D-061](docs/DECISIONS.md#d-061): runes are no longer collected** · 🎯 `W4` next — deck statistics · **nightly backups run off-vendor**
+> **Status:** ✅ **The Workbench builds decks.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** · ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone**, which brought **commitment** (sleeved cards leave the pool and say which deck holds them), **the Bench**, and **[D-061](docs/DECISIONS.md#d-061): runes are no longer collected** · 🏁 **`W4` is closed and the Workbench track is done** — 🟢 facts and 🟡 probabilities, visually separated, with the **rune feasibility curve** no other Riftbound tool can compute · 🎯 `S1a` next — the rules engine · **nightly backups run off-vendor**
 
 ---
 
@@ -70,10 +70,16 @@ marked as built. Runes have left the collection entirely.
 > been run**: the milestone is closed on judgement rather than evidence. **`W4` is now next**,
 > which is exactly where that starts to matter.
 
-**🎯 Next is `W4`** — deck statistics: Tier 1 facts and Tier 2 probabilities, with the **rune
-feasibility curve** as the flagship ([D-023](docs/DECISIONS.md#d-023)). ⚠️ **This is the
-milestone the `W2` spot-check was worth an hour before** — `W4` is where statistics start
-quoting the ownership numbers back at you, and those numbers are still closed on judgement.
+🏁 ✅ **`W4` is closed, and with it the whole Workbench track** — the point the plan marks as
+*"if the project stopped here it would still be worth having"*. Statistics come in two tiers
+that cannot be mistaken for each other, and the flagship **rune feasibility curve** computes
+exactly. It also corrected a **fabricated figure in its own spec**, which had illustrated the
+flagship with a number no model produces.
+
+**🎯 Next is `S1a`** — the rules engine core, 🔴 the largest single component in the project.
+⚠️ **Rules must be data, not code**: 21 cards rewrite rules an engine would hardcode.
+⚠️ **The `W2` spot-check is still unrun**, and statistics now quote the ownership numbers back
+at you — it was worth an hour before this point and it still is.
 ✅ **`X8` is closed** ([D-051](docs/DECISIONS.md#d-051)):
 a nightly cron commits a JSON snapshot to this repo rather than to R2, because a backup in
 the same Cloudflare account does not survive losing the account. **Live and proven in
