@@ -148,6 +148,10 @@ node apps/cli/dist/index.js log <matches.json> --cards <cards.json>
 # S5 — deck generation. The engine states the constraints; the caller chooses the cards.
 node apps/cli/dist/index.js brief --legend <cardId> --pool apps/web/public/cards.json
 node apps/cli/dist/index.js validate <proposal.json> --legend <cardId> --pool apps/web/public/cards.json
+
+# Put a proposal on the Workbench, sideboard and all. Runs the 33 checks first and
+# refuses to write an illegal deck. Writes decks/deck_slots only, never the collection.
+npm run deck -- <proposal.json> --name "Grand Duelist vs Ivern"
 ```
 
 `brief` returns the Legend's ability text, every card legal under its identity, the targets

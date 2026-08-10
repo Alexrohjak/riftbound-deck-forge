@@ -20,7 +20,8 @@
     "check:docs": "python3 tools/check-docs.py",
     "check:purity": "node scripts/check-engine-purity.mjs",
     "check": "npm run check:docs && npm run build",
-    "state": "node scripts/pull-state.mjs"
+    "state": "node scripts/pull-state.mjs",
+    "deck": "node scripts/push-deck.mjs"
   },
   "devDependencies": {
     "typescript": "^5.7.3",

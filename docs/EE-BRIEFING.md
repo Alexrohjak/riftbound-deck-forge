@@ -90,6 +90,36 @@ it is present.**
 > **72 distinct cards, 174 copies** — and one of the omissions was a card the reference
 > library explicitly names as a fit for that exact Legend.
 
+### ⚠️ A deck you propose goes onto the Workbench, with ten cards beside it
+
+A decklist in a transcript is a decklist he retypes. **Every deck you propose gets pushed**,
+so it can be seen, sorted and changed where the printings are drawn and legality runs live:
+
+```bash
+npm run deck -- <proposal.json> --name "What the deck is"
+```
+
+It runs all 33 checks first and refuses to write an illegal deck. Re-running with the same
+name overwrites in place rather than piling up near-duplicates. It writes `decks` and
+`deck_slots` **only** — never `collection`, for the reason `pull-state.mjs` gives.
+
+**And it carries a sideboard of ten** — the cap is exactly ten (TR 601.1.c.1), and the
+Workbench draws the bay whenever it is non-empty. Ten is a budget to spend across three
+purposes, not a category each:
+
+| | |
+|---|---|
+| **More of the plan** | The crossers and payoffs that did not make the 40 — the first cards in when the engine underperforms |
+| **Against what he actually faces** | Named to a matchup he has told you about, not a hypothetical field. There is no meta data ([D-035](DECISIONS.md#d-035)) |
+| **One idea the main deck rejected** | A different angle on the same collection. Say which card it pivots on |
+
+⚠️ **Copy limits span Main Deck and sideboard combined (L16)** — two in the board plus two in
+the deck is four, and illegal. The gate catches it; do not make it work for a living.
+
+⚠️ **A sideboard card need not be owned.** Ownership is a warning, never a violation, and
+*"go and get this one"* is a real answer — but say plainly which ones he does not have, with
+the count, so nobody sleeves a deck they cannot build.
+
 ### ⚠️ A deck you propose gets checked, not just validated
 
 `forge validate` answers *"is this registerable?"*. It does **not** answer *"does this deck
