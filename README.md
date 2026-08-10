@@ -63,12 +63,16 @@ since Discovery with nothing ever writing to it; and **[D-061](docs/DECISIONS.md
 the first complete deck reported twelve copies short of runes and could therefore never be
 marked as built. Runes have left the collection entirely.
 
-> ⚠️ **Two things `W2` is closed *without*.** **`OGS` is not entered** — the 24-printing
-> Origins supplement inside Proving Grounds, held back on purpose — so everything that reads
-> ownership will call those 24 unowned, which is true until the set goes in and is the one
-> place Forge will be confidently wrong about your boxes. And **the 20-name spot-check has not
-> been run**: the milestone is closed on judgement rather than evidence. **`W4` is now next**,
-> which is exactly where that starts to matter.
+> 🏁 ✅ **The `W2` spot-check has now been run, and passed.** Twenty printings — 66 copies —
+> counted against the boxes with every one matching, then ten cards pulled physically at
+> random and found in Forge. The milestone is closed on **evidence** rather than judgement,
+> which it had been since the 7th. Both halves mattered: a sample of rows that already exist
+> can only catch a wrong count, never a pile you never entered.
+>
+> ⚠️ **One gap remains, deliberately.** **`OGS` is not entered** — the 24-printing Origins
+> supplement inside Proving Grounds — so everything reading ownership calls those 24 unowned.
+> True until the set goes in, and the one place Forge will be confidently wrong about your
+> boxes.
 
 🏁 ✅ **`W4` is closed, and with it the whole Workbench track** — the point the plan marks as
 *"if the project stopped here it would still be worth having"*. Statistics come in two tiers
@@ -78,8 +82,6 @@ flagship with a number no model produces.
 
 **🎯 Next is `S1a`** — the rules engine core, 🔴 the largest single component in the project.
 ⚠️ **Rules must be data, not code**: 21 cards rewrite rules an engine would hardcode.
-⚠️ **The `W2` spot-check is still unrun**, and statistics now quote the ownership numbers back
-at you — it was worth an hour before this point and it still is.
 ✅ **`X8` is closed** ([D-051](docs/DECISIONS.md#d-051)):
 a nightly cron commits a JSON snapshot to this repo rather than to R2, because a backup in
 the same Cloudflare account does not survive losing the account. **Live and proven in

@@ -157,7 +157,7 @@ new work appends the next free number and **nothing ever renumbers**.
 | ID | Milestone | Done when | Status | Depends on |
 |---|---|---|---|---|
 | `W1` | **Legality checking** ⚠️ | All 33 checks implemented, 13 rulebook tests passing | ✅ | `F3` |
-| `W2` | **Collection entry** | You have entered the real collection; 20 random names spot-check correct. **629 printings / 1,238 copies — every set but `OGS`**, the 24-card Proving Grounds supplement, deliberately held | ✅ | `F3` |
+| `W2` | **Collection entry** | You have entered the real collection; 20 printings spot-checked against the boxes ✅ **passed 2026-08-10**, plus ten reverse pulls. **Every set but `OGS`**, the 24-printing Proving Grounds supplement, deliberately held | ✅ | `F3` |
 | `W3` | **Deck builder** | A complete legal deck can be built end-to-end on desktop **and** phone | ✅ | `W1`, `W2` |
 | `W4` | **Deck statistics** | Tier 1 + Tier 2 render with correct visual separation, under 2 s | ✅ | `W3` |
 | `W5` | **The log** | A match logs in under a minute; the record refuses to state a rate it has not earned | ✅ | `F2` |
@@ -177,9 +177,13 @@ Grounds, held back for now. Everything reading ownership will report those 24 as
 which is *true* until the set goes in. It is the one place a Forge answer will be confidently
 wrong about your boxes.
 
-**The spot-check gate — 20 random names against the boxes — has not been run.** The milestone
-is closed on judgement, not on evidence; it is worth an hour before `W4` starts trusting the
-ownership numbers with statistics.
+🏁 ✅ **The spot-check gate ran on 2026-08-10 and passed.** Twenty printings — 66 copies — counted against the boxes, and every
+one matched. The sample was stratified rather than uniform: the 8-copy piles where miscounts
+hide, all five suffix variants (the `197a → 197` bug class), both names split across two
+printings, all four sets and all three entry sessions. **Then ten cards pulled physically at
+random and searched in Forge — all present, all correct**, which is the half that catches the
+error Part A is blind to. A sample of existing rows can only find wrong counts; it can never
+find a pile you never entered.
 
 ---
 

@@ -335,11 +335,20 @@ DRAFT/BUILT commitment model.
 > Forge itself (`+ Add cards`), writing to D1 as you type instead of through the standalone
 > tool's export, because six steps a card is what makes a tool you abandon.
 >
-> ⚠️ **Closed with two known gaps, both deliberate.** **`OGS` is not entered** — 24 printings,
-> the Origins supplement in Proving Grounds — so ownership reads them as unowned, correctly
-> but temporarily. And **the 20-name spot-check gate was not run**: this is closed on
-> judgement, not evidence. `W4` is where that starts to matter, because it puts statistics on
-> top of these numbers.
+> 🏁 ✅ **The completion check ran on 2026-08-10 and passed**, against a collection since
+> grown to **672 printings / 1,550 copies**. Twenty printings — 66 copies — counted against
+> the boxes, every one matching, on a sample stratified toward where errors hide rather than
+> drawn uniformly: the 8-copy piles, all five suffix variants, both names split across two
+> printings, all four sets, all three entry sessions. Then **ten cards pulled physically at
+> random and found in Forge**.
+>
+> ⚠️ **Both halves were necessary.** A sample of rows that already exist can only catch a
+> wrong count — it is structurally blind to a pile that was never entered, which is the
+> likelier failure for manual work. The reverse pull is the only thing that tests it.
+>
+> ⚠️ **One gap remains, deliberately.** **`OGS` is not entered** — 24 printings, the Origins
+> supplement in Proving Grounds — so ownership reads them as unowned, correctly but
+> temporarily.
 
 ### W3 — Deck builder
 
