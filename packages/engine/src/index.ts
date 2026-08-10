@@ -72,6 +72,15 @@ export {
   type Symptom,
 } from "./advice/feedback.js";
 export { readArchetype, type Archetype, type ArchetypeRead } from "./advice/archetype.js";
+export {
+  patternCensus,
+  patternsOf,
+  PATTERNS,
+  type PatternCount,
+  type PatternSpec,
+  type StrategicPattern,
+} from "./advice/patterns.js";
+export { hasKeyword, leadingKeywords, withoutReminders } from "./text.js";
 
 /** In-memory `CardIndex`, sufficient for tests and for the static `F2` pool. */
 export { staticCardIndex, type CardEntry } from "./cardIndex.js";

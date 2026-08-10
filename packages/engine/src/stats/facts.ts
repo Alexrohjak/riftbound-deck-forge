@@ -1,6 +1,7 @@
 import type { CardIndex, Deck, Domain } from "../types.js";
 import { deckEntries } from "../legality/entries.js";
 import { energyCurve, type EnergyCurve } from "./energyCurve.js";
+import { leadingKeywords } from "../text.js";
 
 /**
  * 🟢 **Tier 1 — facts** (DECK-STATS §3). Deterministic, read straight off the decklist,
@@ -82,13 +83,6 @@ const bump = (into: Record<string, number>, key: string, by: number) => {
 };
 
 /**
- * Reminder text is parenthesised on every printed card — `[Accelerate] (You may pay …)`.
- * Stripping it first stops a keyword *explained* in one card's reminder from being counted
- * as a keyword the card *has*.
- */
-const withoutReminders = (text: string): string => text.replace(/\([^)]*\)/g, " ");
-
-/**
  * Read the deck's Tier 1 facts.
  *
  * ⚠️ **Runes and battlefields are not Main Deck cards** and are excluded from every
@@ -157,13 +151,17 @@ export function deckFacts(deck: Deck, cards: CardIndex): DeckFacts {
       else power.ambiguous += cost * n;
     }
 
-    // ── keywords, from the printed text ─────────────────────────────────────
+    // ── keywords a card HAS, not ones it mentions ───────────────────────────
+    // ⚠️ Stripping reminder text is not enough. Cleave *grants* `[Assault 3]` to another
+    // unit; Noxus Saboteur's text is about the opponent's `[Hidden]` cards. A substring
+    // search called 48 of 814 cards keyword-carriers that are not — in a panel whose label
+    // is "fact". `leadingKeywords` reads only the run a card opens with, which is where its
+    // own keywords are printed.
     if (facts?.text !== undefined) {
       anyText = true;
-      const body = withoutReminders(facts.text);
+      const carried = new Set(leadingKeywords(facts.text).map((k) => k.toLowerCase()));
       for (const keyword of COUNTED_KEYWORDS) {
-        // `[Assault 2]` and `[Assault]` are the same keyword, so match the opening token.
-        if (body.includes(`[${keyword}`)) bump(keywords, keyword, n);
+        if (carried.has(keyword.toLowerCase())) bump(keywords, keyword, n);
       }
     }
 

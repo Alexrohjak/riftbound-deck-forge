@@ -1476,3 +1476,15 @@ body.resizing * { pointer-events: none; }
   margin: var(--s1) 0 0; padding-left: var(--s4);
   font-size: 0.66rem; color: var(--faint); line-height: 1.5;
 }
+
+/* EE's pattern vocabulary — what a deck can *do*, named rather than listed (EVALUATION §5.1). */
+.census { margin-top: var(--s3); }
+.census h3 {
+  margin: 0 0 var(--s2); font-family: var(--mono); font-size: 0.6rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); font-weight: 400;
+}
+.census ul { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--s2); }
+.census li { font-size: 0.72rem; line-height: 1.5; }
+.census li b { color: var(--ink); }
+/* The examples are grounding, not the point — they read quieter than the pattern name. */
+.census li em { display: block; font-style: normal; font-size: 0.66rem; color: var(--faint); }

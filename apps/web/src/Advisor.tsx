@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import {
   diagnose,
   match,
+  patternCensus,
   readArchetype,
   review,
   suggest,
@@ -103,6 +104,14 @@ export function Advisor({
    */
   const read = useMemo(() => review(deck, pool.index), [deck, pool]);
   const archetype = useMemo(() => readArchetype(deck, pool.index), [deck, pool]);
+  /**
+   * **What this deck can do, in EE's own vocabulary** (EVALUATION §5.1).
+   *
+   * ⚠️ This is the layer everything else is meant to be phrased in. Until now EE could say
+   * a deck "reads as Aggro" and quote doctrine at it, but had no words for its *capabilities*
+   * — so it could not say "no answer to a resolved bomb" without listing cards.
+   */
+  const census = useMemo(() => patternCensus(deck, pool.index), [deck, pool]);
 
   // A complaint is evidence about a CAPABILITY, never about a card — so the answer is a
   // diagnosis with its cost, and candidates come second.
@@ -126,6 +135,26 @@ export function Advisor({
           </p>
           {archetype.matchups && <p className="claim-why">{archetype.matchups}</p>}
           <p className="evidence">{archetype.evidence.join(" · ")}</p>
+
+          {census.length > 0 && (
+            <div className="census">
+              <h3>What it can do</h3>
+              <ul>
+                {census.map((p) => (
+                  <li key={p.pattern}>
+                    <b>{p.label}</b>
+                    <span className="dim">
+                      {" "}
+                      {p.copies} {p.copies === 1 ? "copy" : "copies"}
+                      {p.cards > 1 ? ` across ${p.cards} cards` : ""}
+                    </span>
+                    {/* Three names, never the whole list — the pattern IS the summary. */}
+                    <em title={p.definition}>{p.examples.join(", ")}</em>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {read.notes.length > 0 ? (
             <ul className="claims">
