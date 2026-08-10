@@ -89,13 +89,35 @@ function byName(
 }
 
 /**
+ * Every card this deck physically needs — `deckEntries` plus the Legend.
+ *
+ * ⚠️ **The Legend is counted here and nowhere else in the engine.** `deckEntries` omits it,
+ * so L26/L27 stay silent about Legends exactly as they always have; commitment cannot,
+ * because a Legend is a single piece of cardboard that cannot be in two decks at once. The
+ * asymmetry is deliberate: ownership asks *what may I build*, and a Legend you have not
+ * registered is a gap in the collection rather than an illegal deck — but commitment asks
+ * *what is in a sleeve right now*, and there the Legend is as physical as anything else.
+ */
+function sleeveDemand(deck: Deck, cards: CardIndex): Map<string, number> {
+  const want = new Map<string, number>();
+  const add = (name: string, quantity: number) =>
+    want.set(name, (want.get(name) ?? 0) + quantity);
+  for (const e of deckEntries(deck, cards)) {
+    if (!e.cardId) continue;
+    add(e.name, e.quantity);
+  }
+  if (deck.legendCardId) {
+    add(cards.nameOf(deck.legendCardId) ?? deck.legendCardId, 1);
+  }
+  return want;
+}
+
+/**
  * What this deck asks for that it cannot have, and who has it.
  *
- * ⚠️ **What counts as "in the deck" is `deckEntries`** — every zone including the sideboard
- * (DATA-MODEL §4: sideboard cards are physically present), plus the Chosen Champion, which
- * lives in its own field. **The Legend is deliberately not counted**, because the engine has
- * never counted it as a card you must own either; making commitment stricter than ownership
- * would report a conflict on a card Forge never asked you to have.
+ * ⚠️ **What counts as "in the deck"** is every zone including the sideboard (DATA-MODEL §4:
+ * sideboard cards are physically present), the Chosen Champion, which lives in its own
+ * field, and the Legend — see `sleeveDemand`.
  */
 export function findConflicts(
   deck: Deck,
@@ -103,11 +125,7 @@ export function findConflicts(
   collection: Readonly<Record<string, number>>,
   holdings: readonly Holding[],
 ): Conflict[] {
-  const want = new Map<string, number>();
-  for (const e of deckEntries(deck, cards)) {
-    if (!e.cardId) continue;
-    want.set(e.name, (want.get(e.name) ?? 0) + e.quantity);
-  }
+  const want = sleeveDemand(deck, cards);
 
   const others = holdings.filter((h) => h.deckId !== deck.id);
   const ownedByName = byName(collection, cards);

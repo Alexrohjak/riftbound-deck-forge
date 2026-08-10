@@ -34,8 +34,14 @@ const deck = (id: string, slots: Deck["slots"]): Deck => ({
   slots,
 });
 
-/** Three copies of the card, spread across two arts — one shelf, one name. */
-const OWNED = { "ogn-210-298": 2, "ogn-210a-298": 1, "ogn-030-298": 4 };
+/**
+ * Three copies of the card, spread across two arts — one shelf, one name.
+ *
+ * ⚠️ The Legend is owned here so the other cases isolate what they are testing. It is not
+ * incidental: a Legend counts toward commitment, so a fixture that did not own one would
+ * raise a Legend conflict in every single test.
+ */
+const OWNED = { "ogn-210-298": 2, "ogn-210a-298": 1, "ogn-030-298": 4, "legend-jinx": 1 };
 
 const aggro: Holding[] = [
   { deckId: "aggro", deckName: "Jinx Aggro v2", cardId: "ogn-210-298", quantity: 2 },
@@ -122,6 +128,41 @@ describe("findConflicts", () => {
       { deckId: "aggro", deckName: "Jinx Aggro v2", cardId: "ogn-210-298", quantity: 3 },
     ];
     expect(findConflicts(withChampion, cards, OWNED, heldEntirely)).toHaveLength(1);
+  });
+
+  it("counts the Legend, which is one piece of cardboard like any other", () => {
+    // The rival deck is built on the same Legend, and only one is owned.
+    const heldLegend: Holding[] = [
+      { deckId: "aggro", deckName: "Jinx Aggro v2", cardId: "legend-jinx", quantity: 1 },
+    ];
+    const conflicts = findConflicts(
+      deck("new", []),
+      cards,
+      OWNED,
+      heldLegend,
+    );
+    expect(conflicts).toHaveLength(1);
+    expect(conflicts[0]).toMatchObject({
+      name: "Jinx, the Loose Cannon",
+      want: 1,
+      owned: 1,
+      committed: 1,
+      available: 0,
+    });
+    expect(conflicts[0]!.holders[0]!.deckName).toBe("Jinx Aggro v2");
+  });
+
+  it("leaves the Legend alone when nothing else has it sleeved", () => {
+    expect(findConflicts(deck("new", []), cards, OWNED, [])).toEqual([]);
+  });
+
+  it("does not double-count a Legend against the deck that holds it", () => {
+    const heldLegend: Holding[] = [
+      { deckId: "aggro", deckName: "Jinx Aggro v2", cardId: "legend-jinx", quantity: 1 },
+    ];
+    expect(
+      findConflicts(deck("aggro", []), cards, OWNED, heldLegend),
+    ).toEqual([]);
   });
 
   it("reports a pure shortage with no holders rather than blaming a deck", () => {
