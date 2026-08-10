@@ -19,7 +19,8 @@
     "typecheck": "npm run build -w @forge/engine && npm run typecheck --workspaces --if-present",
     "check:docs": "python3 tools/check-docs.py",
     "check:purity": "node scripts/check-engine-purity.mjs",
-    "check": "npm run check:docs && npm run build"
+    "check": "npm run check:docs && npm run build",
+    "state": "node scripts/pull-state.mjs"
   },
   "devDependencies": {
     "typescript": "^5.7.3",

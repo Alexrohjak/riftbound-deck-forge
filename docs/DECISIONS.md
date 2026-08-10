@@ -70,6 +70,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-059](#d-059) | **Card entry moves into Forge** — a workflow you have to rehearse is one you stop using | ✅ |
 | [D-060](#d-060) | **Forge holds many decks** — starting one and destroying one were the same act | ✅ |
 | [D-061](#d-061) | **Runes are not collected** — Forge believes you always have them | ✅ |
+| [D-062](#d-062) | **`S6` re-gated off `S2`** — the deckbuilding questions need no rules core | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -2431,3 +2432,84 @@ deck forever and a promotion gate that never opens.
 | Enter the 18 rune printings and change nothing | Fixes today's collection, not the model. Every new set's runes would re-open it, and the count would be fiction anyway — nobody counts their runes |
 | Block promotion only on *contention*, warn on shortage | Right instinct, wrong layer — it would have hidden the rune problem behind a softer gate while leaving "12 copies short" on every deck forever |
 | Treat runes as owned by writing rows into the collection | A lie in the one table that is supposed to describe physical reality, and it would corrupt the backup and the spot-check |
+
+---
+
+<a id="d-062"></a>
+
+## D-062 — `S6` is re-gated off `S2`: the deckbuilding questions do not need a rules core
+
+**Date:** 2026-08-10
+**Status:** Accepted — re-gates [`S6`](PLAN.md), amends the dependency in
+[`ROADMAP.md`](ROADMAP.md)
+
+### What prompted it
+
+A conversation about what the finished EE should be. The answer, in Alexander's words: *"a
+conversation with a Riftbound professional"* — and the examples given were **all four
+deckbuilding questions**:
+
+> *"I want a deck that plays around this mechanic"* · *"I like this Legend, what sort of cards
+> go into it"* · *"I have only 1 copy of this really cool card but I want a deck that plays
+> around it"* · *"I hate playing into this Legend, what deck works against it"*
+
+**Not one of them is a combat question.** That distinction is worth a year.
+
+### The observation
+
+`S6` was gated on `S2` (analysis) which is gated on `S1a` (the rules core) — the largest
+single component in the project. That chain is correct for `Q-LINE` and for any answer that
+**counts** refutations, because you cannot know what a card does to another card without
+adjudicating the rules.
+
+It is the wrong chain for deckbuilding. A professional asked *"what beats Diana"* answers
+from identity, signature cards, known patterns and doctrine — **not** by enumerating ten
+thousand cards, which [EVALUATION §2](spec/EVALUATION.md) forbids saying out loud anyway.
+Everything that answer needs already exists: 39,000 words of reference read from primary
+sources, all 49 Legends, all 814 main-deck cards classified, the synergy graph in
+`produces`/`consumes`, legality, statistics, ownership, and the pattern vocabulary.
+
+**What was missing was never knowledge. It was the seam.**
+
+### Decided
+
+- **`S6` is re-gated off `S2` and built now.** Its three deliverables are unchanged — tool
+  surface, export contract, briefing.
+- **Four question tools**: `legend`, `around`, `counter`, `mechanic`.
+- **`npm run state`** pulls live D1 into `state/forge-state.json`, so no answer about
+  ownership is ever built on a stale file or an invented number. Read-only by design: the
+  collection is edited in Forge, where the copy cap lives.
+- **[`EE-BRIEFING.md`](EE-BRIEFING.md)** binds the mouth — the answer budget, the tiering,
+  the never-list, and the rule that matters most: **never author a number**.
+
+### ⚠️ What this does *not* do
+
+`S2` and `S1a` are not cancelled, and the answers that need them stay refused rather than
+guessed:
+
+| Question | Without the rules core |
+|---|---|
+| *"Should I attack here?"* | **Refused.** Already the plan for `S1b` |
+| *"What beats this Legend?"* | Answered as **doctrine**, and labelled — a professional's read of a matchup they have not playtested |
+| *"66 cards refute this"* | Not computable. Also not sayable (§2) |
+
+### ⚠️ The risk this creates, and the control on it
+
+Re-gating puts a language model in front of a rich card pool with no simulator behind it —
+which is exactly the shape of a tool that sounds authoritative and is not. The control is
+structural rather than aspirational: **grounding lines are assembled from tool output**
+([D-045](#d-045)), the tools return data and never prose, and the briefing's first rule is
+that every number in an answer comes from a call actually made.
+
+`legendCounsel` is the clearest case. It deliberately has **no "what this Legend rewards"
+field**, because Legends carry no `consumes` annotations — a computed answer there would be
+a guess in the answer's most important sentence. The tool returns the Legend's printed text
+and the mouth reads [`LEGEND-GUIDE.md`](reference/LEGEND-GUIDE.md).
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Build `S1a` first, as planned | A season of evenings before a single question is answerable, to serve questions that were not asked |
+| Answer deckbuilding questions from the model's own knowledge | It is exactly the failure this project exists to avoid — plausible, ungrounded, and wrong about what is in the boxes |
+| Wait for `S2` and give coarse answers meanwhile | The coarse answer *is* the professional answer for these four questions; `S2` makes a different set possible |

@@ -474,7 +474,7 @@ hand-annotated rather than parsed.
 
 ### S6 — EE's mouth ⭐ **the one that makes EE usable**
 
-**Size:** S · **Gate:** S2 · Replaces the retired `S3` + `S4`
+**Size:** S · **Gate:** ~~S2~~ → **none**, re-gated by [D-062](DECISIONS.md#d-062) · Replaces the retired `S3` + `S4`
 
 > **⚠️ Partly delivered early, and deliberately not by doing `S6`.** *"Get EE into the app"*
 > and `S6` turned out to be different things: `S6` is the **tool contract, export format and

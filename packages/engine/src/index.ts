@@ -81,6 +81,18 @@ export {
   type StrategicPattern,
 } from "./advice/patterns.js";
 export { hasKeyword, leadingKeywords, withoutReminders } from "./text.js";
+export {
+  aroundCounsel,
+  counterCounsel,
+  legendCounsel,
+  mechanicCounsel,
+  ANSWERS,
+  type AroundCounsel,
+  type ByPattern,
+  type CardOption,
+  type CounterCounsel,
+  type LegendCounsel,
+} from "./advice/counsel.js";
 
 /** In-memory `CardIndex`, sufficient for tests and for the static `F2` pool. */
 export { staticCardIndex, type CardEntry } from "./cardIndex.js";

@@ -23,8 +23,8 @@
 |---|---|
 | **Track** | **S — The Strategist (EE)** |
 | **Progress** | **11 of 17** milestones · `D1`–`D3`, `F1`–`F3`, **all of `W`** complete |
-| **🎯 Next** | **`S1a` — the rules engine core.** 🔴 The largest single component in the project: game state, legal actions, combat under Tank/lethal-first/no-overkill, replacement effects, layers. ⚠️ **Rules must be data, not code** — 21 cards rewrite rules an engine would hardcode |
-| **Active** | 🏁 **Nothing in flight — THE WORKBENCH IS DONE.** All five `W` milestones are closed, which is the point the plan marks as *"if the project stopped here it would still be worth having"*. ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone.** Closing it took the **commitment model** (D-017 finally wired end to end), **the Bench**, and **[D-061](DECISIONS.md#d-061) — runes leave the collection**, which was found by building that first deck and discovering it could never be marked as built |
+| **🎯 Next** | **`S6` — EE's mouth**, re-gated off `S2` by [D-062](DECISIONS.md#d-062): the four deckbuilding questions need no rules core. Tool surface, export contract and briefing — then `S1a` for the combat half |
+| **Active** | 🟡 **`S6` — the deckbuilding conversation.** `legend`, `around`, `counter` and `mechanic` answer *"what goes in this Legend"*, *"build around my one copy"*, *"what beats this"* and *"play around this mechanic"* — grounded in the live collection via `npm run state`, with [`EE-BRIEFING.md`](EE-BRIEFING.md) binding the mouth. 🏁 **THE WORKBENCH IS DONE.** All five `W` milestones are closed, which is the point the plan marks as *"if the project stopped here it would still be worth having"*. ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone.** Closing it took the **commitment model** (D-017 finally wired end to end), **the Bench**, and **[D-061](DECISIONS.md#d-061) — runes leave the collection**, which was found by building that first deck and discovering it could never be marked as built |
 | **Blocked** | Nothing. ✅ **X8 closed** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. **Live and proven in production** |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
 | **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve, **commitment**, the `S5` brief and gate) · `apps/web` (935 cards, search, alternate arts, many decks, card entry, import, **the Bench**, **a phone overlay**) · `apps/cli` · `apps/api` (decks + collection + **commitments** + the log + nightly backup) · CI · **246 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
@@ -84,7 +84,7 @@ one complete deck to notice that no deck could ever be marked as built.
 | [`PLAN.md`](PLAN.md) | **The detail** — gates, "done when", how you validate, risks | Per-milestone |
 | [`spec/`](spec/) | **What we're building** — legality, EE, generation, data model | Deep reference |
 | [`reference/`](reference/) | **Riftbound itself** — rules, cards, Legends, battlefields | External facts |
-| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 61 decisions, append-only | Never rewritten |
+| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 62 decisions, append-only | Never rewritten |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | **How it's built** — stack, hosting, verified cost, what's ruled out | Changes rarely |
 
 **Milestone IDs are permanent handles.** Format `PREFIX-N` — the letter says *which track*,

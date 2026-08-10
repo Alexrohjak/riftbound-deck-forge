@@ -53,3 +53,7 @@ Thumbs.db
 
 # Local wrangler/miniflare state — a throwaway SQLite copy of D1, never shared
 .wrangler/
+
+# Live D1 snapshot for EE — ground truth, pulled on demand, never committed.
+# It changes whenever you enter a card, and a stale copy in git would be worse than none.
+state/

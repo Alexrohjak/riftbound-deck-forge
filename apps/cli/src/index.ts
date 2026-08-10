@@ -14,7 +14,11 @@
  */
 import { readFileSync } from "node:fs";
 import {
+  aroundCounsel,
   buildBrief,
+  counterCounsel,
+  legendCounsel,
+  mechanicCounsel,
   checkLegality,
   diagnose,
   read as readLog,
@@ -32,7 +36,7 @@ import {
   type Proposal,
 } from "@forge/engine";
 
-const USAGE = `forge <legality|review|ask|log|brief|validate> <file.json> [options]
+const USAGE = `forge <legality|review|ask|log|brief|validate|legend|around|counter|mechanic> [file.json] [options]
 
   deck.json    a Deck — see docs/spec/DATA-MODEL.md §1
   --pool       apps/web/public/cards.json — the generated index. Easier than --cards:
@@ -69,6 +73,31 @@ const USAGE = `forge <legality|review|ask|log|brief|validate> <file.json> [optio
                Turns a complaint into a diagnosis and a handful of candidates.
                A complaint is evidence about a CAPABILITY, never about a card.
 
+  ── the deckbuilding questions (S6) ──────────────────────────────────────────
+  legend    --legend <cardId>
+            "I like this Legend — what goes in it?" Its own text and identity, the
+            Champions it may choose, everything you own that is legal under it grouped
+            by what the card DOES, and the patterns you own nothing for.
+            ⚠️ What the Legend *rewards* is not computed — read its text and
+            docs/reference/LEGEND-GUIDE.md. A tool that guessed it would be inventing
+            the most important sentence in the answer.
+
+  around    --card <cardId>
+            "I have one copy of this and want a deck around it." Walks the synergy
+            graph both ways: what satisfies what this card asks for, and what wants
+            what it makes. Plus every Legend whose identity admits it.
+
+  counter   --legend <cardId>
+            "I hate playing into this Legend." What that identity CAN do — never what
+            an opponent is likely to hold (no meta data exists) — and, as labelled
+            doctrine with its reasoning, what answers each of those and what you own
+            that does it.
+
+  mechanic  --name <tag>
+            gear_matters | flow | token_matters | trash_matters | hidden | … or a
+            pattern name. Returns both halves: cards that pay the mechanic off, and
+            cards that feed it.
+
 ⚠️ review returns three kinds of claim and they are not interchangeable:
    fact        counted from the list; not arguable
    probability computed, correct GIVEN the assumption in its attribution
@@ -102,11 +131,12 @@ function main(argv: string[]): number {
     process.stdout.write(`${USAGE}\n`);
     return 0;
   }
-  if (!["legality", "review", "ask", "log", "brief", "validate"].includes(command)) {
+  if (!["legality", "review", "ask", "log", "brief", "validate", "legend", "around", "counter", "mechanic"].includes(command)) {
     fail(`Unknown command "${command}".\n\n${USAGE}`);
   }
   // `brief` takes flags rather than a file — there is no document to hand it.
-  if (!deckPath && command !== "brief") fail(`${command} needs an input file.\n\n${USAGE}`);
+  const fileless = ["brief", "legend", "around", "counter", "mechanic"];
+  if (!deckPath && !fileless.includes(command)) fail(`${command} needs an input file.\n\n${USAGE}`);
 
   const flag = (name: string): string | undefined => {
     const at = rest.indexOf(name);
@@ -151,13 +181,75 @@ function main(argv: string[]): number {
     }
   }
 
+  /**
+   * The collection, from any of the three shapes it legitimately arrives in: the state file
+   * `npm run state` writes, the `forge.collection/1` export the app imports, or a bare
+   * `printing -> quantity` map.
+   *
+   * ⚠️ **A wrong shape used to read as an empty collection**, which is the worst possible
+   * failure here: every ownership answer becomes a confident "you own none of that" rather
+   * than an error. It is now an explicit failure, because being told the file is wrong costs
+   * a second and being told you own nothing costs a deck.
+   */
   const collectionPath = flag("--collection");
-  const collection = collectionPath
-    ? ((readJson(collectionPath) as { counts?: Record<string, number> }).counts ??
-      (readJson(collectionPath) as Record<string, number>))
-    : {};
+  let collection: Record<string, number> = {};
+  if (collectionPath) {
+    const raw = readJson(collectionPath) as {
+      counts?: Record<string, number>;
+      collection?: { counts?: Record<string, number> };
+    };
+    const counts =
+      raw.collection?.counts ?? raw.counts ?? (raw as unknown as Record<string, number>);
+    const usable = Object.entries(counts).filter(([, n]) => typeof n === "number" && n > 0);
+    if (usable.length === 0) {
+      fail(
+        `${collectionPath} has no card counts in it. Expected the state file from ` +
+          `\`npm run state\`, a forge.collection/1 export, or a bare { "<printing>": n } map.`,
+      );
+    }
+    collection = Object.fromEntries(usable);
+  }
 
   const cardIndex = staticCardIndex(cards);
+
+  /**
+   * `S6` — the deckbuilding surface. Every one of these returns structured data for the
+   * mouth to reason over (D-043); none of them writes a sentence, because a tool that could
+   * write the sentence could invent it.
+   */
+  if (["legend", "around", "counter", "mechanic"].includes(command)) {
+    const pool: PoolCard[] = Object.entries(cards).map(([cardId, entry]) => ({
+      cardId,
+      facts: typeof entry === "string" ? { name: entry } : entry,
+    }));
+    if (pool.length === 0) fail("No card data. Pass --pool apps/web/public/cards.json.");
+
+    const emit = (value: unknown, missing: string): number => {
+      if (value === null) fail(missing);
+      process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
+      return 0;
+    };
+
+    if (command === "legend" || command === "counter") {
+      const legendCardId = flag("--legend");
+      if (!legendCardId) fail(`${command} needs --legend <cardId>.`);
+      const counsel =
+        command === "legend"
+          ? legendCounsel(legendCardId, cardIndex, pool, collection)
+          : counterCounsel(legendCardId, cardIndex, pool, collection);
+      return emit(counsel, `No card with id "${legendCardId}" in the pool.`);
+    }
+    if (command === "around") {
+      const cardId = flag("--card");
+      if (!cardId) fail("around needs --card <cardId>.");
+      return emit(aroundCounsel(cardId, cardIndex, pool, collection), `No card with id "${cardId}".`);
+    }
+    const name = flag("--name");
+    if (!name) fail("mechanic needs --name <tag>.");
+    const counsel = mechanicCounsel(name, pool, collection);
+    if (!counsel.known) fail(`Nothing in the pool engages "${name}".`);
+    return emit(counsel, "");
+  }
 
   if (command === "brief" || command === "validate") {
     const legendCardId = flag("--legend");
