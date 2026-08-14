@@ -290,7 +290,7 @@ export function App() {
     setName,
     setState,
   } = useDeck(deckId);
-  const { decks, refresh: refreshDecks } = useDecks(deckId);
+  const { decks, failed: decksFailed, refresh: refreshDecks } = useDecks(deckId);
   // `holdings` in this file already means the collection summary — this is the other thing:
   // what every BUILT deck is physically holding.
   const { holdings: sleeved, loaded: commitmentsKnown, refresh: refreshCommitments } = useCommitments();
@@ -1047,6 +1047,7 @@ export function App() {
             <DeckBar
               deck={deck}
               decks={decks}
+              failed={decksFailed}
               pool={pool}
               onOpen={openDeck}
               onRefresh={refreshDecks}

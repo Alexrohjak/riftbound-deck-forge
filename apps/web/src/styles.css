@@ -24,6 +24,15 @@ h2 {
 }
 .of { color: var(--dim); font-weight: 400; font-variant-numeric: tabular-nums; }
 .empty, .fail { color: var(--dim); font-size: 0.85rem; margin: 0; }
+/* ⚠️ Deliberately NOT `.empty`. "Could not read your decks" is the opposite of "you have no
+   decks", and dimming it would restore exactly the confusion this message exists to end. */
+.unread {
+  margin: 0; padding: var(--s2) var(--s3);
+  font-size: 0.78rem; line-height: 1.45; color: var(--ink);
+  background: var(--sunk); border-left: 3px solid var(--alert);
+  border-radius: var(--radius-sm);
+}
+.unread b { color: var(--alert); }
 .fail { color: var(--alert); }
 .boot { max-width: 30rem; margin: 20vh auto; padding: 0 var(--s4); display: grid; gap: var(--s3); }
 
@@ -903,7 +912,11 @@ body.resizing * { pointer-events: none; }
    Anything else leaves a short final row, which reads as a hole in the deck rather than as
    the shape of what is still missing. The Chosen Champion is the fortieth and sits above. */
 .slots.main { grid-template-columns: repeat(13, 1fr); }
-.slots.sideboard { grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); }
+/* Ten cards, and 10 is 2 x 5 — five across is the only grid that comes out flush, the same
+   reason the main deck is 13 and the runes are 6. `auto-fill` sized the columns off the
+   viewport instead, so the sideboard broke into whatever number happened to fit and the last
+   row trailed off ragged. A fixed count fits the panel and fills it. */
+.slots.sideboard { grid-template-columns: repeat(5, 1fr); }
 
 /* Always exactly 12, and only ever two distinct cards — six per row fills the panel
    edge to edge instead of leaving a ragged tail. */

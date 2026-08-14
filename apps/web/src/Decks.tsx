@@ -16,21 +16,65 @@ import { ImportDeck, type DeckImport } from "./ImportDeck.js";
  * `main`; with real decks, "which build went 4-1" is a question the record can answer.
  */
 
+/**
+ * Read the deck list out of a response, or say why it could not be read.
+ *
+ * ⚠️ **A `200` is not proof of an answer.** Cloudflare Access replies to an unauthenticated
+ * request with a `302` to its login page; `fetch` follows redirects, so an expired session
+ * arrives here as **HTTP 200 carrying HTML** and `response.ok` is `true`. The content type is
+ * the only thing that tells the two apart — the same trap [D-058](../../../docs/DECISIONS.md)
+ * documents for `curl`, reached from inside the app instead.
+ *
+ * Exported and pure so it can be tested: there is no DOM test environment here, and the
+ * branch that matters is the one that only happens after a week away.
+ */
+export function readDecks(status: number, contentType: string | null, body: unknown):
+  | { ok: true; decks: DeckSummary[] }
+  | { ok: false; why: string } {
+  if (status === 401 || status === 403) return { ok: false, why: "you are signed out" };
+  if (!(status >= 200 && status < 300)) return { ok: false, why: `the server said ${status}` };
+  if (!(contentType ?? "").includes("json")) return { ok: false, why: "your sign-in has expired" };
+  const decks = (body as { decks?: DeckSummary[] } | null)?.decks;
+  if (!Array.isArray(decks)) return { ok: false, why: "the reply made no sense" };
+  return { ok: true, decks };
+}
+
 export function useDecks(activeId: string) {
   const [decks, setDecks] = useState<DeckSummary[] | null>(null);
+  /**
+   * ⚠️ **Why a failed read is not an empty list.** This used to `catch` into `setDecks([])`,
+   * so a lapsed Access session and *"you have no decks"* rendered identically — an empty
+   * shelf, with nothing on screen suggesting the app had failed to ask. That is what turned
+   * one expired sign-in into three days of believing the decks were gone.
+   */
+  const [failed, setFailed] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
-    fetch("/decks")
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .then((body: { decks: DeckSummary[] }) => setDecks(body.decks))
-      // A failed list must not take the builder down with it — you can still edit the deck
-      // that is open, which is the thing you came to do.
-      .catch(() => setDecks([]));
+    void (async () => {
+      try {
+        const response = await fetch("/decks");
+        // `.json()` throws on the Access login page, which is the point — but it throws a
+        // parse error, so the read is checked before it is attempted.
+        const type = response.headers.get("content-type");
+        const body = (type ?? "").includes("json") ? await response.json() : null;
+        const result = readDecks(response.status, type, body);
+        // A failed list must not take the builder down with it — you can still edit the deck
+        // that is open, which is the thing you came to do. It must, however, say so.
+        if (result.ok) {
+          setDecks(result.decks);
+          setFailed(null);
+        } else {
+          setFailed(result.why);
+        }
+      } catch (error) {
+        setFailed((error as Error).message || "the network did not answer");
+      }
+    })();
   }, []);
 
   useEffect(refresh, [refresh, activeId]);
 
-  return { decks, refresh };
+  return { decks, failed, refresh };
 }
 
 /** Write a deck straight to the API. Used for "new" and "duplicate", which both create. */
@@ -47,12 +91,15 @@ async function create(deck: Deck): Promise<boolean> {
 export function DeckBar({
   deck,
   decks,
+  failed,
   pool,
   onOpen,
   onRefresh,
 }: {
   deck: Deck;
   decks: DeckSummary[] | null;
+  /** Why the list could not be read, if it could not. Never rendered as an empty shelf. */
+  failed: string | null;
   pool: CardPool;
   onOpen: (id: string) => void;
   onRefresh: () => void;
@@ -137,7 +184,14 @@ export function DeckBar({
 
       {open && (
         <div className="decklist">
-          {decks === null && <p className="empty">Reading your decks…</p>}
+          {decks === null && !failed && <p className="empty">Reading your decks…</p>}
+          {failed && (
+            <p className="unread">
+              <b>Could not read your decks</b> — {failed}.
+              {" "}Nothing has been lost: this is the list failing to load, not the decks
+              themselves. Reload the page to sign in again.
+            </p>
+          )}
           {decks?.map((d) => (
             <div key={d.id} className={d.id === deck.id ? "deckrow on" : "deckrow"}>
               <button type="button" className="deckopen" onClick={() => { onOpen(d.id); setOpen(false); }}>
