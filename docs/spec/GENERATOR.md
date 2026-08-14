@@ -171,6 +171,17 @@ The rebuilt deck reports `coreUnits 5` against Riot's 9+ floor while being **32 
 deck have bodies"*, read `review()`'s cross-cutting `units` count. A package delta is about
 allocation, not presence.
 
+### ⚠️ A package floor can be unreachable at the cost you want it
+
+Measured on the Ambessa build: **every cheap `scoring` card in Body + Order is a 2-drop** —
+Gemhand Hunter, Enthralling Protector. The rest cost 5 or 6. So a deck that wants its route to
+points online *early* is forced to be 2-heavy, and the curve note fires at 35% no matter how
+carefully the rest is spread.
+
+**That is a property of the card pool, not of the build.** The right response is to say so and
+leave it, not to shuffle filler in until the number goes green — a deck tuned to satisfy a
+measurement is the failure this whole document is about, wearing the measurement as a disguise.
+
 ### 🌶️ Why EE does not pick the spice
 
 `01` calls the off-meta card *"the most important part in your ingredients"* — a card the
@@ -373,6 +384,27 @@ a different costume, reported as independent confirmation.
 
 ⚠️ **Neither yardstick is the verdict.** The gap between them is the finding, and judging it
 is the builder's job — [D-016](../DECISIONS.md#d-016) still forbids a score.
+
+### ⚠️ 6.4b What the second yardstick is for — a worked example
+
+On the rebuild, the plan's own `engine` band was written at 10–14, deliberately narrower than
+the 12–18 that had excused the previous deck, with this in its attribution:
+
+> *"If the second yardstick still calls this generous, that is the finding rather than an
+> argument to widen it again."*
+
+It did. The deck came back `engine 17` — over on **both** yardsticks. Cards were cut rather
+than the band widened, and the cut was decided by **reading**: `Escaped Grayback`'s Empower
+cost is *killing a friendly unit*, which is actively wrong in a deck whose plan is keeping
+bodies on battlefields.
+
+**That is the loop working.** The yardstick does not decide anything — it made the disagreement
+impossible to not notice, and the judgement stayed with the builder.
+
+⚠️ **What it still cannot do:** the final deck reads `engine 13` against `fast-hold`'s 8–10,
+and that gap was *accepted* on the argument that `[Empower]` is once-per-unit so the count must
+run high. That argument may be wrong. The yardstick can show a disagreement; it cannot referee
+one.
 
 ### 6.5 Disclosure is structural
 

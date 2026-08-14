@@ -153,6 +153,45 @@ conquers or holds, and what each package is for. See [`GENERATOR §2`](spec/GENE
 > Being asked four questions to restate what he just said is not a conversation, and
 > [D-041](DECISIONS.md#d-041) is satisfied by *reading* his objective, not by making him pick
 > it off a list. **The menu is the fallback for a missing plan, never the front door.**
+>
+> ### ⚠️ Naming cards and mechanics is NOT stating an intent
+>
+> This rule was written, and then broken on the next deck. He said: *"an Ambessa deck that
+> focuses on Respected and Feared, I really like her legend ability and the way Profiteer
+> bounces empowerments."* That is a **seed** — a Legend, a card, a mechanic he enjoys. It says
+> nothing about **`pace × objective`**, which is what a plan needs.
+>
+> Reading it as intent, EE picked `conquer`, silently switched to `hold` on the rebuild, and
+> never showed him a choice at all. His words: *"you didn't do what you said the EE was going
+> to do, split the deck planning into different ideas if none are presented."*
+>
+> **The test is mechanical, so apply it mechanically.** Do you know the pace? Do you know
+> conquer or hold? If either answer is no, **you have a seed and not a plan** — offer two or
+> three genuinely distinct directions the collection supports, with the owned counts behind
+> each and the honest weakness of each, and let him pick. Enthusiasm about a card is not a
+> game plan, and treating it as one is how EE ends up choosing the objective
+> [D-041](DECISIONS.md#d-041) says is his.
+
+### ⚠️ Read the card. Do not build from the tag.
+
+The tools return tags — `[Hunt]`, `[Empower]`, `produces: pump`. A tag says a card is *in a
+family*. It does not say what the card does, and a deck assembled from families is a deck
+nobody has read.
+
+Two cards shipped in one Ambessa build, both caught only by opening them afterwards:
+
+| Card | The tag said | The text said |
+|---|---|---|
+| **Cruel Patron** | 4-cost 6-Might body, fills the curve | *"As an additional cost to play me, **kill a friendly unit**."* Three copies, in a deck whose plan was holding battlefields with bodies |
+| **Reckoner's Arena** | hold trigger, one-sided, suits a hold deck | *"Activate the **conquer** effects of units here."* `[Hunt]` already triggers on hold, so the stated reason for registering it was simply wrong |
+
+⚠️ **The reading is also where the deck is actually found.** The same pass turned up that
+`[Empower]` is **once per unit** — *"use only if not Empowered"* — so an empower engine is far
+hungrier than the card count suggests; and that XP is not Hunt flavour but a **Level economy**
+with thresholds at 3, 6 and 11. Neither is visible from a tag, and both changed the build.
+
+**Before a card goes in, you must be able to say what it does in a sentence that is not its
+tag.** If the only reason it is there is that it matched a search, it is filler.
 
 ### ⚠️ A deck you propose gets checked, not just validated — and the check runs itself
 
