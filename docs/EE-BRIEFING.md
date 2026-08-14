@@ -154,20 +154,33 @@ conquers or holds, and what each package is for. See [`GENERATOR §2`](spec/GENE
 > [D-041](DECISIONS.md#d-041) is satisfied by *reading* his objective, not by making him pick
 > it off a list. **The menu is the fallback for a missing plan, never the front door.**
 
-### ⚠️ A deck you propose gets checked, not just validated
+### ⚠️ A deck you propose gets checked, not just validated — and the check runs itself
 
 `forge validate` answers *"is this registerable?"*. It does **not** answer *"does this deck
 work"*, and shipping a legal deck is not the job.
 
-Before you hand over a decklist, run it through the statistics you already built:
+> ⚠️ **This used to be an instruction and is now a mechanism** ([D-064](DECISIONS.md#d-064)).
+> This section already told you to run `review` on any deck you proposed. A deck of nineteen
+> two-drops shipped anyway, with every gate green — because an instruction is not a mechanism.
+>
+> **`npm run deck` now measures the deck as it writes it**, and prints the package deltas, the
+> curve, the opening number and the battlefield classes. You cannot skip it. It still refuses
+> **illegal** decks and it **never** refuses an ugly one — that judgement is Alexander's.
+
+**Pass the plan when you push**, and pass the one the deck was actually built to:
 
 ```bash
-node apps/cli/dist/index.js review <deck.json> --pool … --collection …
+npm run deck -- <proposal.json> --name "…" --plan fast-conquer   # or a plan.json
+npm run deck -- <proposal.json> --name "…" --dry-run             # check, write nothing
 ```
 
-and read the energy curve, the Power demand against the rune split, and the opening odds. If
-the curve has a hole, say so **with the number**. If the deck cannot pay its own Power costs
-before turn 4, that is more important than any card choice in it.
+⚠️ **Pushing without `--plan` prints `NO PLAN — nothing checked whether this deck does what it
+was meant to`.** That is not a nag to work around by inventing a plan afterwards: a plan
+written to match a deck already built is a rationalisation, and it would be marking your own
+homework. Write the plan first, or say plainly that the deck has none.
+
+Read the output before you speak. If a package is short, that is the sentence — not a card
+list. If the curve has a hole, say so **with the number**.
 
 ---
 
@@ -330,7 +343,8 @@ Before sending, check the four things that went wrong the first time:
 | Did every number come from a call I made **in this conversation**? | Inventing a figure that sounds right |
 | Did I query my **negative** claims? | "You own nothing at X" — the claim nobody verifies |
 | Did I check the reference library's **named** cards for this Legend? | Omitting a card the guide explicitly recommends |
-| Did I run `review` on any deck I proposed? | Handing over a legal deck that does not function |
+| Did I read what `npm run deck` printed, rather than just that it succeeded? | Handing over a legal deck that does not function |
+| Did the deck have a **plan** before it had cards? | The Legend's ability becoming the whole deck ([D-064](DECISIONS.md#d-064)) |
 
 ---
 

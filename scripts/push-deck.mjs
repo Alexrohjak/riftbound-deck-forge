@@ -8,6 +8,8 @@
  * deck back.
  *
  *     npm run deck -- <proposal.json> --name "Grand Duelist vs Ivern"
+ *     npm run deck -- <proposal.json> --name "…" --plan fast-conquer   # or a plan.json
+ *     npm run deck -- <proposal.json> --name "…" --dry-run             # check, write nothing
  *     npm run deck -- <proposal.json> --name "…" --replace          # overwrite that deck
  *     npm run deck -- <proposal.json> --name "…" --id fiora-v2      # pick the id yourself
  *
@@ -28,13 +30,35 @@
  * registered. **Ownership is a warning, not a bar** — a sideboard is allowed to name cards
  * you do not own yet, because "go and get this one" is a real answer.
  *
+ * ⚠️ **It measures the deck and says so, every time** (D-064). This is where "the loop forces
+ * the measurement" actually happens: the briefing used to *ask* the mouth to run `review`, and
+ * an instruction is not a mechanism — the deck that started all of this shipped with every
+ * gate green because nobody ran it. The check now happens here, where the deck is written,
+ * and cannot be skipped.
+ *
+ * ⚠️ **It never refuses an ugly deck.** Thresholds like "needs 6 removal" are contested
+ * doctrine, and refusing on them would put opinion in the engine and edge toward the grading
+ * D-016 forbids. It refuses **illegal** decks and discloses everything else — including, and
+ * especially, that a deck arrived with no plan at all.
+ *
  * ⚠️ Uses `wrangler d1 execute --remote`, so it needs the same auth `npm run deploy` does.
  */
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { checkLegality, staticCardIndex, cardFactsFrom } from "../packages/engine/dist/index.js";
+import {
+  checkLegality,
+  staticCardIndex,
+  cardFactsFrom,
+  planFromSkeleton,
+  reviewAgainstPlan,
+  reviewBattlefields,
+  review,
+  simulateMulligans,
+  skeletonById,
+  SKELETONS,
+} from "../packages/engine/dist/index.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -74,7 +98,40 @@ if (!proposalPath) {
 
 const proposal = JSON.parse(readFileSync(proposalPath, "utf8"));
 const name = flag("--name") ?? proposal.name ?? "EE proposal";
+
+/**
+ * D-064 — what this deck was built to do.
+ *
+ * ⚠️ A **plan file is the normal case**, a skeleton id the convenience. EE's entry point is a
+ * sentence and usually carries the intent already, so most plans are written from what was
+ * asked for rather than picked off a menu (`GENERATOR §2`).
+ */
+const planArg = flag("--plan") ?? (proposal.plan ? "inline" : undefined);
+let plan;
+if (planArg === "inline") plan = proposal.plan;
+else if (planArg) {
+  const skeleton = skeletonById(planArg);
+  if (skeleton) plan = planFromSkeleton(skeleton);
+  else {
+    plan = JSON.parse(readFileSync(planArg, "utf8"));
+    if (!plan?.packages || typeof plan.closerFrom !== "number") {
+      process.stderr.write(
+        `"${planArg}" is neither a skeleton id (${SKELETONS.map((s) => s.id).join(", ")}) ` +
+          `nor a plan file with "packages" and "closerFrom" — see docs/spec/GENERATOR.md §2.\n`,
+      );
+      process.exit(2);
+    }
+  }
+}
 const replace = argv.includes("--replace");
+/**
+ * ⚠️ **`--dry-run` exists because this writes to the only database there is.**
+ *
+ * Everything up to the write runs — the 33 checks, the plan read, the mulligan number — and
+ * then nothing is sent. A script aimed at production that cannot be exercised without
+ * touching production is a script that gets tested in production.
+ */
+const dryRun = argv.includes("--dry-run");
 const slug = (s) =>
   s
     .toLowerCase()
@@ -130,17 +187,71 @@ if (!verdict.legal) {
 }
 for (const w of verdict.warnings ?? []) process.stdout.write(`  ⚠️  ${w.check} — ${w.message}\n`);
 
+// ── the measurement (D-064) ─────────────────────────────────────────────────
+/**
+ * ⚠️ **This runs whether or not it is wanted, and it never blocks the write.**
+ *
+ * The briefing already told the mouth to run `review` on any deck it proposed. It shipped a
+ * deck of nineteen two-drops anyway, because an instruction is not a mechanism. Putting the
+ * measurement where the deck is *written* is the whole of the fix.
+ */
+const pct = (n) => `${Math.round(n * 100)}%`;
+const out = (line) => process.stdout.write(`${line}\n`);
+
+out("");
+if (plan) {
+  const read = reviewAgainstPlan(deck, plan, index);
+  out(`  plan · ${plan.origin} — "${plan.winCondition}"`);
+  for (const d of read.packages) {
+    const band = d.target.max === undefined ? `${d.target.min}+` : `${d.target.min}–${d.target.max}`;
+    const mark = d.within ? "✓" : d.delta > 0 ? `+${d.delta}` : `${d.delta}`;
+    out(`    ${d.package.padEnd(12)} ${String(d.actual).padStart(3)}  target ${band.padEnd(6)} ${mark}`);
+  }
+  const big = read.curve.largestBucket;
+  out(`    curve        ${big.count} of ${read.curve.curve.reduce((a, b) => a + b, 0)} at cost ${big.energy} (${pct(big.share)})${read.curve.holes.length ? ` · nothing at ${read.curve.holes.join(", ")}` : ""}`);
+  if (read.unmeasurableRewards.length > 0) {
+    out(`    ⚠️  engine is a FLOOR — ${read.unmeasurableRewards.join(", ")} could not be measured`);
+  }
+  for (const n of read.notes) out(`    · ${n.claim}`);
+} else {
+  /**
+   * ⚠️ **A missing plan is disclosed, not defaulted.** Inventing one to measure against would
+   * be marking the deck's own homework, and D-041 puts the objective with the builder — so
+   * the honest output is that nothing checked whether this deck does what it was meant to.
+   */
+  out(`  ⚠️  NO PLAN — nothing checked whether this deck does what it was meant to.`);
+  out(`      Pass --plan <${SKELETONS.map((s) => s.id).join("|")}> or a plan.json.`);
+  for (const n of review(deck, index).notes) out(`    · ${n.claim}`);
+}
+
+const mull = simulateMulligans(deck, index);
+if (mull.hands > 0) {
+  out(`    openings     ${pct(mull.atMostOnePlayable)} with at most one card castable by turn 3`);
+}
+
+const bf = reviewBattlefields(deck, index, new Set((plan?.battlefields ?? []).map((b) => b.cardId)));
+out(`    battlefields ${bf.registered.map((b) => `${b.name} (${b.class})`).join(" · ") || "none"}`);
+if (!bf.varied) out(`    ⚠️  all three pay out on "${bf.sharedTrigger}" — only one is used per game`);
+for (const b of bf.unjustified) {
+  out(`    ⚠️  ${b.name} is symmetric with no stated reason — it helps whoever exploits it harder`);
+}
+out("");
+
 // ── the write ───────────────────────────────────────────────────────────────
 const q = (s) => `'${String(s).replace(/'/g, "''")}'`;
 const statements = [
   `DELETE FROM deck_slots WHERE deck_id = ${q(id)};`,
-  `INSERT INTO decks (id, name, state, legend_card_id, chosen_champion_card_id, updated_at)
-     VALUES (${q(id)}, ${q(name)}, 'DRAFT', ${q(deck.legendCardId)}, ${q(deck.chosenChampionCardId)}, datetime('now'))
+  // ⚠️ `plan` is written only when one was given, and the UPDATE branch leaves it alone
+  // otherwise — the same rule the API's PUT follows. Re-pushing a deck without naming its
+  // plan must not silently discard the plan it already had.
+  `INSERT INTO decks (id, name, state, legend_card_id, chosen_champion_card_id, plan, updated_at)
+     VALUES (${q(id)}, ${q(name)}, 'DRAFT', ${q(deck.legendCardId)}, ${q(deck.chosenChampionCardId)}, ${plan ? q(JSON.stringify(plan)) : "NULL"}, datetime('now'))
    ON CONFLICT(id) DO UPDATE SET
      name = excluded.name,
      state = 'DRAFT',
      legend_card_id = excluded.legend_card_id,
      chosen_champion_card_id = excluded.chosen_champion_card_id,
+     ${plan ? "plan = excluded.plan," : ""}
      updated_at = datetime('now');`,
   ...slots.map(
     (s) =>
@@ -154,6 +265,13 @@ const statements = [
  * deck you own is exactly where a silent clobber would live. Counting rows either side costs
  * one query and turns a belief into a check.
  */
+if (dryRun) {
+  process.stdout.write(
+    `  ✓ dry run — nothing written. Would ${overwriting ? "replace" : "add"} "${name}" (${id}).\n`,
+  );
+  process.exit(0);
+}
+
 const before = Object.fromEntries(
   d1(`SELECT deck_id, COUNT(*) AS n FROM deck_slots GROUP BY deck_id;`).map((r) => [r.deck_id, r.n]),
 );
