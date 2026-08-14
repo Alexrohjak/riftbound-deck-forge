@@ -101,6 +101,36 @@ const entries = [...byName].map(([name, group]) => {
   const base = ordered[0];
   const superTypes = [...new Set(group.flatMap((c) => c.superTypes))].sort();
 
+  /**
+   * ⚠️ **`[NO TEXT]` is a placeholder, not rules text.** Six printings carry it — the
+   * Vendetta promo Runes — and it is nine characters long, so "the fullest wording" would
+   * otherwise print it on every basic Rune in place of the blank the card actually has.
+   */
+  const rules = (card) => (/^\s*\[no text\]\s*$/i.test(card.text ?? "") ? "" : card.text ?? "");
+
+  /**
+   * **Text comes from the fullest printing, not the base one.**
+   *
+   * Reprints and promos routinely drop the parenthesised reminder that explains a keyword —
+   * `VEN-SP1` prints Kai'Sa as "[Accelerate] When I conquer, draw 1." where `OGN-039` spells
+   * out what Accelerate costs. The short form is the same card wearing fewer words, and the
+   * long form is the one worth indexing and worth remembering.
+   *
+   * It changes 4 of 935 cards, because the original printings usually *were* the fullest —
+   * this makes that a rule rather than a coincidence, which is what matters when the next
+   * set lands. Two of the four are outright corrections the old choice was missing: Sona
+   * reads "ready **up to** 4 friendly runes", and Void Burrower "banish one, **then play
+   * it**".
+   *
+   * ⚠️ **Safe for the engine, and checked rather than assumed.** `text` feeds `[Unique]`
+   * (L13's copy-limit override) and `leadingKeywords`. No name's printings disagree on
+   * `[Unique]` at all, and `leadingKeywords` reads only the leading run and steps over
+   * reminders — so the extra words cannot invent a keyword. Exactly one card's keywords
+   * change: the **Gold** token gains `[Reaction]`, because the newer templating leads with
+   * it. That one is a correction too.
+   */
+  const fullest = ordered.reduce((best, c) => (rules(c).length > rules(best).length ? c : best), base);
+
   const entry = {
     name,
     // Where this card sits in the sequence of everything ever printed.
@@ -112,7 +142,7 @@ const entries = [...byName].map(([name, group]) => {
     superTypes,
     domains: base.domains,
     tags: base.tags,
-    text: base.text,
+    text: rules(fullest),
     // Battlefields are the only landscape cards — 66 of 1,180. Carried explicitly rather
     // than inferred from the type, so a future landscape non-battlefield does not silently
     // get drawn cropped in half.

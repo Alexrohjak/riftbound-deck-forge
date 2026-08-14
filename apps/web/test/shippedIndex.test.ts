@@ -6,16 +6,17 @@ import { parseEntry } from "../src/AddCards.js";
 import { buildPool } from "../src/cards.js";
 
 /**
- * The entry parser against the **real** index, rather than a fixture.
+ * The **real** index, rather than a fixture.
  *
- * ⚠️ **This exists because a fixture cannot catch the bug it was written for.** The six
+ * ⚠️ **This exists because a fixture cannot catch the bugs it was written for.** The six
  * `VEN-SP` promo Champions had no input that reached them — `SP3` did not parse, and `3`
  * was padded into `VEN-003`, a different card, registered without complaint. Every unit
  * test passed throughout, because every fixture used the code shape the parser already
  * handled. Only the shipped card data contains the shapes nobody thought of.
  *
  * It is deliberately coupled to the generated `cards.json`: a new set that prints a code
- * shape this parser cannot express is precisely the thing worth failing on.
+ * shape the parser cannot express, or a placeholder the merge mistakes for rules text, is
+ * precisely the thing worth failing on.
  */
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -58,5 +59,29 @@ describe("entry against the shipped card index", () => {
       "VEN-SP5/006",
       "VEN-SP6/006",
     ]);
+  });
+});
+
+/** D-063 — text comes from the fullest printing, and a placeholder is not text. */
+describe("which wording the index carries", () => {
+  it("⚠️ never ships the [NO TEXT] placeholder as rules text", () => {
+    // Six printings carry it — the Vendetta promo Runes — and it is nine characters long,
+    // so "the fullest wording" selects it over the blank the card actually has unless it is
+    // normalised away first. The failure is silent and looks like a card that does something.
+    const placeholder = index.cards.filter((c) => /\[no text\]/i.test(c.text)).map((c) => c.name);
+    expect(placeholder).toEqual([]);
+    expect(index.cards.find((c) => c.name === "Fury Rune")?.text).toBe("");
+  });
+
+  it("takes the printing that explains itself, not the one that drops the reminder", () => {
+    // VEN-SP1 prints this as "[Accelerate] When I conquer, draw 1." — same card, fewer words.
+    expect(index.cards.find((c) => c.name === "Kai'Sa, Survivor")?.text).toContain(
+      "as an additional cost to have me enter ready",
+    );
+  });
+
+  it("picks up the corrections the base printing was missing", () => {
+    expect(index.cards.find((c) => c.name === "Sona, Harmonious")?.text).toContain("up to 4");
+    expect(index.cards.find((c) => c.name === "Void Burrower")?.text).toContain("banish one");
   });
 });

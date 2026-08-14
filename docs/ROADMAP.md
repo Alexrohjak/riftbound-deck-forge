@@ -25,9 +25,9 @@
 | **Progress** | **11 of 17** milestones · `D1`–`D3`, `F1`–`F3`, **all of `W`** complete |
 | **🎯 Next** | **`S6` — EE's mouth**, re-gated off `S2` by [D-062](DECISIONS.md#d-062): the four deckbuilding questions need no rules core. Tool surface, export contract and briefing — then `S1a` for the combat half |
 | **Active** | 🟡 **`S6` — the deckbuilding conversation.** `legend`, `around`, `counter` and `mechanic` answer *"what goes in this Legend"*, *"build around my one copy"*, *"what beats this"* and *"play around this mechanic"* — grounded in the live collection via `npm run state`, with [`EE-BRIEFING.md`](EE-BRIEFING.md) binding the mouth. **Built, not yet proven**: the gate is you reading real answers and saying which you would act on |
-| **Blocked** | 🛑 **The Workbench is showing no decks** (2026-08-11, unresolved) — data verified intact in D1, so this is the client. The unrun diagnostic and the rollback version are in the README's **Start here**. ✅ **X8 closed** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. **Live and proven in production** |
+| **Blocked** | Nothing. ✅ **The "no decks" blocker stopped reproducing** (2026-08-14) — the Fiora deck opens; nothing was changed to make it, so the cause is still unknown and both candidates are in the README's **Start here**. ✅ **X8 closed** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. **Live and proven in production** |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
-| **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve, **commitment**, the `S5` brief and gate) · `apps/web` (935 cards, search, alternate arts, many decks, card entry, import, **the Bench**, **a phone overlay**) · `apps/cli` (+ the four `S6` question tools) · `apps/api` (decks + collection + **commitments** + the log + nightly backup) · CI · **353 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
+| **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve, **commitment**, the `S5` brief and gate) · `apps/web` (935 cards, search, alternate arts, many decks, card entry, import, **the Bench**, **a phone overlay**) · `apps/cli` (+ the four `S6` question tools) · `apps/api` (decks + collection + **commitments** + the log + nightly backup) · CI · **356 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
 
 ```
 D ─ Design         ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete
@@ -84,7 +84,7 @@ one complete deck to notice that no deck could ever be marked as built.
 | [`PLAN.md`](PLAN.md) | **The detail** — gates, "done when", how you validate, risks | Per-milestone |
 | [`spec/`](spec/) | **What we're building** — legality, EE, generation, data model | Deep reference |
 | [`reference/`](reference/) | **Riftbound itself** — rules, cards, Legends, battlefields | External facts |
-| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 62 decisions, append-only | Never rewritten |
+| [`DECISIONS.md`](DECISIONS.md) | **Why this way** — 63 decisions, append-only | Never rewritten |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | **How it's built** — stack, hosting, verified cost, what's ruled out | Changes rarely |
 
 **Milestone IDs are permanent handles.** Format `PREFIX-N` — the letter says *which track*,

@@ -71,6 +71,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-060](#d-060) | **Forge holds many decks** — starting one and destroying one were the same act | ✅ |
 | [D-061](#d-061) | **Runes are not collected** — Forge believes you always have them | ✅ |
 | [D-062](#d-062) | **`S6` re-gated off `S2`** — the deckbuilding questions need no rules core | ✅ |
+| [D-063](#d-063) | **Rules text comes from the fullest printing** — promos drop the reminders that explain a keyword | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -2513,3 +2514,78 @@ and the mouth reads [`LEGEND-GUIDE.md`](reference/LEGEND-GUIDE.md).
 | Build `S1a` first, as planned | A season of evenings before a single question is answerable, to serve questions that were not asked |
 | Answer deckbuilding questions from the model's own knowledge | It is exactly the failure this project exists to avoid — plausible, ungrounded, and wrong about what is in the boxes |
 | Wait for `S2` and give coarse answers meanwhile | The coarse answer *is* the professional answer for these four questions; `S2` makes a different set possible |
+
+---
+
+<a id="d-063"></a>
+
+## D-063 — A card's rules text comes from its **fullest** printing, not its base printing
+
+**Date:** 2026-08-14
+**Status:** Accepted — changes `scripts/build-card-index.mjs`, amends the merge rule set by
+[D-047](#d-047)'s one-index principle
+
+### What prompted it
+
+Alexander, on finding Vendetta's `SP` promos: *"Alternate arts contain short form tags,
+without the explanations. For cards that have multiple arts like this, keep them separate,
+but use the longest and most detailed card description for ease of indexing and
+remembering."*
+
+He is describing a real and consistent property of the data. Reprints and promos routinely
+drop the parenthesised reminder that explains a keyword. `VEN-SP1` prints Kai'Sa as
+*"[Accelerate] When I conquer, draw 1."*; `OGN-039` spells out what Accelerate costs. Same
+card, fewer words.
+
+### The observation
+
+**82 of 935 names have printings whose text disagrees.** 64 of those differ *only* by the
+parenthetical — precisely the short-form/long-form split described. The remaining 18 differ
+in the rules sentence itself, and in every one of them the longer text is the more
+informative, with no meaning lost.
+
+The index took `text` from the base printing, which is the earliest set in release order.
+That got the fullest wording **78 times out of 82 by luck** — the original printings usually
+were the fullest. This makes it a rule instead, which is what matters when the next set
+lands and the coincidence stops holding.
+
+### What it changes
+
+Four cards of 935, two of them outright corrections the old choice was missing:
+
+| Card | Was | Now |
+|---|---|---|
+| **Sona, Harmonious** | *"ready 4 friendly runes"* | *"ready **up to** 4 friendly runes"* |
+| **Void Burrower** | *"You may play one. Then recycle the rest."* | *"You may **banish** one, then play it."* |
+| **Emperor of the Sands** | no reminder | gains the `[Equip]` reminder explaining Weaponmaster |
+| **Gold** (token) | `[Reaction]` mid-sentence | newer templating, `[Reaction]` leads |
+
+**Printings stay separate.** This decides only which wording the *card* carries; every art
+remains individually selectable per deck slot, which is what makes the tray draw the
+printing you picked.
+
+### ⚠️ Why this is safe for the engine, checked rather than assumed
+
+`text` is not decoration — it feeds `[Unique]`, which overrides L13's three-copy limit, and
+`leadingKeywords`, which decides what a card *has*.
+
+- **No name's printings disagree on `[Unique]` at all** — 0 of 935. The copy limits cannot move.
+- **`leadingKeywords` reads only the opening run and steps over reminders** ([`text.ts`](../packages/engine/src/text.ts)), so the extra words cannot invent a keyword. Bloodharbor Ripper's longest printing quotes `[Reaction]` inside a parenthetical and is still correctly read as having none.
+- Exactly **one** card's keywords change: the **Gold** token gains `[Reaction]`, because the newer templating leads with it. That is a correction, and Gold is a token, which can never be registered or decked.
+
+### ⚠️ `[NO TEXT]` is a placeholder, not a rules text
+
+Six printings — the Vendetta promo Runes `VEN-R01`–`R06` — carry the literal string
+`[NO TEXT]`. It is nine characters long, so "the fullest wording" selects it over the blank
+the card actually has, and every basic Rune would print a placeholder. It is normalised to
+empty before any length is compared, and a test asserts no card in the shipped index carries
+it.
+
+**Alternatives considered:**
+
+| Option | Rejected because |
+|---|---|
+| Keep taking text from the base printing | Silently ships superseded wording, and only worked by coincidence |
+| Take text from the *newest* printing | The newest is often the promo, which is the one with the explanations stripped |
+| Split short-form and long-form into separate cards | They are the same card. Splitting them doubles the copy-limit surface, which [DATA-MODEL §2](spec/DATA-MODEL.md) calls the worst failure available |
+| Concatenate every printing's wording | Produces text no card has ever borne, in a project whose rule is that the rulebook and the print are the only authorities |

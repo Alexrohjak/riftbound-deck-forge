@@ -43,36 +43,34 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here — how to pick this up
 
-*Last worked on 2026-08-11. This section is the recipe; the live status board is
+*Last worked on 2026-08-14. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
-> ## 🛑 Do this first — the Workbench is showing no decks
+> ## ✅ The "no decks" blocker stopped reproducing — cause never found
 >
-> **Reported 2026-08-11, unresolved. Pick this up before anything else.** After the night's
-> five commits, opening the app showed **no saved decks and nothing would open**. Diagnosis got
-> as far as this and stopped:
+> **Reported 2026-08-11, cleared 2026-08-14 without a fix.** Alexander opened Forge and the
+> Fiora deck (`grand-duelist-vs-ivern`) was there. Nothing was changed to make that happen, so
+> this is **stopped reproducing, not fixed**, and it is written down that way on purpose.
 >
-> **The data is fine — this is the client, not the database.** Verified directly in D1 at
-> 22:21 UTC: `grand-duelist-vs-ivern` (39 main + champion · 12 runes · 3 battlefields · 10
-> sideboard) and `main` / "First deck" (12 runes). Both rows sane, `listDecks` reads them.
-> **Do not re-import or rebuild anything on the assumption decks were lost.**
+> The data was never the problem — verified intact in D1 throughout. The diagnostic that would
+> have named the cause was never run: nobody saw what the app rendered or what the console
+> said, because the app sits behind Cloudflare Access and signing in is not something the
+> assistant does.
 >
-> **The unrun diagnostic:** what the app actually renders — blank page or empty list — and any
-> console error. Nobody has seen it. The browser could not be driven from here because the app
-> sits behind Cloudflare Access and signing in is not something the assistant does.
+> **Two candidates, both consistent with it clearing on its own**, and both worth knowing
+> because either would do it again:
 >
-> **The suspicion, unproven:** the night's commits changed `packages/engine`, which the web app
-> bundles. `apps/web/src/Advisor.tsx` imports both `capabilities` and `review`, and
-> `capabilities` changed (`danglingSynergies` now skips unmodelled tags). Typecheck, 347 tests
-> and the build gate are all green, so there is no failing signal — which is itself worth
-> distrusting.
+> - **A stale bundle in that tab.** [`version.ts`](apps/web/src/version.ts) exists because of
+>   exactly this and *offers* a reload rather than forcing one.
+> - **A lapsed Access session.** Access answers an unauthenticated request with a `302` to its
+>   login page; follow it and you get `200` with HTML, so `r.ok` passes and `r.json()` throws.
+>   `useDecks` ([`Decks.tsx`](apps/web/src/Decks.tsx)) funnels every failure into `setDecks([])`
+>   — **a broken fetch and "you own no decks" render identically.** That catch is right to keep
+>   the builder alive, but it should say *"could not read your decks"* rather than show an
+>   empty shelf. ⚠️ **This is the one thing here still worth fixing**, because it is what made
+>   an ordinary session expiry look like data loss.
 >
-> **Rollback, if the app is wanted working before the cause is found:**
-> `npx wrangler rollback 32ebcf2c-a7aa-4aba-9a07-d5c55d55c8a8` from `apps/api` — deployed
-> 19:24 UTC, the last version before any of the night's changes. Decks live in D1 and are
-> untouched by a rollback. It costs the night's engine fixes until redeployed.
->
-> ### Two other loose ends
+> ### Two loose ends still open
 >
 > ⚠️ **"First deck" was emptied mid-session and nobody knows by what.** `deck_history` shows it
 > go **17 slots → 4 → 2 in seven seconds at 22:13:28–35 UTC** — three minutes after the first
@@ -83,7 +81,8 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 > an explanation is not a closed question.
 >
 > ⚠️ **Nobody has seen the Sideboard bay render.** The ten cards round-trip through D1
-> correctly; whether `Workshop.tsx` draws them has still only been verified in code.
+> correctly; whether `Workshop.tsx` draws them has still only been verified in code. Seeing the
+> Fiora deck open does not settle this — the bay is a separate surface.
 
 **Where things stand.** 🔓 The whole design track is done and `DESIGN LOCKED` has lifted.
 ✅ **`F1`, `F2` and `F3` are all closed** — Forge is live, private, deploys itself on every push
@@ -163,7 +162,7 @@ grounding lines; and **editing requires connectivity** — offline you can look 
 ### 3 · Run the workspace
 
 `packages/engine` is the real thing — pure TypeScript, ⚖️ **all 33 legality checks**,
-the energy curve, commitment, the log's honesty thresholds, 353 tests:
+the energy curve, commitment, the log's honesty thresholds, 356 tests:
 
 ```bash
 npm install
@@ -354,7 +353,7 @@ system map and **where to put a new idea**.
 | [`docs/roadmap.html`](docs/roadmap.html) | The same roadmap, rendered. Download and open in a browser |
 | [**`docs/spec/OVERVIEW.md`**](docs/spec/OVERVIEW.md) | **System map — how everything relates, and where new ideas go. Read before adding a feature.** |
 | [`docs/PLAN.md`](docs/PLAN.md) | The detail layer — gates, "done when", validation and risks |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 62 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 63 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
 | [**`docs/EE-BRIEFING.md`**](docs/EE-BRIEFING.md) | **What binds EE when it answers — the answer budget, the tiering, and "never author a number". Read before asking it anything.** |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
 | [**`docs/ARCHITECTURE.md`**](docs/ARCHITECTURE.md) | **How it's built — stack, hosting, verified £0/month cost, and what's ruled out. Read before writing code.** |
