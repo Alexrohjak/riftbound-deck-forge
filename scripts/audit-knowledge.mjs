@@ -54,10 +54,10 @@ const MECHANICS = [
 
   // ── combat keywords, where a gap changes what a deck can answer ──
   { id: "deflect", re: /\[Deflect/i, modelled: "hasKeyword, and a pattern in advice/patterns" },
-  { id: "shield", re: /\[Shield/i, modelled: null, why: "A defensive keyword with no representation — invisible to any 'can this deck hold' read" },
+  { id: "shield", re: /\[Shield/i, modelled: "capabilities().defenders, and a hold-plan check in advice/plan" },
   { id: "ganking", re: /\[Ganking\]/i, modelled: null, why: "Free movement between battlefields, which is how a hold plan repositions" },
   { id: "assault", re: /\[Assault/i, modelled: "hasKeyword" },
-  { id: "tank", re: /\[Tank\]/i, modelled: null, why: "Named in GENERATOR's intent table as a defensive target, and not detectable" },
+  { id: "tank", re: /\[Tank\]/i, modelled: "capabilities().defenders, and a hold-plan check in advice/plan" },
   { id: "hidden", re: /\[Hidden\]/i, modelled: "hidden in SUPPORTS" },
   { id: "temporary", re: /\[Temporary\]/i, modelled: "temporary in SUPPORTS" },
   { id: "accelerate", re: /\[Accelerate\]/i, modelled: null, why: "Enters ready for an extra cost — the same verb the Ambessa deck was built on" },

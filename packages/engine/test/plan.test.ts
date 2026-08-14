@@ -211,3 +211,43 @@ describe("⚠️ the second yardstick", () => {
     expect(reviewAgainstPlan(deck, fromSkeleton, index).reference).toBeUndefined();
   });
 });
+
+describe("⚠️ a holding plan with nothing that holds", () => {
+  /**
+   * `GENERATOR §4.2` has named Tank and Shield as the mechanical target of a defensive
+   * intent since Discovery, and until `audit-knowledge` ran, nothing could detect either —
+   * the spec asked for decks it could not then measure. 25 and 26 cards carry them.
+   */
+  const withKeywords = staticCardIndex({
+    ...facts,
+    tank: { name: "Sunlit Guardian", types: ["unit"], energy: 3, text: "[Tank] (I must be assigned combat damage first.)" },
+    shield: { name: "Stalwart Poro", types: ["unit"], energy: 2, text: "[Shield] (+1 :rb_might: while I'm a defender.)" },
+    grants: { name: "Block", types: ["spell"], energy: 2, text: "[Hidden] [Action] Give a unit [Shield] this combat." },
+  });
+  const holdPlan: Plan = { ...stated, objective: "hold" };
+  const full = (cardId: string) => deckOf([{ cardId: "pump", quantity: 24 }, { cardId, quantity: 3 }]);
+
+  it("says so when a hold deck has neither keyword", () => {
+    const review = reviewAgainstPlan(deckOf([{ cardId: "pump", quantity: 27 }]), holdPlan, withKeywords);
+    expect(review.notes.some((n) => n.claim.includes("[Tank] or [Shield]"))).toBe(true);
+  });
+
+  it("stays quiet once the deck actually holds", () => {
+    for (const id of ["tank", "shield"]) {
+      const review = reviewAgainstPlan(full(id), holdPlan, withKeywords);
+      expect(review.notes.some((n) => n.claim.includes("[Tank] or [Shield]")), id).toBe(false);
+    }
+  });
+
+  it("⚠️ a card that only GRANTS Shield does not count as holding", () => {
+    // Block reads "[Hidden] [Action] … give a unit [Shield]". Mentioning a keyword is not
+    // having it — the distinction text.ts exists for, and it must survive this check.
+    const review = reviewAgainstPlan(full("grants"), holdPlan, withKeywords);
+    expect(review.notes.some((n) => n.claim.includes("[Tank] or [Shield]"))).toBe(true);
+  });
+
+  it("never fires on a conquer plan — it is a claim about holding", () => {
+    const review = reviewAgainstPlan(deckOf([{ cardId: "pump", quantity: 27 }]), stated, withKeywords);
+    expect(review.notes.some((n) => n.claim.includes("[Tank] or [Shield]"))).toBe(false);
+  });
+});

@@ -2,6 +2,7 @@ import type { CardIndex, Deck } from "../types.js";
 import type { Note } from "./doctrine.js";
 import type { Package } from "./packages.js";
 import { readPackages, rewardsOf } from "./packages.js";
+import { capabilities } from "./doctrine.js";
 import type { Objective, Pace, Skeleton, Target } from "./skeleton.js";
 import { SKELETONS } from "./skeleton.js";
 import { deckShape } from "./shape.js";
@@ -220,6 +221,36 @@ export function reviewAgainstPlan(deck: Deck, plan: Plan, cards: CardIndex): Pla
       confidence: "doctrine",
       attribution: target.attribution,
     });
+  }
+
+  /**
+   * ⚠️ **A holding plan with nothing that holds.**
+   *
+   * [`GENERATOR §4.2`](../../../../docs/spec/GENERATOR.md) has named `Tank` and `Shield` as
+   * the mechanical target of a defensive/holding intent since Discovery, and until
+   * `audit-knowledge` ran, **nothing could detect either** — the spec asked for decks it
+   * could not then measure.
+   *
+   * ⚠️ **Only fires at zero, deliberately.** No source gives a count, and inventing a
+   * threshold here would be authoring doctrine inside a check. Zero needs no threshold, which
+   * is exactly how `review()` handles removal, draw and tricks.
+   */
+  if (plan.objective === "hold" && shape.size >= CURVE_READABLE_FROM) {
+    const caps = capabilities(deck, cards);
+    if (caps.defenders === 0) {
+      notes.push({
+        claim: "Nothing in the deck has [Tank] or [Shield], in a plan whose objective is to hold.",
+        because:
+          "Both keywords exist to make a unit hold better than its Might suggests — Shield is " +
+          "+1 Might while defending, Tank soaks the damage first. A hold plan built without " +
+          "either is holding on raw statistics. ⚠️ Stated only because it is zero: nobody " +
+          "publishes a target count, so there is no band to be under.",
+        source: "official",
+        confidence: "doctrine",
+        attribution:
+          "Riot's Primer, via GENERATOR §4.2's intent table, which names Tank and Shield as what a defensive plan is made of",
+      });
+    }
   }
 
   // ── curve, as facts ─────────────────────────────────────────────────────────

@@ -217,6 +217,19 @@ Playstyle is expressed **mechanically, never by archetype name**
 |---|---|
 | Aggressive | High share of ≤2-cost units · `Assault` · early Might · short speed-to-first-score |
 | Defensive / holding | `Tank`, `Shield`, `Backline` · Hold-triggered payoffs · high Might-per-cost at 3+ |
+
+> ⚠️ **This table asked for decks Forge could not measure, for a year.** `npm run
+> audit:knowledge` found `[Tank]` on 25 cards and `[Shield]` on 26, with **nothing in the
+> engine able to detect either** — a defensive intent named its own mechanical target and no
+> check could read it. Both now count into `capabilities().defenders`, and a plan whose
+> `objective` is `hold` says so when the count is **zero**.
+>
+> ⚠️ **Zero only, and deliberately.** No source publishes a target number of defenders, so
+> there is no band to be under — inventing one would be authoring doctrine inside a check.
+> That is the same rule `review()` already follows for removal, draw and tricks.
+>
+> ⚠️ **Having the keyword, not granting it.** Counted through `hasKeyword`, so `Block` —
+> *"[Hidden] [Action] … give a unit [Shield]"* — does not count as something that holds.
 | Go-wide | Unit count · token production · per-unit payoffs |
 | Reactive | `Action`/`Reaction` share · `Deflect` · `Hidden` |
 | Value / grind | Draw, recursion, `Deathknell`, trash payoffs |

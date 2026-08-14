@@ -2,6 +2,7 @@ import type { CardIndex, Deck } from "../types.js";
 import { countedEntries } from "../legality/entries.js";
 import { CARDS_SEEN_BY_TURN_ONE, deckShape, type DeckShape } from "./shape.js";
 import { SELF_SATISFYING, supplyOf } from "./synergy.js";
+import { hasKeyword } from "../text.js";
 
 /**
  * What good players advise, and **who advises it**.
@@ -62,6 +63,19 @@ export interface Capabilities {
   draw: number;
   combatTricks: number;
   bodies: number;
+  /**
+   * Units that hold a battlefield *better than their Might suggests* — `[Shield]` is
+   * "+1 Might while I'm a defender", `[Tank]` is "I must be assigned combat damage first".
+   *
+   * ⚠️ **Added because the spec asked for decks it could not then measure.**
+   * [`GENERATOR §4.2`](../../../../docs/spec/GENERATOR.md) names `Tank` and `Shield` as the
+   * mechanical target of a defensive/holding intent, and `audit-knowledge` found 25 and 26
+   * cards carrying them with nothing in Forge able to act on either.
+   *
+   * ⚠️ Counted through `hasKeyword`, so a card that merely *grants* Shield is excluded —
+   * `Block` reads `[Hidden] [Action] … give it [Shield]` and does not hold anything itself.
+   */
+  defenders: number;
   /** `consumes` tags with no matching producer — "eleven cards care about gear, you run four". */
   danglingSynergies: Array<{ needs: string; wants: number; supplies: number }>;
 }
@@ -76,13 +90,18 @@ export function capabilities(deck: Deck, cards: CardIndex): Capabilities {
   let draw = 0;
   let combatTricks = 0;
   let bodies = 0;
+  let defenders = 0;
 
   const wants = new Map<string, number>();
 
   for (const e of main) {
     const produces = e.facts?.produces ?? [];
     const consumes = e.facts?.consumes ?? [];
-    if (e.facts?.types?.includes("unit")) bodies += e.quantity;
+    if (e.facts?.types?.includes("unit")) {
+      bodies += e.quantity;
+      const text = e.facts.text;
+      if (hasKeyword(text, "Tank") || hasKeyword(text, "Shield")) defenders += e.quantity;
+    }
     if (produces.some((p) => REMOVAL.includes(p))) removal += e.quantity;
     if (produces.includes("draw")) draw += e.quantity;
     // A trick is an *action* that swings a fight — a unit that pumps on arrival is a body.
@@ -115,7 +134,7 @@ export function capabilities(deck: Deck, cards: CardIndex): Capabilities {
     .filter((s) => s.wants >= 3 && s.supplies * 2 < s.wants)
     .sort((a, b) => b.wants - a.wants);
 
-  return { removal, draw, combatTricks, bodies, danglingSynergies };
+  return { removal, draw, combatTricks, bodies, defenders, danglingSynergies };
 }
 
 /**
