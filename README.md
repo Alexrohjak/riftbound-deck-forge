@@ -162,7 +162,7 @@ grounding lines; and **editing requires connectivity** — offline you can look 
 ### 3 · Run the workspace
 
 `packages/engine` is the real thing — pure TypeScript, ⚖️ **all 33 legality checks**,
-the energy curve, commitment, the log's honesty thresholds, 421 tests:
+the energy curve, commitment, the log's honesty thresholds, 428 tests:
 
 ```bash
 npm install

@@ -131,6 +131,7 @@ evidence than any one of them. The most explicit:
 | `interaction` | Turn-to-turn answers. `04` lands on **~8, about a fifth of the deck** | `04` |
 | `closers` | Cards that win the game by being present. `03`'s heuristic: spells above 4 energy | `03` |
 | `earlyPlays` | The 7–9 band, already computed exactly | `01`; community |
+| ⭐ `scoring` | **How the deck turns a board into points** — points made outright, or `[Hunt]` and conquer/hold triggers that pay you for the winning move | added 2026-08-15, below |
 | `spice` | ⚠️ **Reserved and deliberately left empty by EE** — see below | `01` |
 
 ⚠️ **`03` says split into "as many packages as we need"**, so the set above is a **default,
@@ -146,6 +147,29 @@ the third kind. `earlyPlays` currently counts cost alone. A card with no `produc
 **Some decks legitimately skip the rule.** `01` names the exception — decks with other ways
 of playing units on turn one, or control decks that *"don't really care about unit or point
 tempo"*. This is precisely why the measurement is **plan-relative** (§6) rather than universal.
+
+### ⭐ `scoring`, and why it sits above `engine`
+
+⚠️ **Added because a deck passed every other check with no route to winning.** An Ambessa
+build came back with all four original packages inside their targets and **zero** cards that
+score, gain XP, or win outright — 15 of its 16 names were Might-and-combat manipulation. It
+was excellent at winning fights and had no idea how to win a game.
+
+The other four packages are all about the **board**. Riftbound is won at eight points, and
+nothing was asking where those came from.
+
+It is assigned **before `engine`** deliberately: the failure it exists to catch is a route to
+points being swallowed by the Legend's reward tag, and that tag's gravity is exactly what
+caused the problem twice.
+
+### ⚠️ `coreUnits` reads low in a deck whose units all have jobs
+
+The rebuilt deck reports `coreUnits 5` against Riot's 9+ floor while being **32 units out of
+40**. The bodies were counted as `scoring` and `engine` because that is what they are *for*.
+
+**The floor is not wrong; the package is answering a different question.** For *"does this
+deck have bodies"*, read `review()`'s cross-cutting `units` count. A package delta is about
+allocation, not presence.
 
 ### 🌶️ Why EE does not pick the spice
 
@@ -334,7 +358,23 @@ warning light, not a measurement.
 whose Power domain the data does not name. `playableOptions` had already learned this lesson;
 this simulation had to learn it separately.
 
-### 6.4 Disclosure is structural
+### 6.4 ⚖️ The second yardstick — a stated plan is measured against a skeleton too
+
+⚠️ **A plan written by whoever built the deck cannot falsify it.**
+
+The Ambessa build passed **every** package against its own hand-written plan, and read
+`engine +6` and `+7` against the two skeletons nobody had tuned for it. The attribution on the
+inflated band even explained why the overshoot was justified — which is the tell.
+
+So a plan with `origin: "stated"` is always reported **beside** the nearest skeleton, matched
+on `pace × objective`, with the packages where the two disagree named explicitly. A
+skeleton-derived plan is **not** compared with itself — that would be the same circularity in
+a different costume, reported as independent confirmation.
+
+⚠️ **Neither yardstick is the verdict.** The gap between them is the finding, and judging it
+is the builder's job — [D-016](../DECISIONS.md#d-016) still forbids a score.
+
+### 6.5 Disclosure is structural
 
 The check runs **inside `npm run deck`**, not as a command the mouth may forget. That was the
 existing failure and an instruction cannot fix it.

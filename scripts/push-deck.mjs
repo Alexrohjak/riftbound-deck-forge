@@ -212,6 +212,16 @@ if (plan) {
   if (read.unmeasurableRewards.length > 0) {
     out(`    ⚠️  engine is a FLOOR — ${read.unmeasurableRewards.join(", ")} could not be measured`);
   }
+  if (read.reference) {
+    const r = read.reference;
+    out(`  ⚖️  against ${r.skeletonId}, which was not written for this deck:`);
+    for (const d of r.packages) {
+      const b2 = d.target.max === undefined ? `${d.target.min}+` : `${d.target.min}–${d.target.max}`;
+      const mark = d.within ? "✓" : d.delta > 0 ? `+${d.delta}` : `${d.delta}`;
+      const flag = r.disagreements.includes(d.package) ? " ⚠️ the two plans disagree" : "";
+      out(`    ${d.package.padEnd(12)} ${String(d.actual).padStart(3)}  target ${b2.padEnd(6)} ${mark}${flag}`);
+    }
+  }
   for (const n of read.notes) out(`    · ${n.claim}`);
 } else {
   /**

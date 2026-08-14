@@ -176,3 +176,38 @@ describe("the curve check that did not exist", () => {
     expect(reviewAgainstPlan(deck, stated, index).curve.holes).toEqual([]);
   });
 });
+
+describe("⚠️ the second yardstick", () => {
+  /**
+   * A plan written by whoever built the deck cannot falsify it. The Ambessa build passed
+   * every package against its own hand-written plan and read `engine +6` against a skeleton
+   * nobody had tuned for it.
+   */
+  const generous: Plan = {
+    ...stated,
+    packages: { engine: { min: 12, max: 18, source: "community", attribution: "written to fit the deck" } },
+  };
+  const deck = deckOf([{ cardId: "pump", quantity: 16 }]);
+
+  it("reports the nearest skeleton beside a stated plan", () => {
+    const review = reviewAgainstPlan(deck, generous, index);
+    expect(review.packages.find((p) => p.package === "engine")?.within).toBe(true);
+    expect(review.reference?.skeletonId).toBe("fast-conquer");
+    const ref = review.reference!.packages.find((p) => p.package === "engine")!;
+    expect(ref.within).toBe(false);
+    expect(ref.delta).toBeGreaterThan(0);
+  });
+
+  it("names the packages where the two yardsticks disagree", () => {
+    const review = reviewAgainstPlan(deck, generous, index);
+    expect(review.reference?.disagreements).toContain("engine");
+    expect(review.notes.some((n) => n.claim.includes("inside this deck's own plan"))).toBe(true);
+  });
+
+  it("⚠️ a skeleton-derived plan is not compared with itself", () => {
+    // Same circularity in a different costume, so it is skipped rather than reported as
+    // agreement — which would read as independent confirmation.
+    const fromSkeleton = planFromSkeleton(skeletonById("fast-conquer")!);
+    expect(reviewAgainstPlan(deck, fromSkeleton, index).reference).toBeUndefined();
+  });
+});

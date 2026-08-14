@@ -22,7 +22,7 @@ import { supplyKind, supplyOf } from "./synergy.js";
  */
 
 /** The default set. ⚠️ `03` says split into "as many packages as we need" — this is not a law. */
-export type Package = "engine" | "interaction" | "closers" | "coreUnits";
+export type Package = "engine" | "interaction" | "closers" | "scoring" | "coreUnits";
 
 /**
  * Where a card landed.
@@ -89,6 +89,26 @@ const INTERACTION_ROLES: ReadonlySet<string> = new Set([
   "counter",
 ]);
 
+/**
+ * **How this deck turns a board into points.**
+ *
+ * ⚠️ **Added because a deck passed every other check with no route to winning.** An Ambessa
+ * build came back with all four original packages inside their targets and **zero** cards that
+ * score, gain XP, or win outright — fifteen of its sixteen names were Might-and-combat
+ * manipulation. It was excellent at winning fights and had no idea how to win a game.
+ * `engine`, `interaction`, `closers` and `coreUnits` are all about the **board**; Riftbound is
+ * won at eight points, and nothing was asking where those came from.
+ *
+ * Matches two things, both read from printed text:
+ *
+ * - **Points directly** — *"you score 1 point"*, *"you win the game"*.
+ * - **Being paid for the act that scores** — `[Hunt]`, and *"when I conquer / when you hold"*
+ *   triggers. A card that rewards taking and keeping a battlefield is a card that makes the
+ *   winning move worth making.
+ */
+const SCORES =
+  /\bscore \d+ point|\bwin the game\b|\[Hunt|\bwhen (?:i|you) (?:conquer|hold)\b/i;
+
 /** Nothing was ever classified about this card, so no bucket can be argued from it. */
 const nothingKnown = (f: CardFacts): boolean =>
   !f.role && !f.produces?.length && !f.consumes?.length;
@@ -120,11 +140,15 @@ function feeds(facts: CardFacts, rewards: readonly string[]): { tag: string; mea
  *    that happens to feed the Legend is still the deck's answer to a threat, and letting
  *    `engine` claim it would report `interaction: 0` for a deck full of removal — an alarm
  *    that is both false and alarming.
- * 3. **`engine`** — supplies something the Legend rewards. Deck-relative.
- * 4. **`coreUnits`** — it is a unit. A body holds battlefields whatever else it does, and
+ * 3. **`scoring`** — it makes points, or pays you for taking and holding. **Above `engine`
+ *    deliberately**: the failure this package was added to catch is a deck whose route to
+ *    points was swallowed by the Legend's reward tag, and putting it after `engine` would
+ *    let exactly that happen again.
+ * 4. **`engine`** — supplies something the Legend rewards. Deck-relative.
+ * 5. **`coreUnits`** — it is a unit. A body holds battlefields whatever else it does, and
  *    `types` is printed, so this needs no classification either.
- * 5. **`unmodelled`** — nothing was classified and it is not a unit. Say so.
- * 6. **`unassigned`** — classified, and it serves none of the above. A real finding.
+ * 6. **`unmodelled`** — nothing was classified and it is not a unit. Say so.
+ * 7. **`unassigned`** — classified, and it serves none of the above. A real finding.
  */
 export function assign(facts: CardFacts, rules: PackageRules): { slot: Slot; because: string } {
   const energy = facts.energy ?? null;
@@ -135,6 +159,14 @@ export function assign(facts: CardFacts, rules: PackageRules): { slot: Slot; bec
 
   if (facts.role && INTERACTION_ROLES.has(facts.role)) {
     return { slot: "interaction", because: `${facts.role}` };
+  }
+
+  // ⚠️ **Before `engine`, deliberately.** The failure this package exists to catch is a deck
+  // whose route to points was absorbed by the Legend's reward tag — which is exactly what the
+  // reward tag's gravity does. Counting the route to points FIRST means it can never be
+  // hidden inside the engine count.
+  if (SCORES.test(facts.text ?? "")) {
+    return { slot: "scoring", because: "pays you for taking or holding a battlefield, or makes points outright" };
   }
 
   const supplied = feeds(facts, rules.rewards).filter((f) => f.measured);
@@ -170,6 +202,7 @@ const EMPTY: PackageCounts = {
   engine: 0,
   interaction: 0,
   closers: 0,
+  scoring: 0,
   coreUnits: 0,
   unassigned: 0,
   unmodelled: 0,

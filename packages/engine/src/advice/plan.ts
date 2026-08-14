@@ -3,6 +3,7 @@ import type { Note } from "./doctrine.js";
 import type { Package } from "./packages.js";
 import { readPackages, rewardsOf } from "./packages.js";
 import type { Objective, Pace, Skeleton, Target } from "./skeleton.js";
+import { SKELETONS } from "./skeleton.js";
 import { deckShape } from "./shape.js";
 
 /**
@@ -89,9 +90,30 @@ export interface CurveRead {
   holes: number[];
 }
 
+/**
+ * ⚠️ **A plan written by whoever built the deck cannot falsify it.**
+ *
+ * This is the hole the Ambessa build fell through. A deck was measured against a hand-written
+ * plan, every package came back inside its target, and the same deck read `engine +6` and
+ * `+7` against the two skeletons nobody had tuned for it. The attribution on the inflated
+ * band even explained why the overshoot was justified — which is the tell.
+ *
+ * So a `stated` plan is always reported **beside** the nearest skeleton, matched on
+ * `pace × objective`. Neither is the verdict: the gap between them is the finding, and it is
+ * the builder's to judge ([D-016](../../../../docs/DECISIONS.md#d-016) still forbids a score).
+ */
+export interface Reference {
+  skeletonId: string;
+  packages: PackageDelta[];
+  /** Packages where the two yardsticks disagree about whether the deck is inside its band. */
+  disagreements: Package[];
+}
+
 export interface PlanReview {
   plan: Plan;
   packages: PackageDelta[];
+  /** Absent when the plan came from a skeleton — it would then be compared with itself. */
+  reference?: Reference;
   curve: CurveRead;
   /** ⚠️ Empty when the deck matches its plan. Silence is a valid and common answer. */
   notes: Note[];
@@ -225,5 +247,45 @@ export function reviewAgainstPlan(deck: Deck, plan: Plan, cards: CardIndex): Pla
     });
   }
 
-  return { plan, packages: deltas, curve, notes, unmeasurableRewards: read.unmeasurableRewards };
+  // ── the second yardstick ────────────────────────────────────────────────────
+  const nearest = SKELETONS.find((s) => s.pace === plan.pace && s.objective === plan.objective);
+  // Comparing a skeleton-derived plan with its own skeleton would be the same circularity in
+  // a different costume, so it is skipped rather than reported as agreement.
+  const independent = nearest && !SKELETONS.some((s) => s.id === plan.origin);
+  let reference: Reference | undefined;
+  if (independent && nearest) {
+    const refDeltas: PackageDelta[] = [];
+    const disagreements: Package[] = [];
+    for (const [name, target] of Object.entries(nearest.packages) as [Package, Target][]) {
+      const actual = read.counts[name] ?? 0;
+      const delta = distance(actual, target);
+      refDeltas.push({ package: name, actual, target, delta, within: delta === 0 });
+      const mine = deltas.find((d) => d.package === name);
+      if (mine && mine.within !== (delta === 0)) disagreements.push(name);
+    }
+    reference = { skeletonId: nearest.id, packages: refDeltas, disagreements };
+    for (const name of disagreements) {
+      const ref = refDeltas.find((d) => d.package === name);
+      if (!ref || ref.within) continue;
+      notes.push({
+        claim: `${name} is inside this deck's own plan and ${ref.delta > 0 ? "over" : "under"} the ${nearest.id} band by ${Math.abs(ref.delta)}.`,
+        because:
+          "A plan written for the deck it is measuring cannot falsify it. Both yardsticks are " +
+          "shown because the gap between them is the finding — not because either one is right. " +
+          ref.target.attribution,
+        source: ref.target.source,
+        confidence: "doctrine",
+        attribution: `Compared against the ${nearest.id} skeleton, which was not written for this deck`,
+      });
+    }
+  }
+
+  return {
+    plan,
+    packages: deltas,
+    curve,
+    notes,
+    unmeasurableRewards: read.unmeasurableRewards,
+    ...(reference ? { reference } : {}),
+  };
 }

@@ -142,3 +142,43 @@ describe("reading a whole deck", () => {
     expect(read.cards.every((c) => c.because.length > 0)).toBe(true);
   });
 });
+
+describe("⭐ scoring — how the deck turns a board into points", () => {
+  /**
+   * ⚠️ This package exists because a deck passed every other check with **zero** route to
+   * winning. Fifteen of its sixteen names were Might-and-combat manipulation, every package
+   * was inside its target, and nothing asked where the eight points were coming from.
+   */
+  it("catches points made outright", () => {
+    const shen = card({
+      name: "Shen, Leader of the Kinkou Order",
+      types: ["unit"],
+      text: "When I hold, if there is exactly one other unit you control here, you score 1 point.",
+    });
+    expect(assign(shen, rules([])).slot).toBe("scoring");
+  });
+
+  it("catches being paid for the act that scores", () => {
+    const hunt = card({ name: "Gemhand Hunter", types: ["unit"], text: "[Hunt] (When I conquer or hold, gain 1 XP.)" });
+    expect(assign(hunt, rules([])).slot).toBe("scoring");
+    const conquer = card({ name: "Noxian Demolitionist", types: ["unit"], text: "When I conquer, you may kill a gear." });
+    expect(assign(conquer, rules([])).slot).toBe("scoring");
+  });
+
+  it("⚠️ beats engine, so the Legend's reward can never swallow the route to points", () => {
+    // The whole reason it sits above `engine`. A Hunt unit that also feeds the Legend is
+    // still how this deck wins; filing it under engine is how the last deck hid the problem.
+    const both = card({
+      name: "Hunting Empowerer",
+      types: ["unit"],
+      produces: ["pump"],
+      text: "[Hunt] (When I conquer or hold, gain 1 XP.)",
+    });
+    expect(assign(both, rules(["becomes_mighty"])).slot).toBe("scoring");
+  });
+
+  it("a plain body is still a body", () => {
+    expect(assign(card({ name: "Vanilla", types: ["unit"], role: "body", text: "" }), rules([])).slot)
+      .toBe("coreUnits");
+  });
+});

@@ -91,6 +91,7 @@ export {
   type PackageDelta,
   type Plan,
   type PlanReview,
+  type Reference,
   type SlotIntent,
 } from "./advice/plan.js";
 export {
