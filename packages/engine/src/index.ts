@@ -73,6 +73,17 @@ export {
 } from "./advice/feedback.js";
 export { readArchetype, type Archetype, type ArchetypeRead } from "./advice/archetype.js";
 export {
+  assign,
+  readPackages,
+  rewardsOf,
+  type Assigned,
+  type Package,
+  type PackageCounts,
+  type PackageRead,
+  type PackageRules,
+  type Slot,
+} from "./advice/packages.js";
+export {
   patternCensus,
   patternsOf,
   PATTERNS,

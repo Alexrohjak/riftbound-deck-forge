@@ -100,8 +100,11 @@ halves a build.
 ### The structural fix, in one line
 
 **The Legend's ability is an input to `packages.engine` — one bucket — not the organising
-principle for all forty cards.** The Grand Duelist deck was `engine` at effectively 100% and
-every other package at zero.
+principle for all forty cards.**
+
+⚠️ This section first said the Grand Duelist deck was *"`engine` at effectively 100%"*. It was
+not — see §6.1. The measured failure is `closers 1 · coreUnits 6`: a deck that can trigger its
+Legend and win fights, with almost nothing to win *with*.
 
 ⚠️ This is a **rebalance, not a demotion.** The method transcript is explicit that the Legend
 ability *should* be weighted heavily — *"usually your gameplay will revolve around your legend
@@ -244,9 +247,25 @@ also satisfies the standing instruction that **every EE output carries a why**.
 
 ### 6.1 Package deltas
 
-Per package, target versus actual, signed. Grand Duelist reads
-`engine +11 · interaction −5 · closers −4 · coreUnits −2`. **That one line is the whole
-complaint, quantified.**
+Per package, target versus actual, signed.
+
+⚠️ **Measured, once `packages.ts` existed — and it corrected this document.** The first draft
+illustrated Grand Duelist as `engine +11 · interaction −5 · closers −4`, reasoning from the
+curve. Reading the real deck says otherwise:
+
+```
+engine 15 · interaction 17 · closers 1 · coreUnits 6 · unassigned 1 · unmodelled 0
+```
+
+**Interaction is the largest package, not engine.** The deck is not monomaniacal in the way
+the curve suggested. It has fifteen cards feeding `becomes_mighty` and seventeen cheap answers
+— and then **one closer and six bodies.** It can switch the Legend on and it can win fights.
+It has almost nothing to win *with*, which is why it flattened into two-drops.
+
+That is a better diagnosis than the one this document was written with, and it arrived the
+moment the counts became real rather than reasoned. **The illustrative figures above were
+authored, which is the thing [`EE-BRIEFING`](../EE-BRIEFING.md) §3 forbids** — recorded here
+because a spec that fakes its own example teaches the habit it is trying to prevent.
 
 ### 6.2 Curve shape — the check that does not exist today
 

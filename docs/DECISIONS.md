@@ -2613,6 +2613,14 @@ Running the project's own `review` on that list confirmed it in numbers: curve
 `[–, 4, 19, 9, 7, 0, 1]` — **nineteen of forty cards at cost 2**, nothing at 5, one card at 6.
 Legal, registerable, and good at exactly one thing.
 
+> ⚠️ **Amended the same day, by measurement.** Once `advice/packages.ts` existed the deck was
+> read properly: `engine 15 · interaction 17 · closers 1 · coreUnits 6 · unassigned 1`.
+> **Interaction is the largest package**, so *"all it does is the Legend ability"* was the
+> right instinct with the wrong mechanism. The real failure is **one closer and six bodies** —
+> a deck that can trigger its Legend and win fights, and has almost nothing to win *with*.
+> The decision below is unchanged; the diagnosis underneath it is sharper, and the difference
+> only appeared when the counts stopped being reasoned and started being counted.
+
 ### The observation, in three parts
 
 **1. The quality tooling existed and was never in the loop.** `review()` and `readArchetype()`
