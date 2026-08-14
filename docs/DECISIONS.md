@@ -72,6 +72,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-061](#d-061) | **Runes are not collected** — Forge believes you always have them | ✅ |
 | [D-062](#d-062) | **`S6` re-gated off `S2`** — the deckbuilding questions need no rules core | ✅ |
 | [D-063](#d-063) | **Rules text comes from the fullest printing** — promos drop the reminders that explain a keyword | ✅ |
+| [D-064](#d-064) | **A deck is built to a plan** — and measured against it, not against universal thresholds | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -2589,3 +2590,112 @@ it.
 | Take text from the *newest* printing | The newest is often the promo, which is the one with the explanations stripped |
 | Split short-form and long-form into separate cards | They are the same card. Splitting them doubles the copy-limit surface, which [DATA-MODEL §2](spec/DATA-MODEL.md) calls the worst failure available |
 | Concatenate every printing's wording | Produces text no card has ever borne, in a project whose rule is that the rulebook and the print are the only authorities |
+
+---
+
+<a id="d-064"></a>
+
+## D-064 — A deck is built to a **plan**, and measured against that plan
+
+**Date:** 2026-08-14
+**Status:** Accepted — rewrites [`GENERATOR.md`](spec/GENERATOR.md), resolves `G4`, adds a
+`plan` column to `decks`, and amends [`EE-BRIEFING.md`](EE-BRIEFING.md) §3
+
+### What prompted it
+
+Alexander opened a deck EE had built for Grand Duelist:
+
+> *"I see you've put heavy emphasis on utilising the Fiora legend ability which is great.
+> However it feels like that is all the deck is trying to do… overall the deck had no proper
+> design or structure from my perspective."*
+
+Running the project's own `review` on that list confirmed it in numbers: curve
+`[–, 4, 19, 9, 7, 0, 1]` — **nineteen of forty cards at cost 2**, nothing at 5, one card at 6.
+Legal, registerable, and good at exactly one thing.
+
+### The observation, in three parts
+
+**1. The quality tooling existed and was never in the loop.** `review()` and `readArchetype()`
+measure removal, draw, tricks, unit share and opening odds. Both were wired into the web
+Advisor and the `review` CLI command, and into **neither end of generation**. The loop is
+`brief → propose → validate → push`, and `validateProposal` only answers *"is this
+registerable?"*.
+
+**2. `review()` would barely have caught it anyway.** Against that deck it produced one note —
+*"23 early plays is more than the opening needs"*. It has **no curve-shape check**, so a 48%
+single-bucket spike passes silently.
+
+**3. The monomania was written down.** `brief.ts` carried the comment *"The Legend's ability,
+called out because everything else is chosen to serve it"* — the first thing the model reads.
+
+⚠️ **And the spec already said otherwise.** `GENERATOR.md` §4 has named **skeleton fill** —
+*"start from a curve/role template implied by the intent"* — as the primary strategy since
+2026-08-02, and §5 forbade one-shot single-answer generation. What shipped was one-shot,
+single-candidate, with **no intent field on `Seed` at all**. This is spec drift, not a missing
+idea: the Legend ability rushed into a plan-shaped hole.
+
+### What was decided
+
+| # | Decision | Rejected | Why |
+|---|---|---|---|
+| 1 | **Measure and disclose, always** — the loop forces the measurement and shows it; a shallow deck still ships | A hard quality gate that refuses | Thresholds like *"needs 6 removal"* are contested doctrine, not facts. Refusing on them puts opinion in the engine and edges toward the grading [D-016](#d-016) forbids |
+| 2 | **Judge against the deck's own declared plan** | Universal thresholds | `review()`'s own note already admits draw matters far more to control than to aggro. One standard is wrong at every deliberate skew |
+| 3 | **No intent → offer 2–3 distinct skeletons, the builder picks** | Infer and declare; ask one question; refuse | Keeps the objective with the user ([D-041](#d-041)) and matches §4.4's *"candidates, never one answer"* |
+| 4 | **The plan is stored on the deck in D1** | A sidecar file; re-derive each time | Re-deriving judges a deck by what it **is** rather than what it was **meant to be** — which is decision 2 undone. A sidecar never reaches the Workbench or the backup |
+| 5 | **Intent is `pace × objective`, not an archetype label** | A single aggro/control/combo choice | Riftbound supports aggressive *and* defensive versions of both conquer and hold, so the usual taxonomy does not map. [`LEGEND-GUIDE`](reference/LEGEND-GUIDE.md) §5 independently calls Hold-vs-Conquer the intent that matters most |
+
+### The evidence base, and what it cost to get
+
+The `community` tier of [`DECKBUILDING.md`](reference/DECKBUILDING.md) had cited nobody. The
+source material turned out to be **~30,000 words of video transcript** pasted into a working
+session on 2026-08-04 and never stored — recovered and committed to
+[`reference/transcripts/`](reference/transcripts/) the same day as this decision.
+
+**All three method sources converge on packages independently**, which is stronger evidence
+than any one of them. They also **disagree sharply**, and the disagreement shaped this design
+as much as the agreement did:
+
+- `01` says start from a topping list and mix. `03` answers *"you are not those players"*.
+  ⚠️ **[D-035](#d-035) closes that route to Forge entirely** — there is no meta data and there
+  will not be. Recorded in §11 rather than quietly omitted.
+- `03` runs **39 unique cards**, rejecting `01`'s 3-of/2-of/1-of ratios outright.
+- `01` says weigh the Legend ability heavily *"unless it sucks"*; `04` makes it one of four
+  layers. **Both are right** — this decision rebalances the ability into `packages.engine`
+  rather than demoting it.
+
+### ⭐ What the design adds that no source could
+
+The flagship comes from combining `03`'s insight — *"the package separation isn't just for us
+to understand our deck, but to understand our **hand**"* — with machinery Forge already has:
+`simulateOpenings` runs 10,000 hands. So EE can report ***"in 23% of openings, three of your
+four cards can't act before turn three"*** — Tier 2, computed, assumption attached. None of the
+four videos can produce that number, and `DECKBUILDING.md` §4 had recorded the idea since
+Discovery with nothing using it.
+
+Also computable and better than the sources: the colour cheat sheet in `01` is one person's
+recall of one format, where Forge holds all 935 cards and can compute the real distribution;
+`01`'s *"vanilla two-drops don't count"* is detectable from absent tags and text; and rune
+feasibility — whether a six-drop is castable on curve with this split — is a calculation no
+other Riftbound tool can perform.
+
+### ⚠️ The weak link, accepted knowingly
+
+**Everything rests on assigning 40 cards to packages correctly.** Mis-bucket them and every
+delta is confidently wrong. Assignment therefore follows the rule `feedsMeasured` already
+enforces: **`counted` where the tags support it, `unmodelled` where they do not, never
+silently zero** — learned when `mechanic --name mighty` answered `feeds: 0` against a
+collection holding 60 cards that raise Might.
+
+### Battlefields and the sideboard
+
+Both were specified in this pass because both are part of the plan.
+
+**Battlefields** resolve `G4` on a **class, not a score** — the floor is *"cannot hurt me"*
+rather than *"might help me"*, which maps exactly onto
+[`BATTLEFIELD-GUIDE`](reference/BATTLEFIELD-GUIDE.md) §1's one-sided class. A symmetric
+battlefield requires a stated reason this deck exploits it harder, and **silence becomes a
+refusal rather than a default**.
+
+**The sideboard** is defined against `plan.winCondition` — insurance where a solid counter to
+the win condition exists, plus named flexibility. ⚠️ Grounded in what the **identity can do**,
+never in a meta read.

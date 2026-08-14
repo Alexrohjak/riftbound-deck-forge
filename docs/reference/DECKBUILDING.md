@@ -86,11 +86,56 @@ trades both edges for fewer weaknesses.
 **Relative speed** matters more than raw speed: be *much* faster or *slightly* slower than
 the deck opposite. Marginally faster is the worst place to be.
 
-## 4. Packages, not a card list (`community`)
+## 4. Packages, not a card list (`community`, and the strongest claim here)
 
-Decks decompose into **core units**, **core interaction**, and **closers**. The decomposition
-is not bookkeeping — it is what makes a hand readable. Opening three closers and a two-drop
-looks fine and is a mulligan.
+**All three method transcripts arrive at packages independently**, which is better evidence
+than any single one of them. The clearest statement:
+
+> *"Play style refers to the overall game plan and victory condition, while packages refer to
+> the collection of cards that are being brought in to support your intended play style…
+> the easiest way in my opinion is to start with play style."*
+> — [`03`](transcripts/03-the-all-unique-deck.md)
+
+| Package | What belongs in it | Who says so |
+|---|---|---|
+| `engine` | Cards supplying what the Legend and Champion reward | all three |
+| `coreUnits` | Units played on curve to contest battlefields with bodies | `03`, Riot's Primer |
+| `interaction` | Turn-to-turn answers — **~8, about a fifth of the deck** | [`04`](transcripts/04-archetypes-and-construction.md) |
+| `closers` | Cards that win by being present. Heuristic: spells above 4 energy | `03` |
+| `earlyPlays` | The 7–9 band (§2) | `01`, community |
+| `spice` | An off-meta card the opponent will not play around | [`01`](transcripts/01-deckbuilding-is-cooking.md) |
+
+⚠️ **`03` says split into "as many packages as we need"** — the set above is a default, not a
+fixed five.
+
+### ⭐ Packages exist to make your *hand* readable, not your deck
+
+The most useful sentence in any of the four sources, and the reason this section is not
+bookkeeping:
+
+> *"The package separation isn't just for us to understand our deck, but to understand our
+> **hand** when we start the game… Opening Time Warp, Thousand Tailed Watcher and Singularity
+> alongside a two drop is seemingly nice, but three of those cards are sitting in your hand
+> with no way to effectively utilize them in the first three turns."*
+> — [`03`](transcripts/03-the-all-unique-deck.md)
+
+Forge turns this into a number nobody in the videos can give, because it already simulates
+10,000 openings — see [`GENERATOR §6.3`](../spec/GENERATOR.md).
+
+### ⚠️ Two refinements the raw counts miss
+
+- **A vanilla two-drop is not an early play.** `01` separates two-drops with a self-scoped
+  effect or a real mid-game role from ones that are *"vanillas entirely"*, and says not to run
+  the third kind.
+- **Some decks legitimately skip the two-drop rule** — `01` names decks with other ways to
+  play units on turn one, and control decks that *"don't really care about unit or point
+  tempo"*. This is why measurement is plan-relative rather than universal.
+
+### 🌶️ Spice is a slot Forge reserves and refuses to fill
+
+`01` calls the off-meta card *"the most important part in your ingredients"*. Its value comes
+entirely from what opponents expect — meta knowledge [D-035](../DECISIONS.md#d-035) says Forge
+will never have. **The skeleton reserves the slot; the choice is the builder's.**
 
 ## 5. Ratios (`community`, contested)
 
@@ -112,12 +157,24 @@ preserves tempo and can steal a point.
 
 | Question | One school | Another |
 |---|---|---|
-| Where to start | Take a topping list and mix in what you like — evolutionary convergence means good lists are already good | Sieve the entire legal pool down to 40, so you understand every choice |
-| What matters most | Understanding your own deck well enough to mulligan and sequence correctly | Getting the list right before you play |
+| Where to start | [`01`](transcripts/01-deckbuilding-is-cooking.md): take a three-star top-eight list and mix — *"the best deck converges"* | [`04`](transcripts/04-archetypes-and-construction.md): start from *"how do you want to win"* and sieve the pool down |
+| Netdecking | `01`: fastest and usually correct | [`03`](transcripts/03-the-all-unique-deck.md), directly answering it: ***"You are not those players"*** — without knowing the packages you cannot mulligan |
+| Consistency | `01`: 3-of core, 2-of important, 1-of tech | `03` runs **39 unique cards** and argues understanding beats redundancy |
+| The Legend's weight | `01`: *"weigh it heavily… unless it sucks"* | `04`: one of **four** layers — legend, champion, main deck, battlefields |
 | Theory vs testing | Testing beats theory; do not over-think the first build | Think in packages first, or you will test a deck with no plan |
 
 All of these are held by people who win. **The disagreement is the content**, and a tool that
 picks one and hides the rest is misrepresenting the state of the art.
+
+> ⚠️ **One school's main advice is closed to Forge by design.** `01`'s primary route needs
+> tournament results, and [D-035](../DECISIONS.md#d-035) means there is no meta data and there
+> will not be. Recorded rather than omitted: it raises the bar on the sieve path instead of
+> being a gap Forge is pretending not to have.
+>
+> ⚠️ **The Legend row is not a real contradiction, and EE must not treat it as one.** Heavy
+> weight and *sole* focus are different things. The deck that prompted
+> [D-064](../DECISIONS.md#d-064) had the Legend's ability at effectively 100% of the deck and
+> every other package at zero — which neither school advises.
 
 ## 8. Iteration (`community`, unanimous)
 

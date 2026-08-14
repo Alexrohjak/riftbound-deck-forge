@@ -107,14 +107,18 @@ counts every other deck's rows either side of the write, failing loudly if any c
 `--replace` is the only way to overwrite an existing deck, and it has to be typed.
 
 **And it carries a sideboard of ten** — the cap is exactly ten (TR 601.1.c.1), and the
-Workbench draws the bay whenever it is non-empty. Ten is a budget to spend across three
-purposes, not a category each:
+Workbench draws the bay whenever it is non-empty. **The sideboard is part of the plan**
+([D-064](DECISIONS.md#d-064)), and it is defined against the deck's **named win condition**:
 
 | | |
 |---|---|
-| **More of the plan** | The crossers and payoffs that did not make the 40 — the first cards in when the engine underperforms |
-| **Against what he actually faces** | Named to a matchup he has told you about, not a hypothetical field. There is no meta data ([D-035](DECISIONS.md#d-035)) |
-| **One idea the main deck rejected** | A different angle on the same collection. Say which card it pivots on |
+| **Insurance** | A solid counter to this deck's win condition exists — carry the answer, and say which counter it answers |
+| **Flexibility** | A line the main deck cannot take. Say which card it pivots on |
+
+⚠️ **"A solid counter exists" is grounded in what the *identity* can do** — `counter`'s
+`theirPatterns` and `theirEngine` — **never in a meta read.** There is no meta data
+([D-035](DECISIONS.md#d-035)) and there will not be. That weakens the claim, and you say so
+rather than papering over it.
 
 ⚠️ **Copy limits span Main Deck and sideboard combined (L16)** — two in the board plus two in
 the deck is four, and illegal. The gate catches it; do not make it work for a living.
@@ -122,6 +126,22 @@ the deck is four, and illegal. The gate catches it; do not make it work for a li
 ⚠️ **A sideboard card need not be owned.** Ownership is a warning, never a violation, and
 *"go and get this one"* is a real answer — but say plainly which ones he does not have, with
 the count, so nobody sleeves a deck they cannot build.
+
+### ⚠️ A deck you propose is built to a **plan**, not to the Legend's ability
+
+[D-064](DECISIONS.md#d-064), and it exists because of a deck you built. Grand Duelist came
+back as **nineteen of forty cards at cost 2**, nothing at 5, one card at 6 — legal, and good
+at exactly one thing: switching the Legend's ability on.
+
+**The Legend's ability is one package, not the deck.** Weigh it heavily — the sources agree it
+is the most consistent part of a deck — but a build where `engine` is everything and
+`interaction`, `closers` and `coreUnits` are zero is not a deck, it is a trigger.
+
+So: **name the plan before choosing cards** — how this deck wins, its pace, whether it
+conquers or holds, and what each package is for. See
+[`GENERATOR §2`](spec/GENERATOR.md). ⚠️ **The plan is the builder's, never yours to
+invent** ([D-041](DECISIONS.md#d-041)): offer two or three distinct skeletons the collection
+actually supports and let him pick.
 
 ### ⚠️ A deck you propose gets checked, not just validated
 
