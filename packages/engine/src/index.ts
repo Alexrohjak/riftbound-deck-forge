@@ -73,6 +73,19 @@ export {
 } from "./advice/feedback.js";
 export { readArchetype, type Archetype, type ArchetypeRead } from "./advice/archetype.js";
 export {
+  SKELETONS,
+  feasibilities,
+  feasibility,
+  skeletonById,
+  type Feasibility,
+  type Objective,
+  type Pace,
+  type PackageSupply,
+  type PoolSupply,
+  type Skeleton,
+  type Target,
+} from "./advice/skeleton.js";
+export {
   assign,
   readPackages,
   rewardsOf,

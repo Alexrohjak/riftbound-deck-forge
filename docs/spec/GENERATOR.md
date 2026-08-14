@@ -218,6 +218,18 @@ targets. The split that keeps [D-016](../DECISIONS.md#d-016) and
   identity could fill each package. **A skeleton the collection cannot support is reported as
   a gap, never hidden** — §6's designed failure mode.
 
+> ⚠️ **Measured 2026-08-14, and feasibility turns out not to be a filter.** Against the real
+> collection under Grand Duelist — **232 of 320 legal names owned** — *all four skeletons pass
+> every floor*, with headroom of roughly `engine 76 · interaction 56 · closers 90 ·
+> coreUnits 94`. Nothing is discriminated.
+>
+> That does not break the design, but it changes what the menu is **for**. Gap analysis still
+> matters for a narrow identity or an early collection; for a mature one the useful output is
+> the **headroom and the shape** — *"this is what a fast-conquer build would look like out of
+> your boxes"* — not a pass/fail nobody fails. ⚠️ **A menu where every option is ✅ is a menu
+> that has told you nothing**, and presenting it as a filter would imply a discrimination that
+> was never made.
+
 You pick one. **Stating intent directly skips the menu**; the objective is yours either way
 ([D-041](../DECISIONS.md#d-041)).
 
