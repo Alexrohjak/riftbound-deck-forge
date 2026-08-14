@@ -216,6 +216,31 @@ every card, faster and less ambiguous than OCR or name typing.
 
 ---
 
+## 3b. Deckbuilding advice — ✅ HELD, as transcripts
+
+⚠️ **This section existed nowhere until 2026-08-14**, which meant
+[`DECKBUILDING.md`](DECKBUILDING.md) — a document whose opening argument is that advice must
+name its source — cited nobody. The material had been pasted into a working session, used to
+write the doctrine, and left inside a chat log.
+
+**~30,000 words across four videos**, now in [`transcripts/`](transcripts/). One speaker names
+himself (Andre Zescu, a university teacher in Montreal who studies card games); the others are
+anonymous.
+
+⚠️ **The source URLs were not recorded and have not been guessed.** A separate session
+collected eight candidate Riftbound video URLs by web search, and the one fetch attempted
+returned *"no transcript, captions, description or chapter markers available"* — so nothing
+links those URLs to this text. Mapping them would be invention. Recovering the real URLs is a
+genuine outstanding job; see [`transcripts/README.md`](transcripts/README.md).
+
+**What they are good for and not good for:** the *method* claims (how to sieve a pool, what a
+game plan is, why iteration beats theory) are durable. The *card-level* claims are already
+ageing — the archetype video closes by saying a new set lands in a month and every deck will
+change. And the captions mangle card names badly enough that none may be quoted without
+resolving it against the card index first.
+
+---
+
 ## 4. Sources
 
 - [Riftbound official](https://riftbound.leagueoflegends.com/en-us/) · [Wikipedia](https://en.wikipedia.org/wiki/Riftbound)

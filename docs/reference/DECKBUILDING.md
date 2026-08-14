@@ -20,6 +20,15 @@ file is where the sources live.
 | `community` | Contested | Earned from play, widely held, disputed at the edges |
 | `computed` | Exact, conditional | Arithmetic on *this* deck, correct given a stated assumption |
 
+> ⚠️ **Where the `community` tier actually comes from.** Everything below marked `community` is
+> drawn from **~30,000 words of transcribed video advice** now held in
+> [`transcripts/`](transcripts/) — four people, who disagree with each other, one of whom
+> names himself. Until 2026-08-14 this file said *"widely held"* and *"consensus across the
+> guides"* while naming no guide, in a document whose first argument is that advice must name
+> its source. It does now. ⚠️ The **source URLs are still missing** and have deliberately not
+> been guessed — [`transcripts/README.md`](transcripts/README.md) explains what is and is not
+> known.
+
 | Confidence | Meaning |
 |---|---|
 | `fact` | Counted from the list. Not arguable |
