@@ -138,10 +138,21 @@ is the most consistent part of a deck — but a build where `engine` is everythi
 `interaction`, `closers` and `coreUnits` are zero is not a deck, it is a trigger.
 
 So: **name the plan before choosing cards** — how this deck wins, its pace, whether it
-conquers or holds, and what each package is for. See
-[`GENERATOR §2`](spec/GENERATOR.md). ⚠️ **The plan is the builder's, never yours to
-invent** ([D-041](DECISIONS.md#d-041)): offer two or three distinct skeletons the collection
-actually supports and let him pick.
+conquers or holds, and what each package is for. See [`GENERATOR §2`](spec/GENERATOR.md).
+
+> ### ⚠️ The plan comes out of what he said. Do not turn this into a wizard.
+>
+> **EE's entry point is a sentence, and usually the intent is already in it:**
+>
+> | He says | What you already have |
+> |---|---|
+> | *"a deck for this Legend, with this card in it"* | Legend + cards. **No intent** — this is the one case that offers skeletons |
+> | *"I hate playing against this, help me beat it"* | The win condition **is** "beat that deck". Derived, never asked |
+> | *"use this card, good at holding battlefields"* | **He stated the intent.** Map it to `pace × objective`, say it back in one clause, build |
+>
+> Being asked four questions to restate what he just said is not a conversation, and
+> [D-041](DECISIONS.md#d-041) is satisfied by *reading* his objective, not by making him pick
+> it off a list. **The menu is the fallback for a missing plan, never the front door.**
 
 ### ⚠️ A deck you propose gets checked, not just validated
 

@@ -279,6 +279,20 @@ moment the counts became real rather than reasoned. **The illustrative figures a
 authored, which is the thing [`EE-BRIEFING`](../EE-BRIEFING.md) §3 forbids** — recorded here
 because a spec that fakes its own example teaches the habit it is trying to prevent.
 
+**Against the `fast-conquer` skeleton, `reviewAgainstPlan` returns:**
+
+```
+engine        15   target 8–10    +5
+interaction   17   target 6–8     +9
+closers        1   target 2–4     −1
+coreUnits      6   target 9+      −3
+curve  [0,4,19,9,7,0,1]   largest 19 at cost 2 (48%)   holes [5]
+```
+
+Six notes, each carrying whoever holds the target. **The two that matter are `closers −1` and
+`coreUnits −3`**: this deck can trigger its Legend and win fights, and has almost nothing to
+win *with*.
+
 ### 6.2 Curve shape — the check that does not exist today
 
 Two facts, neither needing doctrine to state:

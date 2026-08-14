@@ -73,6 +73,15 @@ export {
 } from "./advice/feedback.js";
 export { readArchetype, type Archetype, type ArchetypeRead } from "./advice/archetype.js";
 export {
+  planFromSkeleton,
+  reviewAgainstPlan,
+  type CurveRead,
+  type PackageDelta,
+  type Plan,
+  type PlanReview,
+  type SlotIntent,
+} from "./advice/plan.js";
+export {
   SKELETONS,
   feasibilities,
   feasibility,
