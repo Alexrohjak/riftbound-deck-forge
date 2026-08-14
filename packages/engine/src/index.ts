@@ -77,6 +77,14 @@ export {
 } from "./advice/feedback.js";
 export { readArchetype, type Archetype, type ArchetypeRead } from "./advice/archetype.js";
 export {
+  classify,
+  reviewBattlefields,
+  type BattlefieldClass,
+  type BattlefieldRead,
+  type BattlefieldReview,
+  type Trigger,
+} from "./advice/battlefields.js";
+export {
   planFromSkeleton,
   reviewAgainstPlan,
   type CurveRead,

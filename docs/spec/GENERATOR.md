@@ -385,7 +385,27 @@ Two facts from the guide sharpen it:
 - ⭐ **Asymmetry beats magnitude, proven.** `Trifarian War Camp` (+1 to *everything*) flips
   **0.0%** of combats; `Forbidding Waste` (−2 to a *lone defender*) flips **40.8%**.
 - **Only 1 of your 3 is used per game**, so the plan must record **three different answers,
-  not three copies of one idea** — itself a checkable property.
+  not three copies of one idea** — checkable as *"do all three pay out on the same trigger?"*.
+  Three `hold` battlefields only pay you when you are already ahead.
+
+**Measured across all 66:** 38 one-sided · 21 symmetric · 7 restriction. So the safe class is
+the *common* case, and meeting the floor costs almost nothing.
+
+⚠️ **`oneSided` is scope, not valence.** It says the text's *"you"* is the controller — not
+that the effect is good. `Vaults of Helia` reads *"when you hold here, **your** non-token
+units cost 1 more"*: one-sided, and a drawback. Reading the class as "safe" would recreate the
+mistake it exists to prevent.
+
+⚠️ **Two of the guide's own examples were classified wrongly at first**, both because
+`friendly` was treated as a self-scoping word — it appears in *reminder* text and is relative
+to whoever reads it. `Forbidding Waste` and `The Dreaming Tree` both landed in one-sided. The
+guide's flagship asymmetric example being filed as safe is the kind of error that reads as
+working.
+
+**On the deck that prompted all this:** the three are varied (passive · hold · conquer), and
+**`Back-Alley Bar` is symmetric with no stated reason** — *"when a unit moves from here, give
+it +1 Might"* pays whoever moves units. Under §7's floor it does not get registered until the
+plan says why this deck exploits it harder.
 
 ---
 
