@@ -21,6 +21,7 @@
     "check:purity": "node scripts/check-engine-purity.mjs",
     "check": "npm run check:docs && npm run build",
     "state": "node scripts/pull-state.mjs",
+    "audit:knowledge": "node scripts/audit-knowledge.mjs",
     "deck": "node scripts/push-deck.mjs"
   },
   "devDependencies": {

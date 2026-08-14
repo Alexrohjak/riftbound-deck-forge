@@ -390,6 +390,7 @@ system map and **where to put a new idea**.
 | [**`tools/collection/`**](tools/collection/) | **The collection tool — keyboard entry over all 1,180 printings, live matches with images, JSON export. Working, and in use.** |
 | [`tools/check-docs.py`](tools/check-docs.py) | Fails when the docs contradict themselves — milestone arithmetic, the two status boards, decision counts, links. Run it after editing any planning doc |
 | [`scripts/pull-state.mjs`](scripts/pull-state.mjs) | `npm run state` — live D1 into `state/forge-state.json`, so no EE answer is built on a stale file. **Read-only**, and it refuses to write an empty collection: "you own none of that" is a plausible-looking answer and a catastrophic one |
+| [`scripts/audit-knowledge.mjs`](scripts/audit-knowledge.mjs) | `npm run audit:knowledge` — **what the cards say against what Forge models.** Reports the mechanics printed on cards that no check can act on, ranked by how many cards carry them. ⚠️ Reports; never edits — a gap is a question for a human, not a licence to author card data ([D-034](docs/DECISIONS.md#d-034)) |
 | [`scripts/check-engine-purity.mjs`](scripts/check-engine-purity.mjs) | Fails if the engine imports `fs`, `fetch` or the DOM — that would break one of its two consumers, and it would be the one nobody ran |
 
 ### Specification — what we're building
