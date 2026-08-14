@@ -44,8 +44,37 @@ export interface Parsed {
 }
 
 const SET_CODE = /^([A-Za-z]{3})[\s-]+(.*)$/;
-const COLLECTOR = /^(\d{1,3})([A-Za-z*]?)$/;
+/**
+ * What is printed in the collector-number slot: an optional letter designator, the number,
+ * and an optional alternate-art or showcase suffix.
+ *
+ * ⚠️ **The designator is not decoration.** Vendetta's six promo Champions are printed
+ * `VEN-SP1/006`…`VEN-SP6/006`, and this pattern used to be `\d{1,3}` — so `SP3` did not
+ * parse at all, and plain `3` was zero-padded into `VEN-003`, which is a different card.
+ * There was no input that reached them, and the failure was silent in the worst direction:
+ * it registered the wrong card rather than reporting a miss.
+ */
+const COLLECTOR = /^([A-Za-z]{1,2})?[- ]?(\d{1,3})([A-Za-z*]?)$/;
 const MULTIPLIER = /^(.*?)\s*[*x]\s*(\d+)$/i;
+
+/**
+ * The part of a printed code that identifies a printing inside its own set —
+ * `VEN-SP3/006` → `SP3`, `OGN-197a/298` → `197a`, `VEN-R01` → `R01`.
+ *
+ * The set total after the slash is not always there (promos and tokens omit it), which is
+ * why this cuts on the slash rather than requiring one.
+ */
+const designatorOf = (code: string) => {
+  const head = code.split("/")[0]!;
+  return head.slice(head.indexOf("-") + 1);
+};
+
+/**
+ * Compare designators the way a shelf does: **case and leading zeros are not information.**
+ * `001` and `1` are the same card, and so are `R01` and `r1`. Only one numeric run exists in
+ * a designator, so replacing the first is replacing all of it.
+ */
+const designatorKey = (d: string) => d.toUpperCase().replace(/\d+/, (n) => String(Number(n)));
 
 /**
  * Turn what was typed into candidates. Ported from the collection tool rather than
@@ -82,17 +111,22 @@ export function parseEntry(raw: string, pool: CardPool, currentSet: string): Par
 
   const collector = rest.match(COLLECTOR);
   if (collector) {
-    const number = Number(collector[1]);
-    const suffix = collector[2] ?? "";
-    const padded = String(number).padStart(3, "0");
+    const typed = `${collector[1] ?? ""}${collector[2]}${collector[3] ?? ""}`;
     // The exact printing, not merely the card that has one. `197` and `197a` are different
     // objects on a shelf and the whole reason the suffix is typed at all.
-    const wanted = `${set}-${padded}${suffix}/`;
+    //
+    // ⚠️ Matched by **equality on the designator**, not by a prefix of a reconstructed code.
+    // Building `${set}-${padded}${suffix}/` could only ever express a number, and the
+    // trailing slash it needed to stop `01` matching `012` is absent from promo and token
+    // codes. Comparing what is printed handles both without a special case per shape.
+    const wanted = designatorKey(typed);
     for (const card of pool.cards) {
-      const printing = card.printings.find((p) => p.set === set && p.code.startsWith(wanted));
+      const printing = card.printings.find(
+        (p) => p.set === set && designatorKey(designatorOf(p.code)) === wanted,
+      );
       if (printing) return { cands: [{ card, printing }], mult, sign };
     }
-    return { cands: [], miss: `${set} ${number}${suffix}`, mult, sign };
+    return { cands: [], miss: `${set} ${wanted}`, mult, sign };
   }
 
   const query = rest.toLowerCase();

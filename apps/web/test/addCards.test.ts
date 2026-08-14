@@ -40,15 +40,29 @@ const VEN_CARD = card({
   release: 2,
   printings: [{ id: "ven-012-166", code: "VEN-012/166", set: "VEN", n: 12, img: "https://i/d?t=1" }],
 });
+/**
+ * A reprint whose newest printing is a Vendetta promo. This is the real shape of the six
+ * `VEN-SP` Champions: the card's base printing is in an older set, so the promo lives behind
+ * it as an alternate — reachable only by typing its own designator.
+ */
 const JINX = card({
   name: "Jinx, Demolitionist",
-  printings: [{ id: "ogn-030-298", code: "OGN-030/298", set: "OGN", n: 30, img: "https://i/e?t=1" }],
+  printings: [
+    { id: "ogn-030-298", code: "OGN-030/298", set: "OGN", n: 30, img: "https://i/e?t=1" },
+    { id: "ven-sp1-006", code: "VEN-SP1/006", set: "VEN", n: 1, img: "https://i/f?t=1" },
+  ],
+});
+/** A promo code with no set total after it, which the old prefix match could not reach. */
+const RUNE = card({
+  name: "Fury Rune",
+  release: 2,
+  printings: [{ id: "ven-r01", code: "VEN-R01", set: "VEN", n: 1, img: "https://i/g?t=1" }],
 });
 
 const pool = buildPool({
   schema: "forge.cards/1",
-  counts: { names: 4, printings: 5, legends: 0, banned: 0 },
-  cards: [SCORCHER, HOPEFUL, VEN_CARD, JINX],
+  counts: { names: 5, printings: 7, legends: 0, banned: 0 },
+  cards: [SCORCHER, HOPEFUL, VEN_CARD, JINX, RUNE],
 });
 
 const parse = (raw: string, set = "OGN") => parseEntry(raw, pool, set);
@@ -83,6 +97,32 @@ describe("typing a collector number", () => {
   it("says which number missed rather than silently matching something else", () => {
     expect(parse("999")?.miss).toBe("OGN 999");
     expect(parse("999")?.cands).toEqual([]);
+  });
+
+  it("⚠️ reaches a lettered designator — the six VEN-SP promos had no input at all", () => {
+    // `SP3` did not parse, and plain `3` was padded into `VEN-003` — a different card,
+    // registered silently. Both halves are asserted: the promo is found, and it is found
+    // as ITS printing rather than the base art in the older set.
+    const promo = parse("sp1", "VEN");
+    expect(promo?.cands[0]?.card.name).toBe("Jinx, Demolitionist");
+    expect(promo?.cands[0]?.printing.code).toBe("VEN-SP1/006");
+  });
+
+  it("takes a designator with no set total after it", () => {
+    expect(parse("r01", "VEN")?.cands[0]?.printing.code).toBe("VEN-R01");
+  });
+
+  it("reads leading zeros and case as noise, because a shelf does", () => {
+    expect(parse("012")?.cands[0]?.card.name).toBe("Noxus Hopeful");
+    expect(parse("SP1", "VEN")?.cands[0]?.printing.code).toBe("VEN-SP1/006");
+    expect(parse("r1", "VEN")?.cands[0]?.printing.code).toBe("VEN-R01");
+  });
+
+  it("⚠️ a number still never reaches a designator that merely contains it", () => {
+    // The guard the old trailing slash provided: VEN 1 is Vendetta's card 1, and must not
+    // fall through to `VEN-SP1` or `VEN-R01` just because they carry the digit.
+    expect(parse("1", "VEN")?.cands).toEqual([]);
+    expect(parse("1", "VEN")?.miss).toBe("VEN 1");
   });
 
   it("jumps set inline, so you can enter one stray card without leaving the row", () => {
