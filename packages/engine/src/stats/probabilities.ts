@@ -314,15 +314,29 @@ export interface Openings {
  * unit you can afford — because the alternative is a pretend pilot whose skill would be
  * baked invisibly into the number. A greedy curve-out is the assumption, and it is stated.
  */
-export function simulateOpenings(deck: Deck, cards: CardIndex, hands = 10_000): Openings {
-  interface Card { energy: number | null; power: number; domain: string | null; might: number }
-  const library: Card[] = [];
+/** One copy of one Main Deck card, reduced to what a simulation needs. */
+interface SimCard {
+  energy: number | null;
+  power: number;
+  domain: string | null;
+  might: number;
+}
+
+/**
+ * The Main Deck flattened to one entry per copy.
+ *
+ * ⚠️ Shared by every simulation in this file **so they cannot drift apart**. Two functions
+ * building their own library from the same deck is how one of them quietly stops counting
+ * two-domain cards while the other still does.
+ */
+function buildLibrary(deck: Deck, cards: CardIndex): SimCard[] {
+  const library: SimCard[] = [];
   for (const entry of deckEntries(deck, cards)) {
     if (entry.zone !== "MAIN" || !entry.cardId) continue;
     const energy = entry.facts?.energy;
     const might = entry.facts?.might;
     const coloured = (entry.facts?.domains ?? []).filter((d) => d !== "colorless");
-    const card: Card = {
+    const card: SimCard = {
       energy: typeof energy === "number" ? energy : null,
       power: typeof entry.facts?.power === "number" ? (entry.facts.power as number) : 0,
       domain: coloured.length === 1 ? (coloured[0] as string) : null,
@@ -330,6 +344,143 @@ export function simulateOpenings(deck: Deck, cards: CardIndex, hands = 10_000): 
     };
     for (let i = 0; i < entry.quantity; i++) library.push(card);
   }
+  return library;
+}
+
+/**
+ * Whether one card could be cast by the end of `turn`, in isolation.
+ *
+ * ⚠️ **Deliberately generous.** It asks whether the card is affordable *at all* by then, not
+ * whether it fits alongside everything else you would rather play. Being conservative about
+ * calling a card **dead** is the right direction: a false "this is unplayable" costs the
+ * builder a card they should have kept.
+ */
+const castableBy = (runes: ReturnType<typeof runeDeck>) =>
+  (card: SimCard, turn: number): boolean => {
+    if (card.energy === null || card.energy > RUNES_PER_TURN * turn) return false;
+    if (card.power > 0) {
+      if (card.domain === null) return false;
+      const have = runes.byDomain[card.domain] ?? 0;
+      if (have < card.power || card.power > RUNES_PER_TURN * turn) return false;
+    }
+    return true;
+  };
+
+/** Fisher-Yates over indices, so the library array itself is never mutated. */
+function shuffled(size: number, random: () => number): number[] {
+  const order = Array.from({ length: size }, (_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [order[i], order[j]] = [order[j] as number, order[i] as number];
+  }
+  return order;
+}
+
+/**
+ * ⭐ **Mulligan legibility** — how often the opening hand cannot act.
+ *
+ * `GENERATOR §6.3`, and the best idea in the deckbuilding transcripts:
+ *
+ * > *"The package separation isn't just for us to understand our deck, but to understand our
+ * > **hand** when we start the game… Opening Time Warp, Thousand Tailed Watcher and
+ * > Singularity alongside a two drop is seemingly nice, but three of those cards are sitting
+ * > in your hand with no way to effectively utilize them in the first three turns."*
+ * > — `reference/transcripts/03-the-all-unique-deck.md`
+ *
+ * `DECKBUILDING.md` §4 has recorded that sentence since Discovery and nothing ever used it,
+ * while this file was already simulating ten thousand hands next door.
+ *
+ * ⚠️ **Measured from cost and runes, not from packages.** A card is stranded because it is
+ * unaffordable, which is counted — not because it was filed under `closers`, which is a
+ * judgement. This keeps the number a Tier 1 fact and independent of how packages are assigned.
+ */
+export const OPENING_HAND = 4;
+
+/** *"…the first three turns."* At two runes a turn that is six Energy. */
+export const OPENING_HORIZON = 3;
+
+export interface Mulligans {
+  hands: number;
+  handSize: number;
+  /** `stranded[k]` — share of openings holding exactly `k` cards unaffordable by the horizon. */
+  stranded: number[];
+  /** ⭐ Share of openings where **at most one** card can be cast by the horizon. */
+  atMostOnePlayable: number;
+  assumptions: string[];
+}
+
+/**
+ * Deal `hands` opening hands and count how many cards in each cannot be cast by turn three.
+ *
+ * ⚠️ **The hand before the mulligan, deliberately.** Modelling the mulligan would need a
+ * policy, and the policy is the very thing `03` says packages exist to inform. Measuring the
+ * hand you are *dealt* is what tells you how often you will be making that decision.
+ */
+export function simulateMulligans(deck: Deck, cards: CardIndex, hands = 10_000): Mulligans {
+  const library = buildLibrary(deck, cards);
+  const runes = runeDeck(deck, cards);
+  const empty: Mulligans = {
+    hands: 0,
+    handSize: OPENING_HAND,
+    stranded: [],
+    atMostOnePlayable: 0,
+    assumptions: [],
+  };
+  if (library.length < OPENING_HAND) return empty;
+
+  const castable = castableBy(runes);
+  /**
+   * ⚠️ **Set aside, not counted dead** — the same call `playableOptions` makes, and for the
+   * same reason. A two-domain card's Power is owed in a domain the data does not name, so
+   * `castableBy` returns `false` for it. Letting that count as *"cannot act"* would invent
+   * strandedness out of a gap in the card data, in the one direction that makes a deck look
+   * worse than it is.
+   */
+  const unknown = (card: SimCard) => card.power > 0 && card.domain === null;
+
+  const random = rng(0x5eed);
+  const stranded = new Array<number>(OPENING_HAND + 1).fill(0);
+  let strandedHands = 0;
+
+  for (let h = 0; h < hands; h++) {
+    const order = shuffled(library.length, random);
+    let dead = 0;
+    let live = 0;
+    for (let i = 0; i < OPENING_HAND; i++) {
+      const card = library[order[i] as number] as SimCard;
+      if (unknown(card)) continue;
+      if (castable(card, OPENING_HORIZON)) live += 1;
+      else dead += 1;
+    }
+    stranded[dead] = (stranded[dead] ?? 0) + 1;
+    if (live <= 1) strandedHands += 1;
+  }
+
+  const unattributable = library.filter(unknown).length;
+  return {
+    hands,
+    handSize: OPENING_HAND,
+    stranded: stranded.map((n) => n / hands),
+    atMostOnePlayable: strandedHands / hands,
+    assumptions: [
+      `${hands.toLocaleString("en-GB")} simulated openings of ${OPENING_HAND} cards, seeded so the same deck always reports the same numbers`,
+      `"can act" means affordable by turn ${OPENING_HORIZON} — ${RUNES_PER_TURN * OPENING_HORIZON} Energy, at ${RUNES_PER_TURN} runes per turn`,
+      "each card judged in isolation — affordability is generous, so a card called dead really is",
+      "the hand as dealt — no mulligan modelled, because choosing what to throw is the decision this number informs",
+      ...(unattributable > 0
+        ? [
+            `${unattributable} cop${unattributable === 1 ? "y" : "ies"} of two-domain cards ` +
+              "set aside, neither playable nor dead — the data does not say which domain their " +
+              "Power is owed in, so a hand holding one is measured on its other cards",
+          ]
+        : []),
+    ],
+  };
+}
+
+export function simulateOpenings(deck: Deck, cards: CardIndex, hands = 10_000): Openings {
+  type Card = SimCard;
+  const library = buildLibrary(deck, cards);
 
   const runes = runeDeck(deck, cards);
   const empty: Openings = {
@@ -343,15 +494,7 @@ export function simulateOpenings(deck: Deck, cards: CardIndex, hands = 10_000): 
 
   /** See `playableOptions`: an unattributable Power colour is unknown, not absent. */
   const unattributable = library.filter((c) => c.power > 0 && c.domain === null).length;
-  const castable = (card: Card, turn: number): boolean => {
-    if (card.energy === null || card.energy > RUNES_PER_TURN * turn) return false;
-    if (card.power > 0) {
-      if (card.domain === null) return false;
-      const have = runes.byDomain[card.domain] ?? 0;
-      if (have < card.power || card.power > RUNES_PER_TURN * turn) return false;
-    }
-    return true;
-  };
+  const castable = castableBy(runes);
 
   const random = rng(0x5eed);
   let one = 0;
@@ -359,12 +502,7 @@ export function simulateOpenings(deck: Deck, cards: CardIndex, hands = 10_000): 
   const mightTotal = new Array<number>(TURNS).fill(0);
 
   for (let h = 0; h < hands; h++) {
-    // Fisher-Yates over indices, so the library array itself is never mutated.
-    const order = library.map((_, i) => i);
-    for (let i = order.length - 1; i > 0; i--) {
-      const j = Math.floor(random() * (i + 1));
-      [order[i], order[j]] = [order[j] as number, order[i] as number];
-    }
+    const order = shuffled(library.length, random);
 
     const hand: Card[] = [];
     let next = 0;

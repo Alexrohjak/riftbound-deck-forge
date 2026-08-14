@@ -316,9 +316,23 @@ The best idea in the transcripts, and Forge already has the machinery:
 and nothing ever used it — **while `simulateOpenings` already runs 10,000 hands.**
 
 So: the distribution of opening hands by how many cards cannot act before turn three. Not
-*"you have too many closers"* but ***"in 23% of openings, three of your four cards can't act
-before turn three."*** Tier 2, computed, assumption travelling with it — and **nothing any of
+*"you have too many closers"* but *"in N% of openings, three of your four cards can't act
+before turn three."* Tier 2, computed, assumption travelling with it — and **nothing any of
 the four sources can produce.**
+
+⚠️ **Measured. The illustrative 23% above was authored; the real answer for Grand Duelist is
+`0%`** — every opening has all four cards castable by turn three, because the deck's most
+expensive card costs 6 and turn three affords exactly 6.
+
+**That is not the check failing, it is the check working.** Read beside `48% of the deck at
+cost 2` and `closers 1`, a perfectly legible opening is the *same finding from the other
+side*: this deck is all early game. A number that only ever fires downward would be a
+warning light, not a measurement.
+
+⚠️ **A two-domain card is set aside, never counted dead.** Before that fix this deck read
+`25.4%` of openings holding one unplayable card — pure artefact, produced entirely by cards
+whose Power domain the data does not name. `playableOptions` had already learned this lesson;
+this simulation had to learn it separately.
 
 ### 6.4 Disclosure is structural
 

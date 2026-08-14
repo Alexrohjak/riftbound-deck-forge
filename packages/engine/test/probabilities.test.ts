@@ -6,6 +6,8 @@ import {
   playableOptions,
   runeFeasibility,
   simulateOpenings,
+  simulateMulligans,
+  OPENING_HORIZON,
   staticCardIndex,
   type CardEntry,
   type Deck,
@@ -62,6 +64,15 @@ const CARDS: Record<string, CardEntry> = {
     energy: 3,
     power: 0,
     might: 4,
+  },
+  /** 10 Energy — beyond the opening horizon however the runes fall. `03`'s Time Warp. */
+  "huge-unit": {
+    name: "Huge Unit",
+    types: ["unit"],
+    domains: ["fury"],
+    energy: 10,
+    power: 0,
+    might: 12,
   },
   "legend-x": { name: "A Legend", types: ["legend"], domains: ["fury", "calm"] },
 };
@@ -270,7 +281,16 @@ describe("two-domain Power is unknown, not absent", () => {
       might: 4,
     },
     "plain": { name: "Plain", types: ["unit"], domains: ["fury"], energy: 1, power: 0, might: 1 },
-    "legend-x": { name: "A Legend", types: ["legend"], domains: ["fury", "calm"] },
+    /** 10 Energy — beyond the opening horizon however the runes fall. `03`'s Time Warp. */
+  "huge-unit": {
+    name: "Huge Unit",
+    types: ["unit"],
+    domains: ["fury"],
+    energy: 10,
+    power: 0,
+    might: 12,
+  },
+  "legend-x": { name: "A Legend", types: ["legend"], domains: ["fury", "calm"] },
   });
   const deck: Deck = {
     id: "d",
@@ -300,5 +320,71 @@ describe("two-domain Power is unknown, not absent", () => {
   it("declares expected Might a floor when it could not play those cards", () => {
     const o = simulateOpenings(deck, dual, 500);
     expect(o.assumptions.join(" ")).toMatch(/floor rather than an estimate/);
+  });
+});
+
+describe("⭐ mulligan legibility — how often the opening cannot act", () => {
+  /**
+   * `03`'s case, built deliberately: *"Opening Time Warp, Thousand Tailed Watcher and
+   * Singularity alongside a two drop is seemingly nice, but three of those cards are sitting
+   * in your hand with no way to effectively utilize them in the first three turns."*
+   */
+  const main = (cardId: string, quantity: number) => ({ cardId, zone: "MAIN" as const, quantity });
+  const topHeavy = deck([main("cheap-unit", 6), main("huge-unit", 33), ...split(7)]);
+  const allCheap = deck([main("cheap-unit", 39), ...split(7)]);
+
+  it("a deck of closers strands its own openings", () => {
+    expect(simulateMulligans(topHeavy, cards).atMostOnePlayable).toBeGreaterThan(0.5);
+  });
+
+  it("a deck that can cast everything early never strands", () => {
+    // The other half of the claim: the number must be able to come back at zero, or it is
+    // measuring the simulation rather than the deck.
+    const m = simulateMulligans(allCheap, cards);
+    expect(m.atMostOnePlayable).toBe(0);
+    expect(m.stranded[0]).toBe(1);
+  });
+
+  it("the distribution sums to one and covers the whole hand", () => {
+    const m = simulateMulligans(topHeavy, cards);
+    expect(m.stranded).toHaveLength(m.handSize + 1);
+    expect(m.stranded.reduce((a, b) => a + b, 0)).toBeCloseTo(1, 10);
+  });
+
+  it("is seeded, so the same deck always reports the same number", () => {
+    expect(simulateMulligans(topHeavy, cards).atMostOnePlayable).toBe(
+      simulateMulligans(topHeavy, cards).atMostOnePlayable,
+    );
+  });
+
+  it("⚠️ states the horizon it measured, because 'can act' is meaningless without one", () => {
+    const said = simulateMulligans(topHeavy, cards).assumptions.join(" ");
+    expect(said).toContain(`turn ${OPENING_HORIZON}`);
+    expect(said).toContain("no mulligan modelled");
+  });
+
+  it("⚠️ a two-domain card is set aside, never counted as dead", () => {
+    // The call `playableOptions` already makes. Counting a gap in the card data as
+    // strandedness would invent a fault in the one direction that makes a deck look worse.
+    const twoDomain: Record<string, CardEntry> = {
+      ...CARDS,
+      "split-power": {
+        name: "Split Power",
+        types: ["unit"],
+        domains: ["fury", "calm"],
+        energy: 2,
+        power: 2,
+        might: 3,
+      },
+    };
+    const idx = staticCardIndex(twoDomain);
+    const d = deck([main("cheap-unit", 20), main("split-power", 19), ...split(7)]);
+    const m = simulateMulligans(d, idx);
+    expect(m.stranded[0]).toBe(1); // nothing is dead — the split cards are set aside
+    expect(m.assumptions.join(" ")).toContain("set aside");
+  });
+
+  it("returns an empty read rather than a fake one for a deck too small to deal from", () => {
+    expect(simulateMulligans(deck([main("cheap-unit", 2)]), cards).hands).toBe(0);
   });
 });
