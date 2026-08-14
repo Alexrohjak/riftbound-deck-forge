@@ -18,6 +18,13 @@ import {
   cardFactsFrom,
   buildBrief,
   counterCounsel,
+  feasibilities,
+  planFromSkeleton,
+  reviewAgainstPlan,
+  reviewBattlefields,
+  rewardsOf,
+  skeletonById,
+  SKELETONS,
   legendCounsel,
   mechanicCounsel,
   checkLegality,
@@ -28,16 +35,19 @@ import {
   match,
   readArchetype,
   review,
+  simulateMulligans,
   staticCardIndex,
   suggest,
   type CardEntry,
   type Deck,
   type MatchRecord,
   type PoolCard,
+  type Plan,
+  type PoolSupply,
   type Proposal,
 } from "@forge/engine";
 
-const USAGE = `forge <legality|review|ask|log|brief|validate|legend|around|counter|mechanic> [file.json] [options]
+const USAGE = `forge <legality|review|ask|log|skeletons|brief|validate|legend|around|counter|mechanic> [file.json] [options]
 
   deck.json    a Deck — see docs/spec/DATA-MODEL.md §1
   --pool       apps/web/public/cards.json — the generated index. Easier than --cards:
@@ -55,10 +65,25 @@ const USAGE = `forge <legality|review|ask|log|brief|validate|legend|around|count
   legality     is this deck registerable? 33 checks, each with its citation.
   review       what IS this deck? Counts, odds, and what good players would say —
                every judgement carrying its source and how much confidence it earns.
-  brief        --legend <cardId> [--around a,b] [--exclude "Name,Name"]
+               --plan <skeletonId|plan.json> adds D-064's plan-relative read: package
+               deltas, curve shape, the mulligan number, and the battlefield classes.
+  skeletons    --legend <cardId>
+               D-064 — the two-or-three plans this collection can support for that Legend,
+               each with its package targets and how much of your pool could fill them.
+               ⚠️ Returned UNRANKED, and unsupportable ones are returned too: ordering them
+               would be the composite score D-016 forbids, and a skeleton you are four
+               closers short of is a shopping list, not a failure.
+               ⚠️ This is the FALLBACK for when no intent was stated. If he said what he
+               wants — "good at holding battlefields", "beat this deck" — the plan comes
+               from that and this command is not needed.
+
+  brief        --legend <cardId> [--plan <skeletonId>] [--around a,b] [--exclude "Name,Name"]
                The constraint set a deck proposal has to satisfy: the Legend's ability
                text, every card legal under its identity, the targets, and what you own.
                S5 — the model proposes, the engine disposes.
+               --plan attaches the plan and, more usefully, how much of the legal pool sits
+               in each package against its target. Without it the model sees an
+               undifferentiated list and cannot tell it is overshooting while it builds.
 
   validate     proposal.json --legend <cardId>
                Runs a proposal through all 33 checks plus ownership and returns
@@ -138,11 +163,11 @@ function main(argv: string[]): number {
     process.stdout.write(`${USAGE}\n`);
     return 0;
   }
-  if (!["legality", "review", "ask", "log", "brief", "validate", "legend", "around", "counter", "mechanic"].includes(command)) {
+  if (!["legality", "review", "ask", "log", "skeletons", "brief", "validate", "legend", "around", "counter", "mechanic"].includes(command)) {
     fail(`Unknown command "${command}".\n\n${USAGE}`);
   }
   // `brief` takes flags rather than a file — there is no document to hand it.
-  const fileless = ["brief", "legend", "around", "counter", "mechanic"];
+  const fileless = ["skeletons", "brief", "legend", "around", "counter", "mechanic"];
   if (!deckPath && !fileless.includes(command)) fail(`${command} needs an input file.\n\n${USAGE}`);
 
   const flag = (name: string): string | undefined => {
@@ -287,6 +312,63 @@ function main(argv: string[]): number {
     return emit(counsel, "");
   }
 
+  /**
+   * Map a brief's pool onto what `feasibility` reads.
+   *
+   * ⚠️ Built from the brief rather than from the raw pool **so both see the same cards** —
+   * the brief has already applied Domain Identity, the ban list and the exclusions, and a
+   * second filter here would be a second implementation of L9/L10 to drift out of step.
+   */
+  const supplyOfBrief = (brief: ReturnType<typeof buildBrief>): PoolSupply[] =>
+    brief.pool.map((c) => ({
+      facts: {
+        name: c.name,
+        types: c.types,
+        // ⚠️ **`domains` is deliberately omitted.** Package assignment never reads it, and
+        // the brief has already applied Domain Identity — L9/L10 ran there. Carrying it
+        // would mean widening `Domain` or casting, to feed a field nothing consumes.
+        energy: c.energy,
+        might: c.might,
+        text: c.text,
+        ...(c.role ? { role: c.role } : {}),
+        ...(c.produces ? { produces: c.produces } : {}),
+        ...(c.consumes ? { consumes: c.consumes } : {}),
+      },
+      owned: c.owned,
+    }));
+
+  if (command === "skeletons") {
+    const legendCardId = flag("--legend");
+    if (!legendCardId) fail("skeletons needs --legend <cardId>.");
+    const pool: PoolCard[] = Object.entries(cards).map(([cardId, entry]) => ({
+      cardId,
+      facts: typeof entry === "string" ? { name: entry } : entry,
+    }));
+    if (pool.length === 0) fail("No card data. Pass --pool apps/web/public/cards.json.");
+
+    const brief = buildBrief({ legendCardId }, cardIndex, pool, collection);
+    const rewards = rewardsOf(legendCardId, cardIndex);
+    process.stdout.write(
+      `${JSON.stringify(
+        {
+          legend: brief.legend.name,
+          identity: brief.identity,
+          rewards,
+          poolNames: brief.counts.poolNames,
+          /**
+           * ⚠️ **Unranked, and misfits included.** Ordering would be the composite score
+           * D-016 forbids; dropping the unsupportable ones would hide the gap analysis,
+           * which is often the more useful answer.
+           */
+          skeletons: feasibilities(rewards, supplyOfBrief(brief)),
+        },
+        null,
+        2,
+      )}\n`,
+    );
+    return 0;
+  }
+
   if (command === "brief" || command === "validate") {
     const legendCardId = flag("--legend");
     if (!legendCardId) fail(`${command} needs --legend <cardId>.`);
@@ -308,7 +390,34 @@ function main(argv: string[]): number {
     );
 
     if (command === "brief") {
-      process.stdout.write(`${JSON.stringify(brief, null, 2)}\n`);
+      const planId = flag("--plan");
+      if (!planId) {
+        process.stdout.write(`${JSON.stringify(brief, null, 2)}\n`);
+        return 0;
+      }
+      const skeleton = skeletonById(planId);
+      if (!skeleton) {
+        fail(`Unknown plan "${planId}". Try: ${SKELETONS.map((s) => s.id).join(", ")}`);
+      }
+      const rewards = rewardsOf(legendCardId, cardIndex);
+      process.stdout.write(
+        `${JSON.stringify(
+          {
+            ...brief,
+            plan: planFromSkeleton(skeleton),
+            /**
+             * ⚠️ **The addition that matters.** Without it the model sees 321
+             * undifferentiated cards and five numbers, and cannot tell it is overshooting a
+             * package until after the deck exists.
+             */
+            supply: feasibilities(rewards, supplyOfBrief(brief)).find(
+              (f) => f.skeleton.id === skeleton.id,
+            )?.supply,
+          },
+          null,
+          2,
+        )}\n`,
+      );
       return 0;
     }
 
@@ -422,10 +531,52 @@ function main(argv: string[]): number {
   }
 
   if (command === "review") {
+    const planArg = flag("--plan");
+    /**
+     * D-064 — the plan-relative read.
+     *
+     * ⚠️ **A plan file is the normal case, a skeleton id the convenience.** EE's entry point
+     * is a sentence and usually carries the intent already, so most plans are written from
+     * what he said rather than picked off the menu (`GENERATOR §2`, `EE-BRIEFING §3`).
+     */
+    let plan: Plan | undefined;
+    if (planArg) {
+      const skeleton = skeletonById(planArg);
+      if (skeleton) plan = planFromSkeleton(skeleton);
+      else {
+        const loaded = readJson(planArg) as Plan;
+        if (!loaded?.packages || typeof loaded.closerFrom !== "number") {
+          fail(
+            `"${planArg}" is neither a skeleton id (${SKELETONS.map((s) => s.id).join(", ")}) ` +
+              `nor a plan file with "packages" and "closerFrom" — see docs/spec/GENERATOR.md §2.`,
+          );
+        }
+        plan = loaded;
+      }
+    }
+
     // Deliberately not a score. A deck is a set of trade-offs and a number hides which
     // ones were chosen (D-016).
     process.stdout.write(
-      `${JSON.stringify({ ...review(deck, index), archetype: readArchetype(deck, index) }, null, 2)}\n`,
+      `${JSON.stringify(
+        {
+          ...review(deck, index),
+          archetype: readArchetype(deck, index),
+          mulligans: simulateMulligans(deck, index),
+          ...(plan
+            ? {
+                plan: reviewAgainstPlan(deck, plan, index),
+                battlefields: reviewBattlefields(
+                  deck,
+                  index,
+                  new Set((plan.battlefields ?? []).map((b) => b.cardId)),
+                ),
+              }
+            : {}),
+        },
+        null,
+        2,
+      )}\n`,
     );
     return 0;
   }

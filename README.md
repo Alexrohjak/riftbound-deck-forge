@@ -187,6 +187,11 @@ node apps/cli/dist/index.js log <matches.json> --cards <cards.json>
 node apps/cli/dist/index.js brief --legend <cardId> --pool apps/web/public/cards.json
 node apps/cli/dist/index.js validate <proposal.json> --legend <cardId> --pool apps/web/public/cards.json
 
+# D-064 — a deck is built to a PLAN, and read against it.
+node apps/cli/dist/index.js skeletons --legend <cardId> $P        # the plans your pool supports
+node apps/cli/dist/index.js brief --legend <cardId> --plan fast-conquer $P
+node apps/cli/dist/index.js review <deck.json> --plan fast-conquer $P
+
 # Put a proposal on the Workbench, sideboard and all. Runs the 33 checks first and
 # refuses to write an illegal deck. Writes decks/deck_slots only, never the collection.
 npm run deck -- <proposal.json> --name "Grand Duelist vs Ivern"
@@ -257,6 +262,20 @@ gzipped** asset, fetched rather than bundled so a UI change does not re-download
 Alternate arts collapse behind the card they belong to and are selectable per deck slot;
 banned cards are **shown with a badge, never hidden**; champion tags are derived from
 Signature cards (L32 — 49 of 49 Legends, including the Yordle/Kennen trap).
+
+> ⚠️ **`decks.plan` needs a one-off migration on the live database** ([D-064](docs/DECISIONS.md#d-064)).
+> `schema.sql` carries the column for a fresh database, but `CREATE TABLE IF NOT EXISTS`
+> cannot add one to a table that already exists:
+>
+> ```bash
+> cd apps/api && npx wrangler d1 execute forge --remote --file=./migrations/001-deck-plan.sql
+> ```
+>
+> Existing decks keep `NULL`, which means *"built without a stated plan"* and is a real answer
+> rather than a gap to backfill. **Re-running it errors** with `duplicate column name`, which
+> is the safe failure. ⚠️ The `PUT` deliberately **preserves** a stored plan when the body
+> omits one — the app has been saving decks since long before plans existed, and clearing it
+> on an unrelated edit would be silent data loss. Clearing has to be typed: `"plan": null`.
 
 ### 5 · `X8` — the nightly backup ✅ live
 

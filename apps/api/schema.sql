@@ -33,6 +33,17 @@ CREATE TABLE IF NOT EXISTS decks (
   -- Singular fields, not slots — exactly one of each, and they behave differently.
   legend_card_id           TEXT,
   chosen_champion_card_id  TEXT,
+  -- D-064: what this deck was BUILT TO DO, as JSON — win condition, pace, objective,
+  -- package targets, battlefield and sideboard rationale.
+  --
+  -- ⚠️ Nullable, and every deck that predates the plan has NULL here. That is a real
+  -- answer meaning "built without a stated plan", not a default to be filled in: a plan
+  -- invented after the fact would be a rationalisation, and `reviewAgainstPlan` would then
+  -- be marking the deck's own homework.
+  --
+  -- Stored as an opaque blob because the engine owns its shape (D-047). This database
+  -- never parses it, so a new field costs no migration.
+  plan                     TEXT,
   created_at               TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at               TEXT NOT NULL DEFAULT (datetime('now'))
 );

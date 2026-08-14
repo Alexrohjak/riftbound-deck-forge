@@ -31,6 +31,14 @@ export interface BriefCard {
   might: number | null;
   /** Rules text, verbatim. **This is the thing worth reading** — 1041 of 1062 cards have it. */
   text: string;
+  /**
+   * What kind of card this is — `body`, `removal-kill`, `combat-trick`, `card-draw`…
+   *
+   * ⚠️ Carried because **package assignment reads it** (D-064): without `role` every removal
+   * spell in the pool buckets as something else, and the `interaction` target it is measured
+   * against becomes unmeetable by construction. Absent for the 72 cards nobody classified.
+   */
+  role?: string;
   /** Classification tags, where they exist. Absent is absent, never guessed. */
   produces?: readonly string[];
   consumes?: readonly string[];
@@ -123,6 +131,7 @@ export function buildBrief(
     energy: facts.energy ?? null,
     might: facts.might ?? null,
     text: facts.text ?? "",
+    ...(facts.role ? { role: facts.role } : {}),
     ...(facts.produces ? { produces: facts.produces } : {}),
     ...(facts.consumes ? { consumes: facts.consumes } : {}),
     owned: ownedByName.get(facts.name) ?? 0,

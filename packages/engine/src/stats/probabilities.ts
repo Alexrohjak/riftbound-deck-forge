@@ -404,7 +404,15 @@ export interface Mulligans {
   handSize: number;
   /** `stranded[k]` — share of openings holding exactly `k` cards unaffordable by the horizon. */
   stranded: number[];
-  /** ⭐ Share of openings where **at most one** card can be cast by the horizon. */
+  /**
+   * ⭐ Share of openings where **at least `handSize - 1` cards are known dead** — so at most
+   * one can act.
+   *
+   * ⚠️ **Counted from dead cards, never from a shortage of live ones.** A hand of three
+   * set-aside two-domain cards and one playable also has "at most one playable", and is not
+   * stranded — nobody knows what those three do. Defining this by what is *known* unaffordable
+   * makes it a floor, which is the safe direction for a number that argues a deck is broken.
+   */
   atMostOnePlayable: number;
   assumptions: string[];
 }
@@ -445,15 +453,14 @@ export function simulateMulligans(deck: Deck, cards: CardIndex, hands = 10_000):
   for (let h = 0; h < hands; h++) {
     const order = shuffled(library.length, random);
     let dead = 0;
-    let live = 0;
     for (let i = 0; i < OPENING_HAND; i++) {
       const card = library[order[i] as number] as SimCard;
+      // Set aside: neither playable nor dead, so it counts toward neither.
       if (unknown(card)) continue;
-      if (castable(card, OPENING_HORIZON)) live += 1;
-      else dead += 1;
+      if (!castable(card, OPENING_HORIZON)) dead += 1;
     }
     stranded[dead] = (stranded[dead] ?? 0) + 1;
-    if (live <= 1) strandedHands += 1;
+    if (dead >= OPENING_HAND - 1) strandedHands += 1;
   }
 
   const unattributable = library.filter(unknown).length;

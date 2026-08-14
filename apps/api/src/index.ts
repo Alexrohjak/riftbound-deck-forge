@@ -42,6 +42,8 @@ interface DeckRow {
   state: string;
   legend_card_id: string | null;
   chosen_champion_card_id: string | null;
+  /** D-064 — JSON, opaque to this Worker. `null` means "built without a stated plan". */
+  plan: string | null;
 }
 
 interface SlotRow {
@@ -261,7 +263,7 @@ async function deleteDeck(env: Env, id: string) {
 
 async function readDeck(env: Env, id: string) {
   const deck = await env.DB.prepare(
-    "SELECT id, name, state, legend_card_id, chosen_champion_card_id FROM decks WHERE id = ?",
+    "SELECT id, name, state, legend_card_id, chosen_champion_card_id, plan FROM decks WHERE id = ?",
   )
     .bind(id)
     .first<DeckRow>();
@@ -298,6 +300,16 @@ async function readDeck(env: Env, id: string) {
       })),
     },
     bench: bench.results.map((row) => ({ cardId: row.card_id, note: row.note ?? undefined })),
+    /**
+     * D-064 — **a sibling of the deck, not part of it**, for exactly the reason the Bench is
+     * (DATA-MODEL §1). The plan is not what makes a deck legal, and the strongest guarantee
+     * that no check ever reads it is that the object the rules engine receives does not
+     * contain it. `Deck` has no `plan` field, so no check can pick one up by accident.
+     *
+     * Passed through as text, never parsed here — the engine owns its shape (D-047), so a
+     * new field in the plan costs no change on this side.
+     */
+    ...(deck.plan === null ? {} : { plan: deck.plan }),
   };
 }
 
@@ -309,6 +321,7 @@ async function writeDeck(env: Env, id: string, request: Request) {
     state?: unknown;
     legendCardId?: unknown;
     chosenChampionCardId?: unknown;
+    plan?: unknown;
     slots?: unknown;
     bench?: unknown;
   };
@@ -323,6 +336,28 @@ async function writeDeck(env: Env, id: string, request: Request) {
   const legend = typeof body.legendCardId === "string" ? body.legendCardId : null;
   const champion =
     typeof body.chosenChampionCardId === "string" ? body.chosenChampionCardId : null;
+
+  /**
+   * D-064 — the plan, stored as JSON text.
+   *
+   * ⚠️ **Absent means "leave it alone"; `null` means "clear it".** Every other field on this
+   * PUT is overwritten, and the plan deliberately is not: the app has been saving decks since
+   * long before plans existed, and any client that does not know about them would otherwise
+   * wipe the plan on the next keystroke. Silent data loss on an unrelated edit is the one
+   * failure this endpoint must not have.
+   *
+   * Clearing therefore has to be typed out, which is the same shape as `--replace` on
+   * `push-deck`: the destructive option exists and cannot be reached by omission.
+   *
+   * Accepts an object (stringified here) or a string already.
+   */
+  const planGiven = body.plan !== undefined;
+  const plan =
+    body.plan === undefined || body.plan === null
+      ? null
+      : typeof body.plan === "string"
+        ? body.plan
+        : JSON.stringify(body.plan);
 
   if (!Array.isArray(body.slots)) {
     return json({ error: 'Expected { "slots": [ { cardId, zone, quantity } ] }.' }, 400);
@@ -388,15 +423,16 @@ async function writeDeck(env: Env, id: string, request: Request) {
   // with it, and the bench is not this endpoint's to discard.
   await env.DB.batch([
     env.DB.prepare(
-      `INSERT INTO decks (id, name, state, legend_card_id, chosen_champion_card_id)
-       VALUES (?, ?, ?, ?, ?)
+      `INSERT INTO decks (id, name, state, legend_card_id, chosen_champion_card_id, plan)
+       VALUES (?, ?, ?, ?, ?, ?)
        ON CONFLICT(id) DO UPDATE SET
          name = excluded.name,
          state = excluded.state,
          legend_card_id = excluded.legend_card_id,
          chosen_champion_card_id = excluded.chosen_champion_card_id,
+         ${planGiven ? "plan = excluded.plan," : ""}
          updated_at = datetime('now')`,
-    ).bind(id, name, state, legend, champion),
+    ).bind(id, name, state, legend, champion, plan),
     env.DB.prepare("DELETE FROM deck_slots WHERE deck_id = ?").bind(id),
     ...[...merged.values()].map((slot) =>
       env.DB.prepare(
