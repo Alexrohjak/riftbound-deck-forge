@@ -43,46 +43,80 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here — how to pick this up
 
-*Last worked on 2026-08-14. This section is the recipe; the live status board is
+*Last worked on 2026-08-15. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
-> ## ✅ The "no decks" blocker stopped reproducing — cause never found
+> ## 🎯 Pick this up here — EE builds to a plan now, and the plan is checked
 >
-> **Reported 2026-08-11, cleared 2026-08-14 without a fix.** Alexander opened Forge and the
-> Fiora deck (`grand-duelist-vs-ivern`) was there. Nothing was changed to make that happen, so
-> this is **stopped reproducing, not fixed**, and it is written down that way on purpose.
+> **[D-064](docs/DECISIONS.md#d-064) is built end to end.** A deck is no longer a pile that
+> passes legality: it is built to a **plan**, and the plan is measured where the deck is
+> written, so nobody can forget to look.
 >
-> The data was never the problem — verified intact in D1 throughout. The diagnostic that would
-> have named the cause was never run: nobody saw what the app rendered or what the console
-> said, because the app sits behind Cloudflare Access and signing in is not something the
-> assistant does.
+> | Piece | What it does |
+> |---|---|
+> | `advice/packages.ts` | What each card is **for** — `scoring` · `engine` · `interaction` · `closers` · `coreUnits` |
+> | `advice/skeleton.ts` | Four `pace × objective` templates, each target carrying who holds it |
+> | `advice/plan.ts` | Package deltas, curve shape, and the **second yardstick** |
+> | `advice/battlefields.ts` | One-sided / symmetric / restriction, with cannot-hurt-me as the floor |
+> | `simulateMulligans` | How often an opening cannot act before turn three |
+> | `scripts/audit-knowledge.mjs` | What the cards say against what Forge models |
 >
-> **Two candidates, both consistent with it clearing on its own**, and both worth knowing
-> because either would do it again:
+> ```bash
+> npm run state                                    # first thing, every session
+> node apps/cli/dist/index.js skeletons --legend <id> $P
+> npm run deck -- <proposal.json> --name "…" --plan <plan.json> --dry-run
+> npm run audit:knowledge
+> ```
 >
-> - **A stale bundle in that tab.** [`version.ts`](apps/web/src/version.ts) exists because of
->   exactly this and *offers* a reload rather than forcing one.
-> - **A lapsed Access session.** Access answers an unauthenticated request with a `302` to its
->   login page; follow it and you get `200` with HTML, so `r.ok` passes and `r.json()` throws.
->   `useDecks` ([`Decks.tsx`](apps/web/src/Decks.tsx)) funnels every failure into `setDecks([])`
->   — **a broken fetch and "you own no decks" render identically.** That catch is right to keep
->   the builder alive, but it should say *"could not read your decks"* rather than show an
->   empty shelf. ⚠️ **This is the one thing here still worth fixing**, because it is what made
->   an ordinary session expiry look like data loss.
+> ### ⚠️ The two rules that were broken the moment they were written
 >
-> ### Two loose ends still open
+> Both are in [`EE-BRIEFING.md`](docs/EE-BRIEFING.md) §3 and both cost a rebuild:
 >
-> ⚠️ **"First deck" was emptied mid-session and nobody knows by what.** `deck_history` shows it
-> go **17 slots → 4 → 2 in seven seconds at 22:13:28–35 UTC** — three minutes after the first
-> `npm run deck`, and 41 seconds after a deploy. `push-deck.mjs` targets only its own deck id
-> and now proves it, but that guard was added *after* this happened, so it did not witness it.
-> **The 17-card contents are recoverable from `deck_history` seq 151** (`deck_id = 'main'`).
-> Alexander said it did not matter; it is written down because a database losing rows without
-> an explanation is not a closed question.
+> 1. **Naming cards and mechanics is not stating an intent.** *"An Ambessa deck focused on
+>    Respected and Feared, I like Profiteer"* is a **seed**. If you cannot name the **pace**
+>    and **conquer-or-hold**, you have no plan — offer two or three distinct directions with
+>    their owned counts and honest weaknesses, and let him pick.
+> 2. **Read the card. Do not build from the tag.** `Cruel Patron` reads *"as an additional
+>    cost, kill a friendly unit"* and three copies shipped in a deck built to hold
+>    battlefields with bodies.
 >
-> ⚠️ **Nobody has seen the Sideboard bay render.** The ten cards round-trip through D1
-> correctly; whether `Workshop.tsx` draws them has still only been verified in code. Seeing the
-> Fiora deck open does not settle this — the bay is a separate surface.
+> ### On the Workbench: one deck, and it is untested
+>
+> **`Ambessa — Ready`** — Matriarch of War, Chosen Champion Ambessa Respected and Feared.
+> Every empower charges Matriarch, who readies a unit; Blood Rose readies for 3 XP; readying
+> is what lets a unit attack *and* still hold. Its plan is stored beside it (`origin:
+> "stated"`).
+>
+> ⚠️ **Nothing here has been playtested.** Every number is about shape, not about winning.
+> The one thing that would settle it is you playing a game and logging a note — `matches`,
+> `matches.symptoms` and [`feedback.ts`](packages/engine/src/advice/feedback.ts) all exist and
+> are **not yet wired to the plan** (`G7`). With a plan stored, a complaint becomes evidence
+> about a **package** rather than about a card.
+>
+> ⚠️ **The two older decks were deleted** on request (2026-08-15). Recoverable from the
+> `backups` branch snapshot of 2026-08-11, which holds both.
+>
+> ### ⚠️ One concrete thing the checks found and nobody has acted on
+>
+> The deck has **one** card with `[Tank]` or `[Shield]` — Shen — in 28 bodies, on a plan whose
+> objective is *hold*. **`Towering Combatant` ×3 is owned**: 4 energy, 3 Might, `[Shield 2]`
+> **and** `[Tank]`. On a hold plan that is probably better than the third `Voracious Gromp`.
+>
+> ### Next, by weight
+>
+> `npm run audit:knowledge` reports **9 mechanics printed on cards that no check can act on**,
+> down from 11. The two biggest are both about **costs**, so they need a new field on
+> `classification.json` rather than a text read:
+>
+> - **`additional-cost`, 56 cards** — the `Cruel Patron` class of mistake
+> - **`empower-once-only`, 37 cards** — *"use only if not Empowered"*, which drove a whole rebuild
+>
+> ### ⚠️ Worth a glance: is `X8` still running?
+>
+> The `backups` branch last committed **2026-08-11** (672 printings) and the collection is now
+> **685**. The cron is configured (`12 3 * * *`) and only commits when content changes, so a
+> gap is normal — the cards were probably entered after the last run. **The 03:12 UTC run on
+> 2026-08-15 settles it:** a snapshot with 685 printings means healthy, silence means look.
 
 **Where things stand.** 🔓 The whole design track is done and `DESIGN LOCKED` has lifted.
 ✅ **`F1`, `F2` and `F3` are all closed** — Forge is live, private, deploys itself on every push
