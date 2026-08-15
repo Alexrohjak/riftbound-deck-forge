@@ -94,6 +94,42 @@ export {
   type Reference,
   type SlotIntent,
 } from "./advice/plan.js";
+/**
+ * ⚠️ **The printed text, as data.** `MECHANICS` is the single source of truth for what a
+ * card's own words say — `scripts/audit-knowledge.mjs` imports this table rather than keeping
+ * a second copy, because two copies of a mapping is the drift D-047 exists to prevent.
+ */
+export {
+  MECHANICS,
+  hasMechanic,
+  levelThresholds,
+  mechanicRule,
+  mechanicsOf,
+  xpGranted,
+  xpSpent,
+  type MechanicHit,
+  type MechanicKind,
+  type MechanicRule,
+} from "./mechanics.js";
+export {
+  readMechanics,
+  type MechanicCard,
+  type MechanicFinding,
+} from "./advice/mechanics.js";
+/**
+ * The three deckbuilding questions `EVALUATION §6` specifies and nothing answered — Q-CARD,
+ * Q-THREAT and Q-SIDEBOARD. None needs the rules core; all three refuse combat explicitly.
+ */
+export { cardCounsel, type CardCounsel, type CombatProfile } from "./advice/card.js";
+export { readThreats, type Threat, type ThreatClass, type ThreatRead } from "./advice/threats.js";
+export {
+  sideboardCounsel,
+  SIDEBOARD_SIZE,
+  type SideboardCandidate,
+  type SideboardCounsel,
+  type SideboardCut,
+  type SideboardLine,
+} from "./advice/sideboard.js";
 export {
   SKELETONS,
   feasibilities,

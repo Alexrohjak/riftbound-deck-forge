@@ -6,6 +6,8 @@ import { capabilities } from "./doctrine.js";
 import type { Objective, Pace, Skeleton, Target } from "./skeleton.js";
 import { SKELETONS } from "./skeleton.js";
 import { deckShape } from "./shape.js";
+import type { MechanicFinding } from "./mechanics.js";
+import { readMechanics } from "./mechanics.js";
 
 /**
  * **The plan** — what a deck is built to do, and reading a deck against it.
@@ -113,6 +115,14 @@ export interface Reference {
 export interface PlanReview {
   plan: Plan;
   packages: PackageDelta[];
+  /**
+   * ⚠️ **What the cards in this deck actually say**, as against what their tags say.
+   *
+   * Empty is the common and correct case. Non-empty means a card charges something, needs
+   * something, or does something that no count elsewhere in this review can see — each one
+   * quoting the printed clause that produced it. See `advice/mechanics.ts`.
+   */
+  mechanics: MechanicFinding[];
   /** Absent when the plan came from a skeleton — it would then be compared with itself. */
   reference?: Reference;
   curve: CurveRead;
@@ -253,6 +263,17 @@ export function reviewAgainstPlan(deck: Deck, plan: Plan, cards: CardIndex): Pla
     }
   }
 
+  /**
+   * ⚠️ **What the cards say, before what the counts say.**
+   *
+   * These run on every deck this function reads, which is every deck `npm run deck` writes.
+   * That placement is the whole point — the same reasoning as D-064's: the check that only
+   * runs when someone remembers to run it is the check that was not run on the deck that
+   * needed it.
+   */
+  const mechanics = readMechanics(deck, plan.objective, cards);
+  for (const finding of mechanics) notes.push(finding.note);
+
   // ── curve, as facts ─────────────────────────────────────────────────────────
   const curveReadable = shape.size >= CURVE_READABLE_FROM;
   if (curveReadable && curve.largestBucket.share >= SPIKE_SHARE) {
@@ -314,6 +335,7 @@ export function reviewAgainstPlan(deck: Deck, plan: Plan, cards: CardIndex): Pla
   return {
     plan,
     packages: deltas,
+    mechanics,
     curve,
     notes,
     unmeasurableRewards: read.unmeasurableRewards,

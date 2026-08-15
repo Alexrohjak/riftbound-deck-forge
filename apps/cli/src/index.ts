@@ -15,6 +15,7 @@
 import { readFileSync } from "node:fs";
 import {
   aroundCounsel,
+  cardCounsel,
   cardFactsFrom,
   buildBrief,
   counterCounsel,
@@ -34,7 +35,9 @@ import {
   validateProposal,
   match,
   readArchetype,
+  readThreats,
   review,
+  sideboardCounsel,
   simulateMulligans,
   staticCardIndex,
   suggest,
@@ -47,7 +50,7 @@ import {
   type Proposal,
 } from "@forge/engine";
 
-const USAGE = `forge <legality|review|ask|log|skeletons|brief|validate|legend|around|counter|mechanic> [file.json] [options]
+const USAGE = `forge <legality|review|ask|log|skeletons|brief|validate|legend|around|counter|mechanic|card|threats|sideboard> [file.json] [options]
 
   deck.json    a Deck — see docs/spec/DATA-MODEL.md §1
   --pool       apps/web/public/cards.json — the generated index. Easier than --cards:
@@ -130,6 +133,31 @@ const USAGE = `forge <legality|review|ask|log|skeletons|brief|validate|legend|ar
             pattern name. Returns both halves: cards that pay the mechanic off, and
             cards that feed it.
 
+  card      --card <cardId>
+            "What is this card good at?" ⚠️ RETURNS THE PRINTED TEXT FIRST, which is
+            the point: the briefing has told the mouth to read the card since D-064
+            and there was no tool that returned one. Plus what it CHARGES you — every
+            mechanic with the clause that produced it — the combat profile in both
+            orientations (Assault attacking, Shield defending), and the format's
+            median Might at that cost.
+            ⚠️ Never says what it beats in a fight. That needs S1a.
+
+  threats   deck.json
+            "What should I fear?" Runs the OPPOSITE way to "counter": that one starts
+            from their Legend, this one starts from YOUR deck. Sweep exposure against
+            your own Might distribution, what your removal cannot kill as a share of
+            the format, and the answer you run none of.
+            ⚠️ What an opponent CAN do, never what they WILL — the denominator is the
+            legal pool, and "unmodelled" always says what this cannot see.
+
+  sideboard deck.json --against <cardId> [--win "how this deck wins"]
+            "What do I swap, against what, and for what?" The ten-card board the
+            briefing has mandated since D-064 with nothing computing it. Returns what
+            to bring with L16 HEADROOM already subtracted — copies span Main Deck and
+            sideboard combined, so a suggestion above it is illegal rather than greedy
+            — and what to cut, grounded in their identity's median unit Might.
+            ⚠️ Grounded in what their identity CAN field. There is no meta data.
+
 ⚠️ review returns three kinds of claim and they are not interchangeable:
    fact        counted from the list; not arguable
    probability computed, correct GIVEN the assumption in its attribution
@@ -163,11 +191,11 @@ function main(argv: string[]): number {
     process.stdout.write(`${USAGE}\n`);
     return 0;
   }
-  if (!["legality", "review", "ask", "log", "skeletons", "brief", "validate", "legend", "around", "counter", "mechanic"].includes(command)) {
+  if (!["legality", "review", "ask", "log", "skeletons", "brief", "validate", "legend", "around", "counter", "mechanic", "card", "threats", "sideboard"].includes(command)) {
     fail(`Unknown command "${command}".\n\n${USAGE}`);
   }
   // `brief` takes flags rather than a file — there is no document to hand it.
-  const fileless = ["skeletons", "brief", "legend", "around", "counter", "mechanic"];
+  const fileless = ["skeletons", "brief", "legend", "around", "counter", "mechanic", "card"];
   if (!deckPath && !fileless.includes(command)) fail(`${command} needs an input file.\n\n${USAGE}`);
 
   const flag = (name: string): string | undefined => {
@@ -270,7 +298,7 @@ function main(argv: string[]): number {
    * mouth to reason over (D-043); none of them writes a sentence, because a tool that could
    * write the sentence could invent it.
    */
-  if (["legend", "around", "counter", "mechanic"].includes(command)) {
+  if (["legend", "around", "counter", "mechanic", "card"].includes(command)) {
     const pool: PoolCard[] = Object.entries(cards).map(([cardId, entry]) => ({
       cardId,
       facts: typeof entry === "string" ? { name: entry } : entry,
@@ -304,6 +332,18 @@ function main(argv: string[]): number {
       const cardId = flag("--card");
       if (!cardId) fail("around needs --card <cardId>.");
       return emit(aroundCounsel(cardId, cardIndex, pool, collection), `No card with id "${cardId}".`);
+    }
+    /**
+     * Q-CARD. ⚠️ **`text` comes back first and verbatim** — see `advice/card.ts` for why a
+     * tool that returns a card's own words is the fix for a rule that kept being broken.
+     */
+    if (command === "card") {
+      const cardId = flag("--card");
+      if (!cardId) fail("card needs --card <cardId>.");
+      return emit(
+        cardCounsel(cardId, cardIndex, pool, collection),
+        `No card with id "${cardId}" in the pool. ⚠️ This is not the same as a card you do not own.`,
+      );
     }
     const name = flag("--name");
     if (!name) fail("mechanic needs --name <tag>.");
@@ -493,6 +533,39 @@ function main(argv: string[]): number {
   }
 
   const index = cardIndex;
+
+  /**
+   * Q-THREAT and Q-SIDEBOARD — the two deckbuilding questions `EVALUATION §6` specifies that
+   * had nothing behind them. Both read a deck, so they live below the deck load.
+   *
+   * ⚠️ **Both need the pool**, and both degrade honestly without it rather than guessing:
+   * `threats` drops the board-dominance read, `sideboard` refuses outright, because a
+   * sideboard is a claim about a card pool and an empty one is not a smaller claim.
+   */
+  if (command === "threats" || command === "sideboard") {
+    const pool: PoolCard[] = Object.entries(cards).map(([cardId, entry]) => ({
+      cardId,
+      facts: typeof entry === "string" ? { name: entry } : entry,
+    }));
+
+    if (command === "threats") {
+      process.stdout.write(`${JSON.stringify(readThreats(deck, index, pool), null, 2)}\n`);
+      return 0;
+    }
+
+    const against = flag("--against");
+    if (!against) fail("sideboard needs --against <cardId> — the Legend you are boarding against.");
+    if (pool.length === 0) fail("sideboard needs --pool apps/web/public/cards.json — it is a claim about a card pool.");
+    const counsel = sideboardCounsel(deck, index, pool, against, collection, flag("--win"));
+    if (!counsel) {
+      fail(
+        `Could not read either "${against}" or this deck's Legend "${deck.legendCardId}" from the pool. ` +
+          `A sideboard built against a Legend we cannot identify would be advice about nothing.`,
+      );
+    }
+    process.stdout.write(`${JSON.stringify(counsel, null, 2)}\n`);
+    return 0;
+  }
 
   if (command === "ask") {
     const noteFlag = rest.indexOf("--note");
