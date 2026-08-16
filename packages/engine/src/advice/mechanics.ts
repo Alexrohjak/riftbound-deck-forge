@@ -116,7 +116,7 @@ export function readMechanics(deck: Deck, objective: Objective, cards: CardIndex
       cards: extra,
       copies: totalCopies(extra),
       note: {
-        claim: `${totalCopies(extra)} ${totalCopies(extra) === 1 ? "copy" : "copies"} charge something beyond their printed cost — ${named(extra)}.`,
+        claim: `${totalCopies(extra)} ${totalCopies(extra) === 1 ? "copy charges" : "copies charge"} something beyond ${totalCopies(extra) === 1 ? "its" : "their"} printed cost — ${named(extra)}.`,
         because:
           "An additional cost is paid every time the card is played, and it is invisible to " +
           "every other count: the card still fills its curve slot and still counts inside its " +
@@ -254,16 +254,20 @@ export function readMechanics(deck: Deck, objective: Objective, cards: CardIndex
    */
   const deathknell = carrying(main, "deathknell");
   if (deathknell.length > 0) {
+    // ⚠️ Counted in copies, like the first half of the sentence. Counting cards here and
+    // copies there put "3 copies … alongside 1 that kills" in one claim, where the two numbers
+    // look comparable and are not.
     const sacrifices = extra.filter((c) => /kill|sacrifice/i.test(c.clause));
+    const sacrificeCopies = totalCopies(sacrifices);
     findings.push({
       mechanic: "deathknell",
       severity: "low",
       cards: deathknell,
       copies: totalCopies(deathknell),
       note: {
-        claim: `${totalCopies(deathknell)} ${totalCopies(deathknell) === 1 ? "copy pays" : "copies pay"} off when your own unit dies${sacrifices.length > 0 ? `, alongside ${sacrifices.length} that ${sacrifices.length === 1 ? "kills a friendly unit as a cost" : "kill a friendly unit as a cost"}` : ""}.`,
+        claim: `${totalCopies(deathknell)} ${totalCopies(deathknell) === 1 ? "copy pays" : "copies pay"} off when your own unit dies${sacrificeCopies > 0 ? `, alongside ${sacrificeCopies} ${sacrificeCopies === 1 ? "copy that kills" : "copies that kill"} a friendly unit as a cost` : ""}.`,
         because:
-          sacrifices.length > 0
+          sacrificeCopies > 0
             ? "Those two halves are the same engine, and the cost finding above should be read " +
               "with this one rather than against it — a friendly death is a price in one deck " +
               "and a trigger in another."

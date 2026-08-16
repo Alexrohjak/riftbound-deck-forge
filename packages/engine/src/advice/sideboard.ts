@@ -64,16 +64,38 @@ export interface SideboardCandidate {
   patterns: StrategicPattern[];
 }
 
-export interface SideboardLine {
-  /** The threat this answers, in the pattern vocabulary. */
+/** One threat an answer covers, and how much of their identity can field it. */
+export interface SideboardReason {
   threat: StrategicPattern;
   threatLabel: string;
   /** How many cards in *their* identity carry it — reachability, not likelihood. */
   theirCards: number;
   /** Why this pattern answers that one. Doctrine, and contested — see ANSWERS. */
   because: string;
+}
+
+/**
+ * One line of the board — **keyed on the answer, not on the threat**.
+ *
+ * ⚠️ **This grouping is the prime directive, applied** ([D-039](../../../../docs/DECISIONS.md#d-039)).
+ * Keyed on the threat instead, a real matchup produced **fourteen lines and forty-five
+ * suggestions for a board of ten**, with `Riposte` listed four separate times because a hard
+ * counter answers four different threats. That is a search result, not counsel.
+ *
+ * A sideboard slot holds a **card**, so the card's job is the unit a line should be about: one
+ * entry per answer, carrying every threat it covers.
+ */
+export interface SideboardLine {
   answersWith: StrategicPattern;
   answerLabel: string;
+  /** Every threat in their identity this answer covers. Never empty. */
+  reasons: SideboardReason[];
+  /**
+   * ⚠️ **Distinct cards in their identity covered by this line**, counted as a union rather
+   * than a sum — a card carrying two of the threats above must not be counted twice, or a
+   * broad answer would look more urgent than a card count can support.
+   */
+  theirCards: number;
   candidates: SideboardCandidate[];
 }
 
@@ -191,43 +213,65 @@ export function sideboardCounsel(
 
   const ownedOf = (cardId: string): number => collection[cardId] ?? 0;
 
-  const bring: SideboardLine[] = [];
+  // ── group the doctrine by answer ────────────────────────────────────────────
+  //
+  // ⚠️ Inverted from the ANSWERS table, which is written threat-first because that is how the
+  // question is asked. It is *answered* card-first, because a board slot holds a card. Doing
+  // this collapsed one real matchup from fourteen lines to seven and removed every duplicate.
+  const byAnswer = new Map<StrategicPattern, SideboardReason[]>();
   for (const row of ANSWERS) {
     const theirCards = theirPatternCounts.get(row.threat)?.size ?? 0;
     if (theirCards === 0) continue;
     for (const answer of row.answers) {
-      const candidates = registerable
-        .filter(({ facts }) => patternsOf(facts).includes(answer))
-        .map(({ cardId, facts }): SideboardCandidate => {
-          const inMain = inMainByName.get(facts.name) ?? 0;
-          return {
-            cardId,
-            name: facts.name,
-            owned: ownedOf(cardId),
-            energy: facts.energy ?? null,
-            inMain,
-            headroom: Math.max(0, MAX_COPIES_PER_NAME - inMain),
-            patterns: patternsOf(facts),
-          };
-        })
-        // Owned first — a card you can sleeve tonight beats one you would have to find — then
-        // cheap first, because the cheap answer is the one you can hold up alongside a play.
-        .sort((a, b) => b.owned - a.owned || (a.energy ?? 99) - (b.energy ?? 99) || a.name.localeCompare(b.name))
-        .slice(0, DEPTH);
-      if (candidates.length === 0) continue;
-      bring.push({
+      const reasons = byAnswer.get(answer) ?? [];
+      reasons.push({
         threat: row.threat,
         threatLabel: labelOf(row.threat),
         theirCards,
         because: row.because,
-        answersWith: answer,
-        answerLabel: labelOf(answer),
-        candidates,
       });
+      byAnswer.set(answer, reasons);
     }
   }
-  // Most-reachable threat first: what their identity can field a lot of is what to prepare for.
-  bring.sort((a, b) => b.theirCards - a.theirCards || a.threatLabel.localeCompare(b.threatLabel));
+
+  const bring: SideboardLine[] = [];
+  for (const [answer, reasons] of byAnswer) {
+    const candidates = registerable
+      .filter(({ facts }) => patternsOf(facts).includes(answer))
+      .map(({ cardId, facts }): SideboardCandidate => {
+        const inMain = inMainByName.get(facts.name) ?? 0;
+        return {
+          cardId,
+          name: facts.name,
+          owned: ownedOf(cardId),
+          energy: facts.energy ?? null,
+          inMain,
+          headroom: Math.max(0, MAX_COPIES_PER_NAME - inMain),
+          patterns: patternsOf(facts),
+        };
+      })
+      // Owned first — a card you can sleeve tonight beats one you would have to find — then
+      // cheap first, because the cheap answer is the one you can hold up alongside a play.
+      .sort((a, b) => b.owned - a.owned || (a.energy ?? 99) - (b.energy ?? 99) || a.name.localeCompare(b.name))
+      .slice(0, DEPTH);
+    if (candidates.length === 0) continue;
+
+    // The union of their cards across every threat this line covers — see `theirCards`.
+    const covered = new Set<string>();
+    for (const reason of reasons) {
+      for (const name of theirPatternCounts.get(reason.threat) ?? []) covered.add(name);
+    }
+    reasons.sort((a, b) => b.theirCards - a.theirCards || a.threatLabel.localeCompare(b.threatLabel));
+    bring.push({
+      answersWith: answer,
+      answerLabel: labelOf(answer),
+      reasons,
+      theirCards: covered.size,
+      candidates,
+    });
+  }
+  // Most-reachable first: what their identity can field a lot of is what to prepare for.
+  bring.sort((a, b) => b.theirCards - a.theirCards || a.answerLabel.localeCompare(b.answerLabel));
 
   // ── what comes out, for this matchup only ───────────────────────────────────
   //

@@ -99,6 +99,8 @@ only defence is an instruction in a briefing. D-064 settled what instructions ar
 | **5** | **Q-COMPARE stays unbuilt** | Ship a Might-only comparison | A comparison that ignores abilities is confidently wrong about the interesting cases. Better absent than plausible |
 | **6** | **`threats` reads my deck; `counter` reads theirs** | Extend `counter` with a `--mine`-only mode | They answer opposite questions and share no output shape. One tool doing both is how `theirEngine`/`theirPatterns` got confused |
 | **7** | **Mechanics are derived on demand from `facts.text`**, not cached on `CardFacts` | Add a `mechanics` field populated in `cardFactsFrom` | `text` is already carried, so a cached field would be a second copy of a derivation — the same drift decisions 1 and 2 exist to prevent, one level down. 22 regexes over a 40-card deck is not a cost worth a staleness risk |
+| **8** | **`sideboard` groups by the answer, not by the threat** | Keep the ANSWERS table's own threat-first shape | The table is written threat-first because that is how the *question* is asked. Answered that way it produced **14 lines and 45 suggestions for a board of 10**, with `Riposte` four times over — a search result, not counsel, and a direct breach of [D-039](DECISIONS.md#d-039). A board slot holds a **card**, so the card's job is the unit. Regrouped: 7 lines, 24 candidates, no repeats. ⚠️ `theirCards` became a **union** in the process, or a broad answer would double-count its way to false urgency |
+| **9** | **`review` returns the capability counts, not only the notes about them** | Add a "you have only one defender" check | `review()` computed `capabilities` to decide what to say and then discarded it, so a count only reached the reader when it crossed a threshold. The alternative needs a target number of defenders and **no source publishes one** — inventing a band is exactly the doctrine-in-a-check that `0f53b60` refused. A count is a fact and costs nothing; the judgement stays the builder's ([D-016](DECISIONS.md#d-016)) |
 
 ---
 
@@ -121,61 +123,65 @@ authoring card data.
 - [x] Add `card` — Q-CARD: printed text, what it does, and what it costs you
 - [x] Add `threats` — Q-THREAT: what beats this deck
 - [x] Add `sideboard` — Q-SIDEBOARD: candidates against a named Legend, TR 403.4 / L16 safe
-- [ ] ⚠️ **Fix two flaws the live run exposed** — §7
-- [ ] ⚠️ **Tests.** Nothing new has a test yet; the 432 that pass are the pre-existing suite
-- [ ] ⚠️ Update `EE-BRIEFING.md` §5 with the three new questions and how to read them
-- [ ] ⚠️ Run `sideboard` and `review --plan` against the live deck — only `threats` has been run
+- [x] Fix the two flaws the live `threats` run exposed — degenerate ceiling-zero read, list grammar
+- [x] **Tests** — 66 across four files: `mechanics`, `card`, `threats`, `sideboard`. 432 → **498**
+- [x] Update `EE-BRIEFING.md` with the three new questions, and put a mechanism under §3's two
+      unbacked rules — *read the card* and *carry a sideboard of ten*
+- [x] Run `sideboard` and `review --plan` against the live deck
+- [x] Regroup `sideboard` by answer rather than by threat — Decision 8
+- [x] Surface `capabilities` in `review` output — Decision 9
 
 ### Validation
 
 The gate is not "tests pass". It is: **run the new checks against `Ambessa — Ready` and
-see whether they find the two things already known to be wrong with it** — the single
-`[Tank]`/`[Shield]` body on a hold plan, and any additional-cost card in the list.
+see whether they find the things already known to be wrong with it.**
 
-⚠️ **That gate has not been met yet.** `threats` has been run against the live deck and
-found three real things (§7); `sideboard` and the plan-relative mechanics findings have
-not been run at all.
+✅ **Met.** `review --plan slow-hold` against the live deck returns **five findings**, and
+`capabilities` now carries `defenders: 1` — the single `[Shield]` body on a holding plan.
+
+| Severity | Finding on the live deck |
+|---|---|
+| `high` | **Rampage** charges beyond its printed cost — *"you may pay :rb_rune_body: as an additional cost"* |
+| `medium` | 7 cards need up to `[Level 6]`; the deck prints **20 XP** across **12** XP-gaining cards |
+| `medium` | **12 of 12** `[Empower]` cards read *"use only if not Empowered"* — one charge per body |
+| `low` | 2 copies carry `[Ganking]`, stated because the objective is to hold |
+| `low` | 3 copies pay off when your own unit dies |
+
+> ⚠️ **A correction to this document.** An earlier draft set the gate as *"find the single
+> `[Tank]`/`[Shield]` body on a hold plan"*, and that was **the wrong gate**. The defenders check
+> fires at **zero only**, deliberately — [`0f53b60`](#) argued that no source publishes a target
+> number of defenders, so a band would be doctrine authored inside a check. A deck with one
+> defender is met with silence, and that silence is correct. The real gap was that the **count
+> never reached the reader**, which Decision 9 fixes without inventing a threshold.
 
 ---
 
-## 7. ⚠️ Where this was interrupted — read this first
+## 6. What the live runs found, and what to be sceptical of
 
-**The state is green and committed**: `npm run verify` passes — purity, typecheck, 432
-tests — and the engine builds. Nothing here is half-applied. What follows is *unfinished*,
-not *broken*.
+**Green:** `npm run verify` passes — engine purity, typecheck across all four workspaces, and
+**498 tests** (432 before, 66 new). `npm run check:docs` agrees.
 
-### The live run, and what it found
+All three tools have now been run against `Ambessa — Ready` (685 printings, one deck, no stored
+plan — `--plan slow-hold` was passed, and **that pace is an assumption**, not something the deck
+records).
 
-`threats` against `Ambessa — Ready` (685 printings, snapshot 2026-08-15T03:12Z) returned
-three findings, and they look right:
+### The three flaws the live runs exposed, and what each cost
 
-| Class | Finding |
-|---|---|
-| `must-answer` | A single *"deal 4 to all"* clears **18 of your 28 bodies** |
-| `board-dominant` | The deck prints **no damage number at all** |
-| `answer-asymmetric` | **No hard counter** — the published answer to four threat classes |
+Every one of these was invisible to the tests and visible in one real run. That ratio is the
+argument for running the thing on a real deck before believing it.
 
-### The two flaws that run exposed
+| # | Symptom on live data | Cause | Fixed in |
+|---|---|---|---|
+| 1 | *"623 of the format's 626 units cannot be removed"* — of a deck that removes things fine | A ceiling counted from printed numbers reads `0` on *"kill target unit"*, and zero was rendered as helpless rather than as unmeasurable | [`advice/threats.ts`](../packages/engine/src/advice/threats.ts) |
+| 2 | *"bomb and recursion and ambush threat and cheap Might swing"* | No list grammar — three `and`s | same |
+| 3 | **14 lines, 45 suggestions for a board of 10**, `Riposte` four times | Keyed on the threat when a board slot holds a card | [`advice/sideboard.ts`](../packages/engine/src/advice/sideboard.ts), Decision 8 |
 
-1. **The `board-dominant` read is degenerate at a ceiling of zero.** It compared against
-   `Might > 0`, which every unit satisfies, and produced *"623 of the format's 626 units
-   cannot be removed"* — technically true of **damage** removal and misleading as
-   written, because the deck may still hold kill effects that print no number. **Fix:**
-   when the ceiling is 0, only speak if the deck also has no `spot-removal` pattern, and
-   say *damage-based removal* explicitly.
-2. **List grammar.** *"bomb and recursion and ambush threat and cheap Might swing"* —
-   should be comma-separated with a single final *and*.
+⚠️ **Flaw 1 was an over-claim, and it is the class to watch.** The other two were noise; that one
+was a confident false statement with a number in it, which is precisely what a mouth repeats
+verbatim. The fix makes the tool go **quiet** and say why in `unmodelled` — a shape worth reusing
+whenever a computed zero could mean *"none"* or *"cannot tell"*.
 
-Both are in [`advice/threats.ts`](../packages/engine/src/advice/threats.ts).
-
-### What has never been executed
-
-`sideboard` and the new mechanics findings inside `review --plan`. The deck's **plan is
-not in the backup snapshot** (`plan` is absent from the deck object), so a plan file has
-to be written from the README's description — pace × objective, objective `hold` — or a
-`--plan <skeletonId>` passed, before the plan-relative half can be exercised at all.
-
-### One thing to be sceptical of
+### One number to be sceptical of
 
 `npm run audit:knowledge` now reports **0 of 921 cards unmodelled, down from 185 (20%)**.
 That is true in the sense the audit measures — every mechanic now has something that acts
@@ -187,10 +193,22 @@ number is exactly where that would happen.
 
 ---
 
-## 6. Risks
+## 7. Risks
 
 | Risk | Mitigation |
 |---|---|
 | A regex over printed text over-matches and flags a clean card | Every finding names the card and quotes the matched clause, so a false positive is visible in one read rather than trusted |
 | The findings become noise and get ignored | Findings are capped and ordered by severity; `additional-cost` on a body in a hold plan outranks `predict` |
 | `sideboard` invents a meta read | It is grounded in what the *identity can do* (`counter`'s output), and says so — [D-035](DECISIONS.md#d-035) |
+
+> ✅ **The first mitigation was exercised on the live deck, and it worked.** The `high`-severity
+> additional-cost finding fired on **Rampage** — whose clause is *"as you play this, you **may**
+> pay :rb_rune_body: as an additional cost"*. That is an **optional rune payment**, not a
+> `Cruel Patron` sacrifice, and the two are the same mechanic with very different consequences.
+> The quoted clause makes the difference readable in one glance, which is the whole reason
+> findings carry one. ⚠️ **The severity is on the mechanic, not on the card** — do not read
+> `high` as *"this card is a problem"*.
+>
+> ⚠️ **Clauses arrive with the card data's own markup** — `[&gt;]`, `:rb_rune_body:`. That is
+> Riot's data as Forge received it and rewriting it would be authoring card data
+> ([D-034](DECISIONS.md#d-034)). Read through it; do not clean it up in the engine.

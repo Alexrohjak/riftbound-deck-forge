@@ -84,6 +84,18 @@ function damagePrinted(text: string | undefined): number {
   return most;
 }
 
+/**
+ * `a`, `a and b`, `a, b and c`.
+ *
+ * Prose, not decoration: a claim that reads as a list of three joined by *"and"* three times
+ * looks generated, and a reader who notices the seam stops trusting the number in front of it.
+ */
+function list(items: readonly string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
 const isUnit = (types: readonly string[] | undefined): boolean => (types ?? []).includes("unit");
 
 const isMainDeckCard = (types: readonly string[] | undefined): boolean =>
@@ -99,6 +111,12 @@ const isMainDeckCard = (types: readonly string[] | undefined): boolean =>
 export function readThreats(deck: Deck, cards: CardIndex, pool: readonly PoolCard[] = []): ThreatRead {
   const main = countedEntries(deck, cards).filter((e) => e.zone === "MAIN");
   const threats: Threat[] = [];
+  const alsoUnmodelled: string[] = [];
+
+  // Computed up front because two reads need it: the blind-spot read below, and the removal
+  // ceiling — which must know whether numberless removal exists before it calls a deck helpless.
+  const census = patternCensus(deck, cards);
+  const held = new Set(census.map((c) => c.pattern));
 
   // ── sweeps, against your own Might distribution ─────────────────────────────
   //
@@ -135,8 +153,17 @@ export function readThreats(deck: Deck, cards: CardIndex, pool: readonly PoolCar
   }
 
   // ── what your removal cannot kill ───────────────────────────────────────────
+  //
+  // ⚠️ **A ceiling of zero is not a measurement.** `damagePrinted` only sees a printed number, so
+  // a deck whose removal reads *"kill target unit"* scores 0 and every unit in the format sits
+  // "above" it — which produced a real false alarm: *"623 of the format's 626 units cannot be
+  // removed"*, said of a deck that could remove things. At a ceiling of zero the only honest
+  // claim is about **damage-based** removal, and only when the deck has no numberless removal
+  // either. When it does, the ceiling is unmeasurable and that is reported as a blind spot
+  // rather than dressed up as a finding.
   const ceiling = main.reduce((most, e) => Math.max(most, damagePrinted(e.facts?.text)), 0);
-  if (pool.length > 0) {
+  const numberlessRemoval = held.has("spot-removal") || held.has("sweep");
+  if (pool.length > 0 && !(ceiling === 0 && numberlessRemoval)) {
     const formatUnits = pool.filter(
       ({ facts }) => isMainDeckCard(facts.types) && facts.banned !== true && isUnit(facts.types),
     );
@@ -147,18 +174,34 @@ export function readThreats(deck: Deck, cards: CardIndex, pool: readonly PoolCar
         class: "board-dominant",
         claim:
           ceiling === 0
-            ? `Nothing in the deck prints a damage number, so ${above.length} of the format's ${formatUnits.length} units cannot be removed by damage at all.`
+            ? `The deck prints no damage number anywhere, so damage-based removal is not a lever you have — and you carry no removal without one either.`
             : `Your removal tops out at ${ceiling} damage, and ${share}% of the format's units outclass it.`,
         lever:
-          `You cannot remove those — you have to go around them to another battlefield, or win ` +
-          `the fight with combat rather than with a spell.`,
-        grounding: [
-          `Highest printed "deal N damage" in the Main Deck: ${ceiling}`,
-          `${above.length} of ${formatUnits.length} unbanned units in the pool have Might > ${ceiling}`,
-          `⚠️ Counts printed damage only — kill effects with no number are not a ceiling and are excluded`,
-        ],
+          ceiling === 0
+            ? `Every unit you cannot kill has to be gone around — take a different battlefield, or ` +
+              `win the fight with a bigger body rather than with a spell.`
+            : `You cannot remove those — you have to go around them to another battlefield, or win ` +
+              `the fight with combat rather than with a spell.`,
+        grounding:
+          ceiling === 0
+            ? [
+                `No card in the Main Deck prints "deal N damage"`,
+                `No card carries the spot-removal or sweep pattern either, so the absence is real rather than an artefact of counting numbers`,
+                `${formatUnits.length} unbanned units in the pool`,
+              ]
+            : [
+                `Highest printed "deal N damage" in the Main Deck: ${ceiling}`,
+                `${above.length} of ${formatUnits.length} unbanned units in the pool have Might > ${ceiling}`,
+                `⚠️ Counts printed damage only — kill effects with no number are not a ceiling and are excluded`,
+              ],
       });
     }
+  } else if (ceiling === 0 && numberlessRemoval) {
+    alsoUnmodelled.push(
+      "Your removal's ceiling — the deck removes things without printing a damage number, and " +
+        "how big a unit a numberless effect can kill is a rules question (S1a), not a countable one. " +
+        "No board-dominance claim is made rather than one made from a zero.",
+    );
   }
 
   // ── what you structurally cannot answer ─────────────────────────────────────
@@ -166,8 +209,6 @@ export function readThreats(deck: Deck, cards: CardIndex, pool: readonly PoolCar
   // ⚠️ A blind spot is derived from the ANSWERS doctrine table, so it is a claim about what
   // this deck *cannot do*, grounded in a census of what it does. It is not a claim that the
   // opponent has the threat — nobody knows that, and §7 forbids guessing.
-  const census = patternCensus(deck, cards);
-  const held = new Set(census.map((c) => c.pattern));
   const missing: { answer: StrategicPattern; threats: StrategicPattern[] }[] = [];
   for (const row of ANSWERS) {
     for (const answer of row.answers) {
@@ -184,7 +225,7 @@ export function readThreats(deck: Deck, cards: CardIndex, pool: readonly PoolCar
     const label = (p: StrategicPattern) => PATTERNS.find((s) => s.pattern === p)?.label ?? p;
     threats.push({
       class: "answer-asymmetric",
-      claim: `You run no ${label(worstGap.answer)}, which is the published answer to ${worstGap.threats.map(label).join(" and ")}.`,
+      claim: `You run no ${label(worstGap.answer)}, which is the published answer to ${list(worstGap.threats.map(label))}.`,
       lever:
         `Either accept those matchups and race them, or find room for two or three — the ` +
         `doctrine says this is the answer, not that you must carry one.`,
@@ -202,6 +243,7 @@ export function readThreats(deck: Deck, cards: CardIndex, pool: readonly PoolCar
       "Rule-warping cards — 21 cards rewrite rules an engine would hardcode (Elder Dragon voids the lethal threshold, Dune Surfer voids [Tank]). Nothing here sees them; S1a is where they land.",
       "Combat outcomes — no rules core, so no fight is resolved. Every figure above is a count over printed statistics.",
       "What an opponent is actually playing — no meta data exists (D-035). The denominator is the legal pool.",
+      ...alsoUnmodelled,
     ],
   };
 }

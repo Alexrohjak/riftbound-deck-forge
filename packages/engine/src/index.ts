@@ -129,6 +129,7 @@ export {
   type SideboardCounsel,
   type SideboardCut,
   type SideboardLine,
+  type SideboardReason,
 } from "./advice/sideboard.js";
 export {
   SKELETONS,

@@ -123,6 +123,18 @@ rather than papering over it.
 ⚠️ **Copy limits span Main Deck and sideboard combined (L16)** — two in the board plus two in
 the deck is four, and illegal. The gate catches it; do not make it work for a living.
 
+> ⚠️ **Do not freehand this any more.** This mandate stood since D-064 with **nothing computing
+> it**, leaving you to assemble ten cards against a pool §0 forbids you to count from memory —
+> the same shape of gap that produced `Cruel Patron`.
+>
+> ```bash
+> node apps/cli/dist/index.js sideboard deck.json --against <theirLegendId> --win "…" --pool … --collection …
+> ```
+>
+> It returns candidates with **L16 headroom already subtracted**, grouped by the job each card
+> does, plus what to cut and why — see §5. It does **not** pick your ten; TR 403.4 makes every
+> swap 1-for-1, so you still name what comes out for each thing that goes in.
+
 ⚠️ **A sideboard card need not be owned.** Ownership is a warning, never a violation, and
 *"go and get this one"* is a real answer — but say plainly which ones he does not have, with
 the count, so nobody sleeves a deck they cannot build.
@@ -193,6 +205,19 @@ with thresholds at 3, 6 and 11. Neither is visible from a tag, and both changed 
 **Before a card goes in, you must be able to say what it does in a sentence that is not its
 tag.** If the only reason it is there is that it matched a search, it is filler.
 
+> ⚠️ **This used to be an instruction and is now a mechanism**, on the D-064 pattern above.
+>
+> When this section was written there was **no tool that returned a card's printed text** — it
+> told you to read the card and gave you no way to read one. There are now two:
+>
+> - **`card --card <cardId>`** returns `text` first, then every mechanic with the clause that
+>   produced it. This is the one that would have caught `Cruel Patron` before it was sleeved.
+> - **`review --plan`** reads the whole list and reports the costs, thresholds and charge
+>   economies it finds — so `npm run deck` prints them on every write, whether or not you looked.
+>
+> Both were built from this table. `additional-cost`, `empower-once-only` and the `[Level N]`
+> thresholds are checks *because* they are the defects above.
+
 ### ⚠️ A deck you propose gets checked, not just validated — and the check runs itself
 
 `forge validate` answers *"is this registerable?"*. It does **not** answer *"does this deck
@@ -240,7 +265,13 @@ resolution is the one failure that would discredit everything else.
 
 ---
 
-## 5. The four questions, and how to answer them
+## 5. The seven questions, and how to answer them
+
+> **Three of these are new**, and they exist because §3 above kept giving you rules with no
+> mechanism under them. It told you to *read the card* — and there was no tool that returned a
+> card's printed text. It told you every deck *carries a sideboard of ten* — and nothing computed
+> one. A rule with nothing behind it is how `Cruel Patron` shipped. `card`, `threats` and
+> `sideboard` are those three rules given machinery.
 
 ### *"I like this Legend — what goes in it?"*
 
@@ -324,9 +355,82 @@ those two domains gets that list verbatim. Quote the engine when you are being s
 and is still required reading before you answer — the tags say what a deck wants, not how the
 game against it actually goes.
 
-⚠️ This is the weakest of the four and you must say so. Without the rules core there is no
+⚠️ This is the weakest of the seven and you must say so. Without the rules core there is no
 refutation search: this is a professional's read of a matchup they have not playtested. Good,
 and not the same thing as measured.
+
+### *"What is this card actually good at?"*
+
+```bash
+node apps/cli/dist/index.js card --card <cardId> --pool … --collection …
+```
+
+⚠️ **`text` comes back first, and that is the entire point.** §3 tells you to read the card and
+not build from the tag, twice. There was no tool that returned a card's words, so the tag was
+all you had — and three copies of a unit that **kills a friendly unit to play** went into a deck
+whose plan was holding battlefields with bodies. Read `text`, then `mechanics`.
+
+⚠️ **`mechanics[]` is what the card charges you**, each entry quoting the printed clause that
+produced it. Quote the clause back when you cite one: it is a statement about what Riot printed,
+and it is also how you catch the regex over-matching.
+
+⚠️ **`combat` is arithmetic either side of a fight, never its outcome.** `attacking` is printed
+Might plus `[Assault]`, `defending` is printed plus `[Shield]` (CR 807, 814). `orientation` says
+which the card is *built* for. A proactive card in a holding deck is a mistake — but only the
+plan knows that, so say the orientation and let him draw it.
+
+⚠️ **`unmodelled` is never empty here.** Without it a statistics sheet reads as an evaluation.
+
+### *"What should I fear with this deck?"*
+
+```bash
+node apps/cli/dist/index.js threats deck.json --pool … --collection …
+```
+
+⚠️ **This runs the opposite way to `counter`, and confusing the two is the error.** `counter`
+starts from *their* Legend and asks what beats it. `threats` starts from **your deck** and asks
+what beats *you*. Three reads: the smallest sweep that already takes half your bodies, what your
+removal cannot kill as a share of the format, and the published answer you run none of.
+
+⚠️ **A removal ceiling of zero can mean two different things**, and the tool now distinguishes
+them. A deck whose removal reads *"kill target unit"* prints no number, and reading that as
+*"every unit in the format is beyond you"* was a real false alarm — *"623 of the format's 626
+units cannot be removed"*, said of a deck that removed things perfectly well. When the ceiling is
+unmeasurable it now says so in `unmodelled` and makes **no claim**. When the deck genuinely
+carries nothing, the claim is scoped to *damage-based* removal. Do not restore the stronger
+sentence.
+
+⚠️ **What an opponent CAN field, never what they WILL play.** There is no meta data (D-035), so
+the denominator is the legal pool. `unmodelled` also names the 21 rule-warping cards nothing here
+sees.
+
+### *"What do I swap, against what, and for what?"*
+
+```bash
+node apps/cli/dist/index.js sideboard deck.json --against <theirLegendId> [--win "…"] --pool … --collection …
+```
+
+⚠️ **`headroom` is already L16-safe — use it and do not do the arithmetic yourself.** Copy limits
+span Main Deck **and** board, so two in the board beside two in the deck is four, and illegal.
+`headroom` is the maximum minus what is already registered. A card at `headroom: 0` is returned
+rather than hidden, because *"you already run the maximum"* is a useful answer.
+
+⚠️ **`bring` is keyed on the answer, not on the threat**, and the ordering matters to how you
+read it. One line per card-job, carrying every threat in `reasons` that it covers. Keyed the
+other way a real matchup produced **fourteen lines and forty-five suggestions for a board of
+ten**, with `Riposte` listed four separate times. `theirCards` is a **union**, not a sum — a card
+carrying two of the threats is counted once.
+
+⚠️ **A card appearing under two answers is doing two jobs**, and in a board of ten that is the
+card to sleeve. Say so rather than treating it as a repeat.
+
+⚠️ **An empty `cut` is the normal case**, not a failure. A deck with no damage-based removal has
+nothing this analysis can call dead in a matchup, and padding the list would be inventing a
+reason.
+
+⚠️ **The board is still yours to choose.** This returns candidates against constraints; it does
+not pick ten. TR 403.4 makes every swap 1-for-1, so name what comes out for each thing you bring
+in.
 
 ---
 

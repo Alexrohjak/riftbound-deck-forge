@@ -15,6 +15,7 @@
 import { readFileSync } from "node:fs";
 import {
   aroundCounsel,
+  capabilities,
   cardCounsel,
   cardFactsFrom,
   buildBrief,
@@ -634,6 +635,20 @@ function main(argv: string[]): number {
       `${JSON.stringify(
         {
           ...review(deck, index),
+          /**
+           * ⚠️ **The counts, not just the notes about them.**
+           *
+           * `review()` computes these to decide what to say and then threw them away, so a
+           * capability only reached the reader when it crossed a threshold worth a sentence.
+           * `defenders` is the case that exposed it: the `hold`-plan check fires at **zero
+           * only** — deliberately, because no source publishes a target and inventing one
+           * would author doctrine inside a check (D-016). A deck with *one* [Tank]/[Shield]
+           * body on a holding plan is therefore met with silence, and silence there is
+           * indistinguishable from "nothing to report".
+           *
+           * A count is a fact and costs nothing to state. The judgement stays the builder's.
+           */
+          capabilities: capabilities(deck, index),
           archetype: readArchetype(deck, index),
           mulligans: simulateMulligans(deck, index),
           ...(plan
