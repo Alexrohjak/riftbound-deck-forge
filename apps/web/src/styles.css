@@ -1519,6 +1519,8 @@ body.resizing * { pointer-events: none; }
   border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0 var(--s1);
 }
 .wants.blocking h3 { color: var(--alert); }
+/* Spare copies cost nothing to act on, so they read as encouragement rather than a warning. */
+.wants.spare h3 { color: var(--accent); }
 .wants ul { margin: var(--s2) 0 0; padding: 0; list-style: none; display: grid; gap: var(--s2); }
 .wants li {
   display: grid; grid-template-columns: 2.4rem 1fr auto; gap: var(--s1) var(--s2);

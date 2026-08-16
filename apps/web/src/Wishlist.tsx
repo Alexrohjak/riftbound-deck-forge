@@ -79,6 +79,7 @@ export function Wishlist({
   if (!rows) return <div className="wishlist"><p className="quiet">Reading every deck…</p></div>;
 
   const blocking = rows.filter((r) => r.kind === "blocking");
+  const spare = rows.filter((r) => r.kind === "spare");
   const upgrades = rows.filter((r) => r.kind === "upgrade");
 
   return (
@@ -89,6 +90,13 @@ export function Wishlist({
         rows={blocking}
         empty="Nothing — every deck can be built at the same time."
         tone="blocking"
+      />
+      <Section
+        title="Already yours — could play more"
+        hint="Copies sitting in the boxes that no deck plays. Costs nothing and needs no trade."
+        rows={spare}
+        empty="Nothing idle — every spare copy is either in a deck or already at the limit."
+        tone="spare"
       />
       <Section
         title="Would like more"
@@ -116,7 +124,7 @@ function Section({
   hint: string;
   rows: WishlistRow[];
   empty: string;
-  tone: "blocking" | "upgrade";
+  tone: "blocking" | "spare" | "upgrade";
 }) {
   return (
     <section className={`wants ${tone}`}>
@@ -134,7 +142,7 @@ function Section({
               <span className="who">{r.name}</span>
               <span className="have">
                 own {r.owned}
-                {r.kind === "blocking" ? ` · decks want ${r.needed}` : ""}
+                {r.kind === "blocking" ? ` · decks want ${r.needed}` : r.kind === "spare" ? ` · decks play ${r.needed}` : ""}
               </span>
               <span className="decks">{r.decks.map((d) => `${d.name} ×${d.copies}`).join(" · ")}</span>
             </li>

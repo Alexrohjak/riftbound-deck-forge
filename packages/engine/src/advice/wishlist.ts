@@ -7,10 +7,13 @@
  * the 33 checks, and **cannot be sleeved at the same time**. Nothing in the legality layer is
  * wrong about that — the rules are per deck, and the constraint is per shelf.
  *
- * ## Two kinds of want, and they are not the same errand
+ * ## Three kinds of want, and they are not the same errand
  *
  * - 🔴 **`blocking`** — the decks together need more copies than exist in the boxes. Until
  *   this is fixed, one of the decks cannot be built while the other is. Buy these first.
+ * - 🟢 **`spare`** — copies sitting in the boxes that **no deck is playing**. Costs nothing
+ *   and needs no trade: the cards are already yours. Listed above `upgrade` for exactly that
+ *   reason — free improvement outranks a shopping list.
  * - 🟠 **`upgrade`** — a deck plays **every copy it owns** and owns fewer than the legal
  *   maximum. Nothing is broken; the deck would simply rather draw the card more often.
  *
@@ -54,9 +57,16 @@ export interface WishlistRow {
   owned: number;
   /** Copies all the decks want between them. */
   needed: number;
-  /** How many to look for. For `blocking`, the deficit; for `upgrade`, the distance to three. */
+  /**
+   * The number this row is about, and ⚠️ **it means something different per `kind`** — which
+   * is why the view labels each section rather than showing a bare column of numbers.
+   *
+   * - `blocking` — copies to **find**, the deficit against what the decks need
+   * - `upgrade` — copies to **find**, the distance to the legal three
+   * - `spare` — copies you **already own and could add today**, no trade required
+   */
   short: number;
-  kind: "blocking" | "upgrade";
+  kind: "blocking" | "spare" | "upgrade";
   decks: WishlistUse[];
 }
 
@@ -98,6 +108,29 @@ export function wishlist(
       rows.push({ name, owned, needed, short: needed - owned, kind: "blocking", decks: used });
       continue;
     }
+    /**
+     * ⚠️ **Copies in the box that no deck is playing.** Free improvement — the cards are
+     * already yours, so this outranks anything you would have to trade for.
+     *
+     * Counted against the whole shelf rather than per deck on purpose: with two decks sharing
+     * a card, "this deck could run one more" is only true if the other deck gives one up, and
+     * a list that quietly assumed that would be recommending a swap it never mentioned.
+     * `owned - needed` is the number that is unambiguously idle.
+     */
+    const idle = owned - needed;
+    /**
+     * ⚠️ **Capped by what a deck can legally add, not by how many are idle.** Reporting the
+     * raw idle count put *"+9 Brutal Hunter"* at the top of the list against a deck already
+     * running two of a legal three — nine copies are genuinely spare, and eight of them have
+     * nowhere to go. The number has to be the one you can act on.
+     */
+    const room = Math.max(0, ...used.map((u) => MAX_COPIES_PER_NAME - u.copies));
+    const canAdd = Math.min(idle, room);
+    if (canAdd > 0) {
+      rows.push({ name, owned, needed, short: canAdd, kind: "spare", decks: used });
+      continue;
+    }
+
     // An upgrade is only a want if a deck is actually playing every copy there is. A deck
     // running two of a card you own three of has made a choice, not hit a wall.
     const maxedOut = used.some((u) => u.copies >= owned);
@@ -113,8 +146,8 @@ export function wishlist(
     }
   }
 
-  // Blocking first — those are the ones stopping a deck existing — then by size of the gap.
-  const rank = { blocking: 0, upgrade: 1 } as const;
+  // Blocking first — those stop a deck existing. Then spare, which costs nothing to act on.
+  const rank = { blocking: 0, spare: 1, upgrade: 2 } as const;
   return rows.sort(
     (a, b) => rank[a.kind] - rank[b.kind] || b.short - a.short || a.name.localeCompare(b.name),
   );

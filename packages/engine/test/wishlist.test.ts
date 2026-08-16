@@ -24,6 +24,9 @@ const index = staticCardIndex(CARDS);
 /** Every fixture owns its Champion — otherwise it is a shortfall in every single case. */
 const owned = (rows: Array<[string, number]>) => new Map([["A Champion", 3], ...rows]);
 
+/** The Champion is owned 3 and played 1 in every fixture, so it is always a spare. Ignore it. */
+const deckCards = (rows: ReturnType<typeof wishlist>) => rows.filter((r) => r.name !== "A Champion");
+
 const deckOf = (id: string, name: string, slots: Array<{ cardId: string; quantity: number; zone?: "MAIN" | "SIDEBOARD" | "RUNE" }>): WishlistDeck => ({
   id,
   name,
@@ -69,21 +72,48 @@ describe("wishlist", () => {
     expect(row.short).toBe(2); // up to the legal three
   });
 
-  it("⚠️ stays quiet about a deck that chose to run fewer than it owns", () => {
-    // Two of a card you own three of is a decision, not a wall.
+  it("⚠️ flags copies sitting in the box that no deck plays", () => {
+    // Free improvement — you already own it, so this needs no trade at all.
     const decks = [deckOf("a", "Deck A", [{ cardId: "plenty", quantity: 2 }])];
-    expect(wishlist(decks, index, owned([["Plenty", 3]]))).toEqual([]);
+    const row = wishlist(decks, index, owned([["Plenty", 3]])).find((r) => r.name === "Plenty")!;
+    expect(row.kind).toBe("spare");
+    expect(row.short).toBe(1); // one idle copy
+  });
+
+  it("⚠️ caps the spare at what a deck can legally add, not at how many are idle", () => {
+    // Owns eleven, plays two of a legal three. Nine are idle and eight have nowhere to go —
+    // reporting "+9" put an unactionable number at the top of the list.
+    const decks = [deckOf("a", "Deck A", [{ cardId: "plenty", quantity: 2 }])];
+    const row = wishlist(decks, index, owned([["Plenty", 11]])).find((r) => r.name === "Plenty")!;
+    expect(row.owned).toBe(11);
+    expect(row.short).toBe(1);
+  });
+
+  it("⚠️ counts idle copies against the whole shelf, not one deck", () => {
+    // Two decks sharing three copies: nothing is idle, even though neither runs three.
+    // Saying "Deck A could run one more" would be recommending a swap it never mentioned.
+    const decks = [
+      deckOf("a", "Deck A", [{ cardId: "plenty", quantity: 2 }]),
+      deckOf("b", "Deck B", [{ cardId: "plenty", quantity: 1 }]),
+    ];
+    expect(wishlist(decks, index, owned([["Plenty", 3]])).find((r) => r.name === "Plenty")).toBeUndefined();
+  });
+
+  it("stays quiet when the idle copies have nowhere legal to go", () => {
+    // Owns four, the deck already plays the legal three. The spare is real but unusable.
+    const decks = [deckOf("a", "Deck A", [{ cardId: "plenty", quantity: 3 }])];
+    expect(wishlist(decks, index, owned([["Plenty", 4]])).find((r) => r.name === "Plenty")).toBeUndefined();
   });
 
   it("stays quiet once you own the legal maximum", () => {
     const decks = [deckOf("a", "Deck A", [{ cardId: "maxed", quantity: 3 }])];
-    expect(wishlist(decks, index, owned([["Maxed Out", 3]]))).toEqual([]);
+    expect(deckCards(wishlist(decks, index, owned([["Maxed Out", 3]])))).toEqual([]);
   });
 
   it("⚠️ never counts runes — they are a fixture of the format, not a card you own (D-061)", () => {
     // Counting them would put twelve permanent shortfalls at the top of every list.
     const decks = [deckOf("a", "Deck A", [{ cardId: "rune", quantity: 12, zone: "RUNE" }])];
-    expect(wishlist(decks, index, owned([]))).toEqual([]);
+    expect(deckCards(wishlist(decks, index, owned([])))).toEqual([]);
   });
 
   it("counts the sideboard, because copy limits span both zones (L16)", () => {
@@ -106,7 +136,7 @@ describe("wishlist", () => {
         { cardId: "sharedAlt", quantity: 1 },
       ]),
     ];
-    const rows = wishlist(decks, index, owned([["Shared Card", 1]]));
+    const rows = deckCards(wishlist(decks, index, owned([["Shared Card", 1]])));
     expect(rows).toHaveLength(1);
     expect(rows[0]!.needed).toBe(2);
   });
@@ -116,6 +146,19 @@ describe("wishlist", () => {
     const row = wishlist(decks, index, new Map([["A Champion", 1]])).find((r) => r.name === "A Champion")!;
     expect(row.kind).toBe("upgrade");
     expect(row.needed).toBe(1);
+  });
+
+  it("⚠️ orders blocking, then spare, then upgrade — urgency, then free, then shopping", () => {
+    const decks = [
+      deckOf("a", "Deck A", [
+        { cardId: "maxed", quantity: 1 }, // upgrade: owns 1, plays 1
+        { cardId: "plenty", quantity: 1 }, // spare: owns 3, plays 1
+        { cardId: "shared", quantity: 2 },
+      ]),
+      deckOf("b", "Deck B", [{ cardId: "shared", quantity: 2 }]), // blocking
+    ];
+    const rows = deckCards(wishlist(decks, index, owned([["Shared Card", 2], ["Maxed Out", 1], ["Plenty", 3]])));
+    expect(rows.map((r) => r.kind)).toEqual(["blocking", "spare", "upgrade"]);
   });
 
   it("⚠️ puts blocking shortfalls above upgrades — one stops a deck existing", () => {
