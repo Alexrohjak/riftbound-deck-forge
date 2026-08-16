@@ -147,6 +147,10 @@ function feeds(facts: CardFacts, rewards: readonly string[]): { tag: string; mea
  * 4. **`engine`** — supplies something the Legend rewards. Deck-relative.
  * 5. **`coreUnits`** — it is a unit. A body holds battlefields whatever else it does, and
  *    `types` is printed, so this needs no classification either.
+ *
+ *    ⚠️ **`coreUnits` is ALSO counted as an overlay**, outside this order — see
+ *    `readPackages`. This position only decides where a body lands when it serves nothing
+ *    else; it never decides whether the body is counted.
  * 6. **`unmodelled`** — nothing was classified and it is not a unit. Say so.
  * 7. **`unassigned`** — classified, and it serves none of the above. A real finding.
  */
@@ -188,7 +192,24 @@ export function assign(facts: CardFacts, rules: PackageRules): { slot: Slot; bec
   };
 }
 
+/**
+ * Is this a body cheap enough to be one of the deck's core units?
+ *
+ * The Primer's floor is *"9+ small units at 4 energy or less"*, and `closerFrom` is where
+ * "small" stops — so the two definitions are the same line read from opposite sides, and
+ * deriving it here keeps them from drifting apart.
+ */
+const holdsBattlefields = (facts: CardFacts, rules: PackageRules): boolean =>
+  (facts.types?.includes("unit") ?? false) &&
+  (facts.energy === null || facts.energy === undefined || facts.energy < rules.closerFrom);
+
 export interface PackageRead {
+  /**
+   * ⚠️ **These do not partition the deck**, and one bucket is the reason: `coreUnits` counts
+   * every cheap body *in addition to* whatever else that body was assigned to. Summing the
+   * counts will exceed the Main Deck size, deliberately. `cards[].slot` is still the exclusive
+   * answer to "what is this card for".
+   */
   counts: PackageCounts;
   cards: Assigned[];
   /**
@@ -234,6 +255,28 @@ export function readPackages(deck: Deck, cards: CardIndex, rules: PackageRules):
     }
     const { slot, because } = assign(facts, rules);
     counts[slot] += entry.quantity;
+
+    /**
+     * ⚠️ **The overlay, and the bug it fixes.**
+     *
+     * `coreUnits` sits *below* `engine` in the assignment order, so a Legend whose reward
+     * every body happens to supply swallows the entire body count. Pridestalker rewards
+     * `unit_played` — which literally every unit supplies — and a real 29-unit deck therefore
+     * reported `engine 25` against a target of 8–10 **and** `coreUnits 0` against a floor of
+     * 9. Two alarms, both false, both the same artefact, and the second one accuses the deck
+     * of having no bodies while it is made almost entirely of bodies.
+     *
+     * The rule was never in doubt — the branch above already says *"a body holds battlefields
+     * whatever else it does"*. Only the arithmetic disagreed, because an exclusive bucket
+     * cannot express a card doing two jobs. `scoring` was moved above `engine` for exactly
+     * this reason (see the order above); `coreUnits` cannot be fixed by moving it, because
+     * wherever it sits it would then steal from whichever package it outranked. So it stops
+     * being exclusive instead.
+     */
+    if (slot !== "coreUnits" && holdsBattlefields(facts, rules)) {
+      counts.coreUnits += entry.quantity;
+    }
+
     assigned.push({ cardId: entry.cardId, name: facts.name, quantity: entry.quantity, slot, because });
   }
 

@@ -120,9 +120,58 @@ describe("reading a whole deck", () => {
     expect(read.counts.engine).toBe(3);
     expect(read.counts.interaction).toBe(2);
     expect(read.counts.closers).toBe(1);
-    expect(read.counts.coreUnits).toBe(1); // the champion
-    const total = Object.values(read.counts).reduce((a, b) => a + b, 0);
-    expect(total).toBe(7);
+    // The champion, plus the three Pit Rookies — bodies whatever else they do (see below).
+    expect(read.counts.coreUnits).toBe(4);
+    // The exclusive slots still partition the deck; only the overlay double-counts.
+    expect(read.cards.reduce((n, c) => n + c.quantity, 0)).toBe(7);
+  });
+
+  /**
+   * ⚠️ The regression. `coreUnits` used to sit below `engine` in an exclusive order, so a
+   * Legend whose reward every body supplies took the whole body count with it. Pridestalker
+   * rewards `unit_played` — every unit supplies it — and a real 29-unit deck reported
+   * `engine 25` against a target of 8–10 *and* `coreUnits 0` against a floor of 9.
+   *
+   * The second number is the dangerous one: it accuses a deck made almost entirely of bodies
+   * of having none, and it does so in the one check sourced from Riot's own Primer.
+   */
+  it("counts a body as a body even when the Legend's reward already claimed it", () => {
+    const read = readPackages(deck, index, rules(rewardsOf("legend-1", index)));
+    const rookies = read.cards.find((c) => c.name === "Pit Rookie");
+
+    // Still explained as engine — that is what it is *for*, and the explanation must not blur.
+    expect(rookies?.slot).toBe("engine");
+    expect(read.counts.engine).toBe(3);
+    // ...and still counted as a body, which is what it *is*.
+    expect(read.counts.coreUnits).toBeGreaterThanOrEqual(3);
+  });
+
+  it("a reward that claims every unit no longer empties the body count", () => {
+    // `unit_played` is the pathological case: supplied by every unit that exists.
+    const read = readPackages(deck, index, rules(["unit_played"]));
+    expect(read.counts.coreUnits).toBe(4);
+  });
+
+  it("does not count a closer as a core unit — the Primer's floor is small bodies", () => {
+    const big: Record<string, CardFacts> = {
+      "legend-1": { name: "Grand Duelist", types: ["legend"], consumes: ["unit_played"] },
+      "champ-1": { name: "Fiora, Worthy", types: ["unit"], energy: 3, role: "body" },
+      "huge-1": { name: "Baron", types: ["unit"], energy: 10, role: "body" },
+    };
+    const read = readPackages(
+      {
+        id: "d",
+        name: "d",
+        state: "DRAFT",
+        legendCardId: "legend-1",
+        chosenChampionCardId: "champ-1",
+        slots: [{ cardId: "huge-1", zone: "MAIN", quantity: 2 }],
+      },
+      staticCardIndex(big),
+      rules(["unit_played"]),
+    );
+    expect(read.counts.closers).toBe(2);
+    expect(read.counts.coreUnits).toBe(1); // the champion only
   });
 
   it("⚠️ says which rewards it could not check, so `engine` is never read as complete", () => {
