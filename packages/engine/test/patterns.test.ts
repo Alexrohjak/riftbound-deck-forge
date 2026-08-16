@@ -227,3 +227,49 @@ describe("spot removal means a unit", () => {
     expect(patternsOf(unit)).toContain("spot-removal");
   });
 });
+
+describe("⚠️ go wide means bodies, not tokens of any kind", () => {
+  /**
+   * Found by boarding a real deck. `sideboard` offered `Bushwhack` as the answer to a tribal
+   * swarm — and its text is *"friendly units enter ready this turn, play a Gold **gear** token
+   * exhausted"*. It makes no bodies at all.
+   *
+   * The `token` tag does not say what kind of token, so **17 cards that play a Gold gear token**
+   * were counted as go-wide. That inflated the pattern everywhere it is read: `counter` and
+   * `sideboard` recommending sweeps against decks that cannot go wide, and `threats` naming a
+   * blind spot the deck may not have.
+   */
+  it("does not count a card whose only token is gear", () => {
+    const gearOnly: CardFacts = {
+      name: "Bushwhack",
+      types: ["spell"],
+      energy: 2,
+      role: "token-maker",
+      produces: ["token", "gold", "ready"],
+      text: "[Hidden] Friendly units enter ready this turn. Play a Gold gear token exhausted.",
+    };
+    expect(patternsOf(gearOnly)).not.toContain("go-wide");
+  });
+
+  it("still counts a card that makes unit tokens", () => {
+    const bodies: CardFacts = {
+      name: "Desert's Call",
+      types: ["spell"],
+      energy: 2,
+      produces: ["token"],
+      text: "[Repeat] 2. Play a 2 Might Sand Soldier unit token.",
+    };
+    expect(patternsOf(bodies)).toContain("go-wide");
+  });
+
+  it("⚠️ counts a card that makes both — the gear does not disqualify the bodies", () => {
+    const both: CardFacts = {
+      name: "Both",
+      types: ["spell"],
+      energy: 3,
+      produces: ["token"],
+      text: "Play a 1 Might Recruit unit token and a Gold gear token exhausted.",
+    };
+    expect(patternsOf(both)).toContain("go-wide");
+  });
+});

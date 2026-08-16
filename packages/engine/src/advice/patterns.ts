@@ -165,7 +165,28 @@ export const PATTERNS: readonly PatternSpec[] = [
     pattern: "go-wide",
     label: "go wide",
     definition: "makes more than one body from a single card",
-    matches: (f) => produces(f, "token") || roleIs(f, "token-maker", "body+tokens"),
+    /**
+     * ⚠️ **A Gold gear token is not a body**, and counting it as one was a real defect.
+     *
+     * The `token` tag does not say *what kind* of token, so **17 cards that play a Gold gear
+     * token** — `Bushwhack`, `Plundering Poro`, `Blood Money`, `Deadly Flourish`… — were all
+     * reported as go-wide. That inflated the pattern everywhere it is counted: `counter` and
+     * `sideboard` recommend sweeps against decks that cannot actually go wide, and `threats`
+     * names go-wide as a blind spot a deck may not have.
+     *
+     * Found by boarding a real deck: `sideboard` offered `Bushwhack` as the answer to a
+     * tribal swarm, and its text is *"friendly units enter ready this turn, play a Gold gear
+     * token"* — it makes no bodies at all.
+     *
+     * ⚠️ Keyed on the printed text rather than the tag, because the tag is the thing that is
+     * wrong. A card naming a **unit** token still counts however much gear it also makes.
+     */
+    matches: (f) => {
+      if (!(produces(f, "token") || roleIs(f, "token-maker", "body+tokens"))) return false;
+      const text = withoutReminders(f.text);
+      const gearOnly = /gear token/i.test(text) && !/unit token/i.test(text);
+      return !gearOnly;
+    },
   },
 ] as const;
 
