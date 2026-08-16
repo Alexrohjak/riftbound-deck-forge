@@ -206,9 +206,25 @@ export function sideboardCounsel(
    * ⚠️ **Mine is filtered to what I can actually register**, and this is not optional here the
    * way it is on `counter`. A sideboard is registered under a Legend already chosen, so a
    * suggestion outside my Domain Identity is not a weaker answer — it is an illegal one.
+   *
+   * ⚠️ **Domain is not the only way a card can be illegal, and the second one bit.** Boarding
+   * for an Ambessa deck, this returned `Riposte` as the headline hard counter — a **Signature
+   * card** legal only under a Fiora Legend (L21, CR 103.2.d.2). `checkLegality` rejected the
+   * deck the moment it went in. The briefing already tells this story about `counter`, where
+   * an illegal suggestion is merely unhelpful; here it breaks the promise `headroom` exists to
+   * keep, that **no suggestion is one the gate will refuse**. So Signatures are filtered by
+   * champion tag, on the same rule L21 enforces.
    */
+  const signatureLegal = (facts: CardFacts): boolean =>
+    !(facts.superTypes ?? []).includes("signature") ||
+    (myLegend.championTag !== undefined && (facts.tags ?? []).includes(myLegend.championTag));
+
   const registerable = pool.filter(
-    ({ facts }) => isMainDeckCard(facts) && facts.banned !== true && insideIdentity(facts, myIdentity),
+    ({ facts }) =>
+      isMainDeckCard(facts) &&
+      facts.banned !== true &&
+      insideIdentity(facts, myIdentity) &&
+      signatureLegal(facts),
   );
 
   const ownedOf = (cardId: string): number => collection[cardId] ?? 0;

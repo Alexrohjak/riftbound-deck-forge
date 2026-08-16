@@ -24,7 +24,29 @@ import type { Deck } from "../src/types.js";
  */
 
 const CARDS: Record<string, CardEntry> = {
-  "legend-mine": { name: "My Legend", types: ["legend"], domains: ["order", "calm"] },
+  "legend-mine": { name: "My Legend", types: ["legend"], domains: ["order", "calm"], championTag: "Mine" },
+  /** A Signature for my own champion — legal, and must still be offered. */
+  mySig: {
+    name: "My Own Signature",
+    types: ["spell"],
+    superTypes: ["signature"],
+    tags: ["Mine"],
+    domains: ["order"],
+    energy: 2,
+    role: "counter",
+    produces: ["counter"],
+  },
+  /** ⚠️ A Signature for somebody else's champion — L21 makes registering it illegal. */
+  theirSig: {
+    name: "Someone Else's Riposte",
+    types: ["spell"],
+    superTypes: ["signature"],
+    tags: ["Fiora"],
+    domains: ["order"],
+    energy: 1,
+    role: "counter",
+    produces: ["counter"],
+  },
   "legend-theirs": { name: "Their Legend", types: ["legend"], domains: ["chaos"] },
   "champ-1": { name: "My Champion", types: ["unit"], superTypes: ["champion"], domains: ["order"], energy: 4, might: 5 },
 
@@ -172,6 +194,16 @@ describe("what may be suggested", () => {
     const names = counsel.bring.flatMap((l) => l.candidates).map((c) => c.name);
     expect(names).not.toContain("Chaos Denial");
     expect(names).toContain("Deny");
+  });
+
+  it("⚠️ never suggests a Signature card belonging to another champion (L21)", () => {
+    // Found by boarding a real Ambessa deck: this returned `Riposte` as the headline hard
+    // counter, and `checkLegality` rejected the deck the moment it went in. Domain identity
+    // is not the only way a card can be illegal.
+    const counsel = sideboardCounsel(baseDeck, index, pool, "legend-theirs")!;
+    const names = counsel.bring.flatMap((l) => l.candidates).map((c) => c.name);
+    expect(names).not.toContain("Someone Else's Riposte");
+    expect(names).toContain("My Own Signature");
   });
 
   it("never suggests a banned card", () => {
