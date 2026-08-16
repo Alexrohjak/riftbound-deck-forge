@@ -129,4 +129,4 @@ export {
   type Holder,
   type Holding,
 } from "./commitment.js";
-export { deckEntries, countedEntries } from "./entries.js";
+export { deckEntries, countedEntries, isCollected } from "./entries.js";

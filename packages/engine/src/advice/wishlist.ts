@@ -31,7 +31,7 @@
  */
 import type { CardIndex, Deck } from "../types.js";
 import { MAX_COPIES_PER_NAME } from "../legality/copies.js";
-import { countedEntries } from "../legality/entries.js";
+import { deckEntries, isCollected } from "../legality/entries.js";
 
 /** One deck to read, with the name to show against it. */
 export interface WishlistDeck {
@@ -85,10 +85,20 @@ export function wishlist(
   const uses = new Map<string, WishlistUse[]>();
 
   for (const { id, name: deckName, deck } of decks) {
-    // Per name, not per printing: two arts of one card are one name against the limit. Runes
-    // are excluded by `countedEntries`, which spans Main Deck and sideboard only.
+    /**
+     * ⚠️ **Every zone the collection covers, not just the ones copy limits span.**
+     *
+     * `countedEntries` is the right set for L13/L16 — the limit spans Main Deck and sideboard
+     * and nothing else — and it is the *wrong* set here. This question is not "is the deck
+     * legal", it is "do the cards exist on the shelf", and a battlefield is a physical card
+     * you own a finite number of. Registering the same battlefield in two decks is perfectly
+     * legal and still impossible if you own one.
+     *
+     * `isCollected` is the distinction already drawn for exactly this purpose (D-061): every
+     * zone except runes, which are a fixture of the format rather than something you collect.
+     */
     const perName = new Map<string, number>();
-    for (const e of countedEntries(deck, cards)) {
+    for (const e of deckEntries(deck, cards).filter(isCollected)) {
       perName.set(e.name, (perName.get(e.name) ?? 0) + e.quantity);
     }
     for (const [cardName, copies] of perName) {

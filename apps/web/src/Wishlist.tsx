@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { wishlist, type Deck, type WishlistRow } from "@forge/engine";
 import { ownedCount } from "./filters.js";
-import type { CardPool } from "./cards.js";
+import { hd, srcSet, type Card, type CardPool } from "./cards.js";
 
 /**
  * **What to look for when you are trading** — every deck on the shelf, read at once.
@@ -90,6 +90,7 @@ export function Wishlist({
         rows={blocking}
         empty="Nothing — every deck can be built at the same time."
         tone="blocking"
+        byName={pool.byName}
       />
       <Section
         title="Already yours — could play more"
@@ -97,6 +98,7 @@ export function Wishlist({
         rows={spare}
         empty="Nothing idle — every spare copy is either in a deck or already at the limit."
         tone="spare"
+        byName={pool.byName}
       />
       <Section
         title="Would like more"
@@ -104,6 +106,7 @@ export function Wishlist({
         rows={upgrades}
         empty="Nothing — no deck is running short of a card it maxes out."
         tone="upgrade"
+        byName={pool.byName}
       />
       <p className="caveat">
         ⚠️ Counts copies of cards your decks already use, summed across printings. It does not
@@ -113,18 +116,47 @@ export function Wishlist({
   );
 }
 
+/**
+ * The card's face, at a size you can match against the one in your hand.
+ *
+ * ⚠️ **The whole point of this view is standing in a shop holding a card**, and a name in a
+ * list does not answer *"is this the one?"* — the art does, instantly and without reading.
+ * It is drawn larger than a bare list needs for exactly that reason.
+ *
+ * Battlefields are landscape and must not be squeezed into a portrait box (the same trap the
+ * gallery documents), so the box follows the card's own shape.
+ */
+function Art({ card, name }: { card: Card | undefined; name: string }) {
+  const printing = card?.printings[0];
+  // A card the pool no longer carries still gets a row — the shortfall is real either way.
+  if (!card || !printing) return <div className="shopart missing" aria-hidden="true" />;
+  return (
+    <img
+      className={card.landscape ? "shopart wide" : "shopart"}
+      src={hd(printing, card.landscape ? 240 : 140)}
+      srcSet={srcSet(printing)}
+      sizes={card.landscape ? "15rem" : "9rem"}
+      alt={name}
+      loading="lazy"
+      decoding="async"
+    />
+  );
+}
+
 function Section({
   title,
   hint,
   rows,
   empty,
   tone,
+  byName,
 }: {
   title: string;
   hint: string;
   rows: WishlistRow[];
   empty: string;
   tone: "blocking" | "spare" | "upgrade";
+  byName: Map<string, Card>;
 }) {
   return (
     <section className={`wants ${tone}`}>
@@ -138,13 +170,16 @@ function Section({
         <ul>
           {rows.map((r) => (
             <li key={r.name}>
-              <span className="want">+{r.short}</span>
-              <span className="who">{r.name}</span>
-              <span className="have">
-                own {r.owned}
-                {r.kind === "blocking" ? ` · decks want ${r.needed}` : r.kind === "spare" ? ` · decks play ${r.needed}` : ""}
-              </span>
-              <span className="decks">{r.decks.map((d) => `${d.name} ×${d.copies}`).join(" · ")}</span>
+              <Art card={byName.get(r.name)} name={r.name} />
+              <div className="detail">
+                <span className="want">+{r.short}</span>
+                <span className="who">{r.name}</span>
+                <span className="have">
+                  own {r.owned}
+                  {r.kind === "blocking" ? ` · decks want ${r.needed}` : r.kind === "spare" ? ` · decks play ${r.needed}` : ""}
+                </span>
+                <span className="decks">{r.decks.map((d) => `${d.name} ×${d.copies}`).join(" · ")}</span>
+              </div>
             </li>
           ))}
         </ul>

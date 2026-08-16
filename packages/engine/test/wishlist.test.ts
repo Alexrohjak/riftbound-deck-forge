@@ -16,6 +16,7 @@ const CARDS: Record<string, CardEntry> = {
   plenty: { name: "Plenty", types: ["unit"], energy: 2, might: 2 },
   maxed: { name: "Maxed Out", types: ["unit"], energy: 3, might: 3 },
   rune: { name: "Body Rune", types: ["rune"] },
+  field: { name: "A Battlefield", types: ["battlefield"] },
   /** Same name, different printing — one card against the copy limit. */
   sharedAlt: { name: "Shared Card", types: ["spell"], energy: 2 },
 };
@@ -27,7 +28,7 @@ const owned = (rows: Array<[string, number]>) => new Map([["A Champion", 3], ...
 /** The Champion is owned 3 and played 1 in every fixture, so it is always a spare. Ignore it. */
 const deckCards = (rows: ReturnType<typeof wishlist>) => rows.filter((r) => r.name !== "A Champion");
 
-const deckOf = (id: string, name: string, slots: Array<{ cardId: string; quantity: number; zone?: "MAIN" | "SIDEBOARD" | "RUNE" }>): WishlistDeck => ({
+const deckOf = (id: string, name: string, slots: Array<{ cardId: string; quantity: number; zone?: "MAIN" | "SIDEBOARD" | "RUNE" | "BATTLEFIELD" }>): WishlistDeck => ({
   id,
   name,
   deck: {
@@ -114,6 +115,20 @@ describe("wishlist", () => {
     // Counting them would put twelve permanent shortfalls at the top of every list.
     const decks = [deckOf("a", "Deck A", [{ cardId: "rune", quantity: 12, zone: "RUNE" }])];
     expect(deckCards(wishlist(decks, index, owned([])))).toEqual([]);
+  });
+
+  it("⚠️ counts battlefields — legal in two decks, and still impossible if you own one", () => {
+    // Copy limits do not span the battlefield zone, so `countedEntries` rightly ignores it and
+    // is the wrong set here: this asks whether the cards exist on the shelf, not whether the
+    // deck is legal. Two decks registering the same battlefield you own once is both.
+    const decks = [
+      deckOf("a", "Deck A", [{ cardId: "field", quantity: 1, zone: "BATTLEFIELD" }]),
+      deckOf("b", "Deck B", [{ cardId: "field", quantity: 1, zone: "BATTLEFIELD" }]),
+    ];
+    const row = wishlist(decks, index, owned([["A Battlefield", 1]])).find((r) => r.name === "A Battlefield")!;
+    expect(row.kind).toBe("blocking");
+    expect(row.needed).toBe(2);
+    expect(row.short).toBe(1);
   });
 
   it("counts the sideboard, because copy limits span both zones (L16)", () => {

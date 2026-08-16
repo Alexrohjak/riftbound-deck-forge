@@ -1522,17 +1522,28 @@ body.resizing * { pointer-events: none; }
 /* Spare copies cost nothing to act on, so they read as encouragement rather than a warning. */
 .wants.spare h3 { color: var(--accent); }
 .wants ul { margin: var(--s2) 0 0; padding: 0; list-style: none; display: grid; gap: var(--s2); }
+/* Art left, everything else right. The picture is the thing you scan, so it leads the row. */
 .wants li {
-  display: grid; grid-template-columns: 2.4rem 1fr auto; gap: var(--s1) var(--s2);
-  align-items: baseline; padding: var(--s2); border-radius: var(--radius-sm);
+  display: grid; grid-template-columns: 5.75rem 1fr; gap: var(--s3);
+  align-items: center; padding: var(--s2); border-radius: var(--radius-sm);
   background: var(--panel); box-shadow: var(--shadow);
 }
+/* ⚠️ Not `.art` — that name is already a 1.2rem swatch whose explicit height beats
+   aspect-ratio, which squashed every card in this list into a sliver. */
+.wants .shopart {
+  width: 100%; border-radius: 4px; display: block;
+  aspect-ratio: 744 / 1039; object-fit: cover; background: var(--line);
+}
+/* A battlefield is landscape — squeezing it into a portrait box is the gallery's old bug. */
+.wants .shopart.wide { aspect-ratio: 1038 / 744; }
+.wants .shopart.missing { aspect-ratio: 744 / 1039; }
+.wants .detail { display: grid; grid-template-columns: auto 1fr; gap: 0 var(--s2); align-items: baseline; }
 .wants .want {
-  grid-row: span 2; font-family: var(--mono); font-size: 1rem; font-weight: 700;
-  color: var(--accent); text-align: center;
+  grid-row: span 2; font-family: var(--mono); font-size: 1.15rem; font-weight: 700;
+  color: var(--accent); align-self: center;
 }
 .wants.blocking .want { color: var(--alert); }
-.wants .who { font-size: 0.86rem; font-weight: 600; }
-.wants .have { font-family: var(--mono); font-size: 0.72rem; color: var(--dim); }
-/* The decks span the full remaining width so long lists wrap rather than truncate. */
-.wants .decks { grid-column: 2 / -1; font-size: 0.74rem; color: var(--dim); }
+.wants .who { font-size: 0.9rem; font-weight: 600; }
+.wants .have { grid-column: 2; font-family: var(--mono); font-size: 0.72rem; color: var(--dim); }
+/* Deck attribution spans the full width so long lists wrap rather than truncate. */
+.wants .decks { grid-column: 1 / -1; padding-top: var(--s1); font-size: 0.74rem; color: var(--dim); }
