@@ -268,8 +268,24 @@ export function sideboardCounsel(
       })
       // Owned first — a card you can sleeve tonight beats one you would have to find — then
       // cheap first, because the cheap answer is the one you can hold up alongside a play.
-      .sort((a, b) => b.owned - a.owned || (a.energy ?? 99) - (b.energy ?? 99) || a.name.localeCompare(b.name))
-      .slice(0, DEPTH);
+      .sort((a, b) => b.owned - a.owned || (a.energy ?? 99) - (b.energy ?? 99) || a.name.localeCompare(b.name));
+
+    /**
+     * ⚠️ **One printing per name, and this is a legality concern rather than a tidiness one.**
+     *
+     * A card can have several printings — `Zed, From the Shadows` has three — and each arrives
+     * here as a separate `PoolCard`. Listed separately they **burn two of the four slots on the
+     * same card**, and worse, each reports `headroom: 3` as though it had its own allowance.
+     * Copy limits are counted per **name** (L13, L16, TR 601.1.c.3), so those three printings
+     * share one allowance of three, and a caller taking the list at face value would register
+     * six copies of one card.
+     *
+     * Deduped after the sort, so the surviving printing is the one you own most of.
+     */
+    const seen = new Set<string>();
+    const deduped = candidates.filter((c) => (seen.has(c.name) ? false : (seen.add(c.name), true)));
+    candidates.length = 0;
+    candidates.push(...deduped.slice(0, DEPTH));
     if (candidates.length === 0) continue;
 
     // The union of their cards across every threat this line covers — see `theirCards`.
