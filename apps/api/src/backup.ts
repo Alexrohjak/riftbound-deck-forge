@@ -69,6 +69,8 @@ export interface MatchRow {
   deck_name: string | null;
   deck_hash: string | null;
   played_at: string;
+  /** The shape of the table (D-066). Null reads as `1v1`. */
+  format: string | null;
   opponent_legend: string | null;
   opponent_note: string | null;
   result: string;

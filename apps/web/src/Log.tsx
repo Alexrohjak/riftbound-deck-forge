@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  formatOf,
+  MATCH_FORMATS,
   read,
   SYMPTOMS,
   symptomReading,
   type LogReading,
+  type MatchFormat,
   type MatchRecord,
   type MatchResult,
   type Symptom,
@@ -19,6 +22,31 @@ import type { Card, CardPool } from "./cards.js";
  */
 
 const LABEL: Record<MatchResult, string> = { WIN: "Won", LOSS: "Lost", DRAW: "Drew" };
+
+/** The formats you have games in, in a stable order. */
+export const formatsPlayed = (matches: readonly MatchRecord[]): MatchFormat[] =>
+  MATCH_FORMATS.filter((f) => matches.some((m) => formatOf(m) === f));
+
+/**
+ * Which record to open on.
+ *
+ * ⚠️ **Not simply `1v1`.** Hard-coding it stranded you: log nothing but `1v1v1` and the panel
+ * opened on an empty heads-up record *and* hid the switcher, because there was only one format
+ * to switch between — your own games sat behind a control that had been reasoned away as
+ * furniture. The engine's default is still `1v1`, but that answers what an *unlabelled record*
+ * means; this answers which record to show first, and they are different questions.
+ */
+export const openingFormat = (matches: readonly MatchRecord[]): MatchFormat => {
+  const played = formatsPlayed(matches);
+  return played.length > 0 && !played.includes("1v1") ? played[0]! : "1v1";
+};
+
+/** What each format is, in the words you would use at the table. */
+const FORMAT_NOTE: Record<MatchFormat, string> = {
+  "1v1": "Heads-up. The format every EE reading assumes.",
+  "1v1v1": "Three-way free-for-all. Two opponents, and par is a third of the games.",
+  "2v2": "Teams of two. Your deck is half of what won or lost.",
+};
 
 /** `YYYY-MM-DD` in the *local* timezone. `toISOString()` is UTC and rolls the date early. */
 const today = () => {
@@ -49,8 +77,13 @@ export function useMatches(deckId: string) {
   return { matches, failed, refresh };
 }
 
-/** A win/loss/draw line. Shows the record always, the rate only when it is earned. */
-function Record({ standing }: { standing: LogReading["overall"] }) {
+/**
+ * A win/loss/draw line. Shows the record always, the rate only when it is earned.
+ *
+ * `baseline` is passed only where a rate could be misread — 33% is par in a three-way pod
+ * and a broken deck heads-up, and the figure alone cannot tell you which (D-066).
+ */
+function Record({ standing, baseline }: { standing: LogReading["overall"]; baseline?: number }) {
   return (
     <span className="record">
       <b>
@@ -60,7 +93,14 @@ function Record({ standing }: { standing: LogReading["overall"] }) {
       {standing.rate === null ? (
         <em title={standing.withheld}>no rate yet</em>
       ) : (
-        <strong>{Math.round(standing.rate * 100)}%</strong>
+        <>
+          <strong>{Math.round(standing.rate * 100)}%</strong>
+          {baseline !== undefined && baseline !== 0.5 && (
+            <em title="What a seat wins by chance in this format. A reference point, not a target.">
+              par {Math.round(baseline * 100)}%
+            </em>
+          )}
+        </>
       )}
     </span>
   );
@@ -84,11 +124,18 @@ export function LogPanel({
   onRefresh: () => void;
 }) {
   const [logging, setLogging] = useState(false);
+  /** `null` until you pick one — see `format` below for why it is not simply `"1v1"`. */
+  const [chosen, setChosen] = useState<MatchFormat | null>(null);
+
+  /** Only shown once there is something to switch between — a tab bar over one is furniture. */
+  const played = useMemo(() => formatsPlayed(matches ?? []), [matches]);
+  const format: MatchFormat = chosen ?? openingFormat(matches ?? []);
+
   const reading: LogReading | null = useMemo(
     // The engine has no card names by design (D-034); it takes a resolver so a synthesised
     // note can say "Hand of Noxus" rather than "ogn-302-298".
-    () => (matches ? read(matches, (id) => pool.byPrinting.get(id)?.name) : null),
-    [matches, pool],
+    () => (matches ? read(matches, (id) => pool.byPrinting.get(id)?.name, format) : null),
+    [matches, pool, format],
   );
 
   const nameOf = (cardId: string | null) =>
@@ -108,12 +155,44 @@ export function LogPanel({
 
       {reading && (
         <>
+          {/* Formats are never pooled (D-066), so the reading is always about one of them.
+              Shown only when you have played more than one — otherwise it is furniture. */}
+          {played.length > 1 && (
+            <div className="row formats">
+              {played.map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  className={format === f ? "chip on" : "chip"}
+                  onClick={() => setChosen(f)}
+                  title={FORMAT_NOTE[f]}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="standing">
-            <Record standing={reading.overall} />
+            <Record standing={reading.overall} baseline={reading.baseline} />
             <span className="dim">
-              {reading.overall.played === 1 ? "1 match" : `${reading.overall.played} matches`}
+              {reading.overall.played === 1
+                ? `1 match · ${reading.format}`
+                : `${reading.overall.played} matches · ${reading.format}`}
             </span>
           </div>
+
+          {/* Never let games sit invisibly in another bucket — an empty record with four
+              games logged elsewhere reads as "you have not played". */}
+          {reading.elsewhere.length > 0 && (
+            <p className="dim elsewhere">
+              Not counted here:{" "}
+              {reading.elsewhere
+                .map((f) => `${f.played} in ${f.format}`)
+                .join(", ")}
+              . Formats are read separately.
+            </p>
+          )}
 
           {/* Three statements at most. A log that says nine things says nothing (D-039). */}
           <ul className="notes">
@@ -180,6 +259,7 @@ function LogMatch({
   onSaved: () => void;
 }) {
   const [result, setResult] = useState<MatchResult>("WIN");
+  const [format, setFormat] = useState<MatchFormat>("1v1");
   const [playedAt, setPlayedAt] = useState(today());
   const [opponent, setOpponent] = useState("");
   const [opponentNote, setOpponentNote] = useState("");
@@ -216,8 +296,12 @@ function LogMatch({
           deckName,
           deckHash,
           playedAt,
+          format,
           result,
-          opponentLegend: opponent || null,
+          // ⚠️ Only heads-up records a Legend. With two opponents the field would name one
+          // of them and the record would then claim a matchup that never happened — the
+          // select is hidden below, and this is the guard that survives a stale state value.
+          opponentLegend: format === "1v1" ? opponent || null : null,
           opponentNote: opponentNote.trim() || null,
           games: games.trim() || null,
           // Symptoms only mean something on a loss. Recording "cannot-hold" on a win would
@@ -253,6 +337,22 @@ function LogMatch({
           ))}
         </div>
 
+        {/* The shape of the table. It decides what the record is allowed to conclude, so it
+            is asked for up front rather than buried under the notes (D-066). */}
+        <div className="row formats">
+          {MATCH_FORMATS.map((f) => (
+            <button
+              key={f}
+              type="button"
+              className={format === f ? "chip on" : "chip"}
+              onClick={() => setFormat(f)}
+              title={FORMAT_NOTE[f]}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+
         <div className="row">
           <label>
             Played
@@ -269,31 +369,49 @@ function LogMatch({
           </label>
         </div>
 
-        <label>
-          Their Legend
-          <select value={opponent} onChange={(e) => setOpponent(e.target.value)}>
-            {/* Not knowing is a real answer, and it is the default. */}
-            <option value="">— didn't note it —</option>
-            {legends.map((c) => (
-              <option key={c.printings[0]!.id} value={c.printings[0]!.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        {/* One opponent, one Legend. In any other format there is more than one and the
+            record refuses to pick — they go in the free text below instead. */}
+        {format === "1v1" && (
+          <label>
+            Their Legend
+            <select value={opponent} onChange={(e) => setOpponent(e.target.value)}>
+              {/* Not knowing is a real answer, and it is the default. */}
+              <option value="">— didn't note it —</option>
+              {legends.map((c) => (
+                <option key={c.printings[0]!.id} value={c.printings[0]!.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
 
         <label>
-          Their deck
+          {format === "1v1" ? "Their deck" : "Who else was at the table"}
           <input
             value={opponentNote}
             onChange={(e) => setOpponentNote(e.target.value)}
-            placeholder="Yasuo aggro, splashing Order"
+            placeholder={
+              format === "2v2"
+                ? "Partner: Jinx tempo. Against Diana and Yasuo"
+                : format === "1v1v1"
+                  ? "Diana ramp and Yasuo aggro"
+                  : "Yasuo aggro, splashing Order"
+            }
           />
         </label>
 
         {result === "LOSS" && (
           <fieldset className="symptoms">
             <legend>What went wrong? Optional, and it is what makes losses add up.</legend>
+            {/* Symptoms aggregate within a format, never across one. "Couldn't hold" against
+                two opponents may be arithmetic rather than a fact about the deck. */}
+            {format !== "1v1" && (
+              <p className="dim">
+                Counted only against your other {format} games — holding a battlefield against
+                two players is a different question.
+              </p>
+            )}
             {SYMPTOMS.map((s) => (
               <button
                 key={s}

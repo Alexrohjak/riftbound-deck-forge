@@ -254,3 +254,84 @@ describe("rejecting a record before it is stored", () => {
     expect(validate(m({ id: "abc", games: "two to one" }))[0]).toContain("2-1");
   });
 });
+
+/**
+ * D-066 — the shape of the table.
+ *
+ * The failure worth testing for is not "does it filter". It is that a reading which quietly
+ * pooled formats would report a *larger* sample and therefore look **more** trustworthy while
+ * describing no game anyone played — the same laundering every threshold in this module
+ * exists to prevent, smuggled back in through a bigger `n`.
+ */
+describe("formats are read separately", () => {
+  it("reads a record with no format as 1v1 — every such row predates the column", () => {
+    const reading = read(series(MIN_FOR_RATE, 0));
+    expect(reading.format).toBe("1v1");
+    expect(reading.overall.played).toBe(MIN_FOR_RATE);
+    expect(reading.elsewhere).toEqual([]);
+  });
+
+  it("never pools two formats into one rate", () => {
+    const mixed = [
+      ...series(MIN_FOR_RATE, 0),
+      ...series(0, MIN_FOR_RATE, { format: "1v1v1" }).map((x) => ({ ...x, id: `p${x.id}` })),
+    ];
+
+    const heads = read(mixed);
+    expect(heads.overall.played).toBe(MIN_FOR_RATE);
+    expect(heads.overall.rate).toBe(1);
+    expect(heads.elsewhere).toEqual([{ format: "1v1v1", played: MIN_FOR_RATE }]);
+
+    const pod = read(mixed, undefined, "1v1v1");
+    expect(pod.overall.played).toBe(MIN_FOR_RATE);
+    expect(pod.overall.rate).toBe(0);
+    // Pooled, this would have read 10-10 at 50% — a figure describing neither table.
+    expect(pod.elsewhere).toEqual([{ format: "1v1", played: MIN_FOR_RATE }]);
+  });
+
+  it("says where the games went rather than claiming nothing was played", () => {
+    // The one sentence that would be actively misleading: two games logged, and a reading
+    // that answers "Nothing logged yet."
+    const reading = read(series(1, 1, { format: "1v1v1" }));
+    expect(reading.overall.played).toBe(0);
+    expect(reading.notes[0]).not.toBe("Nothing logged yet.");
+    expect(reading.notes[0]).toContain("1v1v1");
+    expect(reading.notes[0]).toContain("2 games");
+  });
+
+  it("still says nothing was played when nothing was", () => {
+    expect(read([]).notes[0]).toBe("Nothing logged yet.");
+  });
+
+  it("refuses to build a matchup outside 1v1 — a three-way loss is not a loss to one deck", () => {
+    const opponent = { opponentLegend: "ogn-002-298" } as const;
+    expect(read(series(3, 3, opponent)).matchups.length).toBeGreaterThan(0);
+    expect(
+      read(series(3, 3, { ...opponent, format: "1v1v1" }), undefined, "1v1v1").matchups,
+    ).toEqual([]);
+  });
+
+  it("carries par, because 33% is a broken deck heads-up and average in a pod", () => {
+    expect(read([], undefined, "1v1").baseline).toBe(1 / 2);
+    expect(read([], undefined, "1v1v1").baseline).toBeCloseTo(1 / 3);
+    expect(read([], undefined, "2v2").baseline).toBe(1 / 2);
+  });
+
+  it("does not let a symptom from one format become a pattern in another", () => {
+    const podLosses = series(0, 6, { format: "1v1v1", symptoms: ["cannot-hold"] }).map((x) => ({
+      ...x,
+      id: `p${x.id}`,
+    }));
+
+    expect(read(podLosses).recurring).toEqual([]);
+    expect(read(podLosses, undefined, "1v1v1").recurring[0]?.symptom).toBe("cannot-hold");
+  });
+
+  it("rejects a format nobody plays, and treats absent as a real answer", () => {
+    expect(validate(m({ id: "abc", format: "1v1" }))).toEqual([]);
+    expect(validate(m({ id: "abc", format: "2v2" }))).toEqual([]);
+    expect(validate(m({ id: "abc", format: null }))).toEqual([]);
+    // A typo must not land in a bucket no reading ever asks for.
+    expect(validate(m({ id: "abc", format: "3v3" as never }))[0]).toContain("format must be");
+  });
+});

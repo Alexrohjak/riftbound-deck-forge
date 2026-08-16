@@ -11,6 +11,41 @@ import { SYMPTOMS, type Symptom } from "../advice/feedback.js";
 
 export type MatchResult = "WIN" | "LOSS" | "DRAW";
 
+/**
+ * How many people were at the table, and on whose side (D-066).
+ *
+ * ⚠️ **Not a player count — a shape.** `2v2` and a four-player free-for-all both seat four
+ * people and are not the same game, so counting heads would lose the distinction that
+ * matters. Only the three shapes actually played are listed; a fourth is a one-line addition
+ * here plus a `CHECK` in the schema, and until someone plays one it would be a guess.
+ */
+export const MATCH_FORMATS = ["1v1", "1v1v1", "2v2"] as const;
+export type MatchFormat = (typeof MATCH_FORMATS)[number];
+
+/**
+ * What a record with no format means. Heads-up, because it is what the log assumed for its
+ * whole existence before this field — reading old rows as anything else would invent a fact
+ * about games nobody recorded a format for.
+ */
+export const DEFAULT_FORMAT: MatchFormat = "1v1";
+
+/**
+ * The share of games a seat wins **by chance alone**, if every seat were equal.
+ *
+ * This exists because 33% in a three-way pod and 33% heads-up are opposite readings — the
+ * first is par, the second is a deck that does not work — and a rate shown without it invites
+ * exactly that mistake. It is arithmetic over seats, not doctrine: no source is being cited
+ * and none is needed.
+ *
+ * ⚠️ It assumes seats are symmetric, which in a free-for-all they are not — politics is real
+ * and Forge cannot see it. Par is a reference point, never a target to beat.
+ */
+export const BASELINE: Record<MatchFormat, number> = {
+  "1v1": 1 / 2,
+  "1v1v1": 1 / 3,
+  "2v2": 1 / 2,
+};
+
 export interface MatchRecord {
   id: string;
   /** No foreign key by design — a match outlives the deck it was played with (LOG §2). */
@@ -21,7 +56,15 @@ export interface MatchRecord {
   deckHash?: string | null;
   /** `YYYY-MM-DD`. The date played, not the date typed in. */
   playedAt: string;
-  /** Their Legend's `card_id`. **Null is a real answer** — you do not always know. */
+  /** The shape of the table. Absent means `1v1` — see {@link DEFAULT_FORMAT}. */
+  format?: MatchFormat | null;
+  /**
+   * Their Legend's `card_id`. **Null is a real answer** — you do not always know.
+   *
+   * ⚠️ Singular, and it stays singular. In a format with more than one opponent it names at
+   * most the one you consider the matchup; `read()` refuses to build a matchup record out of
+   * it there, because losing a three-way pod is not losing to whoever you wrote down.
+   */
   opponentLegend?: string | null;
   opponentNote?: string | null;
   result: MatchResult;
@@ -104,8 +147,26 @@ export interface Pattern {
 }
 
 export interface LogReading {
+  /**
+   * Which format this reading is **about**. Every number below covers only games played in
+   * it — see `read()` for why a reading that mixes formats is a reading of nothing.
+   */
+  format: MatchFormat;
+  /** What a seat wins by chance in this format. Context for `overall.rate`, never a target. */
+  baseline: number;
   overall: Standing;
-  /** Sorted by games played — the matchups you have actually tested come first. */
+  /**
+   * Games in the *other* formats, so their absence is visible rather than silent. A record
+   * that shows "nothing logged" while three games sit in another bucket is the one failure
+   * this field exists to prevent.
+   */
+  elsewhere: Array<{ format: MatchFormat; played: number }>;
+  /**
+   * Sorted by games played — the matchups you have actually tested come first.
+   *
+   * ⚠️ **Empty except in `1v1`.** A matchup is a claim about two decks meeting; with a third
+   * player at the table the result is not attributable to any one of them.
+   */
   matchups: Matchup[];
   /** Per build, so "which version went 4-1" is answerable. */
   versions: Array<{ hash: string; standing: Standing }>;
@@ -144,29 +205,59 @@ export type NameOf = (cardId: string) => string | undefined;
 
 const human = (symptom: Symptom) => symptom.replace(/-/g, " ");
 
-export function read(matches: readonly MatchRecord[], nameOf?: NameOf): LogReading {
-  const overall = stand(matches, MIN_FOR_RATE, ["match", "matches"]);
+/** The format a record counts as, resolving the absent case once so nothing else has to. */
+export const formatOf = (m: MatchRecord): MatchFormat => m.format ?? DEFAULT_FORMAT;
 
-  const matchups: Matchup[] = [...groupBy(matches, (m) => m.opponentLegend ?? null)]
-    .map(([legendCardId, ms]) => ({
-      legendCardId,
-      standing: stand(ms, MIN_FOR_MATCHUP, ["game", "games"]),
-    }))
-    // Games where you did not note the Legend sort last however many there are: "opponent
-    // unknown" is a gap in the record, not the matchup you have tested most.
-    .sort(
-      (a, b) =>
-        Number(a.legendCardId === null) - Number(b.legendCardId === null) ||
-        b.standing.played - a.standing.played,
-    );
+/**
+ * Read the record — **for one format at a time** (D-066).
+ *
+ * ⚠️ **Formats are never pooled, and this is the whole point of the parameter.** A win rate
+ * over mixed formats is a rate of nothing: heads-up you are beating one deck, in a pod you
+ * are beating two, and 2v2 is not even your deck alone. Averaging them produces a number
+ * that describes no game that was played. Every threshold in this file exists to stop a
+ * small sample from looking like knowledge, and silently merging formats would smuggle the
+ * same error back in through a bigger `n`.
+ *
+ * Games in other formats are reported in `elsewhere` rather than dropped — the one way this
+ * could mislead is by showing an empty record while games sit in a bucket nobody asked for.
+ */
+export function read(
+  matches: readonly MatchRecord[],
+  nameOf?: NameOf,
+  format: MatchFormat = DEFAULT_FORMAT,
+): LogReading {
+  const here = matches.filter((m) => formatOf(m) === format);
+  const overall = stand(here, MIN_FOR_RATE, ["match", "matches"]);
 
-  const versions = [...groupBy(matches, (m) => m.deckHash ?? "")]
+  const elsewhere = MATCH_FORMATS.filter((f) => f !== format)
+    .map((f) => ({ format: f, played: matches.filter((m) => formatOf(m) === f).length }))
+    .filter((f) => f.played > 0);
+
+  const matchups: Matchup[] =
+    // Only heads-up. With two opponents "you lost to X" is not a fact the record holds, and
+    // grouping by whichever Legend got typed in would manufacture one.
+    format !== "1v1"
+      ? []
+      : [...groupBy(here, (m) => m.opponentLegend ?? null)]
+          .map(([legendCardId, ms]) => ({
+            legendCardId,
+            standing: stand(ms, MIN_FOR_MATCHUP, ["game", "games"]),
+          }))
+          // Games where you did not note the Legend sort last however many there are:
+          // "opponent unknown" is a gap in the record, not the matchup you tested most.
+          .sort(
+            (a, b) =>
+              Number(a.legendCardId === null) - Number(b.legendCardId === null) ||
+              b.standing.played - a.standing.played,
+          );
+
+  const versions = [...groupBy(here, (m) => m.deckHash ?? "")]
     .filter(([hash]) => hash !== "")
     .map(([hash, ms]) => ({ hash, standing: stand(ms, MIN_FOR_MATCHUP, ["game", "games"]) }))
     .sort((a, b) => b.standing.played - a.standing.played);
 
   // ── patterns in losses ──────────────────────────────────────────────────────
-  const lost = matches.filter((m) => m.result === "LOSS");
+  const lost = here.filter((m) => m.result === "LOSS");
   const counts = new Map<Symptom, number>();
   for (const m of lost) {
     // A match names each symptom once however many times you felt it.
@@ -220,14 +311,33 @@ export function read(matches: readonly MatchRecord[], nameOf?: NameOf): LogReadi
   if (notes.length === 0) {
     // The withheld reason already states the count, so prefixing it with the count again
     // reads like a stutter.
+    //
+    // ⚠️ The empty case has to name the other formats. "Nothing logged yet" while four games
+    // sit in another bucket is the single most misleading sentence this file could produce —
+    // it reads as "you have not played", when what happened is that you played something
+    // this reading is deliberately not about.
+    const away = elsewhere.reduce((n, f) => n + f.played, 0);
     notes.push(
       overall.played === 0
-        ? "Nothing logged yet."
+        ? away === 0
+          ? "Nothing logged yet."
+          : `Nothing logged in ${format} — but ${away} ${away === 1 ? "game" : "games"} in ` +
+            `${elsewhere.map((f) => f.format).join(" and ")}. Formats are read separately, ` +
+            `because a rate that mixes them is a rate of no game you played.`
         : (overall.withheld ?? "Nothing stands out yet — keep playing."),
     );
   }
 
-  return { overall, matchups, versions, recurring, notes: notes.slice(0, NOTE_BUDGET) };
+  return {
+    format,
+    baseline: BASELINE[format],
+    overall,
+    elsewhere,
+    matchups,
+    versions,
+    recurring,
+    notes: notes.slice(0, NOTE_BUDGET),
+  };
 }
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -279,6 +389,11 @@ export function validate(m: MatchRecord, notAfter?: string): string[] {
   }
   if (m.games != null && m.games !== "" && !GAMES.test(m.games)) {
     problems.push('games must look like "2-1".');
+  }
+  // Null and absent are both fine and both mean 1v1; a *wrong* value is not, because it
+  // would land in a bucket no reading ever asks for and the games would silently vanish.
+  if (m.format != null && !(MATCH_FORMATS as readonly string[]).includes(m.format)) {
+    problems.push(`format must be one of ${MATCH_FORMATS.join(", ")}.`);
   }
   // A non-array here used to throw out of `for...of` and surface as a 500 rather than a
   // 400 — a malformed request crashing the endpoint instead of being told off.

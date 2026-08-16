@@ -33,6 +33,7 @@ import {
   diagnose,
   read as readLog,
   validate as validateMatch,
+  MATCH_FORMATS,
   validateProposal,
   match,
   readArchetype,
@@ -44,6 +45,7 @@ import {
   suggest,
   type CardEntry,
   type Deck,
+  type MatchFormat,
   type MatchRecord,
   type PoolCard,
   type Plan,
@@ -95,7 +97,9 @@ const USAGE = `forge <legality|review|ask|log|skeletons|brief|validate|legend|ar
                "found 37". Also catches card ids that do not exist, which no legality
                check can — an unknown printing looks like an ordinary card nobody owns.
 
-  log          matches.json — the record, and what it is honest to conclude from it.
+  log          matches.json [--format 1v1|1v1v1|2v2] — the record, and what it is
+               honest to conclude from it. Reads ONE format at a time, defaulting to
+               1v1; games in the others are reported under "elsewhere", never merged.
                ⚠️ Rates are WITHHELD below 10 matches (5 per matchup) rather than shown
                with a caveat. The "withheld" field says why. See docs/spec/LOG.md.
 
@@ -522,8 +526,22 @@ function main(argv: string[]): number {
       const entry = cards[cardId];
       return typeof entry === "string" ? entry : entry?.name;
     };
+    /**
+     * ⚠️ Rejected rather than defaulted. A typo'd `--format 1v1v` would otherwise read the
+     * heads-up bucket and report an empty record, which looks exactly like "you have not
+     * played those games" — the one failure D-066 exists to prevent.
+     */
+    const wanted = flag("--format");
+    if (wanted !== undefined && !(MATCH_FORMATS as readonly string[]).includes(wanted)) {
+      fail(`--format must be one of ${MATCH_FORMATS.join(", ")}.`);
+    }
+
     process.stdout.write(
-      `${JSON.stringify(readLog(matches as MatchRecord[], nameOf), null, 2)}\n`,
+      `${JSON.stringify(
+        readLog(matches as MatchRecord[], nameOf, (wanted as MatchFormat) ?? undefined),
+        null,
+        2,
+      )}\n`,
     );
     return 0;
   }

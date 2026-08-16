@@ -41,6 +41,7 @@ const MATCHES = [
     deck_name: "Ahri Calm-Mind",
     deck_hash: "aaaaaaaaaaaaaaaa",
     played_at: "2026-08-01",
+    format: "1v1",
     opponent_legend: "ogn-002-298",
     opponent_note: null,
     result: "WIN",
@@ -63,6 +64,9 @@ describe("the log in the snapshot", () => {
     const s = buildSnapshot("2026-08-04T03:12:00.000Z", COLLECTION, DECKS, SLOTS, MATCHES, HISTORY);
     expect(s.matches).toHaveLength(1);
     expect(s.matches[0]?.deck_hash).toBe("aaaaaaaaaaaaaaaa");
+    // The format travels too. Restoring a match without it would silently re-read a
+    // three-way pod as a heads-up game, which is worse than losing the row (D-066).
+    expect(s.matches[0]?.format).toBe("1v1");
     expect(s.deckHistory[0]?.seq).toBe(1);
   });
 
