@@ -1502,6 +1502,151 @@ body.resizing * { pointer-events: none; }
 /* The examples are grounding, not the point — they read quieter than the pattern name. */
 .census li em { display: block; font-style: normal; font-size: 0.66rem; color: var(--faint); }
 
+/**
+ * The wishlist — what to look for when you are trading.
+ *
+ * ⚠️ Built to be read one-handed on a phone in a card shop, which is the only place it is
+ * ever opened. Each row leads with the number to look for, because that is the thing you are
+ * scanning for; the deck attribution wraps underneath rather than competing for the line.
+ */
+.wishlist { display: grid; gap: var(--s4); }
+.wants h3 {
+  margin: 0 0 var(--s1); font-size: 0.86rem; font-weight: 600;
+  display: flex; align-items: baseline; gap: var(--s2);
+}
+.wants h3 .count {
+  font-family: var(--mono); font-size: 0.72rem; color: var(--dim);
+  border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0 var(--s1);
+}
+.wants.blocking h3 { color: var(--alert); }
+/* Spare copies cost nothing to act on, so they read as encouragement rather than a warning. */
+.wants.spare h3 { color: var(--accent); }
+.wants ul { margin: var(--s2) 0 0; padding: 0; list-style: none; display: grid; gap: var(--s2); }
+/* Art left, everything else right. The picture is the thing you scan, so it leads the row. */
+.wants li {
+  display: grid; grid-template-columns: 5.75rem 1fr; gap: var(--s3);
+  align-items: center; padding: var(--s2); border-radius: var(--radius-sm);
+  background: var(--panel); box-shadow: var(--shadow);
+}
+/* ⚠️ Not `.art` — that name is already a 1.2rem swatch whose explicit height beats
+   aspect-ratio, which squashed every card in this list into a sliver. */
+.wants .shopart {
+  width: 100%; border-radius: 4px; display: block;
+  aspect-ratio: 744 / 1039; object-fit: cover; background: var(--line);
+}
+/* A battlefield is landscape — squeezing it into a portrait box is the gallery's old bug. */
+.wants .shopart.wide { aspect-ratio: 1038 / 744; }
+.wants .shopart.missing { aspect-ratio: 744 / 1039; }
+.wants .detail { display: grid; grid-template-columns: auto 1fr; gap: 0 var(--s2); align-items: baseline; }
+.wants .want {
+  grid-row: span 2; font-family: var(--mono); font-size: 1.15rem; font-weight: 700;
+  color: var(--accent); align-self: center;
+}
+.wants.blocking .want { color: var(--alert); }
+.wants .who { font-size: 0.9rem; font-weight: 600; }
+.wants .have { grid-column: 2; font-family: var(--mono); font-size: 0.72rem; color: var(--dim); }
+/* Deck attribution spans the full width so long lists wrap rather than truncate. */
+.wants .decks { grid-column: 1 / -1; padding-top: var(--s1); font-size: 0.74rem; color: var(--dim); }
+
+/**
+ * ⚠️ **Hover enlarges a wishlist card, because the thumbnail is an identifier and the full
+ * card is the answer.** At 5.75rem you can tell *which* card a row is about; you cannot read
+ * its rules text, and "is this the one I want three of?" is often a text question.
+ *
+ * Anchored left so the card grows into the panel rather than off its edge, and lifted above
+ * the rows below it — without `position` the `z-index` does nothing and the next row's
+ * background paints over the enlarged art.
+ */
+.wants li { position: relative; }
+.wants .shopart {
+  position: relative; transform-origin: left center;
+  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+.wants .shopart:hover {
+  transform: scale(2.7); z-index: 6; box-shadow: var(--shadow-card);
+}
+/* A landscape battlefield is already twice as wide, so it needs far less magnification. */
+.wants .shopart.wide:hover { transform: scale(1.9); }
+
+/**
+ * ══ Analysis, made legible ══════════════════════════════════════════════════
+ *
+ * ⚠️ **The panel headings were 0.62rem uppercase in `--dim`.** That is a caption size doing a
+ * heading's job, and at wide letter-spacing on a dark ground it is genuinely hard to read —
+ * which made a page of eleven sections feel like one undifferentiated wall. Raised to a size
+ * a heading can carry, and to a colour that separates it from the body text beneath it.
+ *
+ * The house style — mono, uppercase, tracked — is kept. The complaint was legibility, not
+ * character.
+ */
+.stack h2,
+.panel h2 {
+  font-size: 0.76rem;
+  color: color-mix(in srgb, var(--ink) 78%, transparent);
+  letter-spacing: 0.09em;
+  margin-bottom: var(--s3);
+}
+
+/* ⚠️ A claim badge is the most important word in its section — it says whether the number is
+   counted, computed or contested. It was the smallest thing on the page. */
+.tier { font-size: 0.66rem; padding: 1px var(--s2); }
+.tier.probability, .tier.doctrine { color: var(--accent); }
+
+/**
+ * ⚠️ The chart stems were `--line-strong`, a border colour — so the data was drawn in the
+ * dimmest ink on the page while the gridlines around it were brighter. A bar chart whose bars
+ * recede is a decoration of a chart.
+ */
+.bar .stem { background: color-mix(in srgb, var(--accent) 72%, var(--line-strong)); }
+.bar .count { font-size: 0.74rem; color: color-mix(in srgb, var(--ink) 72%, transparent); }
+.bar .tick { font-size: 0.68rem; opacity: 1; color: var(--dim); }
+
+/* The legend that explains the badges. Compact, and never competing with the data below. */
+.legend .claims { margin: 0; display: grid; gap: var(--s2); }
+.legend .claims > div { display: grid; grid-template-columns: 5.5rem 1fr; gap: var(--s2); align-items: baseline; }
+.legend dt { margin: 0; }
+.legend dd { margin: 0; font-size: 0.78rem; line-height: 1.45; color: var(--dim); }
+
+.legend .lead {
+  margin: 0 0 var(--s3); font-size: 0.82rem; line-height: 1.5;
+  color: color-mix(in srgb, var(--ink) 82%, transparent);
+}
+.legend .lead em { font-style: normal; color: var(--accent); }
+
+/**
+ * ⚠️ **The view tabs read as four words, not four destinations.** The active one differed by
+ * a slightly lighter background, which is easy to miss on a dark panel and says nothing about
+ * what any of them contain. An accent rule under the live tab is the cheapest way to make the
+ * current position unmissable without adding chrome.
+ */
+.view.on {
+  box-shadow: var(--shadow), inset 0 -2px 0 var(--accent);
+}
+
+/**
+ * ══ Wishlist, made legible ═════════════════════════════════════════════════
+ *
+ * ⚠️ Same pass as Analysis, and this view needs it more: it is the one screen read
+ * **one-handed, at arm's length, in a shop**, often on a phone. It is the last place in the
+ * app that should be whispering.
+ *
+ * ⚠️ **The deck attribution was the faintest text in the row** — 0.74rem in `--dim`, below
+ * the card name and below the counts. It is the thing the list was asked for: *"tell me which
+ * decks each of them go in."* Answering the question in the smallest type on the row is a
+ * hierarchy that contradicts the feature.
+ */
+.wants h3 { font-size: 0.98rem; margin-bottom: var(--s2); }
+.wants h3 .count { font-size: 0.78rem; }
+/* The line under each heading says what the section is for, and was never styled at all. */
+.wants .quiet {
+  margin: 0; font-size: 0.82rem; line-height: 1.5;
+  color: color-mix(in srgb, var(--ink) 66%, transparent);
+}
+.wants .want { font-size: 1.35rem; }
+.wants .who { font-size: 1rem; }
+.wants .have { font-size: 0.78rem; color: color-mix(in srgb, var(--ink) 60%, transparent); }
+.wants .decks { font-size: 0.82rem; color: color-mix(in srgb, var(--ink) 74%, transparent); }
+.wishlist .caveat { font-size: 0.74rem; line-height: 1.5; }
 /* ═══════════════════════════════════════════════════════════════════════════
    Tokens — what to bring in the box beside the deck.
 

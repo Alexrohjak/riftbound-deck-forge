@@ -36,7 +36,7 @@ import {
 import { AddCards } from "./AddCards.js";
 import { watchForUpdates } from "./version.js";
 import { DeckBar, DeckName, useDecks } from "./Decks.js";
-import { Advisor } from "./Advisor.js";
+import { Advisor, ClaimLegend } from "./Advisor.js";
 import { ImportCollection, type Result as ImportResult } from "./ImportCollection.js";
 import { History, LogPanel, useMatches } from "./Log.js";
 import { apply, copyLimit, DOMAIN_LIST, MAX_COPIES, NO_FILTERS, orderShelf, ownedCount, SORTS, TYPES, type Filters, type ShelfRow, type Tab } from "./filters.js";
@@ -45,6 +45,7 @@ import { Workshop, type Occupant, type Target } from "./Workshop.js";
 import { CardDetail } from "./CardDetail.js";
 import { useCommitments } from "./commitments.js";
 import { Probabilities, Statistics } from "./Statistics.js";
+import { Wishlist } from "./Wishlist.js";
 import { Tokens } from "./Tokens.js";
 
 /**
@@ -270,7 +271,7 @@ export function App() {
    * bottom, and the bottom was two screens past anywhere anyone looks. Three views instead,
    * so nothing new is ever buried by being newest.
    */
-  const [view, setView] = useState<"deck" | "analysis" | "log">("deck");
+  const [view, setView] = useState<"deck" | "analysis" | "log" | "wishlist">("deck");
   const [detail, setDetail] = useState<Target | null>(null);
   const [pane, setPane] = useState(() => Number(store.get("forge.pane", "34")) || 34);
 
@@ -1060,6 +1061,8 @@ export function App() {
                   ["deck", "Deck"],
                   ["analysis", "Analysis"],
                   ["log", "Log"],
+                  // ⚠️ Reads every deck, not the open one — the only view that does.
+                  ["wishlist", "Wishlist"],
                 ] as const
               ).map(([id, label]) => (
                 <button
@@ -1112,6 +1115,8 @@ export function App() {
             >
               {view === "analysis" && facts && (
                 <>
+                  {/* ⚠️ First, because the badges below are meaningless without it. */}
+                  <ClaimLegend />
                   <Statistics
                     facts={facts}
                     // Copies this deck asks for that another BUILT deck is holding — the
@@ -1147,6 +1152,8 @@ export function App() {
                   <History deckId={deck.id} playedOn={playedOn} />
                 </>
               )}
+
+              {view === "wishlist" && <Wishlist pool={pool} owned={owned} />}
 
               {view === "deck" && <p className="caveat">⚠️ {legality.coverage.caveat}</p>}
             </Workshop>

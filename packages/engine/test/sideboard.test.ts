@@ -263,6 +263,25 @@ describe("⚠️ the answer budget — synthesise, never enumerate", () => {
     expect(new Set(answers).size).toBe(answers.length);
   });
 
+  it("⚠️ lists one printing per name — copy limits are counted per name, not per printing", () => {
+    // Found boarding a real deck: `Zed, From the Shadows` has three printings and two of them
+    // filled two of the four slots on one line, each reporting `headroom: 3` as though it had
+    // its own allowance. They share one allowance of three (L13, L16, TR 601.1.c.3), so a
+    // caller trusting the list would register six copies of one card.
+    const withReprint: Record<string, CardEntry> = {
+      ...CARDS,
+      denyReprintA: { ...CARDS.deny!, name: "Deny" },
+      denyReprintB: { ...CARDS.deny!, name: "Deny" },
+    };
+    const idx = staticCardIndex(withReprint);
+    const bigPool: PoolCard[] = Object.entries(withReprint).map(([cardId, facts]) => ({ cardId, facts }));
+    const counsel = sideboardCounsel(baseDeck, idx, bigPool, "legend-theirs")!;
+    for (const line of counsel.bring) {
+      const names = line.candidates.map((c) => c.name);
+      expect(new Set(names).size, `${line.answerLabel} repeats a name`).toBe(names.length);
+    }
+  });
+
   it("never repeats a card under the same job", () => {
     // The symptom the grouping was written to remove: `Riposte` four times over, once per
     // threat a hard counter happens to answer.
