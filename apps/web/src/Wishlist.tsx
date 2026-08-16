@@ -93,10 +93,14 @@ export function Wishlist({
         byName={pool.byName}
       />
       <Section
-        title="Already yours — could play more"
-        hint="Copies sitting in the boxes that no deck plays. Costs nothing and needs no trade."
+        title="Spare copies, no trade needed"
+        hint={
+          "These decks already play the card but run fewer copies than you own. You could add more today for free. " +
+          "⚠️ Possible, not recommended — a deck running two of something usually chose to, and the list cannot tell " +
+          "a deliberate two from an accidental one. Read it as “here is what is available”, not a to-do list."
+        }
         rows={spare}
-        empty="Nothing idle — every spare copy is either in a deck or already at the limit."
+        empty="Nothing idle — every spare copy is either in a deck or already at its legal limit."
         tone="spare"
         byName={pool.byName}
       />
@@ -143,6 +147,24 @@ function Art({ card, name }: { card: Card | undefined; name: string }) {
   );
 }
 
+/**
+ * One sentence saying what this row is asking of you, in the terms of its own kind.
+ *
+ * ⚠️ **The three kinds are three different errands** and a shared format hid that. "own 5 ·
+ * decks play 1" is true for a spare row and tells you nothing about what to do with it; the
+ * blocking row wants you to go and find copies, and the spare row wants you to open a box.
+ */
+function summarise(r: WishlistRow): string {
+  const most = r.decks[0];
+  if (r.kind === "blocking") return `own ${r.owned}, your decks want ${r.needed} between them`;
+  if (r.kind === "spare") {
+    return most
+      ? `own ${r.owned} · ${most.name} plays ${most.copies}, could play ${most.copies + r.short}`
+      : `own ${r.owned}`;
+  }
+  return `own ${r.owned} of a possible ${r.owned + r.short} — every copy is in a deck`;
+}
+
 function Section({
   title,
   hint,
@@ -174,10 +196,10 @@ function Section({
               <div className="detail">
                 <span className="want">+{r.short}</span>
                 <span className="who">{r.name}</span>
-                <span className="have">
-                  own {r.owned}
-                  {r.kind === "blocking" ? ` · decks want ${r.needed}` : r.kind === "spare" ? ` · decks play ${r.needed}` : ""}
-                </span>
+                {/* ⚠️ Each kind gets its own sentence. A single shared format ("own 5 · decks
+                    play 1") made the reader work out what the row was asking of them, which is
+                    the opposite of what a list you read one-handed in a shop should do. */}
+                <span className="have">{summarise(r)}</span>
                 <span className="decks">{r.decks.map((d) => `${d.name} ×${d.copies}`).join(" · ")}</span>
               </div>
             </li>

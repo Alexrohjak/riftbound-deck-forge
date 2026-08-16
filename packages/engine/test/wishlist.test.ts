@@ -131,6 +131,26 @@ describe("wishlist", () => {
     expect(row.short).toBe(1);
   });
 
+  it("⚠️ never says you could play more of a battlefield — L6 caps them at one per deck", () => {
+    // Own five, register one, and the answer to "could I play more" is permanently no:
+    // battlefield names must be unique (CR 103.4.c / TR 402.1). Five of thirty-two rows made
+    // this claim, and `checkLegality` rejected a deck built to follow one of them.
+    const decks = [deckOf("a", "Deck A", [{ cardId: "field", quantity: 1, zone: "BATTLEFIELD" }])];
+    expect(
+      wishlist(decks, index, owned([["A Battlefield", 5]])).find((r) => r.name === "A Battlefield"),
+    ).toBeUndefined();
+  });
+
+  it("still flags a battlefield a second deck cannot get a copy of", () => {
+    // The cap is per deck. Two decks each wanting one, and you own one, is still blocking.
+    const decks = [
+      deckOf("a", "Deck A", [{ cardId: "field", quantity: 1, zone: "BATTLEFIELD" }]),
+      deckOf("b", "Deck B", [{ cardId: "field", quantity: 1, zone: "BATTLEFIELD" }]),
+    ];
+    const row = wishlist(decks, index, owned([["A Battlefield", 1]])).find((r) => r.name === "A Battlefield")!;
+    expect(row.kind).toBe("blocking");
+  });
+
   it("counts the sideboard, because copy limits span both zones (L16)", () => {
     const decks = [
       deckOf("a", "Deck A", [

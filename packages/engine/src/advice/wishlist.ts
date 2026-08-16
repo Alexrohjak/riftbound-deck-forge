@@ -47,6 +47,18 @@ export interface WishlistUse {
   copies: number;
 }
 
+/**
+ * The most copies of one name a single deck may register.
+ *
+ * ⚠️ **A battlefield is one per deck, not three.** L6 (CR 103.4.c / TR 402.1) requires
+ * battlefield *names* to be unique, so "you own five and play one, add more" is advice the
+ * gate will refuse every time. Five of thirty-two rows were that claim before this existed —
+ * and the way it was found is worth recording: a deck built to take a second `Risen Altar`
+ * was rejected by `checkLegality` on L6, which is the same list saying no to its own suggestion.
+ */
+const capFor = (facts: { types?: readonly string[] } | undefined): number =>
+  (facts?.types ?? []).includes("battlefield") ? 1 : MAX_COPIES_PER_NAME;
+
 export interface WishlistRow {
   name: string;
   /**
@@ -83,6 +95,8 @@ export function wishlist(
   ownedByName: ReadonlyMap<string, number>,
 ): WishlistRow[] {
   const uses = new Map<string, WishlistUse[]>();
+  /** Per-name legal ceiling in one deck — three, or one for a battlefield (L6). */
+  const cap = new Map<string, number>();
 
   for (const { id, name: deckName, deck } of decks) {
     /**
@@ -100,6 +114,7 @@ export function wishlist(
     const perName = new Map<string, number>();
     for (const e of deckEntries(deck, cards).filter(isCollected)) {
       perName.set(e.name, (perName.get(e.name) ?? 0) + e.quantity);
+      cap.set(e.name, capFor(e.facts));
     }
     for (const [cardName, copies] of perName) {
       const list = uses.get(cardName) ?? [];
@@ -134,7 +149,8 @@ export function wishlist(
      * running two of a legal three — nine copies are genuinely spare, and eight of them have
      * nowhere to go. The number has to be the one you can act on.
      */
-    const room = Math.max(0, ...used.map((u) => MAX_COPIES_PER_NAME - u.copies));
+    const ceiling = cap.get(name) ?? MAX_COPIES_PER_NAME;
+    const room = Math.max(0, ...used.map((u) => ceiling - u.copies));
     const canAdd = Math.min(idle, room);
     if (canAdd > 0) {
       rows.push({ name, owned, needed, short: canAdd, kind: "spare", decks: used });
@@ -144,12 +160,12 @@ export function wishlist(
     // An upgrade is only a want if a deck is actually playing every copy there is. A deck
     // running two of a card you own three of has made a choice, not hit a wall.
     const maxedOut = used.some((u) => u.copies >= owned);
-    if (maxedOut && owned < MAX_COPIES_PER_NAME) {
+    if (maxedOut && owned < ceiling) {
       rows.push({
         name,
         owned,
         needed,
-        short: MAX_COPIES_PER_NAME - owned,
+        short: ceiling - owned,
         kind: "upgrade",
         decks: used,
       });
