@@ -1622,3 +1622,28 @@ body.resizing * { pointer-events: none; }
 .view.on {
   box-shadow: var(--shadow), inset 0 -2px 0 var(--accent);
 }
+
+/**
+ * ══ Wishlist, made legible ═════════════════════════════════════════════════
+ *
+ * ⚠️ Same pass as Analysis, and this view needs it more: it is the one screen read
+ * **one-handed, at arm's length, in a shop**, often on a phone. It is the last place in the
+ * app that should be whispering.
+ *
+ * ⚠️ **The deck attribution was the faintest text in the row** — 0.74rem in `--dim`, below
+ * the card name and below the counts. It is the thing the list was asked for: *"tell me which
+ * decks each of them go in."* Answering the question in the smallest type on the row is a
+ * hierarchy that contradicts the feature.
+ */
+.wants h3 { font-size: 0.98rem; margin-bottom: var(--s2); }
+.wants h3 .count { font-size: 0.78rem; }
+/* The line under each heading says what the section is for, and was never styled at all. */
+.wants .quiet {
+  margin: 0; font-size: 0.82rem; line-height: 1.5;
+  color: color-mix(in srgb, var(--ink) 66%, transparent);
+}
+.wants .want { font-size: 1.35rem; }
+.wants .who { font-size: 1rem; }
+.wants .have { font-size: 0.78rem; color: color-mix(in srgb, var(--ink) 60%, transparent); }
+.wants .decks { font-size: 0.82rem; color: color-mix(in srgb, var(--ink) 74%, transparent); }
+.wishlist .caveat { font-size: 0.74rem; line-height: 1.5; }
