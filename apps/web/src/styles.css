@@ -991,6 +991,14 @@ body.resizing * { pointer-events: none; }
 }
 .record strong { font-family: var(--mono); color: var(--accent); }
 
+/* The table's shape (D-066). Formats are never pooled, so the reading names the one it is
+   about and the switcher moves between them rather than summing them. */
+.row.formats { display: flex; gap: var(--s2); margin-bottom: var(--s3); }
+.row.formats .chip { font-family: var(--mono); font-size: 0.72rem; }
+/* Games in another format are stated rather than hidden — an empty record with games
+   logged elsewhere reads as "you have not played", which is the failure to avoid. */
+.elsewhere { font-size: 0.75rem; margin: calc(var(--s3) * -1) 0 var(--s3); }
+
 .notes { margin: 0 0 var(--s3); padding: 0; list-style: none; display: grid; gap: var(--s2); }
 .notes li {
   padding-left: var(--s3); border-left: 2px solid var(--accent);

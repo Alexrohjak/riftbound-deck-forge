@@ -106,6 +106,25 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 > are **not yet wired to the plan** (`G7`). With a plan stored, a complaint becomes evidence
 > about a **package** rather than about a card.
 >
+> ### ⚠️ The first real games were `1v1v1`, and the log could not describe them
+>
+> [**D-066**](docs/DECISIONS.md#d-066) — a match now records the **shape of the table**
+> (`1v1` · `1v1v1` · `2v2`), and **formats are never pooled**. Par is 50% heads-up and **33%**
+> in a three-way pod, so a combined rate describes no game anyone played — and it arrives with
+> a bigger `n`, which makes it look *more* trustworthy than the honest figures it replaced.
+> Matchups exist only in `1v1`, symptoms aggregate within a format, and games in another format
+> are always named rather than silently dropped.
+>
+> ⚠️ **The migration has not been run against production yet:**
+>
+> ```bash
+> cd apps/api && npx wrangler d1 execute forge --remote --file=./migrations/002-match-format.sql
+> ```
+>
+> ⚠️ **Recording a format is not modelling one.** Everything EE says — `threats`, `sideboard`,
+> the battlefield reads, the plan yardsticks — is heads-up doctrine, and nothing in the engine
+> knows what a third player at the table does to a board.
+>
 > ⚠️ **The two older decks were deleted** on request (2026-08-15). Recoverable from the
 > `backups` branch snapshot of 2026-08-11, which holds both.
 >
@@ -439,7 +458,7 @@ system map and **where to put a new idea**.
 | [`docs/roadmap.html`](docs/roadmap.html) | The same roadmap, rendered. Download and open in a browser |
 | [**`docs/spec/OVERVIEW.md`**](docs/spec/OVERVIEW.md) | **System map — how everything relates, and where new ideas go. Read before adding a feature.** |
 | [`docs/PLAN.md`](docs/PLAN.md) | The detail layer — gates, "done when", validation and risks |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 65 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 66 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
 | [**`docs/EE-BRIEFING.md`**](docs/EE-BRIEFING.md) | **What binds EE when it answers — the answer budget, the tiering, and "never author a number". Read before asking it anything.** |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
 | [**`docs/ARCHITECTURE.md`**](docs/ARCHITECTURE.md) | **How it's built — stack, hosting, verified £0/month cost, and what's ruled out. Read before writing code.** |

@@ -74,6 +74,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-063](#d-063) | **Rules text comes from the fullest printing** — promos drop the reminders that explain a keyword | ✅ |
 | [D-064](#d-064) | **A deck is built to a plan** — and measured against it, not against universal thresholds | ✅ |
 | [D-065](#d-065) | **Tokens are read off printed text, not off a token registry** — four of eleven were never printed | ✅ |
+| [D-066](#d-066) | **A match records the shape of the table** — `1v1` / `1v1v1` / `2v2`, and formats are never pooled into one rate | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -2811,3 +2812,70 @@ someone a wrong file open every few months for the life of the project.
 | Sum every copy's output for the count | A Gold deck asks for thirty. Past a dozen you are administering a board, not playing one |
 | Put it in the Deck view beside the tray | Advice is pull, not push (D-042). Packing is the last thing you do, not something shouted mid-build |
 | Add tokens to the collection so they can be "owned" | Reopens exactly what DATA-MODEL §1 and D-061 closed — a token is not a card you find |
+
+---
+
+<a id="d-066"></a>
+
+## D-066 — A match records the **shape of the table**, and formats are never pooled
+
+**Date:** 2026-08-16
+**Status:** Accepted — adds `format` to `matches` (migration `002`), a format dimension to
+[`read()`](../packages/engine/src/log/match.ts), and format chips to the log form
+
+### What prompted it
+
+> *"I only played 2 games today and they were both 1v1v1, so I can't really comment there."*
+
+The evidence gate (`G7`) had been sitting on *"play a game and log a note"* for days. The first
+real games arrived and **the log could not describe them.** That is the whole finding: the one
+feature whose entire purpose is to record what actually happened had modelled a game shape
+nobody had checked.
+
+⚠️ **Nothing in the repository mentioned multiplayer at all** — not the schema, not the engine,
+not one line of the specs or the reference docs. The assumption was never made; it was never
+noticed. Meanwhile the project's own quotation of the Comprehensive Rules
+([COMPENDIUM](reference/COMPENDIUM.md), CR 464.2.e.1) reads *"followed by all **non-Defender
+players** in Turn Order"* — plural, which only means anything with three or more people at the
+table. The rules were multiplayer-aware; Forge's doctrine was not.
+
+### Why this is a correctness decision and not a field
+
+The tempting move is to log the games anyway and sort it out later. It is wrong twice over,
+and the second one is not obvious:
+
+1. **`opponent_legend` would assert a matchup that never happened.** You did not lose *to* one
+   of two people.
+2. **A pooled win rate is the `n=4` error wearing a disguise.** Par heads-up is 50%; in a
+   three-way pod it is **33%**. Averaging the two produces a figure describing no game anyone
+   played — and it arrives with a *larger* sample, so it looks **more** trustworthy than the
+   honest numbers it replaced. Every threshold in `log/match.ts` exists to stop a small sample
+   from looking like knowledge ([D-016](#d-016), [D-022](#d-022)); merging formats smuggles the
+   same error back in through `n`.
+
+It had to land **before** the first row, not after. The log has no edit path — only an unwired
+`DELETE` — so a row written wrong is written wrong permanently, and matches are the one thing
+in the system that cannot be reconstructed from anything else.
+
+### What was decided
+
+1. **`format` is a shape, not a player count** — `1v1` · `1v1v1` · `2v2`. Counting heads would
+   make `2v2` and a four-player free-for-all the same value, which they are not.
+2. **Null means `1v1`**, resolved once in the engine (`DEFAULT_FORMAT`). Every row predating the
+   column was heads-up, because heads-up was all the log could describe.
+3. **`read()` covers one format at a time.** Matchups exist only in `1v1`; symptoms aggregate
+   within a format; `baseline` travels with the reading so 33% is never mistaken for a verdict.
+4. **Games elsewhere are always named.** `elsewhere` and the empty-state note exist so a reading
+   can never answer *"Nothing logged yet"* while games sit in another bucket — the single most
+   misleading sentence this design could produce, and it has its own test.
+
+### What was rejected
+
+| Alternative | Why not |
+|---|---|
+| A `players` integer | `2v2` and a four-way free-for-all both seat four people and are not the same game |
+| `opponentLegends` as an array | Turns one row into a claim about several matchups; a three-way loss is not a loss to each of them |
+| Log multiplayer games as `1v1` with a note | Puts two false facts in the one table that is permanent and has no edit path |
+| Refuse to log non-`1v1` games at all | The notes are irreplaceable and decay within a day. The record is not only its rates |
+| A combined "all formats" rate as well | The number nobody should read, offered next to the ones they should |
+| Extend EE's advice to pods | `threats`, `sideboard` and the plan yardsticks are heads-up doctrine end to end. Recording a format is not modelling one, and pretending otherwise is how the deck would get worse |

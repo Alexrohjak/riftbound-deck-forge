@@ -98,6 +98,9 @@ CREATE TABLE IF NOT EXISTS matches (
   deck_name        TEXT,
   deck_hash        TEXT,              -- which version was played — joins to deck_history
   played_at        TEXT NOT NULL,     -- the date played, not the date typed in
+  -- The shape of the table (D-066). NULL means 1v1 — every row written before the column
+  -- existed was heads-up, and the reading resolves it in one place.
+  format           TEXT CHECK (format IS NULL OR format IN ('1v1', '1v1v1', '2v2')),
   opponent_legend  TEXT,              -- their Legend's card_id; null is a real answer
   opponent_note    TEXT,
   result           TEXT NOT NULL CHECK (result IN ('WIN', 'LOSS', 'DRAW')),

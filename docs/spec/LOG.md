@@ -57,7 +57,8 @@ every read. The hash still gives the dedupe *query* — which is the part with v
 | `id` | Assigned by the client |
 | `deck_id`, `deck_name`, `deck_hash` | **No foreign key** — see below |
 | `played_at` | The date you played, not the date you typed it in |
-| `opponent_legend` | Their Legend's `card_id`, when you know it. Null is a real answer |
+| `format` | `1v1` / `1v1v1` / `2v2` — the shape of the table ([D-066](../DECISIONS.md#d-066)). Null reads as `1v1` |
+| `opponent_legend` | Their Legend's `card_id`, when you know it. Null is a real answer. **Heads-up only** |
 | `opponent_note` | Free text — *"Yasuo aggro, splashing Order"* |
 | `result` | `WIN` / `LOSS` / `DRAW` |
 | `games` | *"2-1"*, when a match was several games. Null when it was one |
@@ -74,6 +75,40 @@ This is the one place a name is denormalised, and it is not a violation of
 [DATA-MODEL §2](DATA-MODEL.md): the rule there forbids copying **Riot's** card data, which
 goes stale on the next set. A deck name is *your* data, and the name it had when you played
 it is the historically correct answer — refreshing it would be the bug.
+
+### Formats are read separately, never pooled
+
+A record is read **one format at a time**, defaulting to `1v1`. This is not a filter for
+convenience — pooling formats is the same error as reporting a rate from four games, wearing
+a disguise that makes it harder to spot:
+
+| | |
+|---|---|
+| Heads-up | You beat **one** deck. Par is **50%** |
+| `1v1v1` | You beat **two**, and two people can decide between them who to attack. Par is **33%** |
+| `2v2` | Your deck is **half** of what won. Par is **50%** |
+
+A combined win rate describes none of those tables, and it arrives attached to a *larger* `n`
+— so it looks more trustworthy than the honest figures it replaced. `read()` therefore reports
+`baseline` beside the rate wherever it is not 50%, because **33% is par in a pod and a broken
+deck heads-up**, and the number alone cannot tell you which.
+
+Two consequences fall out and both are deliberate:
+
+- **No matchup record outside `1v1`.** With a third player at the table, the result is not
+  attributable to any one opponent, so `opponent_legend` is not even offered on the form —
+  the others go in `opponent_note` as free text.
+- **Symptoms aggregate within a format.** *"I couldn't hold"* against two opponents may be
+  arithmetic rather than a fact about the deck, and letting it count toward a heads-up build
+  problem would be reading a different game's evidence.
+
+⚠️ **Games in other formats are always stated, never hidden.** A reading that says *"nothing
+logged"* while four games sit in another bucket is the one failure this design could produce,
+and it is what `elsewhere` and its test exist for.
+
+⚠️ **Everything EE says is heads-up doctrine.** `threats`, `sideboard`, the battlefield reads
+and the plan yardsticks all assume one opponent, and nothing in the engine models a pod. The
+log records that you played one; it does not pretend to advise on it.
 
 ### `symptoms` is the point
 

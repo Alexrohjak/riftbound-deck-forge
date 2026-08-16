@@ -9,7 +9,7 @@
  * See `docs/spec/LOG.md`.
  */
 import type { D1Database } from "@cloudflare/workers-types";
-import { deckHash, validate, type MatchRecord } from "@forge/engine";
+import { deckHash, validate, type MatchFormat, type MatchRecord } from "@forge/engine";
 import type { Deck } from "@forge/engine";
 
 /**
@@ -115,6 +115,7 @@ interface MatchRow {
   deck_name: string | null;
   deck_hash: string | null;
   played_at: string;
+  format: string | null;
   opponent_legend: string | null;
   opponent_note: string | null;
   result: string;
@@ -129,6 +130,10 @@ const toRecord = (row: MatchRow): MatchRecord => ({
   deckName: row.deck_name,
   deckHash: row.deck_hash,
   playedAt: row.played_at,
+  // Null stays null rather than being widened to "1v1" here. The engine owns what an absent
+  // format means (`DEFAULT_FORMAT`), and resolving it in two places is how the two answers
+  // eventually differ.
+  format: row.format as MatchFormat | null,
   opponentLegend: row.opponent_legend,
   opponentNote: row.opponent_note,
   result: row.result as MatchRecord["result"],
@@ -166,14 +171,15 @@ export async function writeMatch(db: D1Database, request: Request, today: string
   await db
     .prepare(
       `INSERT INTO matches
-         (id, deck_id, deck_name, deck_hash, played_at, opponent_legend,
+         (id, deck_id, deck_name, deck_hash, played_at, format, opponent_legend,
           opponent_note, result, games, symptoms, notes)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT(id) DO UPDATE SET
          deck_id = excluded.deck_id,
          deck_name = excluded.deck_name,
          deck_hash = excluded.deck_hash,
          played_at = excluded.played_at,
+         format = excluded.format,
          opponent_legend = excluded.opponent_legend,
          opponent_note = excluded.opponent_note,
          result = excluded.result,
@@ -187,6 +193,7 @@ export async function writeMatch(db: D1Database, request: Request, today: string
       record.deckName ?? null,
       record.deckHash ?? null,
       record.playedAt,
+      record.format ?? null,
       record.opponentLegend ?? null,
       record.opponentNote ?? null,
       record.result,
