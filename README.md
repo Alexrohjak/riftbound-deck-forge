@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ **The Workbench builds decks.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** · ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone**, which brought **commitment** (sleeved cards leave the pool and say which deck holds them), **the Bench**, and **[D-061](docs/DECISIONS.md#d-061): runes are no longer collected** · 🏁 **`W4` is closed and the Workbench track is done** — 🟢 facts and 🟡 probabilities, visually separated, with the **rune feasibility curve** no other Riftbound tool can compute · ✅ **EE answers every deckbuilding question it specified** — `card`, `threats` and `sideboard` shipped, and the engine reads printed text rather than tags ([EE-COMPLETION](docs/EE-COMPLETION.md)) · 🎯 **`S6` is built and still unproven** — the remaining gate is **evidence**, a real game and a logged note (`G7`), not more tooling; `S1a` stays deliberately out of scope and `Q-LINE` stays refused · **nightly backups run off-vendor**
+> **Status:** ✅ **The Workbench builds decks.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** · ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone**, which brought **commitment** (sleeved cards leave the pool and say which deck holds them), **the Bench**, and **[D-061](docs/DECISIONS.md#d-061): runes are no longer collected** · 🏁 **`W4` is closed and the Workbench track is done** — 🟢 facts and 🟡 probabilities, visually separated, with the **rune feasibility curve** no other Riftbound tool can compute · ✅ **EE answers every deckbuilding question it specified** — `card`, `threats` and `sideboard` shipped, and the engine reads printed text rather than tags ([EE-COMPLETION](docs/EE-COMPLETION.md)) · 🎯 **`S6` is built and now partly proven** — **two games are logged** (`1v1v1`, 1–1), the log records the **shape of the table** ([D-066](docs/DECISIONS.md#d-066)), and playing and building with it has found **four defects no test caught**; the remaining gate is `G7`, wiring `matches.symptoms` to the plan. `S1a` stays deliberately out of scope and `Q-LINE` stays refused · **nightly backups run off-vendor**
 
 ---
 
@@ -46,7 +46,7 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 *Last worked on 2026-08-16. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
-> ## 🎯 Pick this up here — EE can read a card now, and all three missing questions answer
+> ## 🎯 Pick this up here — five decks, two games logged, and four defects found by using it
 >
 > **[D-064](docs/DECISIONS.md#d-064) is built end to end** — a deck is built to a **plan**, and
 > the plan is measured where the deck is written, so nobody can forget to look. **On top of it,
@@ -93,18 +93,39 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 >    cost, kill a friendly unit"* and three copies shipped in a deck built to hold
 >    battlefields with bodies.
 >
-> ### On the Workbench: one deck, and it is untested
+> ### On the Workbench: five decks
 >
-> **`Ambessa — Empower Chain`** (`DRAFT`, 40 cards, legal on 31 of 33 checks) — Matriarch of
-> War, Chosen Champion Ambessa Respected and Feared. Every empower charges Matriarch, who
-> readies a unit; Blood Rose readies for 3 XP; readying is what lets a unit attack *and* still
-> hold.
+> | Deck | Legend | Identity | State |
+> |---|---|---|---|
+> | `Ambessa — Empower Chain` | Matriarch of War | body+order | **BUILT** |
+> | `Ahri — Hold the Line` | Nine-Tailed Fox | calm+mind | **BUILT** |
+> | `Zed — Shadow Flow` | Master of Shadows | fury+chaos | DRAFT |
+> | `Rengar — Pridestalker` | Pridestalker | fury+body | DRAFT |
+> | `Draven — Executioner's Tempo` | Glorious Executioner | fury+chaos | DRAFT |
 >
-> ⚠️ **Nothing here has been playtested.** Every number is about shape, not about winning.
-> The one thing that would settle it is you playing a game and logging a note — `matches`,
-> `matches.symptoms` and [`feedback.ts`](packages/engine/src/advice/feedback.ts) all exist and
-> are **not yet wired to the plan** (`G7`). With a plan stored, a complaint becomes evidence
-> about a **package** rather than about a card.
+> ⚠️ **Only the two `BUILT` decks hold cards out of the pool** ([D-017](docs/DECISIONS.md#d-017)).
+> Mark a deck BUILT when you physically sleeve it — that is what makes commitment real.
+>
+> ⚠️ **Only Ambessa has been played**, and only in `1v1v1`. Every number on the other four is
+> about shape, not about winning. `G7` still stands: `matches.symptoms` is **not yet wired to
+> the plan**, so a complaint is still evidence about a *capability* rather than about a
+> **package**.
+>
+> ### Contention is only ever shared domains
+>
+> A Legend's identity is exactly **2 domains**, every card's domains must fit inside it (L8–L10),
+> and **there are no colourless main-deck cards at all** — 1,666 owned copies, all mono-domain
+> but 18. So two decks contest **only the domains they share**, and nothing else. Two decks with
+> no shared domain contest literally zero cards.
+>
+> After all five decks take their cards, every domain pair still leaves **67–82 playsets**
+> against the ~13 a 40-card deck needs. Volume is not the constraint here and never has been.
+>
+> ⚠️ **A Legend is a character, not a colour pair.** L18 ties the Chosen Champion to the
+> Legend's champion tag, so the character *fixes* the identity — Draven can only be Glorious
+> Executioner (fury+chaos), Fiora only Grand Duelist (body+order), Kennen only Heart of the
+> Tempest (order+chaos). Picking a Legend by its domains produces an **illegal** deck, which is
+> how a session was spent proposing Irelia's Legend for a Draven deck.
 >
 > ### ⚠️ The first real games were `1v1v1`, and the log could not describe them
 >
@@ -115,11 +136,7 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 > Matchups exist only in `1v1`, symptoms aggregate within a format, and games in another format
 > are always named rather than silently dropped.
 >
-> ⚠️ **The migration has not been run against production yet:**
->
-> ```bash
-> cd apps/api && npx wrangler d1 execute forge --remote --file=./migrations/002-match-format.sql
-> ```
+> ✅ **The migration has been run against production** (2026-08-16) — `matches.format` is live.
 >
 > ⚠️ **Recording a format is not modelling one.** Everything EE says — `threats`, `sideboard`,
 > the battlefield reads, the plan yardsticks — is heads-up doctrine, and nothing in the engine
@@ -143,6 +160,31 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 > ⚠️ **The validation is the load-bearing fix.** The form is one of two writers (D-047) and the
 > CLI would have accepted the same contradiction happily.
 >
+> ### ✅ Building a Draven deck found two more measurement defects
+>
+> Both were found by **using the tool on a real deck**, not by a test — the pattern this project
+> keeps repeating.
+>
+> | Defect | What it did | Fix |
+> |---|---|---|
+> | **`coreUnits` was exclusive** | Pridestalker rewards `unit_played`, so `engine` claimed every body first. A **29-unit** deck reported `coreUnits` **0** against Riot's 9+ floor, and `engine` **25** against 8–10 | `coreUnits` is now an **overlay** — a body counts as a body whatever else it serves. Rengar reads **25** |
+> | **The early-play note asserted a threshold** | *"Past about 9 the odds barely move"* covers both an 8-point gap (9→12) and a 0.07-point one (22→23), and a deck reported **100%** to open turn one | The note now **computes** what the surplus bought, per deck. `source` moved from `community`/`doctrine` to `computed`/`probability` |
+>
+> ⚠️ **Three percentages in the codebase were folklore.** `COMMUNITY`'s own doc said 7–9 early
+> plays gives *"roughly 78 / 83 / 87%"* — the computed values are **77 / 82 / 86** — and a note
+> quoted *"about 83%"* for 8, which is **82%**. Illustrative numbers written beside the function
+> that computes the real ones, exactly as [`DECK-STATS.md`](docs/spec/DECK-STATS.md) recorded
+> for the flagship statistic. `earlyPlays.test.ts` now pins the curve.
+>
+> ⚠️ **`pct()` rounded 99.9% to "100%"**, which asserts an opening *cannot fail*. It renders
+> `>99%` now — saturated, not guaranteed.
+>
+> ### ⚠️ Netdecks are built on a banned card
+>
+> Both S2 Regional lists for Draven (Chengdu top-8, Fuzhou 1st, December 2025) are built around
+> **`Draven, Vanquisher`** — **banned in Constructed 1v1** by the **2026-07-16** list, along with
+> `Fight or Flight` and the `Obelisk of Power` battlefield. The deck gate refused to write the
+> deck, which is what that check is for. **Check `data/banlist.json` before copying any list.**
 > ⚠️ **The two older decks were deleted** on request (2026-08-15). Recoverable from the
 > `backups` branch snapshot of 2026-08-11, which holds both.
 >
