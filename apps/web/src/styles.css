@@ -1501,3 +1501,36 @@ body.resizing * { pointer-events: none; }
 .census li b { color: var(--ink); }
 /* The examples are grounding, not the point — they read quieter than the pattern name. */
 .census li em { display: block; font-style: normal; font-size: 0.66rem; color: var(--faint); }
+
+/**
+ * The wishlist — what to look for when you are trading.
+ *
+ * ⚠️ Built to be read one-handed on a phone in a card shop, which is the only place it is
+ * ever opened. Each row leads with the number to look for, because that is the thing you are
+ * scanning for; the deck attribution wraps underneath rather than competing for the line.
+ */
+.wishlist { display: grid; gap: var(--s4); }
+.wants h3 {
+  margin: 0 0 var(--s1); font-size: 0.86rem; font-weight: 600;
+  display: flex; align-items: baseline; gap: var(--s2);
+}
+.wants h3 .count {
+  font-family: var(--mono); font-size: 0.72rem; color: var(--dim);
+  border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0 var(--s1);
+}
+.wants.blocking h3 { color: var(--alert); }
+.wants ul { margin: var(--s2) 0 0; padding: 0; list-style: none; display: grid; gap: var(--s2); }
+.wants li {
+  display: grid; grid-template-columns: 2.4rem 1fr auto; gap: var(--s1) var(--s2);
+  align-items: baseline; padding: var(--s2); border-radius: var(--radius-sm);
+  background: var(--panel); box-shadow: var(--shadow);
+}
+.wants .want {
+  grid-row: span 2; font-family: var(--mono); font-size: 1rem; font-weight: 700;
+  color: var(--accent); text-align: center;
+}
+.wants.blocking .want { color: var(--alert); }
+.wants .who { font-size: 0.86rem; font-weight: 600; }
+.wants .have { font-family: var(--mono); font-size: 0.72rem; color: var(--dim); }
+/* The decks span the full remaining width so long lists wrap rather than truncate. */
+.wants .decks { grid-column: 2 / -1; font-size: 0.74rem; color: var(--dim); }

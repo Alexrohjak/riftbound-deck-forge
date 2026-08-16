@@ -122,6 +122,16 @@ export {
  */
 export { cardCounsel, type CardCounsel, type CombatProfile } from "./advice/card.js";
 export { readThreats, type Threat, type ThreatClass, type ThreatRead } from "./advice/threats.js";
+/**
+ * ⚠️ **The only read that spans decks.** A copy shortfall between two decks is invisible from
+ * inside either one — both are legal, and neither can be sleeved while the other is.
+ */
+export {
+  wishlist,
+  type WishlistDeck,
+  type WishlistRow,
+  type WishlistUse,
+} from "./advice/wishlist.js";
 export {
   sideboardCounsel,
   SIDEBOARD_SIZE,

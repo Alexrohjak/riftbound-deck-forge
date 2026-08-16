@@ -45,6 +45,7 @@ import { Workshop, type Occupant, type Target } from "./Workshop.js";
 import { CardDetail } from "./CardDetail.js";
 import { useCommitments } from "./commitments.js";
 import { Probabilities, Statistics } from "./Statistics.js";
+import { Wishlist } from "./Wishlist.js";
 
 /**
  * Forge — a light table of cards, and a workbench tray beside it.
@@ -269,7 +270,7 @@ export function App() {
    * bottom, and the bottom was two screens past anywhere anyone looks. Three views instead,
    * so nothing new is ever buried by being newest.
    */
-  const [view, setView] = useState<"deck" | "analysis" | "log">("deck");
+  const [view, setView] = useState<"deck" | "analysis" | "log" | "wishlist">("deck");
   const [detail, setDetail] = useState<Target | null>(null);
   const [pane, setPane] = useState(() => Number(store.get("forge.pane", "34")) || 34);
 
@@ -1059,6 +1060,8 @@ export function App() {
                   ["deck", "Deck"],
                   ["analysis", "Analysis"],
                   ["log", "Log"],
+                  // ⚠️ Reads every deck, not the open one — the only view that does.
+                  ["wishlist", "Wishlist"],
                 ] as const
               ).map(([id, label]) => (
                 <button
@@ -1142,6 +1145,8 @@ export function App() {
                   <History deckId={deck.id} playedOn={playedOn} />
                 </>
               )}
+
+              {view === "wishlist" && <Wishlist pool={pool} owned={owned} />}
 
               {view === "deck" && <p className="caveat">⚠️ {legality.coverage.caveat}</p>}
             </Workshop>
