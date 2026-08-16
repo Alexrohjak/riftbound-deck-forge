@@ -1,6 +1,12 @@
 import type { CardIndex, Deck } from "../types.js";
 import { countedEntries } from "../legality/entries.js";
-import { CARDS_SEEN_BY_TURN_ONE, deckShape, type DeckShape } from "./shape.js";
+import {
+  atLeastOne,
+  CARDS_SEEN_BY_TURN_ONE,
+  deckShape,
+  MAIN_DECK_SIZE,
+  type DeckShape,
+} from "./shape.js";
 import { SELF_SATISFYING, supplyOf } from "./synergy.js";
 import { hasKeyword } from "../text.js";
 
@@ -50,12 +56,46 @@ export const OFFICIAL = {
 
 /**
  * The community's number, and the one piece of deckbuilding maths anyone has actually done:
- * 7–9 cards playable on turn one gives roughly 78 / 83 / 87% to open one. Riot's Primer says
+ * 7–9 cards playable on turn one gives **77 / 82 / 86%** to open one. Riot's Primer says
  * 9+ small units at 2–4 cost, which is a different (looser) claim about the same worry.
+ *
+ * ⚠️ **These were written as "roughly 78 / 83 / 87" and were each about a point out.** They
+ * are now the values `atLeastOne` actually returns over 40 cards, and `earlyPlays.test.ts`
+ * asserts them — because an illustrative number written beside a function that computes the
+ * real one is exactly the folklore this project keeps finding in its own documentation.
+ *
+ * The band is a *comparison point*, not a cap. What exceeding it costs is computed per deck.
  */
 export const COMMUNITY = { earlyPlaysMin: 7, earlyPlaysIdeal: 8, earlyPlaysMax: 9 } as const;
 
-const pct = (n: number) => `${Math.round(n * 100)}%`;
+/**
+ * ⚠️ **Never rounds a probability up to certainty, or down to impossible.**
+ *
+ * 99.9% rounded is "100%", which is a different claim — it says the case cannot happen, and
+ * this engine has no business saying that about a shuffled deck. The early-play note printed
+ * exactly that. `>99%` is the honest rendering and is also the more useful one, because it
+ * reads as *saturated* rather than as *guaranteed*.
+ */
+const pct = (n: number) => {
+  if (n >= 1) return "100%";
+  if (n <= 0) return "0%";
+  const rounded = Math.round(n * 100);
+  if (rounded >= 100) return ">99%";
+  if (rounded <= 0) return "<1%";
+  return `${rounded}%`;
+};
+
+/**
+ * A *difference* between two probabilities, in percentage points.
+ *
+ * ⚠️ Separate from `pct` on purpose. Rounding a gap the way you round a level turns "0.4
+ * points" into "0%", which reads as *no effect measured* rather than *an effect too small to
+ * pay a card for* — and the second is the finding.
+ */
+const points = (n: number) => {
+  const p = n * 100;
+  return `${p < 1 ? p.toFixed(1) : Math.round(p)} points`;
+};
 
 /** What the deck can do, counted from the synergy graph rather than guessed from names. */
 export interface Capabilities {
@@ -155,7 +195,9 @@ export function review(deck: Deck, cards: CardIndex): { shape: DeckShape; notes:
       claim: `${shape.earlyPlays} cards are playable on turn one — ${pct(shape.earlyPlayOdds)} to open one.`,
       because:
         `Missing turn one is the most punishing opening in the game, and the fix is cheap: ` +
-        `${COMMUNITY.earlyPlaysIdeal} early plays takes it to about 83%. Riot's Primer asks ` +
+        `${COMMUNITY.earlyPlaysIdeal} early plays takes it to ` +
+        // Computed, not quoted. This read "about 83%" and the real figure is 82%.
+        `${pct(atLeastOne(COMMUNITY.earlyPlaysIdeal, Math.max(shape.size, MAIN_DECK_SIZE), CARDS_SEEN_BY_TURN_ONE))}. Riot's Primer asks ` +
         `for ${OFFICIAL.smallUnitsMin}+ small units at ${OFFICIAL.smallUnitCostMax} or less ` +
         `for the same reason.`,
       source: "computed",
@@ -163,14 +205,48 @@ export function review(deck: Deck, cards: CardIndex): { shape: DeckShape; notes:
       attribution: `Hypergeometric over ${CARDS_SEEN_BY_TURN_ONE} cards seen by end of turn one; the 7–9 band is community consensus, the 9+ small units is Riot's Primer`,
     });
   } else if (shape.earlyPlays > COMMUNITY.earlyPlaysMax + 2) {
+    /**
+     * ⚠️ **This used to assert "past about 9 the odds barely move" and stop there.**
+     *
+     * The direction was right and the phrasing hid the shape of the curve: 9 → 12 is a real
+     * 8 points, while 18 → 23 is four tenths of one. "Barely move" covers both, which makes
+     * it useless exactly where a builder needs it — deciding whether the *next* cheap card is
+     * worth a slot. And a deck reporting **99.9%** reads as excellent when what it means is
+     * that the dimension saturated eleven cards ago.
+     *
+     * The curve is a hypergeometric this file already computes. So it states what the surplus
+     * actually bought, per deck, instead of quoting a threshold everyone half-remembers.
+     */
+    const size = Math.max(shape.size, MAIN_DECK_SIZE);
+    const atIdeal = atLeastOne(COMMUNITY.earlyPlaysMax, size, CARDS_SEEN_BY_TURN_ONE);
+    const surplus = shape.earlyPlays - COMMUNITY.earlyPlaysMax;
+    /**
+     * What the **most recent** early play bought — the number a builder actually decides on,
+     * because the question is always "is the *next* cheap card worth a slot?"
+     *
+     * ⚠️ This was "what the last five bought", and it lied whenever the surplus was under
+     * five: a deck 4 over the band reported *"those 4 extra cards bought 9 points, and the
+     * last five bought 13"*, because the five-card window reached back past the comparison
+     * point and counted cards that were never surplus. The marginal card has no such window
+     * and is coherent at every count.
+     */
+    const marginal =
+      shape.earlyPlayOdds - atLeastOne(shape.earlyPlays - 1, size, CARDS_SEEN_BY_TURN_ONE);
+
     notes.push({
-      claim: `${shape.earlyPlays} early plays is more than the opening needs.`,
+      claim:
+        `${shape.earlyPlays} early plays buys ${pct(shape.earlyPlayOdds)}; ` +
+        `${COMMUNITY.earlyPlaysMax} would buy ${pct(atIdeal)}.`,
       because:
-        `Past about ${COMMUNITY.earlyPlaysMax} the odds barely move — each extra one is a slot ` +
-        `not spent on the mid-game, where decks are usually decided.`,
-      source: "community",
-      confidence: "doctrine",
-      attribution: "Diminishing returns past 9 is widely held; the exact ceiling is not agreed",
+        `Those ${surplus} extra cards bought ${points(shape.earlyPlayOdds - atIdeal)} between ` +
+        `them, and the most recent one bought ${points(marginal)}. Each is a slot not spent ` +
+        `on the mid-game, where decks are usually decided.`,
+      source: "computed",
+      confidence: "probability",
+      attribution:
+        `Hypergeometric over ${CARDS_SEEN_BY_TURN_ONE} cards seen by end of turn one. ` +
+        `The ${COMMUNITY.earlyPlaysMax} comparison point is community consensus; the cost of ` +
+        `exceeding it is arithmetic on this deck`,
     });
   }
 
