@@ -223,3 +223,17 @@ export {
   type Targets,
 } from "./generate/brief.js";
 export { validateProposal, type Repair, type Verdict } from "./generate/validate.js";
+
+/**
+ * What to bring in the box beside the deck. Tokens are never registered, so the decklist
+ * is complete while the pile is not — and only the pile loses you a game.
+ */
+export {
+  deckTokens,
+  creationsIn,
+  BRING_CAP,
+  type DeckTokens,
+  type MarkerNeed,
+  type TokenNeed,
+  type TokenSource,
+} from "./advice/tokens.js";

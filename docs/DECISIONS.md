@@ -73,6 +73,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-062](#d-062) | **`S6` re-gated off `S2`** — the deckbuilding questions need no rules core | ✅ |
 | [D-063](#d-063) | **Rules text comes from the fullest printing** — promos drop the reminders that explain a keyword | ✅ |
 | [D-064](#d-064) | **A deck is built to a plan** — and measured against it, not against universal thresholds | ✅ |
+| [D-065](#d-065) | **Tokens are read off printed text, not off a token registry** — four of eleven were never printed | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -1877,8 +1878,8 @@ independent sources agreeing is as close to certain as this project gets.
 **What is kept from `D2`.** Everything else, and it is most of the design: greyscale chrome,
 legality carried by **form** rather than red and green (which would collide with Fury and
 Body), have/need counts instead of percentages or grades, ownership as a first-class
-headline, and the deck never leaving the screen. Those are implemented in `tokens.css` and
-`styles.css`.
+headline, and the deck never leaving the screen. Those are implemented in `theme.css` (named `tokens.css` until
+[D-065](#d-065) gave *token* a game meaning) and `styles.css`.
 
 **What deliberately diverges.** The gallery is **art-forward** — full card images in release
 order — where `D2` drew text-forward cards carrying stat lines and ownership pips. That
@@ -2707,3 +2708,106 @@ refusal rather than a default**.
 **The sideboard** is defined against `plan.winCondition` — insurance where a solid counter to
 the win condition exists, plus named flexibility. ⚠️ Grounded in what the **identity can do**,
 never in a meta read.
+
+
+---
+
+<a id="d-065"></a>
+
+## D-065 — What to bring in the box: tokens read off **printed text**, never off a token registry
+
+**Date:** 2026-08-16
+**Status:** Accepted — adds `advice/tokens.ts`, a **Tokens** panel to the Analysis tab, and
+renames `tokens.css` to [`theme.css`](../apps/web/src/theme.css)
+
+### What prompted it
+
+> *"Whenever I create a deck, based off the cards in the deck I want you to give me a list of
+> tokens you recommend me to bring with that specific deck as well… like zed needs shadow
+> clones, ambessa empowers."*
+
+Forge had answered every question about the **55 cards you register** and none about the pile
+you have to bring beside them. A decklist can be complete, legal and unplayable at the same
+time, and the Workbench's own correctness made this worse rather than better: tokens are
+created during play and are never registered ([DATA-MODEL §1](spec/DATA-MODEL.md)), so
+`cards.ts` deliberately **excludes them from the collection**. Everything downstream inherited
+that exclusion and nothing ever put it back.
+
+### The finding that decided the implementation
+
+The obvious build is to match deck cards against the names of the token *cards* in
+`data/cards.json`. It is also wrong, and measurably:
+
+| | |
+|---|---|
+| Token cards catalogued in `data/cards.json` | **14 printings, 8 names** |
+| Tokens the pool's printed text actually creates | **11** |
+| Names with **no token card at all** | **Mech · Sand Soldier · Shadow Clone · Tentacle** |
+
+The four uncatalogued tokens are the newer sets'. A registry-driven version therefore answers
+*"no tokens"* for **Zed** and for **Azir** — the two decks in the game most obviously defined
+by their tokens, and one of them the example in the request that prompted this.
+
+The creating card already prints everything needed: *"play a 0 :rb_might: **Shadow Clone unit
+token**"* carries the name, the type and the Might. So tokens are read the way EE learned to
+read everything else ([EE-COMPLETION](EE-COMPLETION.md)): **off the text, not off a tag or a
+table**. The registry is demoted to what it is still good for — a picture.
+
+### Mentioning a token is not making one
+
+The naïve search is worse than useless in the other direction too. `Bird` appears on **17**
+cards and only **7** of them make one; the rest are tribal (*"Bird, Cat, Dog, and Poro"*) or
+lordly (*"Bird units here have +1 Might"*). The separator is grammatical and exact: a real
+creation always prints the token's **type** between its name and the word `token` — `Bird unit
+token`, `Gold gear token`, `Baron Pit battlefield token` — and a reference never does. That one
+requirement takes Bird from 17 to 7 with **no false positives across all 1,180 printings**, and
+`tokens.test.ts` asserts the resulting set of eleven **exactly**, so a twelfth token in a future
+set fails the build rather than going quietly missing.
+
+### Two categories, because the request spanned both
+
+*"Zed needs shadow clones, Ambessa empowers"* names two different objects, and folding them
+together would have been a mistake:
+
+| | |
+|---|---|
+| **Tokens** | Cards you play. Have a printed card, usually. Shadow Clone, Recruit, Gold… |
+| **Markers** | A state you must be able to *show*: `Buff`, `XP Tracker`, and `[Empowered]` |
+
+`[Empowered]` has **no printed token anywhere in the pool**, and the panel says so. Listing it
+beside Shadow Clone as though you could go and find one would send you searching a set list for
+a card that was never made.
+
+### What was decided
+
+1. **`deckTokens()` reads printed text**, including the **Legend's** — which `deckEntries()`
+   does not return, and Azir's entire plan is printed on the Legend.
+2. **Facts and judgement stay separated** (D-045). Which tokens the deck creates is not
+   arguable. *How many to bring* is a call — *enough for the largest single burst, and one for
+   every copy that can make one, capped at 12* — and it is labelled as one, with the cards it
+   came from listed underneath so it can be overruled at a glance.
+3. **A repeatable source has no ceiling**, so its count renders as `×6+` rather than as a
+   number pretending to be exact. `Baron Pit` reads its own text — *"if it's not there
+   already"* — and pins itself to one.
+4. **The panel is yellow**, and `--token` is its own variable. Order is a domain, Tier 2's
+   amber is a confidence, and brass is the chrome accent; this is the fourth yellow in a
+   six-colour language. What keeps it from becoming a fourth *meaning* is D-053's containment
+   rule rather than the hue: it appears only on that panel's rule, badge and counts, **never
+   on a card and never beside a domain dot**. A token is colourless on the table, so the one
+   place the confusion would cost a game is the one place this colour never goes.
+
+### The rename
+
+`apps/web/src/tokens.css` became `theme.css`. *Token* now means a game object in this codebase,
+and a file of design tokens sitting next to `Tokens.tsx` is a collision that would have cost
+someone a wrong file open every few months for the life of the project.
+
+### What was rejected
+
+| Alternative | Why not |
+|---|---|
+| Match against the token cards in `data/cards.json` | Answers *"no tokens"* for Zed and Azir — 4 of 11 tokens were never printed |
+| Tag creators in `classification.json` | A second hand-maintained list that goes stale silently; the text is already authoritative |
+| Sum every copy's output for the count | A Gold deck asks for thirty. Past a dozen you are administering a board, not playing one |
+| Put it in the Deck view beside the tray | Advice is pull, not push (D-042). Packing is the last thing you do, not something shouted mid-build |
+| Add tokens to the collection so they can be "owned" | Reopens exactly what DATA-MODEL §1 and D-061 closed — a token is not a card you find |

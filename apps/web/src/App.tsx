@@ -46,6 +46,7 @@ import { CardDetail } from "./CardDetail.js";
 import { useCommitments } from "./commitments.js";
 import { Probabilities, Statistics } from "./Statistics.js";
 import { Wishlist } from "./Wishlist.js";
+import { Tokens } from "./Tokens.js";
 
 /**
  * Forge — a light table of cards, and a workbench tray beside it.
@@ -1129,6 +1130,10 @@ export function App() {
                     committedKnown={commitmentsKnown}
                   />
                   {chances && <Probabilities {...chances} />}
+                  {/* What to bring in the box. Sits above EE deliberately: it is the one
+                      thing on this tab that is *packing* rather than *deckbuilding*, and it
+                      is the last thing you check before you leave the house. */}
+                  <Tokens deck={deck} pool={pool} />
                   <Advisor deck={deck} pool={pool} owned={owned} />
                 </>
               )}
