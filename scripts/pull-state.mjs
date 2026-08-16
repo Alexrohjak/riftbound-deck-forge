@@ -16,6 +16,12 @@
  * ⚠️ Uses `wrangler d1 execute --remote`, so it needs the same auth `npm run deploy` does.
  * Without it you get a clear failure rather than an empty collection, because an empty
  * collection is a *plausible* answer and would silently make every ownership claim wrong.
+ *
+ * ⚠️ **The plan comes down with the deck.** `D-064` made the plan the thing a deck is built
+ * to, and this script is the first command of every session — a state file that showed the
+ * slots but not the plan invited exactly one mistake: reading a deck as a pile again, or
+ * passing `--plan` a guess when the deck already records the answer. A deck with no `plan`
+ * key was built without a stated one, which is a real answer and not a missing field.
  */
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -39,7 +45,7 @@ function query(sql) {
 
 const collection = query("SELECT card_id, quantity FROM collection ORDER BY card_id;");
 const decks = query(
-  "SELECT id, name, state, legend_card_id, chosen_champion_card_id FROM decks ORDER BY updated_at DESC;",
+  "SELECT id, name, state, legend_card_id, chosen_champion_card_id, plan FROM decks ORDER BY updated_at DESC;",
 );
 const slots = query("SELECT deck_id, card_id, zone, quantity FROM deck_slots;");
 
@@ -47,6 +53,23 @@ const slots = query("SELECT deck_id, card_id, zone, quantity FROM deck_slots;");
 // ownership claim downstream would read "you own none of that" and be confidently wrong.
 if (collection.length === 0) {
   throw new Error("D1 returned an empty collection. Refusing to write a state file that would make every ownership answer wrong.");
+}
+
+/**
+ * The plan is stored as JSON text and is opaque to the Worker that wrote it. Parsed here so
+ * the state file reads as one document rather than a document with a string of JSON inside it.
+ *
+ * ⚠️ Unparseable text is kept verbatim under `planRaw` rather than dropped. A plan that cannot
+ * be read is a thing to look at; a plan that silently vanished reads as "no plan was stated",
+ * which is a different and wrong answer.
+ */
+function readPlan(text) {
+  if (text === null || text === undefined) return {};
+  try {
+    return { plan: JSON.parse(text) };
+  } catch {
+    return { planRaw: text };
+  }
 }
 
 const state = {
@@ -66,6 +89,7 @@ const state = {
     state: d.state,
     legendCardId: d.legend_card_id,
     chosenChampionCardId: d.chosen_champion_card_id,
+    ...readPlan(d.plan),
     slots: slots
       .filter((s) => s.deck_id === d.id)
       .map((s) => ({ cardId: s.card_id, zone: s.zone, quantity: s.quantity })),
@@ -74,6 +98,8 @@ const state = {
 
 mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, `${JSON.stringify(state, null, 2)}\n`);
+const planned = state.decks.filter((d) => d.plan !== undefined || d.planRaw !== undefined).length;
 process.stdout.write(
-  `${OUT}\n  ${state.collection.totals.printings} printings · ${state.collection.totals.copies} copies · ${state.decks.length} deck(s)\n`,
+  `${OUT}\n  ${state.collection.totals.printings} printings · ${state.collection.totals.copies} copies · ` +
+    `${state.decks.length} deck(s), ${planned} with a stated plan\n`,
 );

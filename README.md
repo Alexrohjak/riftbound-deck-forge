@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ **The Workbench builds decks.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** · ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone**, which brought **commitment** (sleeved cards leave the pool and say which deck holds them), **the Bench**, and **[D-061](docs/DECISIONS.md#d-061): runes are no longer collected** · 🏁 **`W4` is closed and the Workbench track is done** — 🟢 facts and 🟡 probabilities, visually separated, with the **rune feasibility curve** no other Riftbound tool can compute · 🎯 `S1a` next — the rules engine · **nightly backups run off-vendor**
+> **Status:** ✅ **The Workbench builds decks.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** · ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone**, which brought **commitment** (sleeved cards leave the pool and say which deck holds them), **the Bench**, and **[D-061](docs/DECISIONS.md#d-061): runes are no longer collected** · 🏁 **`W4` is closed and the Workbench track is done** — 🟢 facts and 🟡 probabilities, visually separated, with the **rune feasibility curve** no other Riftbound tool can compute · ✅ **EE answers every deckbuilding question it specified** — `card`, `threats` and `sideboard` shipped, and the engine reads printed text rather than tags ([EE-COMPLETION](docs/EE-COMPLETION.md)) · 🎯 **`S6` is built and still unproven** — the remaining gate is **evidence**, a real game and a logged note (`G7`), not more tooling; `S1a` stays deliberately out of scope and `Q-LINE` stays refused · **nightly backups run off-vendor**
 
 ---
 
@@ -43,14 +43,16 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here — how to pick this up
 
-*Last worked on 2026-08-15. This section is the recipe; the live status board is
+*Last worked on 2026-08-16. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
-> ## 🎯 Pick this up here — EE builds to a plan now, and the plan is checked
+> ## 🎯 Pick this up here — EE can read a card now, and all three missing questions answer
 >
-> **[D-064](docs/DECISIONS.md#d-064) is built end to end.** A deck is no longer a pile that
-> passes legality: it is built to a **plan**, and the plan is measured where the deck is
-> written, so nobody can forget to look.
+> **[D-064](docs/DECISIONS.md#d-064) is built end to end** — a deck is built to a **plan**, and
+> the plan is measured where the deck is written, so nobody can forget to look. **On top of it,
+> [`EE-COMPLETION.md`](docs/EE-COMPLETION.md) is closed:** the three questions
+> [`EVALUATION §6`](docs/spec/EVALUATION.md) specified and nothing answered now answer, and the
+> engine reads **printed text** rather than tags.
 >
 > | Piece | What it does |
 > |---|---|
@@ -58,15 +60,25 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 > | `advice/skeleton.ts` | Four `pace × objective` templates, each target carrying who holds it |
 > | `advice/plan.ts` | Package deltas, curve shape, and the **second yardstick** |
 > | `advice/battlefields.ts` | One-sided / symmetric / restriction, with cannot-hurt-me as the floor |
+> | `mechanics.ts` + `advice/mechanics.ts` | **The table moved into the engine** — every finding quotes the printed clause that produced it |
+> | `advice/card.ts` | **Q-CARD** — the printed text *first*, then what it charges you |
+> | `advice/threats.ts` | **Q-THREAT** — run from *your* deck outward, not from theirs |
+> | `advice/sideboard.ts` | **Q-SIDEBOARD** — the ten-card board, `L16` headroom subtracted up front |
 > | `simulateMulligans` | How often an opening cannot act before turn three |
 > | `scripts/audit-knowledge.mjs` | What the cards say against what Forge models |
 >
 > ```bash
-> npm run state                                    # first thing, every session
+> npm run state                                    # first thing, every session — now brings the plan down too
 > node apps/cli/dist/index.js skeletons --legend <id> $P
+> node apps/cli/dist/index.js card --card <cardId> $P   # read the card before arguing about it
+> node apps/cli/dist/index.js threats deck.json $P
+> node apps/cli/dist/index.js sideboard deck.json --against <legendId> $P
 > npm run deck -- <proposal.json> --name "…" --plan <plan.json> --dry-run
 > npm run audit:knowledge
 > ```
+>
+> ⚠️ **`apps/cli` is not built by `npm run build`.** It is not deployed, so the deploy gate
+> skips it — after pulling, `npm run build -w @forge/cli` or the new commands are simply absent.
 >
 > ### ⚠️ The two rules that were broken the moment they were written
 >
@@ -82,10 +94,10 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 >
 > ### On the Workbench: one deck, and it is untested
 >
-> **`Ambessa — Ready`** — Matriarch of War, Chosen Champion Ambessa Respected and Feared.
-> Every empower charges Matriarch, who readies a unit; Blood Rose readies for 3 XP; readying
-> is what lets a unit attack *and* still hold. Its plan is stored beside it (`origin:
-> "stated"`).
+> **`Ambessa — Empower Chain`** (`DRAFT`, 40 cards, legal on 31 of 33 checks) — Matriarch of
+> War, Chosen Champion Ambessa Respected and Feared. Every empower charges Matriarch, who
+> readies a unit; Blood Rose readies for 3 XP; readying is what lets a unit attack *and* still
+> hold.
 >
 > ⚠️ **Nothing here has been playtested.** Every number is about shape, not about winning.
 > The one thing that would settle it is you playing a game and logging a note — `matches`,
@@ -96,27 +108,47 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 > ⚠️ **The two older decks were deleted** on request (2026-08-15). Recoverable from the
 > `backups` branch snapshot of 2026-08-11, which holds both.
 >
-> ### ⚠️ One concrete thing the checks found and nobody has acted on
+> ### ⚠️ The deck and its stored plan disagree, and that is the thing to settle first
 >
-> The deck has **one** card with `[Tank]` or `[Shield]` — Shen — in 28 bodies, on a plan whose
-> objective is *hold*. **`Towering Combatant` ×3 is owned**: 4 energy, 3 Might, `[Shield 2]`
-> **and** `[Tank]`. On a hold plan that is probably better than the third `Voracious Gromp`.
+> Its stored plan is **`slow-conquer`** — pace `slow`, objective `conquer`, *"out-resource them,
+> then take the points you need in a short window"*. Measured against that plan, `review` says:
+>
+> | Reading | Number | Why it matters against **this** plan |
+> |---|---|---|
+> | `engine` package | **18** vs target 6–9 | `+9` over — the chain grew past the plan that holds it |
+> | `coreUnits` | **5** vs min 9 | `−4` under Riot's Primer floor |
+> | `draw` | **0** | *Out-resource them* with no card draw is the plan arguing with itself |
+> | archetype classifier | **aggro**, weak confidence | 14 turn-one plays, average Energy 3.2 — the shape reads fast, the plan says slow |
+>
+> ⚠️ **Do not "fix" the deck to the plan, or the plan to the deck, without asking.** Which one
+> is wrong is an intent question, and rule 1 above is exactly about not answering it silently.
+>
+> ⚠️ **An earlier draft of this section said the objective was *hold* and pointed at
+> `Towering Combatant`.** The stored plan says `conquer`, so that finding was resting on a pace
+> nobody had confirmed. `defenders` is **1** of **25** bodies — a fact `review` now returns; the
+> check still fires at zero only, deliberately (commit `0f53b60`), because no
+> source publishes a target and a band would be doctrine authored inside a check.
 >
 > ### Next, by weight
 >
-> `npm run audit:knowledge` reports **9 mechanics printed on cards that no check can act on**,
-> down from 11. The two biggest are both about **costs**, so they need a new field on
-> `classification.json` rather than a text read:
+> `npm run audit:knowledge` reports **0 of 921 cards carrying a mechanic nothing can act on**,
+> down from 185 (20%).
 >
-> - **`additional-cost`, 56 cards** — the `Cruel Patron` class of mistake
-> - **`empower-once-only`, 37 cards** — *"use only if not Empowered"*, which drove a whole rebuild
+> ⚠️ **That 0% flatters the depth and should not be reported as "everything is modelled".**
+> `additional-cost` and `level-threshold` produce real findings with quoted clauses;
+> `accelerate` and `repeat` get a single shared caveat about the curve.
+> [`EE-COMPLETION.md`](docs/EE-COMPLETION.md) §6 says so at length.
 >
-> ### ⚠️ Worth a glance: is `X8` still running?
+> The open work is no longer knowledge — it is **evidence**. `S6` is *built, unproven*, and
+> [`G7`](docs/spec/GENERATOR.md) wires `matches.symptoms` to the plan; until a real game is
+> logged every number here describes shape rather than winning. `S1a`, the rules core, stays
+> out of scope and `Q-LINE` stays refused ([D-062](docs/DECISIONS.md#d-062)).
 >
-> The `backups` branch last committed **2026-08-11** (672 printings) and the collection is now
-> **685**. The cron is configured (`12 3 * * *`) and only commits when content changes, so a
-> gap is normal — the cards were probably entered after the last run. **The 03:12 UTC run on
-> 2026-08-15 settles it:** a snapshot with 685 printings means healthy, silence means look.
+> ### ✅ Settled: `X8` is healthy
+>
+> The `backups` branch committed **2026-08-15** and **2026-08-16**, both at 685 printings,
+> matching the live collection. The cron (`12 3 * * *`, UTC) only commits when content changes,
+> so silence after a quiet day is normal — a gap *plus* a changed collection is the thing to look at.
 
 **Where things stand.** 🔓 The whole design track is done and `DESIGN LOCKED` has lifted.
 ✅ **`F1`, `F2` and `F3` are all closed** — Forge is live, private, deploys itself on every push
