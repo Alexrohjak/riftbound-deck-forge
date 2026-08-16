@@ -61,6 +61,7 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 > | `advice/plan.ts` | Package deltas, curve shape, and the **second yardstick** |
 > | `advice/battlefields.ts` | One-sided / symmetric / restriction, with cannot-hurt-me as the floor |
 > | `mechanics.ts` + `advice/mechanics.ts` | **The table moved into the engine** — every finding quotes the printed clause that produced it |
+> | `advice/tokens.ts` | **What to bring in the box** — read off printed text, because 4 of the 11 tokens were never printed as cards ([D-065](docs/DECISIONS.md#d-065)) |
 > | `advice/card.ts` | **Q-CARD** — the printed text *first*, then what it charges you |
 > | `advice/threats.ts` | **Q-THREAT** — run from *your* deck outward, not from theirs |
 > | `advice/sideboard.ts` | **Q-SIDEBOARD** — the ten-card board, `L16` headroom subtracted up front |
@@ -438,7 +439,7 @@ system map and **where to put a new idea**.
 | [`docs/roadmap.html`](docs/roadmap.html) | The same roadmap, rendered. Download and open in a browser |
 | [**`docs/spec/OVERVIEW.md`**](docs/spec/OVERVIEW.md) | **System map — how everything relates, and where new ideas go. Read before adding a feature.** |
 | [`docs/PLAN.md`](docs/PLAN.md) | The detail layer — gates, "done when", validation and risks |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 64 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 65 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
 | [**`docs/EE-BRIEFING.md`**](docs/EE-BRIEFING.md) | **What binds EE when it answers — the answer budget, the tiering, and "never author a number". Read before asking it anything.** |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
 | [**`docs/ARCHITECTURE.md`**](docs/ARCHITECTURE.md) | **How it's built — stack, hosting, verified £0/month cost, and what's ruled out. Read before writing code.** |

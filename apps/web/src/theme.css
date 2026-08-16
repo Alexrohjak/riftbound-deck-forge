@@ -34,6 +34,17 @@
   --accent-ink: #ffffff;
   --accent-soft: #f6ecd9;
 
+  /* ── tokens: what you bring in the box, never what you registered. ───────────
+     ⚠️ **The fourth yellow, and it had to earn the slot.** Order is #b98722, Tier 2's
+     "probability" rule is #c8973f, brass is #a8730f. This is deliberately the most
+     saturated and the least brown of the four so the Tokens panel is not read as a
+     domain or as a hedge. What actually keeps it unambiguous is placement, not hue:
+     it appears only on that panel's chrome — never on a card and never beside a
+     domain dot — which is the rule D-053 already put on brass. Change it here and
+     nowhere else. */
+  --token: #d19a00;
+  --token-soft: #fbf1d6;
+
   /* ── the six domains. The only colour allowed to sit on a card. ─────────────── */
   --fury: #c8452f;
   --calm: #3f8f52;
@@ -90,6 +101,11 @@
     --accent: #d9a441;
     --accent-ink: #17150f;
     --accent-soft: #2a2214;
+
+    /* Lifted well clear of dark Order (#d6a445) — on the dark ground the two golds sit
+       closer than they do in light, and this is the one that must not read as a domain. */
+    --token: #f2c94c;
+    --token-soft: #2e2510;
 
     --fury: #e2664f;
     --calm: #5fb073;

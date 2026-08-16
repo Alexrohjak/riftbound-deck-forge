@@ -1,7 +1,7 @@
-@import "./tokens.css";
+@import "./theme.css";
 
 /* The workbench: a gallery of cards, and a workshop holding the deck being built.
-   Colour is reserved for domain (see tokens.css); everything the interface says about
+   Colour is reserved for domain (see theme.css); everything the interface says about
    itself is said in weight, form and space. */
 
 * { box-sizing: border-box; }
@@ -1501,3 +1501,63 @@ body.resizing * { pointer-events: none; }
 .census li b { color: var(--ink); }
 /* The examples are grounding, not the point — they read quieter than the pattern name. */
 .census li em { display: block; font-style: normal; font-size: 0.66rem; color: var(--faint); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Tokens — what to bring in the box beside the deck.
+
+   ⚠️ **Yellow, and the rule that keeps it from becoming a fourth meaning.** `--token` sits
+   in a hue Order (a domain) and Tier 2 (a confidence) already occupy, so it earns its place
+   by *where it is allowed to appear*: this panel's rule, heading badge and counts, and
+   nowhere else. It never touches a card face and never sits beside a `.dot`, which is the
+   same containment D-053 put on brass. A token is colourless on the table, so the one place
+   the confusion would cost a game is the one place this colour never goes.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.panel.tokens { border-left: 3px solid var(--token); }
+.panel.tokens h2 { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s2); }
+.panel.tokens .tier { color: var(--token); }
+
+.tokenlist { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--s3); }
+.token { display: grid; grid-template-columns: 3.4rem 1fr; gap: var(--s3); align-items: start; }
+
+/* The picture is identification, not decoration — you are matching it against a pile. */
+.tokenface { width: 3.4rem; border-radius: 4px; box-shadow: var(--shadow); display: block; }
+.tokenface.wide { width: 3.4rem; }
+/* Four of the eleven tokens were never printed. An empty frame says so without a sentence. */
+.tokenface.none {
+  aspect-ratio: 744 / 1039; display: grid; place-items: center; padding: var(--s1);
+  border: 1px dashed var(--line-strong); border-radius: 4px;
+  background: var(--token-soft); text-align: center;
+}
+.tokenface.none span {
+  font-family: var(--mono); font-size: 0.5rem; line-height: 1.2; color: var(--dim);
+}
+
+.tokenbody { min-width: 0; }
+.tokenname {
+  margin: 0; display: flex; align-items: baseline; gap: var(--s2);
+  font-size: 0.85rem; font-weight: 600;
+}
+.tokentype {
+  font-family: var(--mono); font-size: 0.52rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--faint);
+}
+/* The count is what you came for: it is the only thing on the row you can read at a glance,
+   and the `+` is doing real work — a repeatable source has no ceiling to state. */
+.tokenbring {
+  margin-left: auto; font-family: var(--mono); font-size: 1.05rem;
+  font-variant-numeric: tabular-nums; color: var(--token); font-weight: 700;
+}
+.tokenwhy { margin: var(--s1) 0 0; font-size: 0.7rem; line-height: 1.5; color: var(--dim); }
+.tokennote { margin: var(--s1) 0 0; font-size: 0.66rem; line-height: 1.45; color: var(--faint); }
+
+/* The facts the count came from. Quiet, because you read them only to disagree. */
+.tokensources { margin: var(--s2) 0 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+.tokensources li { font-size: 0.68rem; color: var(--dim); }
+.tokensources b { font-family: var(--mono); color: var(--ink); }
+
+.tokensub {
+  margin: var(--s4) 0 var(--s2); font-family: var(--mono); font-size: 0.6rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); font-weight: 400;
+}
+.tokenlist.markers { gap: var(--s2); }
+.marker { padding-left: var(--s3); border-left: 2px solid var(--line); }
