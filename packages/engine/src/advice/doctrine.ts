@@ -220,9 +220,18 @@ export function review(deck: Deck, cards: CardIndex): { shape: DeckShape; notes:
     const size = Math.max(shape.size, MAIN_DECK_SIZE);
     const atIdeal = atLeastOne(COMMUNITY.earlyPlaysMax, size, CARDS_SEEN_BY_TURN_ONE);
     const surplus = shape.earlyPlays - COMMUNITY.earlyPlaysMax;
-    /** What the *last* five cost, which is where the waste is most obvious. */
-    const lastFive =
-      shape.earlyPlayOdds - atLeastOne(shape.earlyPlays - 5, size, CARDS_SEEN_BY_TURN_ONE);
+    /**
+     * What the **most recent** early play bought — the number a builder actually decides on,
+     * because the question is always "is the *next* cheap card worth a slot?"
+     *
+     * ⚠️ This was "what the last five bought", and it lied whenever the surplus was under
+     * five: a deck 4 over the band reported *"those 4 extra cards bought 9 points, and the
+     * last five bought 13"*, because the five-card window reached back past the comparison
+     * point and counted cards that were never surplus. The marginal card has no such window
+     * and is coherent at every count.
+     */
+    const marginal =
+      shape.earlyPlayOdds - atLeastOne(shape.earlyPlays - 1, size, CARDS_SEEN_BY_TURN_ONE);
 
     notes.push({
       claim:
@@ -230,8 +239,8 @@ export function review(deck: Deck, cards: CardIndex): { shape: DeckShape; notes:
         `${COMMUNITY.earlyPlaysMax} would buy ${pct(atIdeal)}.`,
       because:
         `Those ${surplus} extra cards bought ${points(shape.earlyPlayOdds - atIdeal)} between ` +
-        `them, and the last five bought ${points(lastFive)}. Each one is a slot not spent on ` +
-        `the mid-game, where decks are usually decided.`,
+        `them, and the most recent one bought ${points(marginal)}. Each is a slot not spent ` +
+        `on the mid-game, where decks are usually decided.`,
       source: "computed",
       confidence: "probability",
       attribution:

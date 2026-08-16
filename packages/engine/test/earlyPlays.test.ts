@@ -41,11 +41,23 @@ describe("the early-play curve", () => {
     expect(surplus).toBeGreaterThan(0.13);
     expect(surplus).toBeLessThan(0.15);
 
-    // Fourteen extra cards bought fourteen points; the last five bought under one point
-    // between them — 0.81, which is why this is asserted rather than eyeballed.
-    const lastFive = p(23) - p(18);
-    expect(lastFive).toBeGreaterThan(0.008);
-    expect(lastFive).toBeLessThan(0.009);
+    // The marginal card is the one a builder decides on, and it collapses fast.
+    const marginal = (k: number) => p(k) - p(k - 1);
+    expect(marginal(23)).toBeLessThan(0.001); // 0.07 points — indistinguishable from nothing
+    expect(marginal(13)).toBeGreaterThan(0.01); // 1.6 points — still arguably a card
+  });
+
+  /**
+   * ⚠️ The regression. The note used to quote "what the last five bought", which reached back
+   * past the comparison point whenever the surplus was under five. A deck 4 cards over the
+   * band reported *"those 4 extra cards bought 9 points, and the last five bought 13"* — a
+   * sentence that contradicts itself, because three of those five were never surplus.
+   */
+  it("prices a small surplus without counting cards that were never surplus", () => {
+    const surplus = p(13) - p(COMMUNITY.earlyPlaysMax);
+    const marginal = p(13) - p(12);
+    // Whatever the window, the marginal card can never be worth more than the whole surplus.
+    expect(marginal).toBeLessThan(surplus);
   });
 
   it("never claims certainty it cannot have", () => {
