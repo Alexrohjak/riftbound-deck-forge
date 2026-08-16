@@ -999,6 +999,29 @@ body.resizing * { pointer-events: none; }
    logged elsewhere reads as "you have not played", which is the failure to avoid. */
 .elsewhere { font-size: 0.75rem; margin: calc(var(--s3) * -1) 0 var(--s3); }
 
+/* The games themselves. The panel showed only aggregates for its whole existence, so every
+   note written after a game was stored and then invisible — and a row entered wrong could
+   not be found, let alone corrected. */
+.played { list-style: none; margin: var(--s3) 0 0; padding: 0; display: grid; gap: var(--s3); }
+.played li { border-top: 1px solid var(--line); padding-top: var(--s2); }
+.played .game {
+  display: flex; align-items: baseline; gap: var(--s2); width: 100%;
+  background: none; border: 0; padding: 0; text-align: left; cursor: pointer;
+  font: inherit; color: var(--ink);
+}
+.played .game:hover b { text-decoration: underline; }
+.played .game b { font-size: 0.8rem; }
+.played .game b.win { color: var(--calm); }
+.played .game b.loss { color: var(--alert); }
+.played .game b.draw { color: var(--dim); }
+.played .game code { font-size: 0.72rem; color: var(--dim); }
+.played .who { font-size: 0.78rem; color: var(--dim); overflow-wrap: anywhere; }
+/* What you said about the game, in full. It is the irreplaceable half of the record. */
+.played .said {
+  margin: var(--s2) 0 0; font-size: 0.78rem; line-height: 1.5; color: var(--dim);
+}
+.sheet .ghost.danger { color: var(--alert); border-color: var(--alert); }
+
 .notes { margin: 0 0 var(--s3); padding: 0; list-style: none; display: grid; gap: var(--s2); }
 .notes li {
   padding-left: var(--s3); border-left: 2px solid var(--accent);

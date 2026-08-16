@@ -125,6 +125,24 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 > the battlefield reads, the plan yardsticks — is heads-up doctrine, and nothing in the engine
 > knows what a third player at the table does to a board.
 >
+> ### ✅ Two games are logged — and logging them found three more defects
+>
+> **The deck has been played.** Two `1v1v1` games on 2026-08-16, **1–1**, both against Viktor
+> and Ivern, both with notes. `G7` still stands (symptoms are not wired to the plan), but the
+> record is no longer empty.
+>
+> Entering them broke the log three ways at once, and all three are fixed
+> ([`LOG.md §2`](docs/spec/LOG.md)):
+>
+> | Defect | Fix |
+> |---|---|
+> | The form shipped with **`Won` pre-selected**, so both games saved as wins — one had been lost | Nothing is pre-selected; `Log it` is disabled until a result is picked |
+> | Win/loss was typed into the **score** field as `1-0` / `0-1` | Relabelled *"Games, if several"* — and `validate()` now **rejects a row whose score contradicts its result** |
+> | The panel showed **only aggregates** — notes were stored and invisible, and a wrong row needed a database console to fix | The games are listed with their notes; tap one to correct it, same id, upserted |
+>
+> ⚠️ **The validation is the load-bearing fix.** The form is one of two writers (D-047) and the
+> CLI would have accepted the same contradiction happily.
+>
 > ⚠️ **The two older decks were deleted** on request (2026-08-15). Recoverable from the
 > `backups` branch snapshot of 2026-08-11, which holds both.
 >
