@@ -162,14 +162,38 @@ It is assigned **before `engine`** deliberately: the failure it exists to catch 
 points being swallowed by the Legend's reward tag, and that tag's gravity is exactly what
 caused the problem twice.
 
-### ⚠️ `coreUnits` reads low in a deck whose units all have jobs
+### ✅ FIXED — `coreUnits` used to read low in a deck whose units all have jobs
 
-The rebuilt deck reports `coreUnits 5` against Riot's 9+ floor while being **32 units out of
-40**. The bodies were counted as `scoring` and `engine` because that is what they are *for*.
+> **This section described a defect, and the workaround it recommended was the wrong answer.**
+> Kept because the reasoning that excused it for months is the instructive part.
 
-**The floor is not wrong; the package is answering a different question.** For *"does this
-deck have bodies"*, read `review()`'s cross-cutting `units` count. A package delta is about
-allocation, not presence.
+The symptom: a rebuilt deck reported `coreUnits 5` against Riot's 9+ floor while being **32
+units out of 40**. The bodies were counted as `scoring` and `engine` because that is what they
+are *for*, and this was written up as the package "answering a different question", with a
+suggestion to read the cross-cutting `units` count instead.
+
+**That was a bug being documented rather than fixed.** It got worse than 5:
+`Rengar — Pridestalker` reported **`coreUnits 0`** against the 9+ floor while holding **29
+units**, because Pridestalker's reward is `unit_played` — a tag *every unit that exists*
+supplies — so `engine` claimed all of them and reported **25** against a target of 8–10. Two
+alarms, both false, both the same artefact, and the one sourced from Riot's own Primer was
+accusing a deck made almost entirely of bodies of having none.
+
+**`coreUnits` is now an overlay** ([`packages.ts`](../../packages/engine/src/advice/packages.ts)):
+a unit below `closerFrom` is counted as a body *in addition to* whatever else it was assigned
+to. The exclusive slot on each card still says what the card is **for** — a Pit Rookie is still
+explained as `engine` — but it no longer decides whether the body is **counted**. `scoring` had
+already been moved above `engine` to dodge the same gravity; `coreUnits` could not be fixed by
+moving it, because wherever it sat it would then steal from whatever it outranked.
+
+⚠️ **The package counts therefore no longer sum to 40**, deliberately, and `PackageRead.counts`
+says so.
+
+⚠️ **The `engine` half of that artefact is NOT fixed and is not a bug.** With a reward like
+`unit_played` the deck genuinely does supply it 25 times; the count is honest and the *target*
+is what does not transfer. Inventing a rule for "which units really count as engine" would be
+authoring doctrine inside a measurement, which [D-016](../DECISIONS.md#d-016) forbids. Read a
+high `engine` on a `unit_played` Legend as "not discriminating", not as "overbuilt".
 
 ### ⚠️ A package floor can be unreachable at the cost you want it
 
