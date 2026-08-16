@@ -36,7 +36,7 @@ import {
 import { AddCards } from "./AddCards.js";
 import { watchForUpdates } from "./version.js";
 import { DeckBar, DeckName, useDecks } from "./Decks.js";
-import { Advisor } from "./Advisor.js";
+import { Advisor, ClaimLegend } from "./Advisor.js";
 import { ImportCollection, type Result as ImportResult } from "./ImportCollection.js";
 import { History, LogPanel, useMatches } from "./Log.js";
 import { apply, copyLimit, DOMAIN_LIST, MAX_COPIES, NO_FILTERS, orderShelf, ownedCount, SORTS, TYPES, type Filters, type ShelfRow, type Tab } from "./filters.js";
@@ -1114,6 +1114,8 @@ export function App() {
             >
               {view === "analysis" && facts && (
                 <>
+                  {/* ⚠️ First, because the badges below are meaningless without it. */}
+                  <ClaimLegend />
                   <Statistics
                     facts={facts}
                     // Copies this deck asks for that another BUILT deck is holding — the

@@ -48,6 +48,38 @@ const CONFIDENCE: Record<Confidence, { label: string; hint: string }> = {
   },
 };
 
+/**
+ * ⚠️ **The key to the whole panel, and it was missing.**
+ *
+ * Every section in Analysis carries a `fact` / `probability` / `doctrine` badge, and the
+ * distinction is the most important thing on the page — it is the difference between a
+ * number you can act on without thinking and one that is *contested advice*. Until now the
+ * badge appeared with nothing anywhere saying what it meant, so the most load-bearing idea in
+ * the view read as decoration. D-045 exists to keep that distinction visible; a legend is
+ * what makes it visible to somebody who has not read D-045.
+ */
+export function ClaimLegend() {
+  return (
+    <section className="panel legend">
+      <h2>How to read this</h2>
+      <p className="lead">
+        Everything below is a claim about <em>this</em> deck, and each one is badged with how
+        much weight it carries.
+      </p>
+      <dl className="claims">
+        {(["fact", "probability", "doctrine"] as const).map((kind) => (
+          <div key={kind}>
+            <dt>
+              <span className={`tier ${kind}`}>{CONFIDENCE[kind].label}</span>
+            </dt>
+            <dd>{CONFIDENCE[kind].hint}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
 const SOURCE: Record<Source, string> = {
   rulebook: "Core / Tournament Rules — a constraint, not advice",
   official: "Riot's own Primer — advice, from the people who made the game",
