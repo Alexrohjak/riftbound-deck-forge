@@ -68,7 +68,13 @@ export interface MatchRecord {
   opponentLegend?: string | null;
   opponentNote?: string | null;
   result: MatchResult;
-  /** `"2-1"` when a match was several games; null when it was one. */
+  /**
+   * `"2-1"` when a match was several games; null when it was one.
+   *
+   * ⚠️ **Yours first**, and it must agree with `result` — see `validate()`. The first two
+   * games ever logged were entered as `1-0` and `0-1` meaning *won* and *lost*, while
+   * `result` sat on its pre-selected default, and the record read 2-0.
+   */
   games?: string | null;
   /** EE symptom codes — the link that makes losses aggregate into a build problem. */
   symptoms?: readonly Symptom[];
@@ -389,6 +395,25 @@ export function validate(m: MatchRecord, notAfter?: string): string[] {
   }
   if (m.games != null && m.games !== "" && !GAMES.test(m.games)) {
     problems.push('games must look like "2-1".');
+  } else if (m.games != null && m.games !== "" && GAMES.test(m.games)) {
+    /**
+     * ⚠️ **A row must not contradict itself.** `games: "0-1"` with `result: "WIN"` is not a
+     * near-miss to be tolerated — it is two different claims about the same game, and the
+     * record has no way to know which one you meant.
+     *
+     * This is not hypothetical. The first two games ever logged went in as `1-0` and `0-1`
+     * — the score field used to mean *won* and *lost* — while `result` sat on the value the
+     * form had pre-selected. The log read **2-0** for an evening that went 1-1, and nothing
+     * anywhere objected. The interface that made it easy has been fixed too, but a form is
+     * one of two writers here (D-047) and the CLI would have accepted it just as happily.
+     */
+    const [mine, theirs] = m.games.split("-").map(Number) as [number, number];
+    const implied: MatchResult = mine > theirs ? "WIN" : mine < theirs ? "LOSS" : "DRAW";
+    if (implied !== m.result) {
+      problems.push(
+        `games "${m.games}" says ${implied}, but result is ${m.result}. Your score goes first.`,
+      );
+    }
   }
   // Null and absent are both fine and both mean 1v1; a *wrong* value is not, because it
   // would land in a bucket no reading ever asks for and the games would silently vanish.

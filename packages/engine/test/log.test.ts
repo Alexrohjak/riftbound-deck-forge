@@ -253,6 +253,28 @@ describe("rejecting a record before it is stored", () => {
     expect(validate(m({ id: "abc", games: "2-1" }))).toEqual([]);
     expect(validate(m({ id: "abc", games: "two to one" }))[0]).toContain("2-1");
   });
+
+  /**
+   * The first two games ever logged were entered as `1-0` and `0-1` — the score field used
+   * as the result — while `result` sat on the value the form had pre-selected. Both stored
+   * as WIN, the record read 2-0 for an evening that went 1-1, and nothing objected.
+   */
+  it("refuses a row that contradicts itself", () => {
+    expect(validate(m({ id: "abc", result: "WIN", games: "0-1" }))[0]).toContain(
+      'games "0-1" says LOSS',
+    );
+    expect(validate(m({ id: "abc", result: "LOSS", games: "2-1" }))[0]).toContain("says WIN");
+    expect(validate(m({ id: "abc", result: "WIN", games: "1-1" }))[0]).toContain("says DRAW");
+  });
+
+  it("accepts every score that agrees with its result", () => {
+    expect(validate(m({ id: "abc", result: "WIN", games: "1-0" }))).toEqual([]);
+    expect(validate(m({ id: "abc", result: "LOSS", games: "0-1" }))).toEqual([]);
+    expect(validate(m({ id: "abc", result: "DRAW", games: "1-1" }))).toEqual([]);
+    // No score at all stays the ordinary case — most matches are one game.
+    expect(validate(m({ id: "abc", result: "LOSS" }))).toEqual([]);
+    expect(validate(m({ id: "abc", result: "LOSS", games: "" }))).toEqual([]);
+  });
 });
 
 /**

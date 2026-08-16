@@ -61,7 +61,7 @@ every read. The hash still gives the dedupe *query* — which is the part with v
 | `opponent_legend` | Their Legend's `card_id`, when you know it. Null is a real answer. **Heads-up only** |
 | `opponent_note` | Free text — *"Yasuo aggro, splashing Order"* |
 | `result` | `WIN` / `LOSS` / `DRAW` |
-| `games` | *"2-1"*, when a match was several games. Null when it was one |
+| `games` | *"2-1"*, when a match was several games. **Yours first**, and it must agree with `result`. Null when it was one |
 | `symptoms` | JSON array of [`Symptom`](EVALUATION.md) codes — the link to EE |
 | `notes` | What actually happened, in your words |
 
@@ -75,6 +75,36 @@ This is the one place a name is denormalised, and it is not a violation of
 [DATA-MODEL §2](DATA-MODEL.md): the rule there forbids copying **Riot's** card data, which
 goes stale on the next set. A deck name is *your* data, and the name it had when you played
 it is the historically correct answer — refreshing it would be the bug.
+
+### A row must not contradict itself, and nothing may be pre-answered
+
+The first two games ever logged both stored as **wins**. One had been lost, and its own notes
+said so. Three separate things had to be wrong at once, and all three are now fixed:
+
+| What happened | Why it was possible | The rule now |
+|---|---|---|
+| The result was never chosen | The form shipped with **`Won` pre-selected**. A required field that arrives pre-answered is not required — it is *guessed*, and a filled-in form looks finished | Nothing is pre-selected, and `Log it` stays disabled until you pick |
+| Win and loss went in the **score** field as `1-0` / `0-1` | It was labelled *"Games"* with a `2-1` placeholder, which reads like a per-game score | Labelled *"Games, if several"*, placeholder *"2-1, yours first"* |
+| The row disagreed with itself and was stored anyway | Nothing compared `games` against `result` | `validate()` rejects it. `games "0-1"` says LOSS; a `WIN` beside it is two claims about one game |
+
+⚠️ **The validation is the load-bearing one.** The form was one of two writers (`D-047`) and
+the CLI would have accepted the same contradiction. A fix that only changes the interface
+leaves the invariant unstated, which is how it comes back.
+
+### The record has to be readable, and correctable
+
+For its whole existence the panel showed **only aggregates**. Every note written after a game
+was stored and then invisible, and a row entered wrong could not be found — the first mistyped
+result had to be corrected from a database console.
+
+- **The games are listed**, newest first, with their notes and symptoms in full.
+- **Tap one to correct it.** The same sheet, pre-filled, saved under **the same id** — which
+  the API's `ON CONFLICT(id) DO UPDATE` turns into an update. No second endpoint writes to the
+  one table that cannot be reconstructed.
+- **Delete asks twice**, and only ever appears on a row that already exists.
+
+⚠️ **An edit never restamps `deck_hash`.** The hash records which build you *played*; fixing a
+typo two weeks later would otherwise reattribute the game to whatever the deck has become.
 
 ### Formats are read separately, never pooled
 
