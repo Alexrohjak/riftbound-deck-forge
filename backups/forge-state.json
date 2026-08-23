@@ -1,6 +1,6 @@
 {
  "schema": "forge.backup/2",
- "takenAt": "2026-08-22T03:12:22.464Z",
+ "takenAt": "2026-08-23T03:12:22.265Z",
  "collection": {
   "schema": "forge.collection/1",
   "totals": {
@@ -1144,6 +1144,14 @@
    ]
   },
   {
+   "id": "main",
+   "name": "First deck",
+   "state": "DRAFT",
+   "legendCardId": "",
+   "chosenChampionCardId": "",
+   "slots": []
+  },
+  {
    "id": "rengar-pridestalker",
    "name": "Rengar — Pridestalker",
    "state": "DRAFT",
@@ -1546,6 +1554,13 @@
    "hash": "012aa1c99090c129",
    "contents": "{\"legendCardId\":\"ven-153-166\",\"chosenChampionCardId\":\"ven-187-166\",\"slots\":[{\"cardId\":\"sfd-210-221\",\"zone\":\"BATTLEFIELD\",\"quantity\":1},{\"cardId\":\"sfd-221-221\",\"zone\":\"BATTLEFIELD\",\"quantity\":1},{\"cardId\":\"ven-163-166\",\"zone\":\"BATTLEFIELD\",\"quantity\":1},{\"cardId\":\"ogn-213-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-155-219\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-070-166\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-072-166\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ven-074-166\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ven-075-166\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ven-081-166\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-082-166\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ven-084-166\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ven-088-166\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-117-166\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ven-122-166\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ven-127-166\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ven-130-166\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ven-134-166\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"ven-138-166\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"ogn-126-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-214-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-128-298\",\"zone\":\"SIDEBOARD\",\"quantity\":1},{\"cardId\":\"ogn-226-298\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"ven-091-166\",\"zone\":\"SIDEBOARD\",\"quantity\":1},{\"cardId\":\"ven-116-166\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"ven-126-166\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"ven-133-166\",\"zone\":\"SIDEBOARD\",\"quantity\":2}]}",
    "at": "2026-08-16 19:08:45"
+  },
+  {
+   "deck_id": "main",
+   "seq": 1,
+   "hash": "ef63b530759068d0",
+   "contents": "{\"legendCardId\":\"\",\"chosenChampionCardId\":\"\",\"slots\":[]}",
+   "at": "2026-08-22 08:45:31"
   },
   {
    "deck_id": "rengar-pridestalker",
