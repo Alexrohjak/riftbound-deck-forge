@@ -1,6 +1,7 @@
 import type { CardFacts } from "../types.js";
 import type { Package } from "./packages.js";
 import { assign } from "./packages.js";
+import { supplyKind } from "./synergy.js";
 import type { Source } from "./doctrine.js";
 
 /**
@@ -209,18 +210,58 @@ export interface PackageSupply {
   owned: number;
   /** How far short of `target.min` the collection is. `0` when it can be filled. */
   short: number;
+  /**
+   * ⚠️ **Is `owned` a count at all?** `false` when the Legend's reward is one the synergy
+   * graph cannot check — then nothing can be assigned to this package, `owned` reads `0`
+   * and `short` reads the whole floor, and **both are artefacts of Forge rather than facts
+   * about the boxes.** Read `owned` as a floor and `short` as a ceiling, and never let
+   * either decide anything on its own.
+   */
+  measured: boolean;
 }
 
 export interface Feasibility {
   skeleton: Skeleton;
   supply: Partial<Record<Package, PackageSupply>>;
-  /** True when every package's floor can be met from the boxes. */
+  /**
+   * True when every package Forge **can measure** has its floor met from the boxes.
+   *
+   * ⚠️ **Read it with `unmeasurable`.** `true` alongside a non-empty `unmeasurable` means
+   * *"nothing I could check rules this out"*, which is weaker than *"you can build it"* —
+   * an unmeasurable package is not evidence in either direction. What it must never do is
+   * what it used to: report `false` because a package Forge cannot count came back empty.
+   */
   supportable: boolean;
   /**
    * ⚠️ Stated in the imperative, and **never hidden**. `GENERATOR §6`'s designed failure
    * mode: a collection that cannot support a skeleton produces gap analysis, not "no results".
+   *
+   * ⚠️ **Shortfalls in the boxes only.** A package Forge cannot measure produces no gap,
+   * because "you own none of these" and "I cannot tell which of these you own" are different
+   * sentences and only the first one is a shopping list. The second lives in `unmeasurable`.
    */
   gaps: string[];
+  /**
+   * Reward tags the synergy graph cannot check, exactly as `PackageRead.unmeasurableRewards`
+   * reports them for a built deck.
+   *
+   * **Why this exists.** `Glorious Executioner` rewards `combat_win`, which nothing in
+   * `synergy.ts` supplies. Every card in a 312-name legal pool therefore failed the `engine`
+   * test, and all four skeletons came back `supportable: false` with *"engine: 0 owned, 6
+   * needed — 6 short"* — a claim about the collection, produced entirely by a hole in Forge.
+   * `review()` had always been honest about this ([`plan.ts`](./plan.ts)); this path was not,
+   * and it told a Legend's whole set of plans was unbuildable when none of them had been
+   * tested.
+   *
+   * ⚠️ [`synergy.ts`](./synergy.js) states the contract this path had broken: *"a count of
+   * `0` is only meaningful for `counted` … callers must emit `null` for anything that is not
+   * `counted`."* Both non-counted kinds are collected here, as `readPackages` collects them,
+   * so the two paths keep one vocabulary — though they differ underneath, and usefully:
+   * `unmodelled` means Forge cannot tell, while `self-satisfying` — `combat_win`, `conquer`,
+   * `hold` — means the reward wants a board and a fight rather than a package of cards, so
+   * there may be nothing to be short *of*.
+   */
+  unmeasurable: string[];
 }
 
 /** L13 — a fourth copy is unplayable, so it is not supply. */
@@ -248,21 +289,32 @@ export function feasibility(
     counted[slot] = (counted[slot] ?? 0) + Math.min(owned, MAX_COPIES);
   }
 
+  /**
+   * ⚠️ **The same filter `readPackages` applies, and for the same reason.** `assign` only
+   * consults `rewards` on the `engine` branch, so a reward the graph cannot supply makes
+   * every card in the pool fail that test — and `engine` comes back `0` whatever the boxes
+   * hold. One unmeasurable tag is enough: a count that is a floor cannot establish a
+   * shortfall, however many of the Legend's other rewards were measured.
+   */
+  const unmeasurable = rewards.filter((tag) => supplyKind(tag) !== "counted");
+
   const supply: Partial<Record<Package, PackageSupply>> = {};
   const gaps: string[] = [];
 
   for (const [name, target] of Object.entries(skeleton.packages) as [Package, Target][]) {
     const have = counted[name] ?? 0;
     const short = Math.max(0, target.min - have);
-    supply[name] = { target, owned: have, short };
-    if (short > 0) {
+    const measured = name !== "engine" || unmeasurable.length === 0;
+    supply[name] = { target, owned: have, short, measured };
+    // An unmeasured package cannot be short of anything — see `Feasibility.gaps`.
+    if (short > 0 && measured) {
       gaps.push(
         `${name}: ${have} owned, ${target.min} needed — ${short} short. ${target.attribution}`,
       );
     }
   }
 
-  return { skeleton, supply, supportable: gaps.length === 0, gaps };
+  return { skeleton, supply, supportable: gaps.length === 0, gaps, unmeasurable };
 }
 
 /**

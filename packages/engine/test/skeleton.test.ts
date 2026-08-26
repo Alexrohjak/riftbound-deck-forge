@@ -103,11 +103,71 @@ describe("feasibility against a real collection", () => {
     for (const s of Object.values(f.supply)) expect(s.owned).toBe(0);
   });
 
+  it("a measured package still reports its shortfall, and says the count was real", () => {
+    const f = feasibility(skeletonById("fast-conquer")!, rewards, []);
+    expect(f.unmeasurable).toEqual([]);
+    expect(f.supply.engine!.measured).toBe(true);
+    expect(f.supply.engine!.short).toBeGreaterThan(0);
+  });
+
   it("⚠️ returns every skeleton unranked, including the ones that do not fit", () => {
     // Ordering them would be the composite score D-016 forbids, and dropping the misfits
     // would hide the gap analysis that is often the more useful answer.
     const all = feasibilities(rewards, []);
     expect(all).toHaveLength(SKELETONS.length);
     expect(all.every((f) => !f.supportable)).toBe(true);
+  });
+});
+
+/**
+ * **The bug:** `Glorious Executioner` rewards `combat_win`, which `synergy.ts` lists as
+ * `self-satisfying` — *"winning a combat needs a board and a fight, not a particular partner
+ * card"*. `assign` only consults the rewards on its `engine` branch, so every one of the 312
+ * legal names failed that test and `engine` counted `0`. All four skeletons then came back
+ * `supportable: false`, each carrying *"engine: 0 owned, 6 needed — 6 short"* — a shopping
+ * list for cards that were never missing, and the reason a whole Legend read as unbuildable.
+ *
+ * `synergy.ts` had already written the rule down: *"callers must emit `null` for anything
+ * that is not `counted`."*
+ */
+describe("⚠️ a reward the graph cannot supply is not a gap in the collection", () => {
+  const unmeasurable = ["combat_win"];
+  /**
+   * Deep enough that every package Forge CAN measure clears its floor — so if a plan still
+   * comes back unsupportable, `engine` is the only thing that could have done it. `assign`
+   * is exclusive here (unlike `readPackages`, where `coreUnits` overlays), so the bodies and
+   * the removal have to be separate names.
+   */
+  const realPool: PoolSupply[] = [
+    ...["Kill A", "Kill B", "Kill C", "Kill D"].map((name) => owned({ name, role: "removal-kill" })),
+    ...["Body A", "Body B", "Body C"].map((name) => owned({ name, types: ["unit"], energy: 2 })),
+    ...["Closer A", "Closer B"].map((name) => owned({ name, types: ["unit"], energy: 6 })),
+  ];
+
+  it("does not report a shortfall it cannot measure", () => {
+    const f = feasibility(skeletonById("slow-conquer")!, unmeasurable, realPool);
+    expect(f.unmeasurable).toEqual(["combat_win"]);
+    expect(f.supply.engine!.measured).toBe(false);
+    expect(f.gaps.join(" ")).not.toContain("engine");
+  });
+
+  it("⚠️ and never lets it decide the plan is unbuildable", () => {
+    // The whole point. Four plans died on this, none of them on their merits.
+    const all = feasibilities(unmeasurable, realPool);
+    expect(all.some((f) => f.supportable)).toBe(true);
+  });
+
+  it("a package it CAN measure is still allowed to be short", () => {
+    // The fix must not silence real gap analysis — GENERATOR §6's designed failure mode.
+    const f = feasibility(skeletonById("slow-conquer")!, unmeasurable, []);
+    expect(f.supply.interaction!.measured).toBe(true);
+    expect(f.gaps.join(" ")).toContain("interaction");
+    expect(f.supportable).toBe(false);
+  });
+
+  it("a measurable reward is unaffected", () => {
+    const f = feasibility(skeletonById("slow-conquer")!, ["becomes_mighty"], realPool);
+    expect(f.unmeasurable).toEqual([]);
+    expect(f.supply.engine!.measured).toBe(true);
   });
 });
