@@ -46,7 +46,27 @@ export function atLeastOne(successes: number, deckSize: number, drawn: number): 
 export interface DeckShape {
   /** Main Deck cards, Chosen Champion included. */
   size: number;
-  /** Playable on turn one — units, spells and gear costing 2 or less. */
+  /**
+   * Playable on turn one — units, spells and gear costing 2 or less.
+   *
+   * ⚠️ **This definition is contested and Alexander has ruled against it (2026-08-27):**
+   * *"turn one plays only include units — not spells that aren't useful. Consider things that
+   * give card draw or rune channelling, yes, but turn one plays specifically refer to units."*
+   *
+   * The number below still counts every card costing 2 or less, so **it overstates a
+   * spell-heavy deck.** `Ahri — Hold the Line` reported 14 early plays with only 4 bodies among
+   * them, and the deck could not contest a battlefield before turn three while this statistic
+   * read as healthy. `Ambessa` reports 19 against a *slow* plan for the same reason.
+   *
+   * The measure it should be: **bodies, plus the cards that buy you a turn** — card draw and
+   * rune channelling. A combat trick castable on turn one is not a turn-one play; there is
+   * nothing to trick.
+   *
+   * ⚠️ Changing it is not local. `archetype.ts` gates aggro on `earlyPlays >= 9` and control on
+   * `<= 5`, `doctrine.ts` compares it to `COMMUNITY.earlyPlaysMin/Ideal/Max`, and those
+   * community numbers were themselves derived from a count that included spells — so the
+   * thresholds have to move with the definition or every deck reads as suddenly short.
+   */
   earlyPlays: number;
   /**
    * Probability of seeing at least one by the end of turn one. **Tier 2** — correct given
@@ -98,8 +118,13 @@ export function deckShape(deck: Deck, cards: CardIndex): DeckShape {
     const bucket = Math.max(0, Math.trunc(cost));
     while (curve.length <= bucket) curve.push(0);
     curve[bucket] = (curve[bucket] ?? 0) + e.quantity;
-    // "Two drop" is shorthand for *anything you can cast on turn one*, which is why gear
-    // and spells count — the community number is about not having a dead first turn.
+    // ⚠️ **This is the contested line — see `DeckShape.earlyPlays`.** "Two drop" is treated
+    // here as *anything you can cast on turn one*, which is why gear and spells count: the
+    // community number is about not having a dead first turn. Alexander's ruling is that a
+    // turn-one play means a **body** (plus draw and rune channelling), because a deck that
+    // can only cast tricks on turn one still cannot contest a battlefield. Left as-is
+    // deliberately rather than changed in passing — the thresholds downstream were calibrated
+    // against this count and have to move with it.
     if (cost <= 2) earlyPlays += e.quantity;
   }
 
