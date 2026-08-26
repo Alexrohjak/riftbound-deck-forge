@@ -1,7 +1,7 @@
 # Forge — Roadmap
 
-> **Version:** 1.5 · **Updated:** 2026-08-07 — ✅ **`W2` is closed: the collection is real.**
-> `W3` is next and unblocked
+> **Version:** 1.6 · **Updated:** 2026-08-26 — 🏁 **the whole `W` track is closed** and `S6`
+> is built; the open gate is `G7`
 >
 > 🖥️ **Visual version: [`roadmap.html`](roadmap.html)** — same content, rendered. Open it from
 > disk, or use the published page. ✅ **X5 resolved** — the docs ship from the same Cloudflare
@@ -25,9 +25,9 @@
 | **Progress** | **11 of 17** milestones · `D1`–`D3`, `F1`–`F3`, **all of `W`** complete |
 | **🎯 Next** | **`S6` — EE's mouth**, re-gated off `S2` by [D-062](DECISIONS.md#d-062): the four deckbuilding questions need no rules core. Tool surface, export contract and briefing — then `S1a` for the combat half |
 | **Active** | 🟡 **`S6` — the deckbuilding conversation**, plus **[D-064](DECISIONS.md#d-064): a deck is built to a plan and measured against it.** `legend`, `around`, `counter` and `mechanic` answer the four questions; `skeletons`, `brief --plan` and `review --plan` carry the plan, and `npm run deck` measures every deck as it writes it so the check cannot be skipped. **Built, not yet proven**: nothing has been playtested, and the gate is a real game and a logged note |
-| **Blocked** | Nothing. ✅ **The "no decks" blocker stopped reproducing** (2026-08-14) — the Fiora deck opens; nothing was changed to make it, so the cause is still unknown and both candidates are in the README's **Start here**. ✅ **X8 closed** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. **Live and proven in production** — ⚠️ last snapshot 2026-08-11 while the collection has since grown; the 03:12 UTC run settles whether it is still firing |
+| **Blocked** | Nothing. ✅ **The "no decks" blocker stopped reproducing** (2026-08-14) — the Fiora deck opens; nothing was changed to make it, so the cause is still unknown and both candidates are in the README's **Start here**. ✅ **X8 closed** ([D-051](DECISIONS.md#d-051)) — a nightly cron commits a snapshot to this repo, off Cloudflare. **Live and proven in production** — ✅ the 03:12 UTC run is still firing: unbroken nightly snapshots through 2026-08-26, the latest recording 698 printings, 6 decks and 3 matches |
 | **Stack** | TypeScript · React + Vite · **one Cloudflare Worker** (SPA + API, [D-050](DECISIONS.md#d-050)) + D1 · **£0/month, verified** — [`ARCHITECTURE.md`](ARCHITECTURE.md) |
-| **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve, **commitment**, the `S5` brief and gate) · `apps/web` (935 cards, search, alternate arts, many decks, card entry, import, **the Bench**, **a phone overlay**) · `apps/cli` (+ the seven `S6` question tools — the four, plus `card`, `threats` and `sideboard`) · `apps/api` (decks + collection + **commitments** + the log + nightly backup) · CI · **499 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
+| **Code** | **The workspace is real.** `packages/engine` (pure TS, ⚖️ **all 33 legality checks**, the energy curve, **commitment**, the `S5` brief and gate) · `apps/web` (935 cards, search, alternate arts, many decks, card entry, import, **the Bench**, **a phone overlay**) · `apps/cli` (+ the seven `S6` question tools — the four, plus `card`, `threats` and `sideboard`) · `apps/api` (decks + collection + **commitments** + the log + nightly backup) · CI · **572 tests**. Plus [the collection tool](../tools/collection/) and [`check-docs.py`](../tools/check-docs.py) |
 
 ```
 D ─ Design         ▓▓▓▓▓▓▓▓▓▓▓▓  3/3   ✅ complete

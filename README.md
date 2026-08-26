@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ **The Workbench builds decks.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** · ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone**, which brought **commitment** (sleeved cards leave the pool and say which deck holds them), **the Bench**, and **[D-061](docs/DECISIONS.md#d-061): runes are no longer collected** · 🏁 **`W4` is closed and the Workbench track is done** — 🟢 facts and 🟡 probabilities, visually separated, with the **rune feasibility curve** no other Riftbound tool can compute · ✅ **EE answers every deckbuilding question it specified** — `card`, `threats` and `sideboard` shipped, and the engine reads printed text rather than tags ([EE-COMPLETION](docs/EE-COMPLETION.md)) · 🎯 **`S6` is built and now partly proven** — **two games are logged** (`1v1v1`, 1–1), the log records the **shape of the table** ([D-066](docs/DECISIONS.md#d-066)), and playing and building with it has found **four defects no test caught**; the remaining gate is `G7`, wiring `matches.symptoms` to the plan. `S1a` stays deliberately out of scope and `Q-LINE` stays refused · **nightly backups run off-vendor**
+> **Status:** ✅ **The Workbench builds decks.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** · ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone**, which brought **commitment** (sleeved cards leave the pool and say which deck holds them), **the Bench**, and **[D-061](docs/DECISIONS.md#d-061): runes are no longer collected** · 🏁 **`W4` is closed and the Workbench track is done** — 🟢 facts and 🟡 probabilities, visually separated, with the **rune feasibility curve** no other Riftbound tool can compute · ✅ **EE answers every deckbuilding question it specified** — `card`, `threats` and `sideboard` shipped, and the engine reads printed text rather than tags ([EE-COMPLETION](docs/EE-COMPLETION.md)) · 🎯 **`S6` is built and now partly proven** — **three games are logged** (two `1v1v1` at 1–1, and a `1v1` loss to Vi on 2026-08-25), the log records the **shape of the table** ([D-066](docs/DECISIONS.md#d-066)), and playing and building with it has found **five defects no test caught**; the remaining gate is `G7`, wiring `matches.symptoms` to the plan. `S1a` stays deliberately out of scope and `Q-LINE` stays refused · **nightly backups run off-vendor**
 
 ---
 
@@ -43,7 +43,7 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here — how to pick this up
 
-*Last worked on 2026-08-16. This section is the recipe; the live status board is
+*Last worked on 2026-08-26. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
 > ## 🎯 Pick this up here — five decks, two games logged, and four defects found by using it
@@ -93,23 +93,46 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 >    cost, kill a friendly unit"* and three copies shipped in a deck built to hold
 >    battlefields with bodies.
 >
-> ### On the Workbench: five decks
+> ### On the Workbench: nine decks, three of them scratch
 >
 > | Deck | Legend | Identity | State |
 > |---|---|---|---|
-> | `Ambessa — Empower Chain` | Matriarch of War | body+order | **BUILT** |
+> | `Ambessa — Orange Might` | Matriarch of War | body+order | **BUILT** |
 > | `Ahri — Hold the Line` | Nine-Tailed Fox | calm+mind | **BUILT** |
 > | `Zed — Shadow Flow` | Master of Shadows | fury+chaos | DRAFT |
 > | `Rengar — Pridestalker` | Pridestalker | fury+body | DRAFT |
 > | `Draven — Executioner's Tempo` | Glorious Executioner | fury+chaos | DRAFT |
+> | `TEMP — Draven Hybrid` · `Midrange` · `Armory` | Glorious Executioner | fury+chaos | DRAFT, **scratch** |
+> | `First deck` | — | — | DRAFT, empty |
 >
 > ⚠️ **Only the two `BUILT` decks hold cards out of the pool** ([D-017](docs/DECISIONS.md#d-017)).
 > Mark a deck BUILT when you physically sleeve it — that is what makes commitment real.
 >
-> ⚠️ **Only Ambessa has been played**, and only in `1v1v1`. Every number on the other four is
+> ⚠️ **The three `TEMP —` decks are an unfinished decision.** They were built on 2026-08-26 as
+> three Draven directions to choose between, and they read as three *archetypes* — aggro,
+> midrange and combo — while all three carry the **same** `slow-conquer` plan. That is one
+> plan built three ways, not three directions, and it is the §3 rule below going wrong in the
+> other direction. **Pick one and give it its own plan, or delete all three** — leaving them
+> is what makes `npm run state` say nine decks.
+>
+> ⚠️ **The played Ambessa list no longer exists.** All three logged matches name deck hash
+> `012aa1c9…`; the sleeved deck now hashes `1c0de3da…` — it was rebuilt on 2026-08-26, from 27
+> slots to 29, and renamed. The hash is doing exactly its job ([`LOG.md`](docs/spec/LOG.md)),
+> and the consequence is that **the deck currently in sleeves has no games behind it.**
+>
+> ⚠️ **And the rebuild does not obviously answer the loss.** The 2026-08-25 note reads *"a
+> surplus of units … no spells and therefore lack of removal"* (`out-of-gas`, `cannot-remove`,
+> `threats-die`). The new list sits at **interaction 8**, the floor of its own 8–12 band,
+> **coreUnits 19** against a floor of 9, and **engine 12 against a target of 6–9 — the only
+> package out of band.** It measures as *aggro* against a plan that states `slow` · `conquer`.
+> Read it with `review --plan` before sleeving it again.
+>
+> ⚠️ **Only Ambessa has been played**, and only three games. Every number on the other decks is
 > about shape, not about winning. `G7` still stands: `matches.symptoms` is **not yet wired to
 > the plan**, so a complaint is still evidence about a *capability* rather than about a
-> **package**.
+> **package**. ⚠️ **Its concrete blocker is one query** — `scripts/pull-state.mjs` reads
+> `collection`, `decks` and `deck_slots` and **never `matches`**, so the state file every
+> session starts from contains no symptoms at all.
 >
 > ### Contention is only ever shared domains
 >
@@ -118,7 +141,7 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 > but 18. So two decks contest **only the domains they share**, and nothing else. Two decks with
 > no shared domain contest literally zero cards.
 >
-> After all five decks take their cards, every domain pair still leaves **67–82 playsets**
+> After the five real decks take their cards, every domain pair still leaves **67–82 playsets**
 > against the ~13 a 40-card deck needs. Volume is not the constraint here and never has been.
 >
 > ⚠️ **A Legend is a character, not a colour pair.** L18 ties the Chosen Champion to the
@@ -142,11 +165,12 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 > the battlefield reads, the plan yardsticks — is heads-up doctrine, and nothing in the engine
 > knows what a third player at the table does to a board.
 >
-> ### ✅ Two games are logged — and logging them found three more defects
+> ### ✅ Three games are logged — and logging them found three more defects
 >
 > **The deck has been played.** Two `1v1v1` games on 2026-08-16, **1–1**, both against Viktor
-> and Ivern, both with notes. `G7` still stands (symptoms are not wired to the plan), but the
-> record is no longer empty.
+> and Ivern, and a `1v1` **loss** to Vi on 2026-08-25 (`1-2`, *"loads of units with assault
+> making it hard to hold battlefields"*). All three have notes. `G7` still stands (symptoms are
+> not wired to the plan), but the record is no longer empty.
 >
 > Entering them broke the log three ways at once, and all three are fixed
 > ([`LOG.md §2`](docs/spec/LOG.md)):
@@ -160,15 +184,18 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 > ⚠️ **The validation is the load-bearing fix.** The form is one of two writers (D-047) and the
 > CLI would have accepted the same contradiction happily.
 >
-> ### ✅ Building a Draven deck found two more measurement defects
+> ### ✅ Building a Draven deck found three more measurement defects
 >
-> Both were found by **using the tool on a real deck**, not by a test — the pattern this project
-> keeps repeating.
+> All three were found by **using the tool on a real deck**, not by a test — the pattern this
+> project keeps repeating. The third is the sharpest case: [`synergy.ts`](packages/engine/src/advice/synergy.ts)
+> had already written the rule down — *"callers must emit `null` for anything that is not
+> `counted`"* — and `feasibility` was the one caller that did not.
 >
 > | Defect | What it did | Fix |
 > |---|---|---|
 > | **`coreUnits` was exclusive** | Pridestalker rewards `unit_played`, so `engine` claimed every body first. A **29-unit** deck reported `coreUnits` **0** against Riot's 9+ floor, and `engine` **25** against 8–10 | `coreUnits` is now an **overlay** — a body counts as a body whatever else it serves. Rengar reads **25** |
 > | **The early-play note asserted a threshold** | *"Past about 9 the odds barely move"* covers both an 8-point gap (9→12) and a 0.07-point one (22→23), and a deck reported **100%** to open turn one | The note now **computes** what the surplus bought, per deck. `source` moved from `community`/`doctrine` to `computed`/`probability` |
+> | **`skeletons` reported a hole in Forge as a hole in the boxes** (2026-08-26) | Draven's reward `combat_win` is `self-satisfying`, so nothing could ever fill `engine` — and all four plans came back `supportable: false` on *"engine: 0 owned, 6 needed — 6 short"*. **15 of 49 Legends** were affected, Ahri's among them | `Feasibility` carries `unmeasurable` and `PackageSupply` carries `measured`; an unmeasured package makes no gap and cannot decide `supportable`. Draven now returns **four** plans |
 >
 > ⚠️ **Three percentages in the codebase were folklore.** `COMMUNITY`'s own doc said 7–9 early
 > plays gives *"roughly 78 / 83 / 87%"* — the computed values are **77 / 82 / 86** — and a note
