@@ -43,10 +43,56 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here — how to pick this up
 
-*Last worked on 2026-08-26. This section is the recipe; the live status board is
+*Last worked on 2026-08-27. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
-> ## 🎯 Pick this up here — five decks, two games logged, and four defects found by using it
+> ## 🎯 Pick this up here — four decks sleeved, and three statistics that lie
+>
+> **All four real decks are `BUILT`** — Ahri (calm+mind), Ambessa (body+order), Rengar
+> (fury+body), Zed (fury+chaos). Verified 2026-08-27: **nothing is over-committed** across the
+> four, champion copies counted. The three `TEMP — Draven` decks and `Draven — Executioner's
+> Tempo` are still `DRAFT` and hold nothing.
+>
+> ### ⚠️ Three measures read as healthy while describing something else
+>
+> All three were found **by playing the decks**, not by a test — and two of them changed a
+> deck decision this session.
+>
+> | Measure | What it actually says | Cost |
+> |---|---|---|
+> | **`earlyPlays`** | Counts every card costing ≤2, **spells included**. Alexander's ruling: *"turn one plays only include units — consider card draw or rune channelling, yes, but they specifically refer to units."* Ambessa read **19**; it is **8 bodies** | Annotated in `advice/shape.ts`, **not changed** — `archetype.ts` gates aggro on `>= 9` and `doctrine.ts` on `COMMUNITY.earlyPlays*`, all calibrated against the spell-inclusive count |
+> | **`engine`** | Noise for `unit_played` and `combat_win` Legends. Rengar reports **27** against a target of 8–10 that is arithmetically unreachable — every unit supplies `unit_played` | The `combat_win` half is **fixed** (`skeletons` no longer calls a whole Legend unbuildable). The `unit_played` half is **open** |
+> | **`runeFeasibility`** | Answers *"can I cast this ONE card"* and assumes *"no recycling on earlier turns"*. **Blind** to a whole curve of Power costs draining the board | Rengar was at **28 of 40 cards costing Power** and could not deploy its own top end. Rebuilt to **5** |
+>
+> ### 🔑 Paying Power recycles a rune off the board
+>
+> You channel 2 a turn; every Power symbol paid cancels half a turn of it, and Energy comes
+> from exhausting runes still standing. **The meta rule: every body you deploy on curve is
+> power-0.** Power belongs on cheap reactive spells and the odd expensive ambush unit — never
+> on the bodies you play every turn. Current density: **Rengar 5 · Ambessa 9 · Zed 11 ·
+> Ahri 15** — ⚠️ **Ahri is now the worst offender and has never been checked against this.**
+>
+> ### Each deck should carry one piece of spice
+>
+> Every skeleton reserves `spice: 1` and [`advice/skeleton.ts`](packages/engine/src/advice/skeleton.ts)
+> **deliberately refuses to fill it** — its value is meta knowledge [D-035](docs/DECISIONS.md#d-035)
+> says Forge will never have. Left alone it silently becomes a filler singleton. Rengar's is
+> `Brynhir Thundersong` — *"opponents can't play cards this turn"*, which makes an alpha strike
+> uninterruptible. **Ambessa's is still unfilled.**
+>
+> ### Next, in order
+>
+> 1. **Ambessa**: `defenders: 0`, 17 of 40 cards at two energy against 9 at three, and `Kayle,
+>    Justified` is a 1-of that cannot be duplicated from the collection
+> 2. **Ahri**: re-read against the Power lens — 15 power-costing cards, unexamined
+> 3. **The `unit_played` engine noise** — the mirror of the `combat_win` bug already fixed
+> 4. **Shopping list**, in priority order: `Kai'Sa, Survivor` · `Nidalee, Cat Form` ·
+>    `Irresistible Faefolk` · `Grim Apothecary` (all four in every meta Rengar list) · more
+>    `Kayle, Justified`
+>
+> ---
+>
+> ## Previously — five decks, two games logged, and four defects found by using it
 >
 > **[D-064](docs/DECISIONS.md#d-064) is built end to end** — a deck is built to a **plan**, and
 > the plan is measured where the deck is written, so nobody can forget to look. **On top of it,
@@ -93,17 +139,16 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 >    cost, kill a friendly unit"* and three copies shipped in a deck built to hold
 >    battlefields with bodies.
 >
-> ### On the Workbench: nine decks, three of them scratch
+> ### On the Workbench: eight decks, four sleeved
 >
 > | Deck | Legend | Identity | State |
 > |---|---|---|---|
 > | `Ambessa — Orange Might` | Matriarch of War | body+order | **BUILT** |
 > | `Ahri — Hold the Line` | Nine-Tailed Fox | calm+mind | **BUILT** |
-> | `Zed — Shadow Flow` | Master of Shadows | fury+chaos | DRAFT |
-> | `Rengar — Pridestalker` | Pridestalker | fury+body | DRAFT |
+> | `Zed — Shadow Flow` | Master of Shadows | fury+chaos | **BUILT** |
+> | `Rengar — Pridestalker` | Pridestalker | fury+body | **BUILT** |
 > | `Draven — Executioner's Tempo` | Glorious Executioner | fury+chaos | DRAFT |
 > | `TEMP — Draven Hybrid` · `Midrange` · `Armory` | Glorious Executioner | fury+chaos | DRAFT, **scratch** |
-> | `First deck` | — | — | DRAFT, empty |
 >
 > ⚠️ **Only the two `BUILT` decks hold cards out of the pool** ([D-017](docs/DECISIONS.md#d-017)).
 > Mark a deck BUILT when you physically sleeve it — that is what makes commitment real.
