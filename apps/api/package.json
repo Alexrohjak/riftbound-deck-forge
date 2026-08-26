@@ -9,13 +9,14 @@
     "deploy": "wrangler deploy",
     "db:init": "wrangler d1 execute forge --remote --file=./schema.sql",
     "db:init:local": "wrangler d1 execute forge --local --file=./schema.sql",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit"
   },
   "dependencies": {
     "@forge/engine": "*"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260818.1",
+    "@types/node": "^22.10.5",
     "wrangler": "^4.123.0"
   }
 }

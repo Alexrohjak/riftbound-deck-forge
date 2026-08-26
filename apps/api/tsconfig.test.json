@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    /**
+     * ⚠️ **`node` is here and deliberately NOT in `tsconfig.json`.**
+     *
+     * The Worker is typed against the runtime it deploys to and nothing else — that is what
+     * keeps `readFileSync` from typechecking its way into `src`, the same boundary
+     * `check-engine-purity` holds for the engine ([D-047](../../docs/DECISIONS.md#d-047)).
+     * The tests are a Node process and genuinely read files, so they get Node's types; the
+     * split is what lets both statements be true at once.
+     */
+    "types": ["@cloudflare/workers-types", "node"]
+  },
+  "include": ["src", "test"]
+}
