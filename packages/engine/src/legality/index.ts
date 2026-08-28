@@ -124,6 +124,7 @@ export {
   committedByPrinting,
   conflictSentence,
   findConflicts,
+  holdingsOf,
   overCommitted,
   type Conflict,
   type Holder,

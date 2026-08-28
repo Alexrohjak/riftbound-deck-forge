@@ -115,6 +115,14 @@ These six were absent from the original 27. See
 > always on hand and never reports a deck short of one. `L4` and `L8`–`L12` are untouched:
 > the Rune Deck must still be exactly twelve, and still only runes.
 
+> ⚠️ **Both checks need both inputs.** `checkLegality` runs them only when an
+> `OwnershipContext` is supplied, and an ownership context carrying a collection but no
+> commitments reports every copy already sleeved into a `BUILT` deck as available —
+> **sideboards included**, since a sideboard card is physically present
+> ([DATA-MODEL §4](DATA-MODEL.md)). Omitting the context drops the checks from `checked`
+> silently, which reads as a coverage limit rather than the bug it is. The browser passes
+> both; the CLI needs `--collection` **and** `--commitments`.
+
 > **L26/L27 are warnings, not legality failures.** A deck can be perfectly legal and
 > unbuildable. **These must never be conflated** — the distinction is the point of
 > the whole tool.
