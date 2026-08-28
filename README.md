@@ -115,7 +115,7 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 > | `scripts/audit-knowledge.mjs` | What the cards say against what Forge models |
 >
 > ```bash
-> npm run state                                    # first thing, every session — now brings the plan down too
+> npm run state                                    # first thing, every session — plan AND free pool come down too
 > node apps/cli/dist/index.js skeletons --legend <id> $P
 > node apps/cli/dist/index.js card --card <cardId> $P   # read the card before arguing about it
 > node apps/cli/dist/index.js threats deck.json $P
@@ -546,7 +546,8 @@ tiering, the never-list, and the rule that matters most — **every number in an
 from a tool call actually made**.
 
 ```bash
-npm run state          # live D1 → state/forge-state.json. First thing, every session.
+npm run state          # live D1 → state/forge-state.json + state/forge-free.json. First thing, every session.
+npm run free           # re-derive the free pool alone, from the state file already on disk
 
 P="--pool apps/web/public/cards.json --collection state/forge-state.json"
 node apps/cli/dist/index.js legend   --legend <cardId> $P   # what goes in this Legend
@@ -608,6 +609,7 @@ system map and **where to put a new idea**.
 | [**`tools/collection/`**](tools/collection/) | **The collection tool — keyboard entry over all 1,180 printings, live matches with images, JSON export. Working, and in use.** |
 | [`tools/check-docs.py`](tools/check-docs.py) | Fails when the docs contradict themselves — milestone arithmetic, the two status boards, decision counts, links. Run it after editing any planning doc |
 | [`scripts/pull-state.mjs`](scripts/pull-state.mjs) | `npm run state` — live D1 into `state/forge-state.json`, so no EE answer is built on a stale file. **Read-only**, and it refuses to write an empty collection: "you own none of that" is a plausible-looking answer and a catastrophic one |
+| [`scripts/free-pool.mjs`](scripts/free-pool.mjs) | `npm run free` — the collection **minus what is in sleeves**, into `state/forge-free.json`. Written by `npm run state` too. Subtracts each BUILT deck's slots **plus its Chosen Champion and Legend**, which live outside `deck_slots` and are singletons by construction — deriving this by hand once put a Champion already in sleeves into a new deck |
 | [`scripts/audit-knowledge.mjs`](scripts/audit-knowledge.mjs) | `npm run audit:knowledge` — **what the cards say against what Forge models.** Reports the mechanics printed on cards that no check can act on, ranked by how many cards carry them. ⚠️ Reports; never edits — a gap is a question for a human, not a licence to author card data ([D-034](docs/DECISIONS.md#d-034)) |
 | [`scripts/check-engine-purity.mjs`](scripts/check-engine-purity.mjs) | Fails if the engine imports `fs`, `fetch` or the DOM — that would break one of its two consumers, and it would be the one nobody ran |
 

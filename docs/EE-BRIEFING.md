@@ -15,7 +15,9 @@ supplies every fact.**
 ## 0. Before you answer anything
 
 ```bash
-npm run state          # live D1 → state/forge-state.json. Do this first, every session.
+npm run state          # live D1 → state/forge-state.json + state/forge-free.json. Do this first, every session.
+                       # ⚠️ Pass forge-free.json as --collection, never forge-state.json: a BUILT deck
+                       # holds its Chosen Champion and Legend outside deck_slots, and both are singletons.
 ```
 
 Then all four question tools take the same two flags:

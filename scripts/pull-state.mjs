@@ -27,9 +27,11 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { writeFreePool } from "./free-pool.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "state", "forge-state.json");
+const FREE_OUT = join(ROOT, "state", "forge-free.json");
 
 /** `wrangler --json` prefixes its own logging, so the payload is the last top-level array. */
 function query(sql) {
@@ -98,8 +100,20 @@ const state = {
 
 mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, `${JSON.stringify(state, null, 2)}\n`);
+
+/**
+ * ⚠️ **The free pool comes down with the state, for the same reason the plan does.** "What can
+ * I still build with" is a derivation over the collection and the decks, and a session that
+ * has to redo it by hand will eventually get it wrong — one did, and put a Chosen Champion
+ * already in sleeves into a new deck. Writing it here means the answer is never more than one
+ * command old, and never has to be recomputed from memory. See `free-pool.mjs`.
+ */
+const free = writeFreePool(state);
+
 const planned = state.decks.filter((d) => d.plan !== undefined || d.planRaw !== undefined).length;
 process.stdout.write(
   `${OUT}\n  ${state.collection.totals.printings} printings · ${state.collection.totals.copies} copies · ` +
-    `${state.decks.length} deck(s), ${planned} with a stated plan\n`,
+    `${state.decks.length} deck(s), ${planned} with a stated plan\n` +
+    `${FREE_OUT}\n  ${free.totals.printings} printings · ${free.totals.copies} copies free · ` +
+    `${free.totals.committedCopies} in sleeves\n`,
 );
