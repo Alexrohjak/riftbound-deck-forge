@@ -248,3 +248,43 @@ export function conflictSentence(conflict: Conflict): string {
     `${committed === 1 ? "is" : "are"} in ${where} — ${available} available, ${want} asked for.`
   );
 }
+
+/**
+ * Every `BUILT` deck's hold on every printing it sleeves — the rule behind
+ * `apps/api/src/commitments.ts`, expressed over `Deck` objects for callers that already have
+ * them (the CLI reads them out of the `npm run state` file rather than out of D1).
+ *
+ * ⚠️ **Every zone but `RUNE`.** Sideboard cards are physically present when a deck is built
+ * (DATA-MODEL §4), so they hold cardboard exactly as the Main Deck does. Leaving them out is
+ * the bug this function exists to make hard: it reports sleeved cards as free, and the report
+ * looks identical to a correct one.
+ *
+ * ⚠️ **The Legend and Chosen Champion live in their own fields**, so walking `slots` alone
+ * reports every built deck two cards short — and both are singular by construction, which
+ * makes them the copies most likely to be the only one you own.
+ *
+ * `DRAFT` decks commit nothing (D-017): a draft is a plan, and plans may freely overlap.
+ */
+export function holdingsOf(decks: readonly Deck[]): Holding[] {
+  const out: Holding[] = [];
+  for (const deck of decks) {
+    if (deck.state !== "BUILT") continue;
+    // One row per (deck, printing). A Champion also sleeved as a Main Deck slot — or a Legend
+    // that is also the Champion — is the same physical card counted twice unless these merge.
+    const perPrinting = new Map<string, number>();
+    const add = (cardId: string, quantity: number) => {
+      if (!cardId) return;
+      perPrinting.set(cardId, (perPrinting.get(cardId) ?? 0) + quantity);
+    };
+    for (const slot of deck.slots ?? []) {
+      if (slot.zone === "RUNE") continue;
+      add(slot.cardId, slot.quantity);
+    }
+    add(deck.chosenChampionCardId, 1);
+    add(deck.legendCardId, 1);
+    for (const [cardId, quantity] of perPrinting) {
+      out.push({ deckId: deck.id, deckName: deck.name, cardId, quantity });
+    }
+  }
+  return out;
+}

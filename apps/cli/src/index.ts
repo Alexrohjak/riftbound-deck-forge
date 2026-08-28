@@ -30,6 +30,8 @@ import {
   legendCounsel,
   mechanicCounsel,
   checkLegality,
+  committedByPrinting,
+  holdingsOf,
   diagnose,
   read as readLog,
   validate as validateMatch,
@@ -48,6 +50,7 @@ import {
   type MatchFormat,
   type MatchRecord,
   type PoolCard,
+  type Holding,
   type Plan,
   type PoolSupply,
   type Proposal,
@@ -59,7 +62,13 @@ const USAGE = `forge <legality|review|ask|log|skeletons|brief|validate|legend|ar
   --pool       apps/web/public/cards.json — the generated index. Easier than --cards:
                it already holds every printing with domains, energy, might and rules text.
   --collection printing id -> quantity, as PUT /collection takes. Optional everywhere;
-               supplying it makes suggestions and warnings ownership-aware.
+               supplying it makes suggestions and warnings ownership-aware. On \`legality\`
+               it is what runs L26/L27 at all — without it they are skipped, not passed.
+  --commitments what is already sleeved into BUILT decks, so those copies stop counting as
+               available. Takes the state file from \`npm run state\`, the /commitments
+               response, or a bare Holding[]. ⚠️ Pair it with --collection on \`legality\`:
+               a collection without commitments reports cards in another deck as free,
+               sideboards included.
   --cards      printing id -> card facts. Either "<name>" or
                { "name": ..., "domains": [...], "energy": n } per printing.
 
@@ -69,6 +78,8 @@ const USAGE = `forge <legality|review|ask|log|skeletons|brief|validate|legend|ar
                Identity checks — the result's "checked" list always says which ones ran.
 
   legality     is this deck registerable? 33 checks, each with its citation.
+               ⚠️ Ownership (L26/L27) needs --collection, and is only honest with
+               --commitments too — see the flags above.
   review       what IS this deck? Counts, odds, and what good players would say —
                every judgement carrying its source and how much confidence it earns.
                --plan <skeletonId|plan.json> adds D-064's plan-relative read: package
@@ -294,6 +305,39 @@ function main(argv: string[]): number {
       );
     }
     collection = Object.fromEntries(usable);
+  }
+
+  /**
+   * What is already in sleeves — the other half of an ownership answer, and the half that
+   * used to be missing entirely.
+   *
+   * ⚠️ **Without this, every copy sleeved into a `BUILT` deck reads as available** — Main
+   * Deck and sideboard alike. The browser has always passed it (`App.tsx`); the CLI had no
+   * way to, so `--collection` alone answered "you own three" about a card whose three copies
+   * were all in another deck. Ownership that ignores commitment is worse than none: it is
+   * confidently wrong in the direction that costs you a deck at the table.
+   *
+   * Accepts the state file `npm run state` writes, the `/commitments` response the API
+   * serves, or a bare `Holding[]`. The first is derived here through the engine's
+   * `holdingsOf` rather than re-walked locally, because a second implementation of "what does
+   * a built deck hold" is exactly how the sideboard fell out of the first one.
+   */
+  const commitmentsPath = flag("--commitments");
+  let holdings: Holding[] = [];
+  if (commitmentsPath) {
+    const raw = readJson(commitmentsPath) as {
+      holdings?: Holding[];
+      decks?: Deck[];
+    };
+    if (Array.isArray(raw)) holdings = raw as Holding[];
+    else if (Array.isArray(raw.holdings)) holdings = raw.holdings;
+    else if (Array.isArray(raw.decks)) holdings = holdingsOf(raw.decks);
+    else {
+      fail(
+        `${commitmentsPath} has no commitments in it. Expected the state file from ` +
+          `\`npm run state\`, the /commitments response, or a bare Holding[].`,
+      );
+    }
   }
 
   const cardIndex = staticCardIndex(cards);
@@ -687,7 +731,26 @@ function main(argv: string[]): number {
     return 0;
   }
 
-  const result = checkLegality(deck, index);
+  /**
+   * ⚠️ **Ownership runs only when a collection was supplied**, because `checkLegality` gates
+   * L26/L27 on the context existing at all. Passing an empty one would turn "not asked" into
+   * a confident "you own none of this".
+   *
+   * ⚠️ **A deck never conflicts with itself** — `committedByPrinting` drops this deck's own
+   * holdings, without which every card in a `BUILT` deck reports as spoken for by the deck
+   * currently holding it.
+   *
+   * This call used to pass no options at all, so L26/L27 were dropped from `checked` and the
+   * result said "31 of 33" — a coverage caveat where a bug was. The browser ran them; the CLI
+   * silently did not, which is the asymmetry D-047 exists to prevent.
+   */
+  const result = checkLegality(
+    deck,
+    index,
+    collectionPath
+      ? { ownership: { collection, committed: committedByPrinting(holdings, deck.id) } }
+      : {},
+  );
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
   return result.legal ? 0 : 1;
 }
