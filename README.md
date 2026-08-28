@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ **The Workbench builds decks.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** · ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone**, which brought **commitment** (sleeved cards leave the pool and say which deck holds them), **the Bench**, and **[D-061](docs/DECISIONS.md#d-061): runes are no longer collected** · 🏁 **`W4` is closed and the Workbench track is done** — 🟢 facts and 🟡 probabilities, visually separated, with the **rune feasibility curve** no other Riftbound tool can compute · ✅ **EE answers every deckbuilding question it specified** — `card`, `threats` and `sideboard` shipped, and the engine reads printed text rather than tags ([EE-COMPLETION](docs/EE-COMPLETION.md)) · 🎯 **`S6` is built and now partly proven** — **three games are logged** (two `1v1v1` at 1–1, and a `1v1` loss to Vi on 2026-08-25), the log records the **shape of the table** ([D-066](docs/DECISIONS.md#d-066)), and playing and building with it has found **five defects no test caught**; the remaining gate is `G7`, wiring `matches.symptoms` to the plan. `S1a` stays deliberately out of scope and `Q-LINE` stays refused · **nightly backups run off-vendor**
+> **Status:** ✅ **The Workbench builds decks.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** · ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone**, which brought **commitment** (sleeved cards leave the pool and say which deck holds them), **the Bench**, and **[D-061](docs/DECISIONS.md#d-061): runes are no longer collected** · 🏁 **`W4` is closed and the Workbench track is done** — 🟢 facts and 🟡 probabilities, visually separated, with the **rune feasibility curve** no other Riftbound tool can compute · ✅ **EE answers every deckbuilding question it specified** — `card`, `threats` and `sideboard` shipped, and the engine reads printed text rather than tags ([EE-COMPLETION](docs/EE-COMPLETION.md)) · 🎯 **`S6` is built and now partly proven** — **three games are logged** (two `1v1v1` at 1–1, and a `1v1` loss to Vi on 2026-08-25), the log records the **shape of the table** ([D-066](docs/DECISIONS.md#d-066)), and playing and building with it has found **five defects no test caught**; the remaining gate is `G7`, wiring `matches.symptoms` to the plan. `S1a` stays deliberately out of scope and `Q-LINE` stays refused · **nightly backups run off-vendor** · 🆕 **Equipment is no longer invisible** — `effectText` and `mightBonus` were never indexed, so all 32 gear cards read as blanks that cost a rune and paid nothing · 🆕 **`npm run free`** writes what is actually available, Chosen Champions and Legends subtracted
 
 ---
 
@@ -43,56 +43,105 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here — how to pick this up
 
-*Last worked on 2026-08-27. This section is the recipe; the live status board is
+*Last worked on 2026-08-28. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
-> ## 🎯 Pick this up here — four decks sleeved, and three statistics that lie
+> ## 🎯 Pick this up here — Draven is built, and gear was invisible the whole time
 >
-> **All four real decks are `BUILT`** — Ahri (calm+mind), Ambessa (body+order), Rengar
-> (fury+body), Zed (fury+chaos). Verified 2026-08-27: **nothing is over-committed** across the
-> four, champion copies counted. The three `TEMP — Draven` decks and `Draven — Executioner's
-> Tempo` are still `DRAFT` and hold nothing.
+> **Two defects found by building one deck**, both fixed and pushed, both the same shape as
+> every other defect this project has found: the code was confidently answering a question it
+> could not see.
 >
-> ### ⚠️ Three measures read as healthy while describing something else
->
-> All three were found **by playing the decks**, not by a test — and two of them changed a
-> deck decision this session.
->
-> | Measure | What it actually says | Cost |
+> | What was wrong | Cost | State |
 > |---|---|---|
-> | **`earlyPlays`** | Counts every card costing ≤2, **spells included**. Alexander's ruling: *"turn one plays only include units — consider card draw or rune channelling, yes, but they specifically refer to units."* Ambessa read **19**; it is **8 bodies** | Annotated in `advice/shape.ts`, **not changed** — `archetype.ts` gates aggro on `>= 9` and `doctrine.ts` on `COMMUNITY.earlyPlays*`, all calibrated against the spell-inclusive count |
-> | **`engine`** | Noise for `unit_played` and `combat_win` Legends. Rengar reports **27** against a target of 8–10 that is arithmetically unreachable — every unit supplies `unit_played` | The `combat_win` half is **fixed** (`skeletons` no longer calls a whole Legend unbuildable). The `unit_played` half is **open** |
-> | **`runeFeasibility`** | Answers *"can I cast this ONE card"* and assumes *"no recycling on earlier turns"*. **Blind** to a whole curve of Power costs draining the board | Rengar was at **28 of 40 cards costing Power** and could not deploy its own top end. Rebuilt to **5** |
+> | **Equipment had no effect text.** `effectText` and `mightBonus` exist in `data/cards.json` and [`build-card-index.mjs`](scripts/build-card-index.mjs) read **neither**. `Serrated Dirk`'s whole indexed text was its attach cost; the `[Assault 2]` it grants was gone | **All 32 Equipment cards were blanks** that cost a rune and paid nothing. `Spinning Axe` is **+3 Might** and `Edge of Night` **+2** — the index knew neither, so a gear deck could not be measured and `review` scored one as if the gear were not on the board | ✅ `3db2d2b` |
+> | **The free pool was derived by hand, every session.** A BUILT deck holds its slots *and* its **Chosen Champion** *and* its **Legend**, and the last two live in their own `decks` columns | A new Draven list called for `Rengar, Unseen` — the **only copy owned**, already sleeved as Rengar's Champion. It validated, because the file it validated against said the card was free. **Alexander caught it, not the tooling** | ✅ `2d6edf5` — `npm run free` |
 >
-> ### 🔑 Paying Power recycles a rune off the board
+> ⚠️ **`apps/api/src/commitments.ts` was right about this all along** and says so in a comment.
+> Nothing outside the Worker was. `npm run state` now writes `state/forge-free.json` too —
+> **pass that as `--collection`, never `forge-state.json`.**
 >
-> You channel 2 a turn; every Power symbol paid cancels half a turn of it, and Energy comes
-> from exhausting runes still standing. **The meta rule: every body you deploy on curve is
-> power-0.** Power belongs on cheap reactive spells and the odd expensive ambush unit — never
-> on the bodies you play every turn. Current density: **Rengar 5 · Ambessa 9 · Zed 11 ·
-> Ahri 15** — ⚠️ **Ahri is now the worst offender and has never been checked against this.**
+> ### `Draven — Executioner's Tempo` is built (DRAFT, not sleeved)
 >
-> ### Each deck should carry one piece of spice
+> Modelled on a [riftbound.gg list](https://riftbound.gg/draven-glorious-executioner-guide/),
+> of which **13 of 27 names were owned — 22 cards short**, so it is a rebuild by *function*,
+> not a copy. `fast-conquer` · champion `Draven, Showboat`.
 >
-> Every skeleton reserves `spice: 1` and [`advice/skeleton.ts`](packages/engine/src/advice/skeleton.ts)
-> **deliberately refuses to fill it** — its value is meta knowledge [D-035](docs/DECISIONS.md#d-035)
-> says Forge will never have. Left alone it silently becomes a filler singleton. Rengar's is
-> `Brynhir Thundersong` — *"opponents can't play cards this turn"*, which makes an alpha strike
-> uninterruptible. **Ambessa's is still unfilled.**
+> **The engine is one sentence.** *"When you win a combat, draw 1 — you win if **only your
+> units remain**."* You do not have to kill their unit, only make it not be there. That is why
+> the deck runs `Gust`, `Star-Crossed`, `Isolate`: **bounce is how you trigger the Legend.**
+>
+> **The Yasuo package is a deliberate 4-for-4.** `Yasuo, Windrider` ×2 + `The Syren` ×2 win a
+> game one and then come out; `Draven, Audacious` ×2 + `Against the Odds` + `Ezreal, Prodigy`
+> come in. Audacious was picked because it replaces the *point engine*, not the body —
+> `Draven, Showboat`'s Might **is** your score, so a plain body would quietly make the champion
+> an E5 M3. ✅ **The boarded 40 was verified too** — legal, 0 violations, every package in band.
+>
+> ### ⚠️ Three "0 engine" readings are the same bug wearing different clothes
+>
+> `packages.ts` reports `engine 0 · delta -8 · within: false` whenever a Legend's `consumes`
+> tag is **self-satisfying** — it needs a board and a normal turn, not a partner card. It reads
+> as a shortfall and is not one.
+>
+> | Legend | Tag | Reads |
+> |---|---|---|
+> | Glorious Executioner (Draven) | `combat_win` | `0` against 8–10 |
+> | Nine-Tailed Fox (Ahri) | `defend` | `0` against 6–9 |
+> | Pridestalker (Rengar) | `unit_played` | **`27`** against 8–10 — the same bug inverted, still open |
+>
+> `synergy.ts` already says callers *"must emit `null` for anything that is not counted"*. The
+> package layer does not. **That is the fix worth making next.**
+>
+> ### On the Workbench: seven decks, four sleeved
+>
+> | Deck | Legend | Identity | State |
+> |---|---|---|---|
+> | `Ambessa — Orange Might` | Matriarch of War | body+order | **BUILT** |
+> | `Ahri — Hold the Line` | Nine-Tailed Fox | calm+mind | **BUILT** |
+> | `Zed — Shadow Flow` | Master of Shadows | fury+chaos | **BUILT** |
+> | `Rengar — Pridestalker` | Pridestalker | fury+body | **BUILT** |
+> | `Draven — Executioner's Tempo` | Glorious Executioner | fury+chaos | DRAFT — **this session** |
+> | `Draven — The Armory` | Glorious Executioner | fury+chaos | DRAFT, **rejected — delete** |
+> | `Deck 9` | — | — | DRAFT, **empty — delete** |
+>
+> ⚠️ **Zed and Draven share fury+chaos and it is a non-issue** — 189 free names / 505 free
+> copies remain in that identity, and the real contention was one card. **Viktor** (mind+order)
+> and **Kennen** (order+chaos) are both clear to build too; every identity has 169–194 free
+> names against a 40-card deck. What collides is the **plan**, not the domain — five decks once
+> carried `slow-conquer`.
+>
+> ⚠️ **Only the four `BUILT` decks hold cards out of the pool** ([D-017](docs/DECISIONS.md#d-017)).
+> Mark a deck BUILT when you physically sleeve it — that is what makes commitment real.
 >
 > ### Next, in order
 >
-> 1. **Ambessa**: `defenders: 0`, 17 of 40 cards at two energy against 9 at three, and `Kayle,
->    Justified` is a 1-of that cannot be duplicated from the collection
-> 2. **Ahri**: re-read against the Power lens — 15 power-costing cards, unexamined
-> 3. **The `unit_played` engine noise** — the mirror of the `combat_win` bug already fixed
-> 4. **Shopping list**, in priority order: `Kai'Sa, Survivor` · `Nidalee, Cat Form` ·
->    `Irresistible Faefolk` · `Grim Apothecary` (all four in every meta Rengar list) · more
->    `Kayle, Justified`
+> 1. **Play the Draven deck.** Everything above is shape; nothing has been playtested. `G7`
+>    still stands — `matches.symptoms` is not wired to the plan
+> 2. **`Ahri` is the worst deck on the Power rule** — **7 of its 15** power-costing cards are
+>    on-curve bodies (`Taric` ×3, `Janna` ×3, `Ahri, Inquisitive`), against Rengar's 3 and
+>    Zed's 1. Its board plateaus at 8–9 runes where a power-0 deck reaches 12
+> 3. **`CardFacts` still does not carry `effectText`**, so `mechanics.ts` cannot quote an
+>    equipment clause the way it quotes every other printed clause
+> 4. **The `unit_played` half of the engine bug**, and the `null`-not-`0` fix above
+> 5. **Tidy the Workbench** — `Deck 9` is empty, `Draven — The Armory` is a rejected draft, and
+>    two of Executioner's Tempo's battlefields (`Star Spring`, `Forbidding Waste`) are
+>    **symmetric and unjustified** under §7
+>
+> ### ✅ Corrected this session
+>
+> - **Zed is fine.** Its two flagged numbers were artifacts: 3 of its 9 "closers" are
+>   `Shadowblade Lurker`, which *"costs 2 less for each card with my name in your trash"*, and
+>   `draw: 1` ignores that the Legend **is** the draw engine. Left alone deliberately
+> - **`Forsaken Baccai` and `Oasis Raider`** look like the obvious commons (11 and 9 free) and
+>   are traps: both read *"if you control **fewer runes** than an opponent"*, and a power-0 deck
+>   is never behind on runes
+> - **`Draven, Vanquisher` is banned** in Constructed 1v1 — `L23` caught it mid-build
+> - **Alternate arts are separate printings.** `Draven, Audacious` is 1× `SFD-148` + 1×
+>   `SFD-148a`; a build script asking one printing for two copies reports it short
 >
 > ---
 >
-> ## Previously — five decks, two games logged, and four defects found by using it
+> ## Previously — four decks sleeved, and three statistics that describe something adjacent
 >
 > **[D-064](docs/DECISIONS.md#d-064) is built end to end** — a deck is built to a **plan**, and
 > the plan is measured where the deck is written, so nobody can forget to look. **On top of it,
@@ -139,26 +188,6 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 >    cost, kill a friendly unit"* and three copies shipped in a deck built to hold
 >    battlefields with bodies.
 >
-> ### On the Workbench: eight decks, four sleeved
->
-> | Deck | Legend | Identity | State |
-> |---|---|---|---|
-> | `Ambessa — Orange Might` | Matriarch of War | body+order | **BUILT** |
-> | `Ahri — Hold the Line` | Nine-Tailed Fox | calm+mind | **BUILT** |
-> | `Zed — Shadow Flow` | Master of Shadows | fury+chaos | **BUILT** |
-> | `Rengar — Pridestalker` | Pridestalker | fury+body | **BUILT** |
-> | `Draven — Executioner's Tempo` | Glorious Executioner | fury+chaos | DRAFT |
-> | `TEMP — Draven Hybrid` · `Midrange` · `Armory` | Glorious Executioner | fury+chaos | DRAFT, **scratch** |
->
-> ⚠️ **Only the two `BUILT` decks hold cards out of the pool** ([D-017](docs/DECISIONS.md#d-017)).
-> Mark a deck BUILT when you physically sleeve it — that is what makes commitment real.
->
-> ⚠️ **The three `TEMP —` decks are an unfinished decision.** They were built on 2026-08-26 as
-> three Draven directions to choose between, and they read as three *archetypes* — aggro,
-> midrange and combo — while all three carry the **same** `slow-conquer` plan. That is one
-> plan built three ways, not three directions, and it is the §3 rule below going wrong in the
-> other direction. **Pick one and give it its own plan, or delete all three** — leaving them
-> is what makes `npm run state` say nine decks.
 >
 > ⚠️ **The played Ambessa list no longer exists.** All three logged matches name deck hash
 > `012aa1c9…`; the sleeved deck now hashes `1c0de3da…` — it was rebuilt on 2026-08-26, from 27
