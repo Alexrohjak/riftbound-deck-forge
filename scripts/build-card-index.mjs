@@ -143,6 +143,19 @@ const entries = [...byName].map(([name, group]) => {
     domains: base.domains,
     tags: base.tags,
     text: rules(fullest),
+    /**
+     * ⚠️ **What a piece of Equipment grants lives in `effectText`, not `text`.** A gear's
+     * `text` is only how you attach it — `Serrated Dirk` reads "[Equip] :rb_rune_fury:" and
+     * nothing else — while the thing it actually does, "[Assault 2]", sits in `effectText`
+     * with its `mightBonus` alongside. Dropping them made all 32 Equipment cards read as
+     * blanks that cost a rune and pay nothing, so a gear deck could not be measured at all
+     * and `review` scored one as if the gear were not there.
+     *
+     * Carried from `base` rather than `fullest`: no name's printings disagree on either
+     * field, which is checked rather than assumed.
+     */
+    ...(base.effectText?.trim() ? { effectText: base.effectText.trim() } : {}),
+    ...(base.mightBonus ? { mightBonus: base.mightBonus } : {}),
     // Battlefields are the only landscape cards — 66 of 1,180. Carried explicitly rather
     // than inferred from the type, so a future landscape non-battlefield does not silently
     // get drawn cropped in half.
