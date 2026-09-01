@@ -194,10 +194,40 @@ export function isUnchanged(previous: string, next: Snapshot): boolean {
 
 const GITHUB = "https://api.github.com";
 
-/** GitHub's contents API returns base64 with newlines; and the Worker has no Buffer. */
-const decodeBase64 = (content: string): string => atob(content.replace(/\n/g, ""));
-const encodeBase64 = (text: string): string =>
-  btoa(String.fromCharCode(...new TextEncoder().encode(text)));
+/**
+ * GitHub's contents API returns base64 with newlines; and the Worker has no Buffer.
+ *
+ * ⚠️ **Both directions cross the UTF-8 boundary explicitly, and neither may spread.**
+ * `atob`/`btoa` speak *bytes*, not text, and a snapshot is not ASCII — deck names carry
+ * em-dashes. Two separate failures came out of the one-line versions these replaced:
+ *
+ * 1. **The nightly backup stopped, silently, for five nights.**
+ *    `String.fromCharCode(...bytes)` passes every byte as its own argument, so it throws
+ *    `RangeError: Maximum call stack size exceeded` once the snapshot passes roughly
+ *    125 kB. `deck_history` grew from 25 rows to 87 in one evening's deckbuilding and took
+ *    the snapshot from 78 kB to 197 kB — the cron kept firing and kept throwing, and the
+ *    only visible symptom was a backup branch that stopped moving. The threshold is a
+ *    function of *data*, so no fixture smaller than a real snapshot would ever have found
+ *    it. Chunked below the argument limit, it has no size ceiling worth stating.
+ *
+ * 2. **`isUnchanged` never matched, so every night committed a byte-identical file.**
+ *    Decoding with bare `atob` yields one character per *byte*, so a stored em-dash came
+ *    back as three mojibake characters and never equalled the snapshot it was compared
+ *    against. Decoding through `TextDecoder` is what makes that comparison mean anything.
+ */
+const CHUNK = 0x2000;
+const decodeBase64 = (content: string): string =>
+  new TextDecoder().decode(
+    Uint8Array.from(atob(content.replace(/\n/g, "")), (c) => c.charCodeAt(0)),
+  );
+const encodeBase64 = (text: string): string => {
+  const bytes = new TextEncoder().encode(text);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+  }
+  return btoa(binary);
+};
 
 export interface CommitResult {
   status: "committed" | "unchanged" | "skipped";

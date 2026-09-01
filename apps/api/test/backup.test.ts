@@ -153,7 +153,25 @@ function stubFetch(responses: Array<{ status: number; body?: unknown }>) {
   return { impl, calls };
 }
 
-const base64 = (text: string) => btoa(String.fromCharCode(...new TextEncoder().encode(text)));
+/**
+ * What GitHub actually stores: base64 over UTF-8 **bytes**.
+ *
+ * ⚠️ This used to be `btoa(String.fromCharCode(...encode(text)))`, which is the same
+ * one-liner the source had — so the fixture reproduced the bug it was meant to catch and
+ * every change-detection test agreed with a broken decoder.
+ */
+const base64 = (text: string) => {
+  const bytes = new TextEncoder().encode(text);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 0x2000) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x2000));
+  }
+  return btoa(binary);
+};
+
+/** Read back what was PUT, the way GitHub would hand it to the next night's run. */
+const fromBase64 = (content: string) =>
+  new TextDecoder().decode(Uint8Array.from(atob(content), (c) => c.charCodeAt(0)));
 
 const ENV: BackupEnv = {
   DB: {} as never,
@@ -216,8 +234,54 @@ describe("committing", () => {
     const withName = buildSnapshot("2026-08-04T03:12:00.000Z", [{ card_id: "Aatrox — Ωmega", quantity: 1 }], [], []);
     const { impl, calls } = stubFetch([{ status: 404 }, { status: 201, body: {} }]);
     await commitSnapshot(ENV, withName, impl);
-    const written = atob(calls[1]?.body.content) as string;
-    const decoded = new TextDecoder().decode(Uint8Array.from(written, (c) => c.charCodeAt(0)));
+    const decoded = fromBase64(calls[1]?.body.content);
     expect((JSON.parse(decoded) as Snapshot).collection.counts["Aatrox — Ωmega"]).toBe(1);
+  });
+
+  /**
+   * ⚠️ **The size is the point, and it is why a month of green tests meant nothing.**
+   * Encoding by spreading every byte into `String.fromCharCode` throws
+   * `RangeError: Maximum call stack size exceeded` past roughly 125 kB. The real snapshot
+   * crossed that line when `deck_history` went from 25 rows to 87 in one evening — 78 kB
+   * to 197 kB — and the nightly backup then threw for five consecutive nights while every
+   * fixture here, all of them a few hundred bytes, kept passing.
+   */
+  it("commits a snapshot far past the call-argument limit", async () => {
+    const history = Array.from({ length: 90 }, (_, seq) => ({
+      deck_id: "main",
+      seq,
+      hash: `hash-${seq}`,
+      contents: JSON.stringify({
+        slots: Array.from({ length: 60 }, (_, i) => ({
+          cardId: `ogn-${String(i).padStart(3, "0")}-298`,
+          zone: "MAIN",
+          quantity: 3,
+        })),
+      }),
+      at: "2026-08-31T00:00:00.000Z",
+    }));
+    const big = buildSnapshot("2026-08-31T03:12:00.000Z", COLLECTION, DECKS, SLOTS, [], history);
+    expect(JSON.stringify(big).length).toBeGreaterThan(200_000);
+
+    const { impl, calls } = stubFetch([{ status: 404 }, { status: 201, body: {} }]);
+    expect(await commitSnapshot(ENV, big, impl)).toEqual({ status: "committed" });
+    expect((JSON.parse(fromBase64(calls[1]?.body.content)) as Snapshot).deckHistory).toHaveLength(
+      90,
+    );
+  });
+
+  /**
+   * ⚠️ Change detection reads the *stored* file back, and a bare `atob` returns one
+   * character per byte — so a stored em-dash came back as three and never equalled itself.
+   * Every night committed a byte-identical file, which is the quiet half of the same bug.
+   */
+  it("recognises an unchanged snapshot that contains non-ASCII", async () => {
+    const counts = [{ card_id: "Aatrox — Ωmega", quantity: 1 }];
+    const previous = base64(JSON.stringify(buildSnapshot("2026-08-03T03:12:00.000Z", counts, [], [])));
+    const { impl, calls } = stubFetch([{ status: 200, body: { sha: "abc", content: previous } }]);
+
+    const tonight = buildSnapshot("2026-08-04T03:12:00.000Z", counts, [], []);
+    expect(await commitSnapshot(ENV, tonight, impl)).toEqual({ status: "unchanged" });
+    expect(calls).toHaveLength(1); // read only — no PUT
   });
 });
