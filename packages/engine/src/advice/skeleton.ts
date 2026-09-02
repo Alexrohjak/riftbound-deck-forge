@@ -1,6 +1,6 @@
 import type { CardFacts } from "../types.js";
 import type { Package } from "./packages.js";
-import { assign } from "./packages.js";
+import { assign, holdsBattlefields } from "./packages.js";
 import { supplyKind } from "./synergy.js";
 import type { Source } from "./doctrine.js";
 
@@ -283,7 +283,23 @@ export function feasibility(
 
   for (const { facts, owned } of pool) {
     if (owned <= 0) continue;
-    const { slot } = assign(facts, { closerFrom: skeleton.closerFrom, rewards });
+    const rules = { closerFrom: skeleton.closerFrom, rewards };
+    const { slot } = assign(facts, rules);
+
+    /**
+     * ⚠️ **The same overlay `readPackages` applies, and for the same reason.** `coreUnits`
+     * sits below `engine` in the assignment order, so a Legend whose reward every body
+     * supplies swallows the whole body count — and Pridestalker rewards `unit_played`, which
+     * literally every unit supplies. Every skeleton then came back `supportable: false` on
+     * *"coreUnits: 0 owned, 9 needed"*, against a pool of 316 legal names made mostly of
+     * units. `readPackages` was fixed for the deck read and this, the pool read, was not:
+     * one bug, two call sites, and the half that answers *"what can I build?"* was the half
+     * still lying.
+     */
+    if (slot !== "coreUnits" && holdsBattlefields(facts, rules)) {
+      counted.coreUnits = (counted.coreUnits ?? 0) + Math.min(owned, MAX_COPIES);
+    }
+
     // `unassigned` and `unmodelled` are not packages and cannot fill one.
     if (slot === "unassigned" || slot === "unmodelled") continue;
     counted[slot] = (counted[slot] ?? 0) + Math.min(owned, MAX_COPIES);

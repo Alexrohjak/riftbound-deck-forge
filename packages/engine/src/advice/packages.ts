@@ -199,7 +199,7 @@ export function assign(facts: CardFacts, rules: PackageRules): { slot: Slot; bec
  * "small" stops — so the two definitions are the same line read from opposite sides, and
  * deriving it here keeps them from drifting apart.
  */
-const holdsBattlefields = (facts: CardFacts, rules: PackageRules): boolean =>
+export const holdsBattlefields = (facts: CardFacts, rules: PackageRules): boolean =>
   (facts.types?.includes("unit") ?? false) &&
   (facts.energy === null || facts.energy === undefined || facts.energy < rules.closerFrom);
 
