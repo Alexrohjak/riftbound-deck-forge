@@ -616,7 +616,7 @@ function main(argv: string[]): number {
 
     const answers = symptoms.map((symptom) => {
       const d = diagnose(deck, index, symptom);
-      return { ...d, candidates: suggest(deck, index, d, pool) };
+      return { ...d, candidates: suggest(deck, index, d, pool, 5, collection) };
     });
     process.stdout.write(`${JSON.stringify({ note, archetype: readArchetype(deck, index), answers }, null, 2)}\n`);
     return 0;
