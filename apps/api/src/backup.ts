@@ -49,6 +49,9 @@ export interface Snapshot {
     state: string;
     legendCardId: string | null;
     chosenChampionCardId: string | null;
+    /** D-064's plan, as the JSON text D1 stores. `null` means the deck was built without a
+     * stated one, which is a real answer and not a missing field. */
+    plan: string | null;
     slots: Array<{ cardId: string; zone: string; quantity: number }>;
   }>;
   /**
@@ -97,6 +100,13 @@ interface DeckRow {
   state: string;
   legend_card_id: string | null;
   chosen_champion_card_id: string | null;
+  /**
+   * ⚠️ Added late by `migrations/001-deck-plan.sql`, and this query did not follow it for
+   * five weeks. D-064 made the plan the thing a deck is built *to*, so a snapshot without it
+   * restores piles rather than decks — and does it silently, because the deck still loads.
+   * Stored as the JSON text D1 holds; the restore path re-parses it.
+   */
+  plan: string | null;
 }
 interface SlotRow {
   deck_id: string;
@@ -140,6 +150,7 @@ export function buildSnapshot(
       state: deck.state,
       legendCardId: deck.legend_card_id,
       chosenChampionCardId: deck.chosen_champion_card_id,
+      plan: deck.plan,
       slots: slots
         .filter((slot) => slot.deck_id === deck.id)
         .map((slot) => ({ cardId: slot.card_id, zone: slot.zone, quantity: slot.quantity })),
@@ -155,7 +166,7 @@ export async function readState(db: D1Database, takenAt: string): Promise<Snapsh
     db.prepare("SELECT card_id, quantity FROM collection ORDER BY card_id").all<CollectionRow>(),
     db
       .prepare(
-        "SELECT id, name, state, legend_card_id, chosen_champion_card_id FROM decks ORDER BY id",
+        "SELECT id, name, state, legend_card_id, chosen_champion_card_id, plan FROM decks ORDER BY id",
       )
       .all<DeckRow>(),
     db

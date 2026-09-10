@@ -24,6 +24,7 @@ const DECKS = [
     state: "DRAFT",
     legend_card_id: "ogn-301-298",
     chosen_champion_card_id: "ogn-030-298",
+    plan: '{"origin":"slow-hold","pace":"slow","objective":"hold"}',
   },
 ];
 const SLOTS = [
@@ -79,6 +80,17 @@ describe("the log in the snapshot", () => {
     const s = buildSnapshot("2026-08-04T03:12:00.000Z", COLLECTION, DECKS, SLOTS);
     expect(s.matches).toEqual([]);
     expect(s.deckHistory).toEqual([]);
+  });
+
+  /**
+   * ⚠️ The regression this file did not catch for five weeks. `plan` arrived in
+   * `migrations/001-deck-plan.sql` and neither the query nor this fixture followed it, so
+   * every nightly snapshot restored plan-less decks and every test agreed. D-064 makes the
+   * plan the thing a deck is built *to*; losing it turns a deck back into a pile.
+   */
+  it("carries each deck's plan, because a deck without one is a pile", () => {
+    const s = snapshot();
+    expect(s.decks[0]?.plan).toBe('{"origin":"slow-hold","pace":"slow","objective":"hold"}');
   });
 
   it("announces the schema bump, so a restore knows what it is reading", () => {
