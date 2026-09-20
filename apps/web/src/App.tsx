@@ -272,6 +272,22 @@ export function App() {
    * so nothing new is ever buried by being newest.
    */
   const [view, setView] = useState<"deck" | "analysis" | "log" | "wishlist">("deck");
+  /**
+   * **Where a gallery click lands** — the Main Deck, or the sideboard.
+   *
+   * ⚠️ **The sideboard had no way in at all.** Every route into a deck went through
+   * `zoneFor(card)`, which reads the card's *type* — so a spell could only ever become a
+   * Main Deck slot. The zone existed end to end (D1 accepts it, `checkLegality` enforces
+   * L7 and L16 on it, the tray drew a bay for it), and the only sideboards in the whole
+   * collection arrived by deck **import** or by `push-deck`. You could look at one and
+   * never build one.
+   *
+   * A mode rather than a second gallery, because adding to a sideboard is the same act as
+   * adding to a deck — the same search, the same tiles, the same copy limits (L16 counts
+   * both zones against the same three). Only the destination differs, so only the
+   * destination is state.
+   */
+  const [destination, setDestination] = useState<"MAIN" | "SIDEBOARD">("MAIN");
   const [detail, setDetail] = useState<Target | null>(null);
   const [pane, setPane] = useState(() => Number(store.get("forge.pane", "34")) || 34);
 
@@ -300,6 +316,10 @@ export function App() {
   const openDeck = useCallback((id: string) => {
     setActiveDeckId(id);
     setDeckId(id);
+    // ⚠️ A destination is a thing you are *in the middle of*, not a property of the deck.
+    // Carrying it across an open would silently pour the next deck's first ten cards into
+    // its sideboard.
+    setDestination("MAIN");
   }, []);
 
   useEffect(() => {
@@ -608,8 +628,23 @@ export function App() {
 
   const legend = pool.byPrinting.get(deck.legendCardId);
 
-  const slotFor = (card: Card) =>
-    deck.slots.find((s) => s.zone === zoneFor(card) && pool.byPrinting.get(s.cardId)?.name === card.name);
+  /**
+   * Where this card goes *right now* — its home zone, unless you are filling the sideboard.
+   *
+   * ⚠️ **Runes and battlefields ignore the destination.** A registered deck has exactly 12
+   * runes and exactly 3 battlefields and you pick which battlefield to use per game; there
+   * is no such thing as siding one in. Routing them here would let a mode you forgot you
+   * were in quietly spend sideboard slots on cards that can never be swapped.
+   */
+  const destinationFor = (card: Card): Zone => {
+    const home = zoneFor(card);
+    return home === "MAIN" && destination === "SIDEBOARD" ? "SIDEBOARD" : home;
+  };
+
+  const slotIn = (card: Card, zone: Zone) =>
+    deck.slots.find((s) => s.zone === zone && pool.byPrinting.get(s.cardId)?.name === card.name);
+
+  const slotFor = (card: Card) => slotIn(card, destinationFor(card));
 
   const championsFor = (tag: string | undefined) =>
     tag
@@ -654,19 +689,25 @@ export function App() {
       if (id) setChampion(id);
       return;
     }
+    const zone = destinationFor(card);
     if (printing) {
-      const zone = zoneFor(card);
       const mine = deck.slots.find((s) => s.cardId === printing.id && s.zone === zone);
       setQuantity(printing.id, zone, (mine?.quantity ?? 0) + 1);
       return;
     }
-    const existing = slotFor(card);
+    const existing = slotIn(card, zone);
     const id = existing?.cardId ?? card.printings[0]?.id;
-    if (id) setQuantity(id, zoneFor(card), (existing?.quantity ?? 0) + 1);
+    if (id) setQuantity(id, zone, (existing?.quantity ?? 0) + 1);
   };
 
+  /**
+   * Right-click on a gallery tile. Takes one out of wherever you are currently *adding* —
+   * and falls back to the other zone, so a tile you are pointing at never refuses to
+   * shrink just because the copy lives on the other side of the mode.
+   */
   const removeOne = (card: Card) => {
-    const existing = slotFor(card);
+    const home = zoneFor(card);
+    const existing = slotIn(card, destinationFor(card)) ?? slotIn(card, home);
     if (existing) setQuantity(existing.cardId, existing.zone, existing.quantity - 1);
   };
 
@@ -688,6 +729,35 @@ export function App() {
     }
     const slot = deck.slots.find((s) => s.cardId === t.cardId && s.zone === t.zone);
     if (slot) setQuantity(t.cardId, t.zone, slot.quantity - 1);
+  };
+
+  /**
+   * Send one copy across the Main Deck / sideboard line.
+   *
+   * ⚠️ **One `setSlots`, not two `setQuantity` calls.** The two zones are two rows keyed on
+   * `(deck_id, card_id, zone)`, and the store debounces a whole deck into one `PUT` — so a
+   * decrement followed by an increment is *also* the window in which a card exists in
+   * neither zone. Doing it as a single transform means the deck is never momentarily one
+   * card short, and the save that lands is never of a state you did not ask for.
+   *
+   * Legality does not change by moving: L16 counts Main Deck and sideboard against the same
+   * three copies, so this can never turn a legal deck illegal on the copy limit — only on
+   * the shape (40 / 10), which the tally is already showing you.
+   */
+  const moveCopy = (t: Target) => {
+    if (t.role !== "slot" || (t.zone !== "MAIN" && t.zone !== "SIDEBOARD")) return;
+    const to: Zone = t.zone === "SIDEBOARD" ? "MAIN" : "SIDEBOARD";
+    setSlots((slots) => {
+      const from = slots.find((s) => s.cardId === t.cardId && s.zone === t.zone);
+      if (!from) return slots;
+      const already = slots.find((s) => s.cardId === t.cardId && s.zone === to)?.quantity ?? 0;
+      const rest = slots.filter(
+        (s) => !(s.cardId === t.cardId && (s.zone === t.zone || s.zone === to)),
+      );
+      const next = [...rest, { cardId: t.cardId, zone: to, quantity: already + 1 }];
+      if (from.quantity > 1) next.push({ ...from, quantity: from.quantity - 1 });
+      return next;
+    });
   };
 
   /**
@@ -906,6 +976,22 @@ export function App() {
           </p>
         )}
 
+        {/* ⚠️ **A mode you cannot see is a bug you will file.** The same click does two
+            different things depending on state nothing else on screen mentions, so the
+            gallery says so in its own rail — and carries the way out, because the button
+            that turned it on lives in the other pane and is off-screen on a phone. */}
+        {destination === "SIDEBOARD" && (
+          <p className="guiderail sideboarding">
+            <span>
+              Adding to the <b>sideboard</b> — {zoneCount(deck, "SIDEBOARD")} of 10. Runes and
+              battlefields still go to the deck.
+            </span>
+            <button type="button" className="ghost" onClick={() => setDestination("MAIN")}>
+              back to the deck
+            </button>
+          </p>
+        )}
+
         {adding && (
           <AddCards pool={pool} owned={owned} onChanged={setOwned} />
         )}
@@ -1102,15 +1188,24 @@ export function App() {
               onDismantle={dismantle}
               step={step}
               guided={guided}
+              destination={destination}
+              onDestination={setDestination}
               occupants={occupants}
               onOpen={setDetail}
               onRemove={removeTarget}
               onSeek={(zone) => {
                 setGuided(false);
+                setDestination(zone === "SIDEBOARD" ? "SIDEBOARD" : "MAIN");
                 setBase((f) => ({
                   ...f,
                   tab: zone === "RUNE" ? "rune" : zone === "BATTLEFIELD" ? "battlefield" : "main",
                 }));
+                // ⚠️ On a phone the workshop is an *overlay over the gallery*, so "go find a
+                // card for this slot" used to filter a shelf you could not see and look like
+                // a dead button. Re-read per press rather than reusing the one-shot answer
+                // `open` was seeded with: this is about the viewport right now, not about
+                // which pane you last chose.
+                if (window.matchMedia("(max-width: 60rem)").matches) setOpen(false);
               }}
             >
               {view === "analysis" && facts && (
@@ -1166,6 +1261,7 @@ export function App() {
           card={detail.card}
           cardId={detail.cardId}
           role={detail.role}
+          zone={detail.zone}
           owned={detail.card.printings.reduce((n, p) => n + (owned[p.id] ?? 0), 0)}
           onPickArt={(p: Printing) => {
             if (detail.role === "legend") setLegend(p.id);
@@ -1175,6 +1271,10 @@ export function App() {
           }}
           onRemove={() => {
             removeTarget(detail);
+            setDetail(null);
+          }}
+          onMove={() => {
+            moveCopy(detail);
             setDetail(null);
           }}
           benched={bench.some((e) => e.cardId === detail.cardId)}

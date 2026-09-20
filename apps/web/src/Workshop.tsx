@@ -362,6 +362,8 @@ export function Workshop({
   onDismantle,
   step,
   guided,
+  destination,
+  onDestination,
   occupants,
   onOpen,
   onRemove,
@@ -385,6 +387,9 @@ export function Workshop({
   onDismantle: () => void;
   step: Step;
   guided: boolean;
+  /** Which bay a gallery click currently fills — see `destination` in `App`. */
+  destination: "MAIN" | "SIDEBOARD";
+  onDestination: (zone: "MAIN" | "SIDEBOARD") => void;
   occupants: (zone: Zone) => Occupant[];
   onOpen: (t: Target) => void;
   onRemove: (t: Target) => void;
@@ -400,19 +405,44 @@ export function Workshop({
   const legend = pool.byPrinting.get(deck.legendCardId);
   const champion = pool.byPrinting.get(deck.chosenChampionCardId);
 
+  /**
+   * ⚠️ **The sideboard bay used to hide itself when empty**, which is precisely when it
+   * needed to be visible. A deck with no sideboard showed no sideboard, so the one route to
+   * the ten most matchup-defining cards in the box only appeared once you already had them
+   * — and nothing in the app could put them there. An empty bay with ten blank slots is the
+   * invitation; a missing bay is a feature nobody knows exists.
+   */
   const bay = (zone: Zone) => {
     const held = occupants(zone);
-    if (zone === "SIDEBOARD" && held.length === 0) return null;
     const capacity = CAPACITY[zone];
     const cards = held.length;
     const blanks = Math.max(0, capacity - cards);
+    const fillable = zone === "MAIN" || zone === "SIDEBOARD";
+    const targeted = fillable && destination === zone;
     return (
-      <section className="bay" key={zone}>
+      <section className={targeted ? "bay targeted" : "bay"} key={zone}>
         <h2>
           {ZONE_LABEL[zone]}
           <span className={cards === capacity ? "of met" : "of"}>
             {cards} / {capacity}
           </span>
+          {/* The switch lives on the bay it fills. Anywhere else it would be a mode control
+              floating next to cards it does not describe. */}
+          {fillable && (
+            <button
+              type="button"
+              className={targeted ? "ghost filling" : "ghost"}
+              aria-pressed={targeted}
+              onClick={() => onDestination(zone)}
+              title={
+                zone === "SIDEBOARD"
+                  ? "Send the cards you click in the gallery here instead of into the 40"
+                  : "Send the cards you click in the gallery into the Main Deck"
+              }
+            >
+              {targeted ? "◆ filling" : "fill this"}
+            </button>
+          )}
         </h2>
         <Slots
           held={held}
@@ -444,10 +474,14 @@ export function Workshop({
       )}
 
       <div className="tally">
-        {(["MAIN", "RUNE", "BATTLEFIELD"] as Zone[]).map((zone) => {
+        {(["MAIN", "RUNE", "BATTLEFIELD", "SIDEBOARD"] as Zone[]).map((zone) => {
           const count = zone === "MAIN" ? mainDeckCount(deck) : zoneCount(deck, zone);
           const target = zone === "MAIN" ? 40 : CAPACITY[zone];
-          const state = count === target ? "done" : count > target ? "over" : "short";
+          // ⚠️ A sideboard of nothing is legal (L7 is a ceiling, not a floor), so it is
+          // never drawn as *short*. Saying a legal deck is unfinished is the kind of lie
+          // that teaches you to ignore the tally.
+          const state =
+            count === target ? "done" : count > target ? "over" : zone === "SIDEBOARD" ? "" : "short";
           return (
             <div key={zone} className={`stat ${state}`}>
               <b>

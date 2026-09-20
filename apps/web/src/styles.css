@@ -1737,3 +1737,37 @@ body.resizing * { pointer-events: none; }
 }
 .tokenlist.markers { gap: var(--s2); }
 .marker { padding-left: var(--s3); border-left: 2px solid var(--line); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   The sideboard: a destination, not a second app
+   One gallery, one set of tiles, one click — and a visible answer to "where is
+   this going?". The mode is drawn in two places because it is read in two: on
+   the bay that receives the card, and in the gallery you are clicking in.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* The bay currently receiving cards. A left rule rather than a fill: the bays sit side by
+   side down one column, and a tinted panel would read as "selected" — which it is not.
+   It is *aimed at*, and an edge is how the rest of this interface says that. */
+.bay.targeted {
+  border-color: var(--line-strong);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+/* Sits after the count, which `.bay h2::after` has already pushed right (order 1, 2, 3). */
+.bay h2 .ghost {
+  order: 3;
+  padding: 1px var(--s1);
+  font-size: 0.6rem;
+  line-height: 1.6;
+}
+.bay h2 .ghost.filling {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* The gallery's own statement of where clicks land. Same shape as the guided rail — it is
+   the same kind of sentence, and a second visual language for it would be one too many. */
+.guiderail.sideboarding {
+  border-left: 3px solid var(--accent);
+}
+.guiderail.sideboarding b { color: var(--accent); }

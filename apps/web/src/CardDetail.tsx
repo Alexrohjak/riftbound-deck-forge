@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import type { Zone } from "@forge/engine";
 import { hd, srcSet, symbols, type Card, type Printing } from "./cards.js";
 import type { Role } from "./Workshop.js";
 
@@ -14,10 +15,12 @@ export function CardDetail({
   card,
   cardId,
   role,
+  zone,
   owned,
   benched,
   onPickArt,
   onRemove,
+  onMove,
   onBench,
   onClose,
 }: {
@@ -25,11 +28,22 @@ export function CardDetail({
   /** The printing currently in the deck, so the right art is marked. */
   cardId: string;
   role: Role;
+  /** Which bay this copy was opened from — the side of the Main Deck / sideboard line it is on. */
+  zone: Zone;
   owned: number;
   /** Whether this printing is already parked on the Bench. */
   benched: boolean;
   onPickArt: (printing: Printing) => void;
   onRemove: () => void;
+  /**
+   * Send this copy across the Main Deck / sideboard line.
+   *
+   * ⚠️ This is the *only* way to move a card you have already placed. Taking it out and
+   * putting it back would work, but it loses the printing you chose — and re-adding puts it
+   * wherever the gallery's destination happens to be pointing, which is how a card you
+   * meant to side ends up back in the 40.
+   */
+  onMove: () => void;
   /** Park it, or take it off. The Bench is a scratchpad — this decides nothing. */
   onBench: () => void;
   onClose: () => void;
@@ -163,6 +177,14 @@ export function CardDetail({
             <button type="button" className="ghost" onClick={onBench}>
               {benched ? "Take off the bench" : "Bench it"}
             </button>
+            {/* The Legend and the Chosen Champion are singular fields (DATA-MODEL §1) and
+                runes and battlefields are registered separately — none of the four can be
+                sided, so none of them offers it. */}
+            {role === "slot" && (zone === "MAIN" || zone === "SIDEBOARD") && (
+              <button type="button" className="ghost" onClick={onMove}>
+                {zone === "SIDEBOARD" ? "Move to the deck" : "Move to the sideboard"}
+              </button>
+            )}
             <button type="button" className="danger" onClick={onRemove}>
               {role === "legend"
                 ? "Clear Legend"
