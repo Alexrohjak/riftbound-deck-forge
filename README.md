@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ **The Workbench builds decks.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** · ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone**, which brought **commitment** (sleeved cards leave the pool and say which deck holds them), **the Bench**, and **[D-061](docs/DECISIONS.md#d-061): runes are no longer collected** · 🏁 **`W4` is closed and the Workbench track is done** — 🟢 facts and 🟡 probabilities, visually separated, with the **rune feasibility curve** no other Riftbound tool can compute · ✅ **EE answers every deckbuilding question it specified** — `card`, `threats` and `sideboard` shipped, and the engine reads printed text rather than tags ([EE-COMPLETION](docs/EE-COMPLETION.md)) · 🎯 **`S6` is built and now partly proven** — **eleven games are logged** (5W–6L; two `1v1v1` at 1–1 and nine `1v1`), the log records the **shape of the table** ([D-066](docs/DECISIONS.md#d-066)), and playing and building with it has found **seven defects no test caught**; the remaining gate is `G7`, wiring `matches.symptoms` to the plan. `S1a` stays deliberately out of scope and `Q-LINE` stays refused · **nightly backups run off-vendor** · 🆕 **Equipment is no longer invisible** — `effectText` and `mightBonus` were never indexed, so all 32 gear cards read as blanks that cost a rune and paid nothing · 🆕 **`npm run free`** writes what is actually available, Chosen Champions and Legends subtracted · 🆕 **`skeletons` and `ask` were answering from the wrong pool** — all four styles read `supportable: false` on a `coreUnits` count of zero, and `ask` ranked candidates without knowing what he owns
+> **Status:** ✅ **The Workbench builds decks.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** · ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone**, which brought **commitment** (sleeved cards leave the pool and say which deck holds them), **the Bench**, and **[D-061](docs/DECISIONS.md#d-061): runes are no longer collected** · 🏁 **`W4` is closed and the Workbench track is done** — 🟢 facts and 🟡 probabilities, visually separated, with the **rune feasibility curve** no other Riftbound tool can compute · ✅ **EE answers every deckbuilding question it specified** — `card`, `threats` and `sideboard` shipped, and the engine reads printed text rather than tags ([EE-COMPLETION](docs/EE-COMPLETION.md)) · 🎯 **`S6` is built and now partly proven** — **eleven games are logged** (5W–6L; two `1v1v1` at 1–1 and nine `1v1`), the log records the **shape of the table** ([D-066](docs/DECISIONS.md#d-066)), and playing and building with it has found **seven defects no test caught**; the remaining gate is `G7`, wiring `matches.symptoms` to the plan. `S1a` stays deliberately out of scope and `Q-LINE` stays refused · **nightly backups run off-vendor** · 🆕 **Equipment is no longer invisible** — `effectText` and `mightBonus` were never indexed, so all 32 gear cards read as blanks that cost a rune and paid nothing · 🆕 **`npm run free`** writes what is actually available, Chosen Champions and Legends subtracted · 🆕 **`skeletons` and `ask` were answering from the wrong pool** — all four styles read `supportable: false` on a `coreUnits` count of zero, and `ask` ranked candidates without knowing what he owns · 🆕 **The sideboard can finally be built** — the zone worked end to end and no route in the app could write to it, so every sideboard in the collection had arrived by import; the bay also hid itself when empty · 🆕 **Viktor and Kai'Sa are on the Workbench**, and two more engine reads turned out to be model gaps rather than deck faults
 
 ---
 
@@ -43,10 +43,104 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here — how to pick this up
 
-*Last worked on 2026-09-03. This section is the recipe; the live status board is
+*Last worked on 2026-09-20. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
-> ## 🎯 Pick this up here — Rengar was rebuilt by hand, and two engine reads were lying
+> ## 🎯 Pick this up here — the sideboard can be built now, and there are two new decks
+>
+> ### The sideboard was readable but never writable
+>
+> Every route into a deck went through `zoneFor(card)`, which reads the card's **type** — so a
+> spell could only ever become a Main Deck slot. The zone worked end to end the whole time:
+> D1 accepts it, `checkLegality` enforces **L7** and `L16` on it, and the tray drew a bay for
+> it. **The bay then hid itself when empty**, which is exactly when it needed to be seen. Every
+> sideboard in the collection had arrived by deck **import** or by `push-deck`; you could look
+> at one and never build one. Fixed in `0d09183`.
+>
+> | Where | What it does |
+> |---|---|
+> | Each fillable bay's header | `fill this` / `◆ filling` — the switch lives on the bay that receives the card |
+> | The gallery's own rail | States the mode and carries the way out; the switch is in the other pane and off-screen on a phone |
+> | `CardDetail` | **Move to the sideboard / Move to the deck** — one `setSlots`, never two `setQuantity` calls |
+> | The tally | Sideboard joined it, and is **never drawn as short** — **L7** is a ceiling, not a floor |
+>
+> ⚠️ **Runes and battlefields deliberately ignore the destination.** A deck registers exactly
+> 12 and exactly 3, and you pick which battlefield to use per game — there is no siding one in.
+> Routing them would let a mode you forgot you were in spend sideboard slots on cards that can
+> never be swapped.
+>
+> Also fixed on the way past: on a phone the workshop is an overlay **over** the gallery, so
+> `onSeek` — "find a card for this slot" — used to filter a shelf you could not see and read as
+> a dead button. It now closes the overlay when the viewport is narrow.
+>
+> ### Two new decks, both pushed
+>
+> | Deck | Legend · Champion | Plan | State |
+> |---|---|---|---|
+> | `Viktor — Herald of the Arcane` (`dmua5jn1pil34`) | Herald of the Arcane · Viktor, Leader | `slow-hold` · 5 Mind / 7 Order | DRAFT — **filled from 33 to 40 + 3 + 10** |
+> | `Kai'Sa — Daughter of the Void` (`dmua5ez1v4lkv`) | Daughter of the Void · Kai'Sa, Survivor | `slow-conquer` · 6 Fury / 6 Mind | DRAFT — **his 39 untouched, sideboard added** |
+>
+> **Viktor is a Recruit-token control deck**, and the thing no decklist shows is that **Gold
+> gear tokens are the rune ramp**. Cull the Weak, Hidden Blade, Salvage and Imperial Decree all
+> cost Power; `Wages of Pain`, `Deadly Flourish` and `Honest Broker` hand the rune back. He had
+> **zero Wages of Pain** on 3 free copies, and it is in all five published lists. In: Wages of
+> Pain ×3, Bellows Breath ×2, Escaped Grayback ×2, Lecturing Yordle ×2, Dragon Form ×1 (the
+> spice — a 1-Might Recruit becomes a 5, and `[Flow]` replays it from the trash). Out: Salvage
+> 3→1 (one copy is sleeved in Fiora), Singularity 3→2.
+>
+> `Lecturing Yordle` answered a real finding — *"nothing in the deck has `[Tank]` or `[Shield]`,
+> in a plan whose objective is to hold."* Gone now; coreUnits 10 → 12.
+>
+> ⚠️ **Viktor's runes came off the feasibility curve, not off Riot's 6-6.** Order demand is all
+> early and mandatory (three E2 P1 cards plus `Imperial Decree` ×3 at E5 P2); mind demand is
+> E1/E2 and then nothing until E6. **5 Mind / 7 Order** moves order P1 from 77% → 85% on turn
+> one and order P2 from 73% → 85% on turn two, and pays for it only with Singularity, which is
+> cast turn 5 regardless.
+>
+> Battlefields: `Forbidding Waste` · `Treasure Hoard` · `Void Gate` — **not `Rockfall Path`**,
+> which is in every Viktor list and which he owns exactly one of, already in Kai'Sa.
+>
+> **Kai'Sa's 39 are byte-for-byte his** and were verified so before the push. Two things worth
+> keeping: his `Void Seeker` ×3 **is** the video's card (13:18 — "kill Nocturnes, kill a Cannon,
+> and drawing a card is really nice"), and he is on `Falling Star` ×2 because he owns 2, not
+> because the list wants 2.
+>
+> **The one change left for him to make, deliberately:** −1 `Unchecked Power`, +1 `Retreat`.
+> E7 P4 that exhausts your own board is the clunky card in a deck already on Singularity ×3,
+> and the video sides it rather than maining it. **Leave the runes at 6-6** — the video's
+> 7 Fury / 5 Mind was built for a `Hextech Ray` suite he is not running.
+>
+> ### Two engine reads were false, both model gaps rather than deck faults
+>
+> | What it said | What is true |
+> |---|---|
+> | Viktor: **`engine 0`** against a target of 6–9 | The Legend's token-making is an **activated ability**, so `rewards` is `[]`. Every Viktor deck will read 0, forever |
+> | Viktor: **`gear_matters` wants 11, supplies 2** | `synergy.ts` supplies it from `types.includes("gear")`, so nine Gold-gear-token makers count as zero |
+>
+> Both are the `unit_played` family: **the package model reads tags, not printed text.**
+>
+> ### Supply is now tight, and it is supply not choice
+>
+> **Every deck on the Workbench fits inside the collection, drafts included** — checked by name
+> across all six. But **16 cards across the two new decks have zero spare copies**. Buy a second
+> of `Sprite Fountain`, `Bellows Breath` and `Wages of Pain` first — all cheap, all 3-ofs in the
+> reference lists — then `Falling Star` and `Rockfall Path`.
+>
+> ### Next, in order
+>
+> 1. **Play them.** Every number on both decks is shape. Viktor has never been cast
+> 2. **Make the Kai'Sa swap in the app** — it is the first real use of the new sideboard editor
+> 3. ⚠️ **`data/banlist.json` has an uncommitted update in the tree**, dated 2026-09-18, adding
+>    `Ekko, Recurrent` and `Stacked Deck`. Neither new deck uses them, but it is not committed
+> 4. **`G7` still stands** — `scripts/pull-state.mjs` reads `collection`, `decks` and
+>    `deck_slots` and **never `matches`**, so the state file every session starts from contains
+>    no symptoms
+> 5. **The `unit_played` engine bug** — `packages.ts` must emit `null`, not `0`/`27`, for a
+>    self-satisfying `consumes` tag, exactly as `synergy.ts` already requires of its callers
+>
+> ---
+>
+> ## Previously — Rengar was rebuilt by hand, and two engine reads were lying
 >
 > **The collection grew by ~609 copies since 2026-08-26** (OGN-heavy: 224 units, 153 spells),
 > and **eight new matches are logged** — 11 total, 5W–6L. The record is now the best evidence
@@ -108,6 +202,10 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 > | `Zed — Shadow Flow` | Master of Shadows | fury+chaos | **BUILT** |
 > | `Draven — Executioner's Tempo` | Glorious Executioner | fury+chaos | **BUILT** — `Star Spring`→`Targon's Peak`, `Pyke`→`Vi, Hotheaded` |
 > | `Fiora — Duelist's Ascent` | Grand Duelist | — | DRAFT |
+>
+> ⚠️ **This table is the 2026-09-03 state and no longer describes the Workbench.** Zed and
+> Draven are gone; Rengar and Fiora are `BUILT`; Ambessa is back to `DRAFT`; and Viktor and
+> Kai'Sa are the two new drafts. The resume block above is current.
 >
 > ⚠️ **`The Arena's Greatest` is banned in Constructed 1v1 and 2v2** — `L23` caught it
 > mid-edit. The battlefield banlist is `The Arena's Greatest`, `Aspirant's Climb`,
