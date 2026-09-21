@@ -3,7 +3,7 @@
 A personal deckbuilding workbench for [Riftbound](https://playriftbound.com/),
 Riot Games' League of Legends trading card game.
 
-> **Status:** ✅ **The Workbench builds decks.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** · ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone**, which brought **commitment** (sleeved cards leave the pool and say which deck holds them), **the Bench**, and **[D-061](docs/DECISIONS.md#d-061): runes are no longer collected** · 🏁 **`W4` is closed and the Workbench track is done** — 🟢 facts and 🟡 probabilities, visually separated, with the **rune feasibility curve** no other Riftbound tool can compute · ✅ **EE answers every deckbuilding question it specified** — `card`, `threats` and `sideboard` shipped, and the engine reads printed text rather than tags ([EE-COMPLETION](docs/EE-COMPLETION.md)) · 🎯 **`S6` is built and now partly proven** — **eleven games are logged** (5W–6L; two `1v1v1` at 1–1 and nine `1v1`), the log records the **shape of the table** ([D-066](docs/DECISIONS.md#d-066)), and playing and building with it has found **seven defects no test caught**; the remaining gate is `G7`, wiring `matches.symptoms` to the plan. `S1a` stays deliberately out of scope and `Q-LINE` stays refused · **nightly backups run off-vendor** · 🆕 **Equipment is no longer invisible** — `effectText` and `mightBonus` were never indexed, so all 32 gear cards read as blanks that cost a rune and paid nothing · 🆕 **`npm run free`** writes what is actually available, Chosen Champions and Legends subtracted · 🆕 **`skeletons` and `ask` were answering from the wrong pool** — all four styles read `supportable: false` on a `coreUnits` count of zero, and `ask` ranked candidates without knowing what he owns · 🆕 **The sideboard can finally be built** — the zone worked end to end and no route in the app could write to it, so every sideboard in the collection had arrived by import; the bay also hid itself when empty · 🆕 **Viktor and Kai'Sa are on the Workbench**, and two more engine reads turned out to be model gaps rather than deck faults
+> **Status:** ✅ **The Workbench builds decks.** [Forge is a working deckbuilder](https://forge.alexander-rohde-jakobsen.workers.dev) over **all 935 cards** — search, alternate arts, live legality, the energy curve, saved as you go · **many decks** ([D-060](docs/DECISIONS.md#d-060)), **card entry built in** (`+ Add cards`), deck and collection **import**, **[the log](docs/spec/LOG.md)** and **EE on screen** · ✅ **`W3` is closed — a complete legal deck has been built end to end on desktop *and* phone**, which brought **commitment** (sleeved cards leave the pool and say which deck holds them), **the Bench**, and **[D-061](docs/DECISIONS.md#d-061): runes are no longer collected** · 🏁 **`W4` is closed and the Workbench track is done** — 🟢 facts and 🟡 probabilities, visually separated, with the **rune feasibility curve** no other Riftbound tool can compute · ✅ **EE answers every deckbuilding question it specified** — `card`, `threats` and `sideboard` shipped, and the engine reads printed text rather than tags ([EE-COMPLETION](docs/EE-COMPLETION.md)) · 🎯 **`S6` is built and now partly proven** — **eleven games are logged** (5W–6L; two `1v1v1` at 1–1 and nine `1v1`), the log records the **shape of the table** ([D-066](docs/DECISIONS.md#d-066)), and playing and building with it has found **seven defects no test caught**; the remaining gate is `G7`, wiring `matches.symptoms` to the plan. `S1a` stays deliberately out of scope and `Q-LINE` stays refused · **nightly backups run off-vendor** · 🆕 **Equipment is no longer invisible** — `effectText` and `mightBonus` were never indexed, so all 32 gear cards read as blanks that cost a rune and paid nothing · 🆕 **`npm run free`** writes what is actually available, Chosen Champions and Legends subtracted · 🆕 **`skeletons` and `ask` were answering from the wrong pool** — all four styles read `supportable: false` on a `coreUnits` count of zero, and `ask` ranked candidates without knowing what he owns · 🆕 **The sideboard can finally be built** — the zone worked end to end and no route in the app could write to it, so every sideboard in the collection had arrived by import; the bay also hid itself when empty · 🆕 **Viktor and Kai'Sa are on the Workbench**, and two more engine reads turned out to be model gaps rather than deck faults · 🆕 **The record is readable at last** — `npm run state` never selected `matches`, so every session began blind to the only longitudinal evidence in the project and `ee log` had no document to read · 🆕 **`engine 0` was an alarm two decks could never clear** — a count of zero is only meaningful for a tag the synergy graph can count, and `packages.ts` emitted one regardless
 
 ---
 
@@ -43,10 +43,91 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here — how to pick this up
 
-*Last worked on 2026-09-20. This section is the recipe; the live status board is
+*Last worked on 2026-09-21. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
-> ## 🎯 Pick this up here — the sideboard can be built now, and there are two new decks
+> ## 🎯 Pick this up here — the record is readable at last, and `engine 0` was never about the decks
+>
+> Three of the five items left on the previous list are done. The two that remain are both
+> yours: **play them**, and **make the Kai'Sa swap in the app**.
+>
+> ### `G7` was a plumbing gap, not a design one
+>
+> `pull-state.mjs` selected the collection, the decks and the slots and **never `matches`** —
+> so the one table holding longitudinal evidence was unreachable, and `ee log` had no document
+> to read. `npm run state` now also writes **`state/forge-log.json`**, a flat `MatchRecord[]`,
+> which is the shape `ee log` parses. Not a key inside the state file: that would mean `jq`
+> every session, and a second copy of the record is how the two eventually disagree.
+>
+> ```bash
+> node apps/cli/dist/index.js log state/forge-log.json --pool apps/web/public/cards.json
+> ```
+>
+> On the real record — 11 matches, 5W–6L, 6 carrying symptoms — it says:
+>
+> > *"4 of your 5 losses were cannot remove — 80%. That is a build problem rather than
+> > variance, and one game could never have shown it."*
+>
+> ⚠️ **Formats are read separately.** That reading is the nine `1v1` games; `--format 1v1v1`
+> for the pod. And the thresholds are the feature — `rate: null` with a `withheld` sentence
+> means *too few games to say*, never zero.
+>
+> ### `engine 0` was an alarm two decks could never clear
+>
+> `synergy.ts` has always stated the rule — *"a count of `0` is only meaningful for `counted`;
+> callers must emit `null` for anything that is not"* — and `packages.ts` was a caller that did
+> not keep it. `counts.engine` is now `number | null`, and `reviewAgainstPlan` stops comparing
+> rather than reporting a shortfall.
+>
+> | Deck | Legend `consumes` | Why it could never be measured |
+> |---|---|---|
+> | `Viktor — Herald of the Arcane` | `[]` | The token-making is an **activated ability**, so there is no tag at all |
+> | `Ahri — Hold the Line` (**BUILT**) | `["defend"]` | Self-satisfying — it needs a board and a normal turn, not a partner card |
+>
+> Both read `engine 0` against a 6–9 target, permanently, and **no card he could add would
+> ever have moved it**. ⚠️ A *measured* zero is still a real finding and stays a number; only
+> the unmeasurable case goes null.
+>
+> ### ⚠️ The other half of that bug is still live, and it needs your call
+>
+> `Rengar — Pridestalker` reads **`24 engine, and the plan asks for 8–10`** — *"more than the
+> plan needs, and every extra one is a slot the other packages did not get."* That is a false
+> alarm too, but the null does not reach it: `unit_played` **is** a counted tag, and literally
+> every unit supplies it, so `engine` absorbs the entire body count.
+>
+> The two readings disagree about what `engine` means. `04`'s 8–10 band assumes a **dedicated
+> subset** of cards built for the Legend; for Pridestalker the engine is *every body*, which
+> `coreUnits` already reports (also 24). **Recommendation:** treat `unit_played` and
+> `spell_played` as a third kind — *universal* — and report `engine` as null for them, exactly
+> as for self-satisfying tags, because "how many cards feed it" has no informative answer when
+> the answer is "all of them". It is a one-line addition to the machinery that now exists, but
+> it changes what `engine` means for a BUILT deck's read, so it is your call and not mine.
+>
+> ### Also done
+>
+> ⚠️ The **ban list** is committed — `Ekko, Recurrent` and `Stacked Deck`, dated 2026-09-18,
+> with `cards.json` regenerated (banned 10 → 12). No deck holds either; he owns 1 and 5
+> respectively, so the cost is to the buildable pool, not to a deck.
+>
+> ⚠️ **`EE-BRIEFING` §0 contradicted itself** — it warned never to pass `forge-state.json` as
+> `--collection` and then did exactly that three lines later, and the README's command block
+> carried the same wrong flag. Both now say `forge-free.json`, which is what the warning is
+> about: a BUILT deck holds its Chosen Champion and Legend outside `deck_slots`, and both are
+> singletons.
+>
+> ### Next, in order
+>
+> 1. **Play them.** Every number on both new decks is still shape. Viktor has never been cast
+> 2. **Make the Kai'Sa swap in the app** — −1 `Unchecked Power`, +1 `Retreat`. The first real
+>    use of the new sideboard editor
+> 3. **Decide the `unit_played` question above**, then the fix is small
+> 4. **`G7`'s remaining half** — the record is now *readable*, but nothing yet wires
+>    `matches.symptoms` to the **plan**. `cannot-remove` in 4 of 5 losses is evidence about the
+>    `interaction` package, and today a human still has to carry it across
+>
+> ---
+>
+> ## Previously — the sideboard can be built now, and there are two new decks
 >
 > ### The sideboard was readable but never writable
 >
