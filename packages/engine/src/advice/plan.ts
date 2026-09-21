@@ -69,13 +69,20 @@ export const planFromSkeleton = (skeleton: Skeleton, winCondition = skeleton.win
 
 export interface PackageDelta {
   package: Package;
-  /** Counted from the list. A fact. */
-  actual: number;
+  /**
+   * Counted from the list. A fact.
+   *
+   * ⚠️ **`null` means the count is unmeasurable, and it must never be read as zero.** Only
+   * `engine` can be null, and only when the Legend rewards nothing the synergy graph counts —
+   * see `PackageCounts`. A deck cannot be short of a target it cannot be measured against.
+   */
+  actual: number | null;
   /** Doctrine, with its attribution attached. */
   target: Target;
   /** ⚠️ Signed distance from the **range**: `0` inside it, negative below, positive above. */
-  delta: number;
-  within: boolean;
+  delta: number | null;
+  /** `null` when there was nothing to compare — see `actual`. */
+  within: boolean | null;
 }
 
 export interface CurveRead {
@@ -209,7 +216,30 @@ export function reviewAgainstPlan(deck: Deck, plan: Plan, cards: CardIndex): Pla
 
   const deltas: PackageDelta[] = [];
   for (const [name, target] of Object.entries(plan.packages) as [Package, Target][]) {
-    const actual = read.counts[name] ?? 0;
+    const actual = read.counts[name];
+
+    /**
+     * ⚠️ **Unmeasurable is not short.** `?? 0` stood here, which is precisely how a Legend
+     * whose reward cannot be counted came back accused of having no engine — the deck was
+     * told to fix a number that was never about the deck. The note that replaces the
+     * comparison is a `fact` rather than `doctrine`, because "this cannot be measured" is
+     * a statement about the model and not a contested target.
+     */
+    if (actual === null) {
+      deltas.push({ package: name, actual: null, target, delta: null, within: null });
+      notes.push({
+        claim: `${name} cannot be measured for this deck, and the plan asks for ${band(target)}.`,
+        because:
+          `This Legend rewards ${rewards.length === 0 ? "nothing the synergy graph models — its ability is not a \`consumes\` tag at all" : `only ${read.unmeasurableRewards.join(", ")}, which the synergy graph cannot count`}. ` +
+          `A count here would measure the question rather than the deck, so none is given. ` +
+          `⚠️ Read this as unknown, never as zero — no change to the forty can move it.`,
+        source: target.source,
+        confidence: "fact",
+        attribution: target.attribution,
+      });
+      continue;
+    }
+
     const delta = distance(actual, target);
     deltas.push({ package: name, actual, target, delta, within: delta === 0 });
     if (delta === 0) continue;
@@ -309,7 +339,19 @@ export function reviewAgainstPlan(deck: Deck, plan: Plan, cards: CardIndex): Pla
     const refDeltas: PackageDelta[] = [];
     const disagreements: Package[] = [];
     for (const [name, target] of Object.entries(nearest.packages) as [Package, Target][]) {
-      const actual = read.counts[name] ?? 0;
+      const actual = read.counts[name];
+
+      /**
+       * ⚠️ Same rule as the deck's own plan: a count that cannot be measured cannot agree or
+       * disagree with a reference band either. Recorded as unmeasured, and kept out of
+       * `disagreements` — otherwise the two yardsticks would be reported as contradicting
+       * each other about a number neither of them has.
+       */
+      if (actual === null) {
+        refDeltas.push({ package: name, actual: null, target, delta: null, within: null });
+        continue;
+      }
+
       const delta = distance(actual, target);
       refDeltas.push({ package: name, actual, target, delta, within: delta === 0 });
       const mine = deltas.find((d) => d.package === name);
@@ -318,7 +360,8 @@ export function reviewAgainstPlan(deck: Deck, plan: Plan, cards: CardIndex): Pla
     reference = { skeletonId: nearest.id, packages: refDeltas, disagreements };
     for (const name of disagreements) {
       const ref = refDeltas.find((d) => d.package === name);
-      if (!ref || ref.within) continue;
+      // `within: null` never reaches `disagreements`; the check keeps the narrowing explicit.
+      if (!ref || ref.within !== false || ref.delta === null) continue;
       notes.push({
         claim: `${name} is inside this deck's own plan and ${ref.delta > 0 ? "over" : "under"} the ${nearest.id} band by ${Math.abs(ref.delta)}.`,
         because:

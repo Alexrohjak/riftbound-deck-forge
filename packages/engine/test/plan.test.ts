@@ -104,15 +104,63 @@ describe("package deltas measure distance from a range, not a point", () => {
   });
 
   it("⚠️ says when `engine` is a floor rather than a count", () => {
-    // A Legend whose reward the synergy graph cannot check. Reporting the shortfall without
-    // saying so would be the silent zero this project keeps catching.
-    const withUnmeasurable = staticCardIndex({
+    // One reward the graph can check and one it cannot: the number is real but incomplete,
+    // so it is reported as a floor. Saying the shortfall without saying so would be the
+    // silent zero this project keeps catching.
+    const mixed = staticCardIndex({
       ...facts,
-      "legend-1": { name: "Odd One", types: ["legend"], consumes: ["sings_loudly"] },
+      "legend-1": {
+        name: "Half Odd",
+        types: ["legend"],
+        consumes: ["becomes_mighty", "sings_loudly"],
+      },
     });
-    const review = reviewAgainstPlan(deckOf([{ cardId: "pump", quantity: 1 }]), stated, withUnmeasurable);
+    const review = reviewAgainstPlan(deckOf([{ cardId: "pump", quantity: 1 }]), stated, mixed);
     expect(review.unmeasurableRewards).toEqual(["sings_loudly"]);
+    // `pump` supplies `becomes_mighty`, so there is a genuine count underneath the floor.
+    expect(review.packages.find((p) => p.package === "engine")?.actual).toBe(1);
     expect(review.notes.find((n) => n.claim.includes("engine"))?.because).toContain("floor");
+  });
+
+  /**
+   * ⚠️ **The permanent false alarm.** A Legend whose ability is *activated* carries no
+   * `consumes` tags at all, so every deck ever built for it measured `engine 0` against a
+   * target of 6–9 — an alarm no deckbuilding could clear, because it was never about the
+   * deck. A Legend rewarding only a self-satisfying tag read the same way for the same reason.
+   */
+  it("⚠️ refuses to count `engine` at all when nothing the Legend rewards can be measured", () => {
+    for (const consumes of [[], ["sings_loudly"], ["attack"]]) {
+      const unmeasurable = staticCardIndex({
+        ...facts,
+        "legend-1": { name: "Odd One", types: ["legend"], consumes },
+      });
+      const review = reviewAgainstPlan(
+        deckOf([{ cardId: "pump", quantity: 1 }]),
+        stated,
+        unmeasurable,
+      );
+      const engine = review.packages.find((p) => p.package === "engine")!;
+      // ⚠️ null, not 0. A deck cannot be short of a target it cannot be measured against.
+      expect(engine.actual).toBeNull();
+      expect(engine.delta).toBeNull();
+      expect(engine.within).toBeNull();
+
+      const note = review.notes.find((n) => n.claim.includes("engine"))!;
+      expect(note.claim).toContain("cannot be measured");
+      // "This cannot be measured" is a statement about the model, not a contested target.
+      expect(note.confidence).toBe("fact");
+      expect(note.because).toContain("never as zero");
+      // The old wording promised a real figure hiding above the count. There is none here.
+      expect(note.because).not.toContain("floor");
+    }
+  });
+
+  it("⚠️ still reports a measured zero, because that one is a real finding", () => {
+    // `becomes_mighty` is counted and nothing in this deck supplies it — a genuine shortfall,
+    // and exactly what the package exists to catch. It must not be silenced with the null.
+    const review = reviewAgainstPlan(deckOf([{ cardId: "body", quantity: 3 }]), stated, index);
+    expect(review.packages.find((p) => p.package === "engine")?.actual).toBe(0);
+    expect(review.notes.find((n) => n.claim.includes("engine"))?.claim).toContain("0 engine");
   });
 });
 

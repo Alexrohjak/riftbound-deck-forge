@@ -48,7 +48,29 @@ export interface Assigned {
   because: string;
 }
 
-export type PackageCounts = Record<Slot, number>;
+/**
+ * ⚠️ **`engine` is `number | null`, and the null is the whole point.**
+ *
+ * `engine` is the one package defined *relative to the Legend* — a card is engine because it
+ * supplies something the Legend rewards. When nothing the Legend rewards can be counted, the
+ * question has no answer, and `0` is an artefact of asking it rather than a fact about the
+ * deck. `synergy.ts` states the rule its callers must keep: *"a count of `0` is only
+ * meaningful for `counted`… callers must emit `null` for anything that is not."* This is that
+ * caller keeping it.
+ *
+ * Two real decks made the case. A Legend whose token-making is an **activated ability** has
+ * no `consumes` tags at all, so every deck built for it measured `engine 0` against a target
+ * of 6–9 — a permanent false alarm that no amount of deckbuilding could ever clear. A Legend
+ * rewarding a self-satisfying tag like `attack` reads the same way, for the same reason.
+ *
+ * ⚠️ **A measured `0` is still a real finding** and stays a number: counted reward tags with
+ * nothing supplying them is exactly the shortfall this package exists to catch. Only the
+ * unmeasurable case goes null.
+ */
+export type PackageCounts = { [K in Slot]: K extends "engine" ? number | null : number };
+
+/** The same buckets while they are being counted, before `engine` may become unmeasurable. */
+type Tally = Record<Slot, number>;
 
 export interface PackageRules {
   /**
@@ -213,13 +235,15 @@ export interface PackageRead {
   counts: PackageCounts;
   cards: Assigned[];
   /**
-   * ⚠️ Reward tags the synergy graph cannot check. When this is non-empty, `engine` is a
-   * **floor rather than a count** — say so, and never report it as if it were complete.
+   * ⚠️ Reward tags the synergy graph cannot check. When this is non-empty **and** at least one
+   * other tag is counted, `engine` is a **floor rather than a count** — say so, and never
+   * report it as if it were complete. When *no* tag is counted, `counts.engine` is `null`
+   * instead, because there is then no floor either.
    */
   unmeasurableRewards: string[];
 }
 
-const EMPTY: PackageCounts = {
+const EMPTY: Tally = {
   engine: 0,
   interaction: 0,
   closers: 0,
@@ -237,7 +261,7 @@ const EMPTY: PackageCounts = {
  */
 export function readPackages(deck: Deck, cards: CardIndex, rules: PackageRules): PackageRead {
   const main = countedEntries(deck, cards).filter((e) => e.zone === "MAIN");
-  const counts: PackageCounts = { ...EMPTY };
+  const counts: Tally = { ...EMPTY };
   const assigned: Assigned[] = [];
 
   for (const entry of main) {
@@ -280,8 +304,18 @@ export function readPackages(deck: Deck, cards: CardIndex, rules: PackageRules):
     assigned.push({ cardId: entry.cardId, name: facts.name, quantity: entry.quantity, slot, because });
   }
 
+  /**
+   * ⚠️ **No counted reward tag means the engine count is unmeasurable, not zero.**
+   *
+   * `rewards` being empty is the sharpest case — a Legend with no `consumes` tags rewards
+   * nothing this graph can look for — but a Legend rewarding only self-satisfying tags is the
+   * same situation and must read the same way. When at least one tag *is* counted the number
+   * stands, as a floor; `unmeasurableRewards` is what says so.
+   */
+  const measurable = rules.rewards.some((tag) => supplyKind(tag) === "counted");
+
   return {
-    counts,
+    counts: { ...counts, engine: measurable ? counts.engine : null },
     cards: assigned,
     unmeasurableRewards: rules.rewards.filter((tag) => supplyKind(tag) !== "counted"),
   };
