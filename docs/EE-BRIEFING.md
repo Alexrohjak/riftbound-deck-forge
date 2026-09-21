@@ -15,7 +15,8 @@ supplies every fact.**
 ## 0. Before you answer anything
 
 ```bash
-npm run state          # live D1 → state/forge-state.json + state/forge-free.json. Do this first, every session.
+npm run state          # live D1 → state/forge-state.json + state/forge-free.json + state/forge-log.json.
+                       # Do this first, every session.
                        # ⚠️ Pass forge-free.json as --collection, never forge-state.json: a BUILT deck
                        # holds its Chosen Champion and Legend outside deck_slots, and both are singletons.
 ```
@@ -23,11 +24,33 @@ npm run state          # live D1 → state/forge-state.json + state/forge-free.j
 Then all four question tools take the same two flags:
 
 ```
---pool apps/web/public/cards.json  --collection state/forge-state.json
+--pool apps/web/public/cards.json  --collection state/forge-free.json
 ```
 
 Without `--collection` every ownership number is zero, and an answer built on that is
 confidently wrong about the one thing Forge exists to know.
+
+### ⚠️ Read the record before you diagnose a deck
+
+```bash
+node apps/cli/dist/index.js log state/forge-log.json --pool apps/web/public/cards.json
+```
+
+`state/forge-log.json` is every game actually played, written by the same `npm run state`.
+Read it **before** answering anything about why a deck is losing, because it holds the one
+kind of fact a deck read cannot produce: *"four of your five losses were `cannot-remove`"* is
+a build problem, and no amount of staring at the 40 would have shown it.
+
+⚠️ **Formats are read separately** — `--format 1v1v1` for the pod games. A rate that mixes
+them is a rate of no game he played, and `elsewhere` exists so the other buckets are visible
+rather than silently missing.
+
+⚠️ **The reading withholds rates below its thresholds, and that is the feature.** `rate: null`
+with a `withheld` sentence means *too few games to say*, not *zero*. Report the withholding;
+never fill the gap with a number.
+
+⚠️ **`matchups[]` carries `legendCardId`, not a name** — the engine never authors card names
+(D-034). Resolve it against `--pool` yourself before putting it in a sentence.
 
 ---
 

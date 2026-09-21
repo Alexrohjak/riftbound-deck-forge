@@ -667,10 +667,10 @@ tiering, the never-list, and the rule that matters most — **every number in an
 from a tool call actually made**.
 
 ```bash
-npm run state          # live D1 → state/forge-state.json + state/forge-free.json. First thing, every session.
+npm run state          # live D1 → forge-state.json + forge-free.json + forge-log.json. First thing, every session.
 npm run free           # re-derive the free pool alone, from the state file already on disk
 
-P="--pool apps/web/public/cards.json --collection state/forge-state.json"
+P="--pool apps/web/public/cards.json --collection state/forge-free.json"
 node apps/cli/dist/index.js legend   --legend <cardId> $P   # what goes in this Legend
 node apps/cli/dist/index.js around   --card   <cardId> $P   # build around my one copy
 node apps/cli/dist/index.js counter  --legend <cardId> $P   # what beats this Legend
@@ -729,7 +729,7 @@ system map and **where to put a new idea**.
 | [`apps/api/`](apps/api/) | One Cloudflare Worker over D1. No idle state |
 | [**`tools/collection/`**](tools/collection/) | **The collection tool — keyboard entry over all 1,180 printings, live matches with images, JSON export. Working, and in use.** |
 | [`tools/check-docs.py`](tools/check-docs.py) | Fails when the docs contradict themselves — milestone arithmetic, the two status boards, decision counts, links. Run it after editing any planning doc |
-| [`scripts/pull-state.mjs`](scripts/pull-state.mjs) | `npm run state` — live D1 into `state/forge-state.json`, so no EE answer is built on a stale file. **Read-only**, and it refuses to write an empty collection: "you own none of that" is a plausible-looking answer and a catastrophic one |
+| [`scripts/pull-state.mjs`](scripts/pull-state.mjs) | `npm run state` — live D1 into `state/forge-state.json`, the free pool, and **`state/forge-log.json`: every game played, in the flat shape `ee log` reads** (`G7`). So no EE answer is built on a stale file, and none is built blind to the record. **Read-only**, and it refuses to write an empty collection: "you own none of that" is a plausible-looking answer and a catastrophic one — but it accepts an empty *record*, because "nothing played yet" is true |
 | [`scripts/free-pool.mjs`](scripts/free-pool.mjs) | `npm run free` — the collection **minus what is in sleeves**, into `state/forge-free.json`. Written by `npm run state` too. Subtracts each BUILT deck's slots **plus its Chosen Champion and Legend**, which live outside `deck_slots` and are singletons by construction — deriving this by hand once put a Champion already in sleeves into a new deck |
 | [`scripts/audit-knowledge.mjs`](scripts/audit-knowledge.mjs) | `npm run audit:knowledge` — **what the cards say against what Forge models.** Reports the mechanics printed on cards that no check can act on, ranked by how many cards carry them. ⚠️ Reports; never edits — a gap is a question for a human, not a licence to author card data ([D-034](docs/DECISIONS.md#d-034)) |
 | [`scripts/check-engine-purity.mjs`](scripts/check-engine-purity.mjs) | Fails if the engine imports `fs`, `fetch` or the DOM — that would break one of its two consumers, and it would be the one nobody ran |

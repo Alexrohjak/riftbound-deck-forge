@@ -17,6 +17,14 @@
  * Without it you get a clear failure rather than an empty collection, because an empty
  * collection is a *plausible* answer and would silently make every ownership claim wrong.
  *
+ * ⚠️ **The record comes down too, into a file of its own.** `G7` had been sitting behind a
+ * plumbing gap rather than a design one: `matches` is the only table that holds *longitudinal*
+ * evidence — "five of your seven losses were `cannot-hold`" is a sentence no single deck read
+ * can produce — and this script never selected it, so every session began blind to it and
+ * `ee log` had no document to read. It is written flat to `state/forge-log.json` because that
+ * is the shape `ee log` parses; see the note above the mapping for why it is not folded into
+ * the state file.
+ *
  * ⚠️ **The plan comes down with the deck.** `D-064` made the plan the thing a deck is built
  * to, and this script is the first command of every session — a state file that showed the
  * slots but not the plan invited exactly one mistake: reading a deck as a pile again, or
@@ -28,10 +36,12 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { writeFreePool } from "./free-pool.mjs";
+import { readMatchLog, tallyMatchLog } from "./match-log.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "state", "forge-state.json");
 const FREE_OUT = join(ROOT, "state", "forge-free.json");
+const LOG_OUT = join(ROOT, "state", "forge-log.json");
 
 /** `wrangler --json` prefixes its own logging, so the payload is the last top-level array. */
 function query(sql) {
@@ -50,6 +60,11 @@ const decks = query(
   "SELECT id, name, state, legend_card_id, chosen_champion_card_id, plan FROM decks ORDER BY updated_at DESC;",
 );
 const slots = query("SELECT deck_id, card_id, zone, quantity FROM deck_slots;");
+const matches = query(
+  "SELECT id, deck_id, deck_name, deck_hash, played_at, format, opponent_legend, " +
+    "opponent_note, result, games, symptoms, notes FROM matches " +
+    "ORDER BY played_at DESC, logged_at DESC;",
+);
 
 // ⚠️ An empty collection is a plausible-looking answer and a catastrophic one — every
 // ownership claim downstream would read "you own none of that" and be confidently wrong.
@@ -102,6 +117,13 @@ mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, `${JSON.stringify(state, null, 2)}\n`);
 
 /**
+ * The record, written flat because that is the shape `ee log` parses. See `match-log.mjs`
+ * for why it is a file of its own rather than a key in the state document.
+ */
+const log = readMatchLog(matches);
+writeFileSync(LOG_OUT, `${JSON.stringify(log, null, 2)}\n`);
+
+/**
  * ⚠️ **The free pool comes down with the state, for the same reason the plan does.** "What can
  * I still build with" is a derivation over the collection and the decks, and a session that
  * has to redo it by hand will eventually get it wrong — one did, and put a Chosen Champion
@@ -110,10 +132,23 @@ writeFileSync(OUT, `${JSON.stringify(state, null, 2)}\n`);
  */
 const free = writeFreePool(state);
 
+const tally = tallyMatchLog(log);
+
 const planned = state.decks.filter((d) => d.plan !== undefined || d.planRaw !== undefined).length;
+
+/**
+ * ⚠️ **Zero matches is not an error.** An empty collection is refused above because it makes
+ * every ownership answer confidently wrong; an empty record just means nothing has been
+ * played yet, which is a true answer and the state every new deck starts in.
+ */
 process.stdout.write(
   `${OUT}\n  ${state.collection.totals.printings} printings · ${state.collection.totals.copies} copies · ` +
     `${state.decks.length} deck(s), ${planned} with a stated plan\n` +
     `${FREE_OUT}\n  ${free.totals.printings} printings · ${free.totals.copies} copies free · ` +
-    `${free.totals.committedCopies} in sleeves\n`,
+    `${free.totals.committedCopies} in sleeves\n` +
+    `${LOG_OUT}\n  ${log.length} match(es)` +
+    (log.length === 0
+      ? " — nothing played yet\n"
+      : ` · ${tally.WIN}W–${tally.LOSS}L${tally.DRAW > 0 ? `–${tally.DRAW}D` : ""} · ` +
+        `${tally.carrying} carrying symptoms\n`),
 );
