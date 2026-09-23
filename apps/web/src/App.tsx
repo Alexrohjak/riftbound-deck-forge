@@ -39,6 +39,7 @@ import { DeckBar, DeckName, useDecks } from "./Decks.js";
 import { Advisor, ClaimLegend } from "./Advisor.js";
 import { ImportCollection, type Result as ImportResult } from "./ImportCollection.js";
 import { History, LogPanel, useMatches } from "./Log.js";
+import { GamePlanPanel } from "./GamePlan.js";
 import { apply, copyLimit, DOMAIN_LIST, MAX_COPIES, NO_FILTERS, orderShelf, ownedCount, SORTS, TYPES, type Filters, type ShelfRow, type Tab } from "./filters.js";
 import { filtersFor, runeSlots, stepFor, type Step } from "./buildFlow.js";
 import { Workshop, type Occupant, type Target } from "./Workshop.js";
@@ -271,7 +272,7 @@ export function App() {
    * bottom, and the bottom was two screens past anywhere anyone looks. Three views instead,
    * so nothing new is ever buried by being newest.
    */
-  const [view, setView] = useState<"deck" | "analysis" | "log" | "wishlist">("deck");
+  const [view, setView] = useState<"deck" | "analysis" | "plan" | "log" | "wishlist">("deck");
   /**
    * **Where a gallery click lands** — the Main Deck, or the sideboard.
    *
@@ -1146,6 +1147,9 @@ export function App() {
                 [
                   ["deck", "Deck"],
                   ["analysis", "Analysis"],
+                  // How to pilot it (D-067). Before Log: it is what you read before a game,
+                  // and the log is what you write after one.
+                  ["plan", "Game plan"],
                   ["log", "Log"],
                   // ⚠️ Reads every deck, not the open one — the only view that does.
                   ["wishlist", "Wishlist"],
@@ -1232,6 +1236,8 @@ export function App() {
                   <Advisor deck={deck} pool={pool} owned={owned} />
                 </>
               )}
+
+              {view === "plan" && <GamePlanPanel deck={deck} pool={pool} matches={matches} />}
 
               {view === "log" && (
                 <>

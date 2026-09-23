@@ -85,6 +85,16 @@ CREATE TABLE IF NOT EXISTS deck_history (
   PRIMARY KEY (deck_id, seq)
 );
 
+-- D-067 — how to pilot a deck: battlefield picks, sideboard swaps per matchup, play-arounds.
+-- One document per deck, validated for SHAPE by the engine (`validateGamePlan`) and never for
+-- fit — a plan naming a card you have since cut must still save, or it could not be fixed.
+-- Cascades with the deck, like the bench: it describes that forty and no other.
+CREATE TABLE IF NOT EXISTS gameplans (
+  deck_id     TEXT PRIMARY KEY REFERENCES decks(id) ON DELETE CASCADE,
+  body        TEXT NOT NULL,          -- JSON: forge.gameplan/1
+  updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 -- Games you actually played.
 --
 -- ⚠️ deck_id carries NO foreign key, and deck_name is stored on the row. Delete a deck and

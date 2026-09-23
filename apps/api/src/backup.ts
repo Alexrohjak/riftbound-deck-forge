@@ -62,6 +62,11 @@ export interface Snapshot {
   matches: MatchRow[];
   /** What each deck looked like over time, so a match can still name the build it was. */
   deckHistory: DeckHistoryRow[];
+  /**
+   * How to pilot each deck (D-067). Prose you wrote after losing to someone — irreplaceable
+   * in the way matches are, and nothing else in the snapshot could rebuild it.
+   */
+  gameplans: GamePlanRow[];
 }
 
 /** ⚠️ `events` are deliberately absent — crash noise is expendable by design (LOG §3). */
@@ -80,6 +85,12 @@ export interface MatchRow {
   games: string | null;
   symptoms: string | null;
   notes: string | null;
+}
+
+export interface GamePlanRow {
+  deck_id: string;
+  body: string;
+  updated_at: string;
 }
 
 export interface DeckHistoryRow {
@@ -128,6 +139,7 @@ export function buildSnapshot(
   slots: SlotRow[],
   matches: MatchRow[] = [],
   deckHistory: DeckHistoryRow[] = [],
+  gameplans: GamePlanRow[] = [],
 ): Snapshot {
   const counts: Record<string, number> = {};
   let copies = 0;
@@ -157,12 +169,13 @@ export function buildSnapshot(
     })),
     matches,
     deckHistory,
+    gameplans,
   };
 }
 
 /** Read everything worth keeping. Ordered, so an unchanged database serialises identically. */
 export async function readState(db: D1Database, takenAt: string): Promise<Snapshot> {
-  const [collection, decks, slots, matches, history] = await Promise.all([
+  const [collection, decks, slots, matches, history, gameplans] = await Promise.all([
     db.prepare("SELECT card_id, quantity FROM collection ORDER BY card_id").all<CollectionRow>(),
     db
       .prepare(
@@ -176,6 +189,7 @@ export async function readState(db: D1Database, takenAt: string): Promise<Snapsh
     db
       .prepare("SELECT deck_id, seq, hash, contents, at FROM deck_history ORDER BY deck_id, seq")
       .all<DeckHistoryRow>(),
+    db.prepare("SELECT deck_id, body, updated_at FROM gameplans ORDER BY deck_id").all<GamePlanRow>(),
   ]);
 
   return buildSnapshot(
@@ -185,6 +199,7 @@ export async function readState(db: D1Database, takenAt: string): Promise<Snapsh
     slots.results,
     matches.results,
     history.results,
+    gameplans.results,
   );
 }
 

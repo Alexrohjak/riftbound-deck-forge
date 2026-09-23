@@ -17,6 +17,7 @@
 import type { D1Database } from "@cloudflare/workers-types";
 import { runBackup, type BackupEnv } from "./backup.js";
 import { readCommitments } from "./commitments.js";
+import { readGamePlan, writeGamePlan } from "./gameplan.js";
 import {
   appendHistory,
   deleteMatch,
@@ -559,6 +560,17 @@ export default {
       }
       if (request.method !== "GET") return json({ error: "Use GET." }, 405);
       return readHistory(env.DB, id).then((r) => json(r));
+    }
+
+    const gamePlanFor = /^\/decks\/([^/]+)\/gameplan$/.exec(pathname);
+    if (gamePlanFor) {
+      const id = decode(gamePlanFor[1]!);
+      if (id === null || !/^[A-Za-z0-9_-]{1,64}$/.test(id)) {
+        return json({ error: "Deck id must be 1-64 characters of [A-Za-z0-9_-]." }, 400);
+      }
+      if (request.method === "GET") return readGamePlan(env.DB, id).then((r) => json(r));
+      if (request.method === "PUT") return writeGamePlan(env.DB, id, request);
+      return json({ error: "Use GET or PUT." }, 405);
     }
 
     const deckId = pathname.startsWith("/decks/") ? decode(pathname.slice(7)) : null;

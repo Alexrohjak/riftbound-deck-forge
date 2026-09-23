@@ -214,6 +214,24 @@ export {
 } from "./log/match.js";
 export { canonicalise, deckHash } from "./log/deckHash.js";
 
+/** How to pilot a deck once the forty is fixed — battlefields, swaps, play-arounds (D-067). */
+export {
+  checkGamePlan,
+  emptyGamePlan,
+  planRecord,
+  validateGamePlan,
+  VOICES,
+  type BattlefieldPick,
+  type GamePlan,
+  type MatchupPlan,
+  type PlanNote,
+  type PlanIssue,
+  type PlanRecord,
+  type Swap,
+  type Voice,
+  type Weakness,
+} from "./gameplan/gameplan.js";
+
 /**
  * `S5` — deck generation. The engine assembles the constraints and refuses a bad answer;
  * choosing the cards is the caller's job, whichever mouth it is using (D-043).

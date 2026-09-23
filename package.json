@@ -23,7 +23,8 @@
     "state": "node scripts/pull-state.mjs",
     "free": "node scripts/free-pool.mjs",
     "audit:knowledge": "node scripts/audit-knowledge.mjs",
-    "deck": "node scripts/push-deck.mjs"
+    "deck": "node scripts/push-deck.mjs",
+    "gameplan": "node scripts/push-gameplan.mjs"
   },
   "devDependencies": {
     "typescript": "^5.7.3",

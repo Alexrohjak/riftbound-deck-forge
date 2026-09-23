@@ -76,6 +76,13 @@ describe("the log in the snapshot", () => {
     expect(s).not.toHaveProperty("events");
   });
 
+  it("carries game plans, which nothing else in the snapshot could rebuild (D-067)", () => {
+    const plan = { deck_id: "d1", body: '{"schema":"forge.gameplan/1"}', updated_at: "2026-09-23 12:00:00" };
+    const s = buildSnapshot("2026-09-23T03:12:00.000Z", COLLECTION, DECKS, SLOTS, [], [], [plan]);
+    expect(s.gameplans).toEqual([plan]);
+    expect(buildSnapshot("2026-09-23T03:12:00.000Z", COLLECTION, DECKS, SLOTS).gameplans).toEqual([]);
+  });
+
   it("defaults both to empty, so a caller that predates the log still builds", () => {
     const s = buildSnapshot("2026-08-04T03:12:00.000Z", COLLECTION, DECKS, SLOTS);
     expect(s.matches).toEqual([]);

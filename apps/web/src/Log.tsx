@@ -83,7 +83,7 @@ export function useMatches(deckId: string) {
  * `baseline` is passed only where a rate could be misread — 33% is par in a three-way pod
  * and a broken deck heads-up, and the figure alone cannot tell you which (D-066).
  */
-function Record({ standing, baseline }: { standing: LogReading["overall"]; baseline?: number }) {
+export function Record({ standing, baseline }: { standing: LogReading["overall"]; baseline?: number }) {
   return (
     <span className="record">
       <b>

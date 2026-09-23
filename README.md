@@ -43,10 +43,48 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here — how to pick this up
 
-*Last worked on 2026-09-21. This section is the recipe; the live status board is
+*Last worked on 2026-09-23. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
-> ## 🎯 Pick this up here — the record is readable at last, and `engine 0` was never about the decks
+> ## 🎯 Pick this up here — every deck has a **Game plan** tab now, and two are filled in
+>
+> ### What shipped ([D-067](docs/DECISIONS.md#d-067))
+>
+> A **Game plan** view beside Deck · Analysis · Log: how the deck wins, the mulligan, the
+> battlefield preference order, one card per matchup (by Legend **or** archetype) with its
+> battlefield pick, **in/out swaps**, what to watch for and how to play around it, and a
+> weaknesses list. Every sentence carries a voice: `ours` · `draft` (Claude proposed, not yet
+> confirmed) · `guide` · `forge`. Editing a line makes it `ours`.
+>
+> - **The record sits on each matchup**, with the log's own thresholds, and Legends faced with
+>   no plan are listed. That is the first half of `G7` actually wired.
+> - **Stale swaps are shown, never refused.** `checkGamePlan` flags a card that has left the
+>   sideboard, or a swap that is not one for one.
+> - `npm run gameplan -- <file.json> --deck <id>` pushes a plan; `npm run state` now pulls them
+>   under `decks[].gamePlan`. **Read before you push** — it replaces the whole document.
+> - Migration `003` is applied. The nightly backup carries `gameplans`.
+>
+> ### Decks this session
+>
+> | Deck | Change |
+> |---|---|
+> | Viktor | Cruel Patron ×2 → Keeper of Law ×2. Sideboard rebuilt as one pair per archetype. **Control means tempo, not holding** — its `slow-hold` plan's [Tank] alarms are not findings |
+> | Kai'Sa | Brynhir ×3 main; Brittle Steel and Time Warp out. Thermo Beam ×2 + Firestorm ×2 for Azir |
+> | Log | +5 matches: Viktor 0-2 Ornn (misplay + variance), Kai'Sa 3–1 (lost 0-2 to Azir) |
+>
+> ⚠️ `push-deck --replace` resets a deck to **DRAFT**, which frees its cards in the pool. This
+> session put Viktor and Kai'Sa back to BUILT by hand after every push. Worth fixing.
+>
+> ### Next, in order
+>
+> 1. **Rengar is illegal — 39 cards.** `Kai'Sa, Survivor` left it on 20 Sep and was never replaced
+> 2. **Confirm or edit the `draft` lines** in Viktor's and Kai'Sa's game plans
+> 3. Game plans for Ahri, Fiora, Ambessa
+> 4. Viktor's stored plan objective (`hold`) is wrong by his own account and should be restated
+>
+> ---
+>
+> ## Previously — the record is readable at last, and `engine 0` was never about the decks
 >
 > Three of the five items left on the previous list are done. The two that remain are both
 > yours: **play them**, and **make the Kai'Sa swap in the app**.
@@ -793,7 +831,7 @@ system map and **where to put a new idea**.
 | [`docs/roadmap.html`](docs/roadmap.html) | The same roadmap, rendered. Download and open in a browser |
 | [**`docs/spec/OVERVIEW.md`**](docs/spec/OVERVIEW.md) | **System map — how everything relates, and where new ideas go. Read before adding a feature.** |
 | [`docs/PLAN.md`](docs/PLAN.md) | The detail layer — gates, "done when", validation and risks |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 66 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 67 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
 | [**`docs/EE-BRIEFING.md`**](docs/EE-BRIEFING.md) | **What binds EE when it answers — the answer budget, the tiering, and "never author a number". Read before asking it anything.** |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
 | [**`docs/ARCHITECTURE.md`**](docs/ARCHITECTURE.md) | **How it's built — stack, hosting, verified £0/month cost, and what's ruled out. Read before writing code.** |

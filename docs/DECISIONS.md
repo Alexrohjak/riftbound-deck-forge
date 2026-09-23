@@ -75,6 +75,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-064](#d-064) | **A deck is built to a plan** — and measured against it, not against universal thresholds | ✅ |
 | [D-065](#d-065) | **Tokens are read off printed text, not off a token registry** — four of eleven were never printed | ✅ |
 | [D-066](#d-066) | **A match records the shape of the table** — `1v1` / `1v1v1` / `2v2`, and formats are never pooled into one rate | ✅ |
+| [D-067](#d-067) | **A deck carries a game plan** — battlefield picks, sideboard swaps per matchup and play-arounds, every sentence voiced, and the record on each matchup | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -2879,3 +2880,57 @@ in the system that cannot be reconstructed from anything else.
 | Refuse to log non-`1v1` games at all | The notes are irreplaceable and decay within a day. The record is not only its rates |
 | A combined "all formats" rate as well | The number nobody should read, offered next to the ones they should |
 | Extend EE's advice to pods | `threats`, `sideboard` and the plan yardsticks are heads-up doctrine end to end. Recording a format is not modelling one, and pretending otherwise is how the deck would get worse |
+
+<a id="d-067"></a>
+
+## D-067 — A deck carries a **game plan**, and every sentence in it says who said it
+
+**Date:** 2026-09-23
+**Status:** Accepted — adds `gameplans` (migration `003`), `packages/engine/src/gameplan/`, the
+`/decks/:id/gameplan` route, the **Game plan** view, and `npm run gameplan`
+
+### What prompted it
+
+> *"I just want us to come up with a sort of game plan with the forge. As in a new tab for the
+> decks, where we discuss the order to play battlefields, what cards to sub out for certain
+> matchups, how to play around weaknesses etc."*
+
+The same session had just built two sideboards by hand. Viktor's got one pair of cards per
+archetype, and Kai'Sa's got Thermo Beam back after an 0-2 against Azir. Each swap was worked out
+from `threats`, `sideboard`, `counter` and the Legend guide, **and then existed only in the
+transcript.** The sideboard zone records *which* ten cards; nothing recorded what each is *for*,
+what it replaces, or which battlefield to pick alongside it. Kai'Sa's Thermo Beam had been cut
+two days earlier for exactly that reason: a card with no written job looks like a spare.
+
+### What was decided
+
+1. **One document per deck, in its own table**, cascading with the deck the way the bench does.
+   It describes that forty and no other. The nightly backup carries it, because it is prose
+   written after a loss, and nothing else in the snapshot could rebuild it
+   ([the `plan` column was missed for five weeks](#d-064)).
+2. **Shape is validated on write; fit is never enforced.** `validateGamePlan` refuses a
+   malformed plan in the Worker and in `push-gameplan` alike (D-047). `checkGamePlan` reports a
+   swap naming a card that has since left the sideboard, or a swap that is not one for one
+   (TR 403.4). It is shown on the matchup and **never blocks a save**, because a plan that
+   cannot be saved cannot be fixed.
+3. **Every sentence carries a voice.** `ours` is what he decided, `draft` is what Claude proposed
+   and he has not confirmed, `guide` is LEGEND-GUIDE doctrine, and `forge` is computed. Editing a
+   line makes it `ours`. `draft` exists because plans are seeded in conversation, and labelling
+   an unexamined suggestion `ours` would put it under the strongest badge on the page.
+4. **Matchups are keyed by Legend or by archetype.** Sideboards are built against *kinds* of deck
+   and played against Legends, and both are real questions.
+5. **The record sits on the matchup**, through `read()`, so the thresholds are the log's own:
+   a 2-0 shows two games and no rate. Legends faced with no plan are listed at the top of the
+   section. **This is half of `G7`**: the record now says where the plan is missing, instead of
+   a human carrying it across.
+
+### What was rejected
+
+| Alternative | Why not |
+|---|---|
+| A `gameplan` column on `decks` | The deck `PUT` is autosave and fires on every edit; a second writer to the same row is how one silently overwrites the other |
+| Refuse a plan whose swaps no longer fit | Makes the page uneditable at the moment the deck has moved on, which is when it most needs editing |
+| One matchup per Legend only | Viktor's sideboard is built per archetype, since Mind/Order has no counterspell and the pairs answer kinds of deck |
+| Computing matchup swaps live from `sideboard` | Its reading is domain-level and generic; the swaps worth keeping were the ones a conversation decided, with a reason attached |
+| Showing a win rate per matchup | Four games is the `n=4` error in a new place. The log's thresholds apply unchanged |
+

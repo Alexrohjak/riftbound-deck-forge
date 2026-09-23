@@ -60,6 +60,11 @@ const decks = query(
   "SELECT id, name, state, legend_card_id, chosen_champion_card_id, plan FROM decks ORDER BY updated_at DESC;",
 );
 const slots = query("SELECT deck_id, card_id, zone, quantity FROM deck_slots;");
+// D-067 — how to pilot each deck. Read here so a session starts knowing what was decided at the
+// table, rather than re-deriving a sideboard plan the last one already wrote down.
+const gameplans = Object.fromEntries(
+  query("SELECT deck_id, body FROM gameplans;").map((r) => [r.deck_id, r.body]),
+);
 const matches = query(
   "SELECT id, deck_id, deck_name, deck_hash, played_at, format, opponent_legend, " +
     "opponent_note, result, games, symptoms, notes FROM matches " +
@@ -89,6 +94,16 @@ function readPlan(text) {
   }
 }
 
+/** Same rule as `readPlan`: unreadable text is kept, never dropped. */
+function readGamePlan(text) {
+  if (text === null || text === undefined) return {};
+  try {
+    return { gamePlan: JSON.parse(text) };
+  } catch {
+    return { gamePlanRaw: text };
+  }
+}
+
 const state = {
   schema: "forge.state/1",
   takenAt: new Date().toISOString(),
@@ -107,6 +122,7 @@ const state = {
     legendCardId: d.legend_card_id,
     chosenChampionCardId: d.chosen_champion_card_id,
     ...readPlan(d.plan),
+    ...readGamePlan(gameplans[d.id]),
     slots: slots
       .filter((s) => s.deck_id === d.id)
       .map((s) => ({ cardId: s.card_id, zone: s.zone, quantity: s.quantity })),
@@ -135,6 +151,7 @@ const free = writeFreePool(state);
 const tally = tallyMatchLog(log);
 
 const planned = state.decks.filter((d) => d.plan !== undefined || d.planRaw !== undefined).length;
+const piloted = state.decks.filter((d) => d.gamePlan !== undefined || d.gamePlanRaw !== undefined).length;
 
 /**
  * ⚠️ **Zero matches is not an error.** An empty collection is refused above because it makes
@@ -143,7 +160,7 @@ const planned = state.decks.filter((d) => d.plan !== undefined || d.planRaw !== 
  */
 process.stdout.write(
   `${OUT}\n  ${state.collection.totals.printings} printings · ${state.collection.totals.copies} copies · ` +
-    `${state.decks.length} deck(s), ${planned} with a stated plan\n` +
+    `${state.decks.length} deck(s), ${planned} with a stated plan, ${piloted} with a game plan\n` +
     `${FREE_OUT}\n  ${free.totals.printings} printings · ${free.totals.copies} copies free · ` +
     `${free.totals.committedCopies} in sleeves\n` +
     `${LOG_OUT}\n  ${log.length} match(es)` +

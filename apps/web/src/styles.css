@@ -1771,3 +1771,62 @@ body.resizing * { pointer-events: none; }
   border-left: 3px solid var(--accent);
 }
 .guiderail.sideboarding b { color: var(--accent); }
+
+/* ── the game plan (D-067) ────────────────────────────────────────────────────
+   How to pilot the deck. Every sentence carries who said it: `ours` is solid accent because
+   it is the strongest claim on the page, `draft` is the same colour dashed — a suggestion
+   waiting on you — `guide` is dotted like doctrine, `forge` is plain mono like a count. */
+.panel.plan h2 { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s3); }
+.panel.plan h3 { margin: var(--s3) 0 var(--s1); font-size: 0.82rem; color: var(--dim); }
+.panel.plan h4 {
+  margin: var(--s2) 0 var(--s1); font-size: 0.7rem; color: var(--dim);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.plan-notes { margin: 0; padding-left: var(--s4); display: grid; gap: var(--s1); }
+.plan-notes li { font-size: 0.86rem; line-height: 1.45; }
+.badge.voice-ours { border-color: var(--accent); color: var(--accent); }
+.badge.voice-draft { border-style: dashed; border-color: var(--accent); color: var(--dim); }
+.badge.voice-guide { border-style: dotted; }
+.badge.voice-forge { font-family: var(--mono); }
+
+.plan-fields { margin: 0; padding-left: var(--s4); display: grid; gap: var(--s2); }
+.plan-fields .chip { margin-left: var(--s2); font-size: 0.64rem; padding: 0 var(--s2); }
+.plan-fields .said { margin: var(--s1) 0 0; font-size: 0.8rem; color: var(--dim); }
+
+.matchup { border-top: 1px solid var(--line); padding: var(--s3) 0; }
+.matchup:first-of-type { border-top: 0; }
+.matchup header { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--s2) var(--s3); }
+.panel.plan .matchup header h3 { margin: 0; font-size: 0.95rem; color: var(--ink); }
+.matchup header .ghost { margin-left: auto; }
+.matchup .field-pick { margin: var(--s2) 0 0; font-size: 0.84rem; }
+.swaps { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s3); }
+.swaps ul { margin: 0; padding: 0; list-style: none; font-size: 0.84rem; }
+.swaps .qty { font-family: var(--mono); color: var(--dim); }
+.unplanned { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2); margin-bottom: var(--s3); }
+.unplanned p { margin: 0; font-size: 0.8rem; width: 100%; }
+
+.weaknesses { margin: 0; display: grid; gap: var(--s3); }
+.weaknesses dt { font-size: 0.86rem; color: var(--ink); }
+.weaknesses dd { margin: var(--s1) 0 0; font-size: 0.82rem; color: var(--dim); line-height: 1.45; }
+
+.plan-edit { display: grid; gap: var(--s3); }
+.plan-edit label { display: grid; gap: var(--s1); font-size: 0.76rem; color: var(--dim); flex: 1; }
+.plan-edit input, .plan-edit textarea, .plan-edit select {
+  padding: var(--s2) var(--s3); border-radius: var(--radius-sm); min-width: 0;
+  background: var(--sunk); color: var(--ink); border: 1px solid var(--line); font: inherit; font-size: 0.84rem;
+}
+.plan-edit .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
+.plan-edit .field-row input { flex: 1; }
+.swap-edit { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: var(--s2); display: grid; gap: var(--s2); min-width: 0; }
+.swap-edit legend { font-size: 0.72rem; color: var(--dim); padding: 0 var(--s1); }
+.swap-edit .row span { flex: 1; font-size: 0.84rem; }
+.weakness-edit { display: grid; gap: var(--s1); padding-bottom: var(--s2); border-bottom: 1px solid var(--line); }
+.weakness-edit .ghost { justify-self: start; }
+/* ⚠️ Not `.ghost.tiny` — that is the bench's absolutely-positioned, invisible-until-hover
+   remove button, and borrowing it hid every edit control on this page. */
+.ghost.plan-btn { font-size: 0.7rem; padding: 1px var(--s2); text-transform: none; letter-spacing: 0; }
+.ghost.danger:hover { color: var(--alert); border-color: var(--alert); }
+
+@media (max-width: 40rem) {
+  .swaps { grid-template-columns: 1fr; }
+}
