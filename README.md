@@ -46,7 +46,50 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 *Last worked on 2026-09-23. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
 
-> ## 🎯 Pick this up here — every deck has a **Game plan** tab now, and two are filled in
+> ## 🎯 Pick this up here — the field is in, and the Game plan tab shows it
+>
+> ### What shipped ([D-068](docs/DECISIONS.md#d-068) step 2)
+>
+> `data/field.json`: a dated, attributed snapshot of **Vendetta post-ban**, the window since the
+> 18 Sep ban. It holds BoundRift's Legend-vs-Legend matrix (502 pairings, 13,215 games) and
+> Hextech's Snapshot 7 tiers for all 48 Legends. The Game plan tab opens with **In the field**:
+> the Legend's field record, how often you meet it, its tier, and **the five Legends that cost it
+> the most games**. That ranking is field losses weighted by how often you meet each one, and
+> any Legend without a plan gets a "+ plan" button. Every matchup card now shows the field
+> figure beside your own record.
+>
+> - **Under 20 games is a record, never a rate.** That is BoundRift's own cut, checked on the
+>   page. Under 5, BoundRift publishes nothing, and the card says *unpublished*, not *bad*.
+> - **Re-reading the field:** capture the page into `data/field/*.txt`, edit the window and
+>   sources at the top of `scripts/build-field.mjs`, then run `node scripts/build-field.mjs`. It
+>   **refuses a matrix that is not its own mirror**. A new ban or set means a new window.
+> - `field` is now a voice, for game-plan lines that quote the field.
+>
+> ### What it says about your decks
+>
+> | Deck | Field | Costs it the most |
+> |---|---|---|
+> | Viktor | 54% · tier C | **Rengar 11–35 (24%)**, then Azir 17–31 (35%) |
+> | Kai'Sa | 44% · tier B | **Irelia 7–22 (24%)**, Rengar 8–16, Jayce 10–21 |
+> | Rengar | 55% · tier A | Jayce 38–91 (29%), Irelia 67–95 (41%) |
+> | Fiora | 47% · tier B | LeBlanc, Irelia, Rengar, all 35–38% |
+>
+> Ahri and Ambessa are both 27% in the field on 63 and 237 games.
+>
+> ### Next, in order
+>
+> 0. **Rengar is illegal — 39 cards.** `Kai'Sa, Survivor` left it on 20 Sep and was never replaced
+> 1. **Plan Viktor vs Rengar and Kai'Sa vs Irelia.** They are the worst field matchups either
+>    deck has, and neither has a card yet
+> 2. **D-068 step 3: the decklist corpus.** Official top 8s plus BoundRift decks, for per-Legend
+>    inclusion rates and measured package counts. **Email `info@boundrift.com` about their
+>    partner API** before scaling this up
+> 3. Confirm or edit the `draft` lines in Viktor's and Kai'Sa's game plans
+> 4. Game plans for Ahri, Fiora, Ambessa; restate Viktor's plan objective (`hold` → tempo)
+>
+> ---
+>
+> ## Previously — every deck has a **Game plan** tab now, and two are filled in
 >
 > ### What shipped ([D-067](docs/DECISIONS.md#d-067))
 >

@@ -1,6 +1,6 @@
 # Data
 
-Cached game data. **Everything here is derived from official Riot sources** and is
+Cached game data. **Everything here except `field.json` is derived from official Riot sources** and is
 regenerable — nothing is hand-authored except `banlist.json` and (later) errata.
 
 | File | Contents | Source |
@@ -8,6 +8,7 @@ regenerable — nothing is hand-authored except `banlist.json` and (later) errat
 | `cards.json` | **All 1,180 printings / 935 distinct names**, full rules text and effect text | Riot's official card gallery |
 | `classification.json` | Per-card derived tags — role, timing, produces, consumes, curve position | Computed from `cards.json` |
 | `banlist.json` | Banned cards, battlefields and legends, with the name-alias map | [Rules Hub](https://playriftbound.com/en-us/rules-hub/), hand-maintained |
+| `field.json` | **What the tournament field plays** — Legend matchup matrix and tiers, for one dated window | BoundRift + Hextech, captured into `field/*.txt` and built by `scripts/build-field.mjs` ([D-068](../docs/DECISIONS.md#d-068)). **Not Riot data** — attributed, and only from sources the register allows |
 
 ## Why this is cached in the repo
 

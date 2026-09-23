@@ -1,0 +1,48 @@
+1|S|Jayce, Defender of Tomorrow
+2|S|Master Yi, Wuju Bladesman
+3|A|Rengar, Pridestalker
+4|A|LeBlanc, Deceiver
+5|A|Azir, Emperor of the Sands
+6|A|Kennen, Heart of the Tempest
+7|B|Rek'Sai, Void Burrower
+8|B|Irelia, Blade Dancer
+9|B|Akali, Rogue Assassin
+10|B|Fiora, Grand Duelist
+11|B|Diana, Scorn of the Moon
+12|B|Kai'Sa, Daughter of the Void
+13|B|Nasus, Curator of the Sands
+14|B|Ornn, Fire Below the Mountain
+15|C|Viktor, Herald of the Arcane
+16|C|Lillia, Bashful Bloom
+17|C|Vex, Gloomist
+18|C|Lucian, Purifier
+19|C|Ezreal, Prodigal Explorer
+20|C|Draven, Glorious Executioner
+21|C|Ambessa, Matriarch of War
+22|C|Kha'Zix, Voidreaver
+23|C|Mel, Soul's Reflection
+24|C|Master Yi, Wuju Master
+25|C|Shen, Eye of Twilight
+26|C|Volibear, Relentless Storm
+27|C|Sivir, Battle Mistress
+28|C|Zed, Master of Shadows
+29|D|Ivern, Green Father
+30|D|Lux, Lady of Luminosity
+31|D|Vi, Piltover Enforcer
+32|D|Rumble, Mechanized Menace
+33|D|Jax, Grandmaster at Arms
+34|D|Pyke, Bloodharbor Ripper
+35|D|Renekton, Butcher of the Sands
+36|D|Poppy, Keeper of the Hammer
+37|D|Jhin, Virtuoso
+38|D|Renata Glasc, Chem-Baroness
+39|D|Sett, The Boss
+40|D|Leona, Radiant Dawn
+41|D|Annie, Dark Child
+42|D|Ahri, Nine-Tailed Fox
+43|D|Teemo, Swift Scout
+44|D|Miss Fortune, Bounty Hunter
+45|D|Yasuo, Unforgiven
+46|D|Lee Sin, Blind Monk
+47|D|Jinx, Loose Cannon
+48|D|Darius, Hand of Noxus

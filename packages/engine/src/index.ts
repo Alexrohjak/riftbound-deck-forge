@@ -232,6 +232,22 @@ export {
   type Weakness,
 } from "./gameplan/gameplan.js";
 
+/** What other people play and win with — a dated, attributed snapshot, never a feed (D-068). */
+export {
+  FIELD_MIN_FOR_RATE,
+  PRESSURE_BUDGET,
+  pressure,
+  readField,
+  validateField,
+  type FieldLegend,
+  type FieldPairing,
+  type FieldReader,
+  type FieldSnapshot,
+  type FieldSource,
+  type FieldWindow,
+  type Pressure,
+} from "./field/field.js";
+
 /**
  * `S5` — deck generation. The engine assembles the constraints and refuses a bad answer;
  * choosing the cards is the caller's job, whichever mouth it is using (D-043).

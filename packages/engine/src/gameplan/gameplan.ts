@@ -23,8 +23,11 @@ import type { CardIndex, Deck } from "../types.js";
  * conversation, and a line Claude proposed that you never confirmed is not `ours` — labelling
  * it so would put an unexamined opinion under the strongest badge on the page. Editing a line
  * makes it `ours`.
+ *
+ * `field` is what the tournament field does (D-068) — the average list, not his — and a line in
+ * that voice should say how many games stand behind it.
  */
-export const VOICES = ["ours", "draft", "guide", "forge"] as const;
+export const VOICES = ["ours", "draft", "guide", "forge", "field"] as const;
 export type Voice = (typeof VOICES)[number];
 
 export interface PlanNote {

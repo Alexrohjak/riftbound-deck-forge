@@ -14,6 +14,7 @@ import {
 } from "@forge/engine";
 import type { Card, CardPool } from "./cards.js";
 import { Record as Standing } from "./Log.js";
+import { disagreement, FieldPanel, FieldStanding, useField } from "./Field.js";
 
 /**
  * How to pilot this deck (D-067) — battlefield picks, what to side in against whom, and what
@@ -32,6 +33,7 @@ const VOICE: Record<Voice, { label: string; hint: string }> = {
   draft: { label: "draft", hint: "Suggested by Claude and not yet confirmed. Edit it to make it yours." },
   guide: { label: "guide", hint: "From the Legend guide. Doctrine, and players disagree." },
   forge: { label: "forge", hint: "Computed by Forge from the list. A count, not advice." },
+  field: { label: "field", hint: "What the tournament field does — the average list, not yours." },
 };
 
 export function useGamePlan(deckId: string) {
@@ -140,6 +142,11 @@ export function GamePlanPanel({
     () => (plan && matches ? planRecord(plan, matches, nameOf) : null),
     [plan, matches, nameOf],
   );
+  const field = useField(nameOf);
+  const planned = useMemo(
+    () => new Set((plan?.matchups ?? []).flatMap((m) => (m.legendCardId ? [nameOf(m.legendCardId) ?? m.legendCardId] : []))),
+    [plan, nameOf],
+  );
 
   const commit = async (next: GamePlan) => {
     setProblem(null);
@@ -160,6 +167,16 @@ export function GamePlanPanel({
 
   return (
     <>
+      {field && (
+        <FieldPanel
+          field={field}
+          legendCardId={deck.legendCardId}
+          planned={planned}
+          nameOf={nameOf}
+          onPlan={(id) => edit(`new:${id}`)()}
+          disabled={editing !== null}
+        />
+      )}
       <section className="panel plan">
         <h2>
           How it wins
@@ -294,12 +311,19 @@ export function GamePlanPanel({
                 <h3>{m.legendCardId ? name(m.legendCardId) : m.archetype}</h3>
                 {m.legendCardId && m.archetype && <span className="dim">{m.archetype}</span>}
                 {record?.byMatchup.get(m.id) && <Standing standing={record.byMatchup.get(m.id)!} />}
+                {field && m.legendCardId && (
+                  <FieldStanding standing={field.pairing(deck.legendCardId, m.legendCardId)} />
+                )}
                 {editing === null && (
                   <button type="button" className="ghost plan-btn" onClick={edit(m.id)}>
                     edit
                   </button>
                 )}
               </header>
+              {field && m.legendCardId && (() => {
+                const said = disagreement(record?.byMatchup.get(m.id), field.pairing(deck.legendCardId, m.legendCardId));
+                return said && <p className="said">{said}<Voiced voice="forge" /></p>;
+              })()}
               {m.battlefield && (
                 <p className="field-pick">
                   <span className="dim">Battlefield</span> <b>{name(m.battlefield.cardId)}</b>

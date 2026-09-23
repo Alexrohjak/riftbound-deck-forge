@@ -1788,6 +1788,13 @@ body.resizing * { pointer-events: none; }
 .badge.voice-draft { border-style: dashed; border-color: var(--accent); color: var(--dim); }
 .badge.voice-guide { border-style: dotted; }
 .badge.voice-forge { font-family: var(--mono); }
+.badge.voice-field { border-color: var(--dim); background: var(--line); }
+.field-figure { display: inline-flex; align-items: baseline; gap: var(--s2); font-size: 0.84rem; }
+.panel.plan.field .field-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2) var(--s3); margin: 0; }
+.pressure { margin: var(--s2) 0; padding-left: 1.4em; }
+.pressure li { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2) var(--s3); padding: var(--s1) 0; font-size: 0.88rem; }
+.pressure li .chip { margin-left: auto; }
+.attribution { font-size: 0.75rem; margin-top: var(--s3); }
 
 .plan-fields { margin: 0; padding-left: var(--s4); display: grid; gap: var(--s2); }
 .plan-fields .chip { margin-left: var(--s2); font-size: 0.64rem; padding: 0 var(--s2); }
