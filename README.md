@@ -77,6 +77,10 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 >
 > ### Next, in order
 >
+> 0. **[D-068](docs/DECISIONS.md#d-068): Forge learns from the field.** Source register done
+>    (BoundRift ✅, Hextech ✅, official top-8s ✅; riftDecks, RiftMana and riftbound.gg block
+>    Claude and are out). **Next is step 2**, the field snapshot. **He could email
+>    `info@boundrift.com` about their partner API**, which is the durable route
 > 1. **Rengar is illegal — 39 cards.** `Kai'Sa, Survivor` left it on 20 Sep and was never replaced
 > 2. **Confirm or edit the `draft` lines** in Viktor's and Kai'Sa's game plans
 > 3. Game plans for Ahri, Fiora, Ambessa
@@ -831,7 +835,7 @@ system map and **where to put a new idea**.
 | [`docs/roadmap.html`](docs/roadmap.html) | The same roadmap, rendered. Download and open in a browser |
 | [**`docs/spec/OVERVIEW.md`**](docs/spec/OVERVIEW.md) | **System map — how everything relates, and where new ideas go. Read before adding a feature.** |
 | [`docs/PLAN.md`](docs/PLAN.md) | The detail layer — gates, "done when", validation and risks |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 67 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 68 decisions with alternatives and rationale — including five reversals and one vendor-forced amendment |
 | [**`docs/EE-BRIEFING.md`**](docs/EE-BRIEFING.md) | **What binds EE when it answers — the answer budget, the tiering, and "never author a number". Read before asking it anything.** |
 | [`docs/DISCOVERY.md`](docs/DISCOVERY.md) | Problem, scope, users, non-goals |
 | [**`docs/ARCHITECTURE.md`**](docs/ARCHITECTURE.md) | **How it's built — stack, hosting, verified £0/month cost, and what's ruled out. Read before writing code.** |

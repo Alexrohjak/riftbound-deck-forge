@@ -76,6 +76,7 @@ if a decision is reversed, add a new entry rather than editing the old one.
 | [D-065](#d-065) | **Tokens are read off printed text, not off a token registry** — four of eleven were never printed | ✅ |
 | [D-066](#d-066) | **A match records the shape of the table** — `1v1` / `1v1v1` / `2v2`, and formats are never pooled into one rate | ✅ |
 | [D-067](#d-067) | **A deck carries a game plan** — battlefield picks, sideboard swaps per matchup and play-arounds, every sentence voiced, and the record on each matchup | ✅ |
+| [D-068](#d-068) | **Forge learns from the field** — tournament aggregates as a dated, attributed snapshot under their own `field` voice; only from sources whose terms allow it, and never by getting around a block | ✅ |
 
 > **Reading order for someone new:** [D-034](#d-034) and [D-035](#d-035) establish where data and rules come from; [D-032](#d-032) fixes the rules scope; [D-013](#d-013), [D-017](#d-017), [D-026](#d-026) define the collection model; [D-016](#d-016) and [D-022](#d-022) define what the tool claims to know.
 
@@ -2933,4 +2934,86 @@ two days earlier for exactly that reason: a card with no written job looks like 
 | One matchup per Legend only | Viktor's sideboard is built per archetype, since Mind/Order has no counterspell and the pairs answer kinds of deck |
 | Computing matchup swaps live from `sideboard` | Its reading is domain-level and generic; the swaps worth keeping were the ones a conversation decided, with a reason attached |
 | Showing a win rate per matchup | Four games is the `n=4` error in a new place. The log's thresholds apply unchanged |
+
+<a id="d-068"></a>
+
+## D-068 — Forge learns from **the field**, and only from sources that allow it
+
+**Date:** 2026-09-23
+**Status:** Accepted — design and source register. Step 2 (the field snapshot) is next; nothing
+is ingested yet
+
+### What prompted it
+
+> *"Now you realised there are real data available so what I want is for you to create a sort
+> of algorithm to scour all the data you have access to fuel the game engine to become more
+> intelligent. It needs to understand the game and the tiers and the interactions for both
+> planning and deck building."*
+
+Every package target in every plan still reads *"⚠️ Interpolated — no source gives package
+counts for this shape"*, and every matchup read is **domain-level**: `counter` says what a
+Legend's two domains *can* field, never what anyone plays (D-035, *"no meta data exists"*).
+That was true when D-035 was written. **It is no longer true.** One BoundRift page holds a
+Legend-vs-Legend matrix over 14,083 tournament games since the last ban, and it contradicted
+one conclusion the same day: Kai'Sa beats Azir 58% across 31 field games, while he went 0-2.
+
+### The source register
+
+Checked on 2026-09-23. `robots.txt` was read for each site, and the terms page where one
+exists. **This table is the gate:** a source that is not `✅` here is not ingested, whatever
+it holds.
+
+| Source | Holds | robots.txt | Terms | Verdict |
+|---|---|---|---|---|
+| **BoundRift** | Legend matchup matrix, tiers, meta trends, card stats, decks | Allows `/`; disallows `/partners/api`, `/ingest` | Stats *"may be referenced with attribution"*; only limit is traffic that degrades the service | ✅ **Primary.** Low-volume snapshots with attribution. **Ask `info@boundrift.com` about the partner API**; that is the durable route |
+| **Hextech Analytics** | Editorial tier snapshots (representation, Top 8s, wins) | Allows `/`; disallows `/api/` | None published | ✅ Snapshot pages only, attributed, never `/api/` |
+| **playriftbound.com** (official) | Top-8 decklists from Regional Qualifiers | Allows `/` | Riot's | ✅ Small, authoritative decklist corpus |
+| **Rift Watcher** | Legend win rate and play rate, top cards (2,503 decks) | Allows `/` | *"Please do not copy whole pages or datasets"* | ⚠️ **Reference, never ingest.** A figure may be cited by hand; the dataset may not be copied |
+| **Riftbound Stats** | Tier list and win rates | Allows `/`; disallows `/api/` | Forbids systematic retrieval *"to create or compile a collection… database… without written permission"* | ❌ **Unless he gets written permission** |
+| **riftDecks** | 93k decks, 2,378 events, 147k-match matrix | **Disallows `anthropic-ai` and `Claude-Web`**; forbids competing services | — | ❌ **Excluded.** It also returns 403 to plain fetches |
+| **RiftMana** | Tournament decks | **Disallows `anthropic-ai` and `Claude-Web`** | — | ❌ Excluded |
+| **riftbound.gg** | Tier list, guides | **Disallows `anthropic-ai` and `Claude-Web`** | — | ❌ Excluded. Its guide prose was read by hand in earlier sessions; that stops |
+| **Riftools** | Meta pages, tournament decklists | Explicitly allows `ClaudeBot` | *"Do not… scrape aggressively"* | ⚠️ **Its own meta pages only.** Its tournament pages are riftDecks pages passed through (the `t=` parameter base64-decodes to a riftDecks URL), and riftDecks names Riftools as not allowed to scrape it |
+| **UVS event locator** (official) | Players, pairings, standings | No robots file | None linked | ❌ **No Legends or decklists, and full of player names.** None of the deck data we need, and personal data we have no use for |
+
+### What was decided
+
+1. **The field is a snapshot, not a feed.** A dated file (`field.json`, beside `cards.json`)
+   records the source, the window (e.g. *Vendetta post-ban*), the retrieval date and the game
+   count for every figure. **A ban or a new set starts a new window**; figures are never pooled
+   across one, for the same reason formats are never pooled (D-066).
+2. **Collected outside the engine, read by it.** Collection is Claude reading a page at a
+   human pace, then a script normalising what was read. The engine only reads the file,
+   so it stays pure (D-047) and every read is reproducible.
+3. **A new voice: `field`.** It sits beside `ours`, `draft`, `guide` and `forge` in the game
+   plan (D-067), and it is also a claim tier in `review`. It always carries its game count,
+   and **the log's thresholds apply to it unchanged**: under 20 games a pairing shows its
+   record, never a rate. That is BoundRift's own rule too.
+4. **The field describes the average deck, not his.** Keyed by champion or Legend, never by
+   exact list. When his record and the field disagree, both are shown. That disagreement is
+   the most useful thing on the page, not a conflict to resolve.
+5. **Never around a block.** A 403, a robots `Disallow` naming Claude, or a terms clause against
+   compilation ends it, and the source goes to the register as `❌`. **Asking the owner is always
+   the next move.** He sends that message; Claude cannot.
+6. **Card win rates are correlation.** A card that appears in winning lists is played by
+   stronger players too. It enters as `field`, never as `forge`, and never as a cause.
+
+### What it feeds, in order
+
+| Step | Data | Consumer |
+|---|---|---|
+| 2 | Tiers + meta share + matchup matrix | Game plan matchup cards (field win rate beside his record); coverage ranked by meta share × how badly he does against each Legend |
+| 3 | Decklist corpus (official top 8s, BoundRift decks) | Per-Legend card inclusion rates and typical copy counts, **which cards appear together**, measured package counts replacing the interpolated ones, and a field-aware `ask`/`brief`/wishlist |
+| 4 | Card stats, sideboard patterns | `sideboard` suggestions weighted by what the field sides in, where published |
+
+### What was rejected
+
+| Alternative | Why not |
+|---|---|
+| Scrape everything, sort out permission later | Three of the richest sources name Anthropic's crawlers in `Disallow`. Building on them makes Forge depend on something it was told not to take |
+| Headless browser to get past riftDecks' 403 | Circumvention. It is also the most fragile possible integration |
+| Riftools' tournament pages as a proxy for riftDecks | The same data by a side door, against riftDecks' stated wishes |
+| The official locator as the primary source | No decks, no Legends, and every row is a person |
+| Blending field win rates into one "strength" score with his record | Averages a thousand strangers with his six games, and hides the disagreement that is the point |
+| Letting the field *grade* a deck | D-016. The field informs choices and flags gaps; it does not issue a verdict |
 
