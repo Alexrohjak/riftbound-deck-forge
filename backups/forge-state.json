@@ -1,6 +1,6 @@
 {
  "schema": "forge.backup/2",
- "takenAt": "2026-09-23T03:12:45.157Z",
+ "takenAt": "2026-09-24T03:12:27.051Z",
  "collection": {
   "schema": "forge.collection/1",
   "totals": {
@@ -1332,7 +1332,7 @@
     {
      "cardId": "ogn-026-298",
      "zone": "MAIN",
-     "quantity": 1
+     "quantity": 3
     },
     {
      "cardId": "ogn-029-298",
@@ -1370,11 +1370,6 @@
      "quantity": 2
     },
     {
-     "cardId": "ogn-122-298",
-     "zone": "MAIN",
-     "quantity": 1
-    },
-    {
      "cardId": "sfd-021-221",
      "zone": "MAIN",
      "quantity": 2
@@ -1395,11 +1390,6 @@
      "quantity": 2
     },
     {
-     "cardId": "ven-003-166",
-     "zone": "MAIN",
-     "quantity": 1
-    },
-    {
      "cardId": "ven-066-166",
      "zone": "MAIN",
      "quantity": 3
@@ -1415,7 +1405,7 @@
      "quantity": 6
     },
     {
-     "cardId": "ogn-026-298",
+     "cardId": "ogn-022-298",
      "zone": "SIDEBOARD",
      "quantity": 2
     },
@@ -1425,7 +1415,17 @@
      "quantity": 1
     },
     {
+     "cardId": "ogn-085-298",
+     "zone": "SIDEBOARD",
+     "quantity": 1
+    },
+    {
      "cardId": "ogn-114-298",
+     "zone": "SIDEBOARD",
+     "quantity": 1
+    },
+    {
+     "cardId": "ogn-122-298",
      "zone": "SIDEBOARD",
      "quantity": 1
     },
@@ -1435,19 +1435,14 @@
      "quantity": 1
     },
     {
+     "cardId": "ogs-002-024",
+     "zone": "SIDEBOARD",
+     "quantity": 2
+    },
+    {
      "cardId": "ven-003-166",
      "zone": "SIDEBOARD",
      "quantity": 1
-    },
-    {
-     "cardId": "ven-012-166",
-     "zone": "SIDEBOARD",
-     "quantity": 2
-    },
-    {
-     "cardId": "ven-061-166",
-     "zone": "SIDEBOARD",
-     "quantity": 2
     }
    ]
   },
@@ -1575,27 +1570,27 @@
      "quantity": 7
     },
     {
-     "cardId": "ogn-085-298",
+     "cardId": "ogn-229-298",
      "zone": "SIDEBOARD",
      "quantity": 2
     },
     {
-     "cardId": "ogn-087-298",
-     "zone": "SIDEBOARD",
-     "quantity": 3
-    },
-    {
-     "cardId": "unl-070-219",
+     "cardId": "sfd-160-221",
      "zone": "SIDEBOARD",
      "quantity": 2
     },
     {
-     "cardId": "unl-169-219",
+     "cardId": "unl-072-219",
      "zone": "SIDEBOARD",
-     "quantity": 1
+     "quantity": 2
     },
     {
-     "cardId": "ven-131-166",
+     "cardId": "unl-159-219",
+     "zone": "SIDEBOARD",
+     "quantity": 2
+    },
+    {
+     "cardId": "ven-132-166",
      "zone": "SIDEBOARD",
      "quantity": 2
     }
@@ -1911,6 +1906,81 @@
    "symptoms": "[\"run-over-early\",\"cannot-remove\",\"cannot-hold\",\"clunky-draws\"]",
    "notes": "Super clunky draws, pure units almost no spells and once I had them I was defied anyways. Both rounds the yasuo got super good early game, double conquering anhd being at 3 or 4 points by turn 3 pretty confidently. Didnt have many asnwers early and took a while to build up. Clunky draws for sure.",
    "logged_at": "2026-09-01 21:51:26",
+   "format": "1v1"
+  },
+  {
+   "id": "mue0hochgphb6",
+   "deck_id": "dmua5jn1pil34",
+   "deck_name": "Viktor — Herald of the Arcane",
+   "deck_hash": "618251a34c8fd9c3",
+   "played_at": "2026-09-22",
+   "opponent_legend": "sfd-189-221",
+   "opponent_note": "Ornn",
+   "result": "LOSS",
+   "games": "0-2",
+   "symptoms": "[]",
+   "notes": "First time playing it. Game 1 lost to my own misplay; game 2 was unlucky. Felt chill and in control for most of both games. Logged on 23 Sep; played with the list from before the Keeper of Law swap and the new sideboard.",
+   "logged_at": "2026-09-23 11:20:32",
+   "format": "1v1"
+  },
+  {
+   "id": "mue1pbiwy0kxv",
+   "deck_id": "dmua5ez1v4lkv",
+   "deck_name": "Kai'Sa — Daughter of the Void",
+   "deck_hash": "745a180648fdd0a6",
+   "played_at": "2026-09-22",
+   "opponent_legend": "sfd-189-221",
+   "opponent_note": "Ornn",
+   "result": "WIN",
+   "games": "2-0",
+   "symptoms": "[]",
+   "notes": "Pretty easy; he definitely had poor card draw. Felt in control all the time.",
+   "logged_at": "2026-09-23 11:54:28",
+   "format": "1v1"
+  },
+  {
+   "id": "mue1pbk5w1uai",
+   "deck_id": "dmua5ez1v4lkv",
+   "deck_name": "Kai'Sa — Daughter of the Void",
+   "deck_hash": "745a180648fdd0a6",
+   "played_at": "2026-09-22",
+   "opponent_legend": "sfd-197-221",
+   "opponent_note": "Azir — gear + Sand Soldiers",
+   "result": "LOSS",
+   "games": "0-2",
+   "symptoms": "[\"cannot-remove\"]",
+   "notes": "Horrible, felt unwinnable at all times. He kept pumping out gear and Sand Soldiers, and in one game spent about 6 Power in 2 turns and I still could not get the upper hand. Could never take control of the game.",
+   "logged_at": "2026-09-23 11:54:28",
+   "format": "1v1"
+  },
+  {
+   "id": "mue1pbldvs1fy",
+   "deck_id": "dmua5ez1v4lkv",
+   "deck_name": "Kai'Sa — Daughter of the Void",
+   "deck_hash": "745a180648fdd0a6",
+   "played_at": "2026-09-22",
+   "opponent_legend": "sfd-205-221",
+   "opponent_note": "Fiora",
+   "result": "WIN",
+   "games": "2-0",
+   "symptoms": "[]",
+   "notes": "Early game was back and forth and I was losing out, but by midgame he was out of gas while I was healthy on cards and energy, so it became easy.",
+   "logged_at": "2026-09-23 11:54:28",
+   "format": "1v1"
+  },
+  {
+   "id": "mue1pbmmegqsu",
+   "deck_id": "dmua5ez1v4lkv",
+   "deck_name": "Kai'Sa — Daughter of the Void",
+   "deck_hash": "745a180648fdd0a6",
+   "played_at": "2026-09-22",
+   "opponent_legend": "sfd-181-221",
+   "opponent_note": "Rumble",
+   "result": "WIN",
+   "games": "2-0",
+   "symptoms": "[]",
+   "notes": "Pretty easy; it was not a very optimal Rumble deck.",
+   "logged_at": "2026-09-23 11:54:28",
    "format": "1v1"
   }
  ],
@@ -3204,6 +3274,20 @@
    "at": "2026-09-22 21:37:57"
   },
   {
+   "deck_id": "dmua5jn1pil34",
+   "seq": 27,
+   "hash": "f8308f76133f9d56",
+   "contents": "{\"legendCardId\":\"ogn-308-298\",\"chosenChampionCardId\":\"ogn-246a-298\",\"slots\":[{\"cardId\":\"ogn-296-298\",\"zone\":\"BATTLEFIELD\",\"quantity\":1},{\"cardId\":\"sfd-220-221\",\"zone\":\"BATTLEFIELD\",\"quantity\":1},{\"cardId\":\"unl-210-219\",\"zone\":\"BATTLEFIELD\",\"quantity\":1},{\"cardId\":\"ogn-105-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-116-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-208-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-209-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-211-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-213-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-220-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-221-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-224-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-070-221\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"sfd-080-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-155-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-162-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-073-219\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-078-219\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-153-219\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"unl-165-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"ven-116-166\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"ogn-089-298\",\"zone\":\"RUNE\",\"quantity\":5},{\"cardId\":\"ogn-214-298\",\"zone\":\"RUNE\",\"quantity\":7},{\"cardId\":\"ogn-085-298\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"ogn-087-298\",\"zone\":\"SIDEBOARD\",\"quantity\":3},{\"cardId\":\"unl-169-219\",\"zone\":\"SIDEBOARD\",\"quantity\":1},{\"cardId\":\"ven-131-166\",\"zone\":\"SIDEBOARD\",\"quantity\":2}]}",
+   "at": "2026-09-23 11:13:08"
+  },
+  {
+   "deck_id": "dmua5jn1pil34",
+   "seq": 28,
+   "hash": "c02626d6ad459976",
+   "contents": "{\"legendCardId\":\"ogn-308-298\",\"chosenChampionCardId\":\"ogn-246a-298\",\"slots\":[{\"cardId\":\"ogn-296-298\",\"zone\":\"BATTLEFIELD\",\"quantity\":1},{\"cardId\":\"sfd-220-221\",\"zone\":\"BATTLEFIELD\",\"quantity\":1},{\"cardId\":\"unl-210-219\",\"zone\":\"BATTLEFIELD\",\"quantity\":1},{\"cardId\":\"ogn-105-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-116-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-208-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-209-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-211-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-213-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-220-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-221-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-224-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-070-221\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"sfd-080-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-155-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-162-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-073-219\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-078-219\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-153-219\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"unl-165-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"ven-116-166\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"ogn-089-298\",\"zone\":\"RUNE\",\"quantity\":5},{\"cardId\":\"ogn-214-298\",\"zone\":\"RUNE\",\"quantity\":7},{\"cardId\":\"ven-131-166\",\"zone\":\"SIDEBOARD\",\"quantity\":2}]}",
+   "at": "2026-09-23 11:13:09"
+  },
+  {
    "deck_id": "rengar-pridestalker",
    "seq": 1,
    "hash": "1bfdefa45c881604",
@@ -3594,6 +3678,18 @@
    "hash": "24f8b3047ef24224",
    "contents": "{\"legendCardId\":\"unl-183-219\",\"chosenChampionCardId\":\"unl-120a-219\",\"slots\":[{\"cardId\":\"sfd-207-221\",\"zone\":\"BATTLEFIELD\",\"quantity\":1},{\"cardId\":\"sfd-217-221\",\"zone\":\"BATTLEFIELD\",\"quantity\":1},{\"cardId\":\"unl-215-219\",\"zone\":\"BATTLEFIELD\",\"quantity\":1},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-024-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-027a-298\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"ogn-129-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-132-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-136-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"sfd-025-221\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"unl-002-219\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-003-219\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"unl-021-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-024a-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-028a-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-097-219\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"unl-114-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-184-219\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-126-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-127-298\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"unl-106-219\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"ven-003-166\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"ven-008-166\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"ven-015-166\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"ogn-156-298\",\"zone\":\"MAIN\",\"quantity\":2}]}",
    "at": "2026-09-22 07:31:11"
+  }
+ ],
+ "gameplans": [
+  {
+   "deck_id": "dmua5ez1v4lkv",
+   "body": "{\"schema\":\"forge.gameplan/1\",\"winPlan\":[{\"text\":\"Survive the early back-and-forth; by midgame I'm healthy on cards and energy and they're out of gas.\",\"voice\":\"ours\"},{\"text\":\"Spell-slinger: the Legend's rune only pays for spells. Minimum viable unit count, maximum burn.\",\"voice\":\"guide\"},{\"text\":\"Brynhir ×3 in the main: when it lands, opponents can't play cards that turn.\",\"voice\":\"ours\"}],\"mulligan\":[{\"text\":\"No 4-card opening is dead by turn 3 in 10,000 simulated hands. [Predict] makes real openings better than that, so treat it as a floor.\",\"voice\":\"forge\"}],\"battlefields\":[{\"cardId\":\"sfd-216-221\",\"why\":\"Units can't be played there, which stops Ambush and units dropped straight in. They have to walk in, and your spells get a turn to answer.\",\"voice\":\"draft\"},{\"cardId\":\"unl-212-219\",\"why\":\"Deals 1 to each unit there at the start of every turn. Pick it against tokens.\",\"voice\":\"draft\"},{\"cardId\":\"ven-158-166\",\"why\":\"Players ignore [Deflect] when targeting there. Pick it against Deflect-heavy decks.\",\"voice\":\"draft\"}],\"matchups\":[{\"id\":\"ks-azir\",\"legendCardId\":\"sfd-197-221\",\"archetype\":\"Equipment + tokens\",\"battlefield\":{\"cardId\":\"unl-212-219\",\"why\":\"1 to every unit there each turn, plus one Bellows Breath, kills a 2-Might Sand Soldier.\",\"voice\":\"draft\"},\"bringIn\":[{\"cardId\":\"ogn-022-298\",\"quantity\":2},{\"cardId\":\"ogs-002-024\",\"quantity\":2},{\"cardId\":\"ven-003-166\",\"quantity\":1}],\"takeOut\":[{\"cardId\":\"unl-063-219\",\"quantity\":2},{\"cardId\":\"ogn-095-298\",\"quantity\":2},{\"cardId\":\"ogn-096-298\",\"quantity\":1}],\"watchFor\":[{\"text\":\"Lost 0-2 on 22 Sep. Felt unwinnable: he kept pumping gear and Sand Soldiers, and even spending ~6 Power in 2 turns didn't let me take control.\",\"voice\":\"ours\"},{\"text\":\"His Legend only makes a Sand Soldier on a turn he played an Equipment. Gear removal switches the engine off.\",\"voice\":\"guide\"}],\"playAround\":[{\"text\":\"Every main-deck answer trades one card for one token. Only answers that hit the whole board or the gear win this.\",\"voice\":\"draft\"},{\"text\":\"Hold Thermo Beam until several pieces of equipment are down; Firestorm the battlefield where the soldiers stack.\",\"voice\":\"draft\"}]},{\"id\":\"ks-ornn\",\"legendCardId\":\"sfd-189-221\",\"bringIn\":[],\"takeOut\":[],\"watchFor\":[{\"text\":\"Won 2-0 on 22 Sep. Pretty easy; he had poor card draw, and I felt in control all the time.\",\"voice\":\"ours\"},{\"text\":\"Rabadon's Deathcrown gives +3 bonus damage to all his spells and abilities. It is his best piece by a distance.\",\"voice\":\"guide\"}],\"playAround\":[{\"text\":\"Thermo Beam is the obvious side-in if his gear gets going. You won without it.\",\"voice\":\"draft\"}]},{\"id\":\"ks-fiora\",\"legendCardId\":\"sfd-205-221\",\"bringIn\":[],\"takeOut\":[],\"watchFor\":[{\"text\":\"Won 2-0 on 22 Sep. Early game was back and forth and I lost ground; by midgame he was out of gas.\",\"voice\":\"ours\"}],\"playAround\":[{\"text\":\"Don't spend removal for tempo early. Your edge is cards and energy in the midgame.\",\"voice\":\"draft\"}]},{\"id\":\"ks-rumble\",\"legendCardId\":\"sfd-181-221\",\"bringIn\":[],\"takeOut\":[],\"watchFor\":[{\"text\":\"Won 2-0 on 22 Sep, against a list that wasn't very optimal, so it says little.\",\"voice\":\"ours\"},{\"text\":\"His Legend gives his Mechs Shield, and Ferrous Forerunner leaves two Mechs behind when it dies.\",\"voice\":\"guide\"}],\"playAround\":[]}],\"weaknesses\":[{\"id\":\"ks-sweep\",\"threat\":\"A single \\\"deal 4 to all\\\" clears 14 of your 21 bodies.\",\"playAround\":\"Do not over-commit once you are ahead on points. Hold back enough that a sweep costs you the board, not the game.\",\"voice\":\"forge\"},{\"id\":\"ks-counter\",\"threat\":\"No counterspell against bombs, recursion or ambush threats.\",\"playAround\":\"Brynhir shuts them out for the turn it lands. Time Warp and Progress Day come in for long games.\",\"voice\":\"draft\"}]}",
+   "updated_at": "2026-09-23 12:24:47"
+  },
+  {
+   "deck_id": "dmua5jn1pil34",
+   "body": "{\"schema\":\"forge.gameplan/1\",\"winPlan\":[{\"text\":\"Control, not hold: stay in control and play at my own pace. Holding a battlefield is a means, never the objective.\",\"voice\":\"ours\"},{\"text\":\"The Legend's Recruit is the engine, every turn. Judge each card by what it turns a 1-Might Recruit into.\",\"voice\":\"ours\"},{\"text\":\"Gold gear tokens are the rune ramp. Wages of Pain, Deadly Flourish, Honest Broker and Blood Money hand back the runes that Cull the Weak, Hidden Blade and Imperial Decree spend.\",\"voice\":\"ours\"}],\"mulligan\":[{\"text\":\"Every 4-card opening can act by turn 3 (0 of 10,000 simulated hands had one card or fewer castable). Mulligan for the mix of answers and bodies, not for the curve.\",\"voice\":\"forge\"}],\"battlefields\":[{\"cardId\":\"ogn-296-298\",\"why\":\"Spells and abilities that affect units there deal 1 bonus damage. Bellows Breath, Wages of Pain, Crescent Strike and Singularity all get better.\",\"voice\":\"draft\"},{\"cardId\":\"sfd-220-221\",\"why\":\"Conquering it makes a Gold token for 1 energy, which is more rune ramp.\",\"voice\":\"draft\"},{\"cardId\":\"unl-210-219\",\"why\":\"A unit defending there alone gets -2 Might. Your Recruits go wide, so it mostly punishes their lone blockers.\",\"voice\":\"draft\"}],\"matchups\":[{\"id\":\"vk-swarm\",\"archetype\":\"Swarm / go-wide\",\"battlefield\":{\"cardId\":\"ogn-296-298\",\"why\":\"Crescent Strike becomes 5 to one unit and 2 to every other unit there.\",\"voice\":\"draft\"},\"bringIn\":[{\"cardId\":\"unl-072-219\",\"quantity\":2}],\"takeOut\":[{\"cardId\":\"ogn-213-298\",\"quantity\":2}],\"watchFor\":[{\"text\":\"A single \\\"deal 2 to all\\\" clears 7 of your 12 bodies, so they can sweep you as easily as you sweep them.\",\"voice\":\"forge\"}],\"playAround\":[{\"text\":\"Hidden Blade goes out because it trades one card for one token and draws them 2 cards.\",\"voice\":\"draft\"}]},{\"id\":\"vk-big\",\"archetype\":\"Big units\",\"bringIn\":[{\"cardId\":\"ogn-229-298\",\"quantity\":2}],\"takeOut\":[{\"cardId\":\"sfd-162-221\",\"quantity\":2}],\"watchFor\":[],\"playAround\":[{\"text\":\"Vengeance kills anything anywhere; Blood Money cannot touch a unit above 2 Might.\",\"voice\":\"draft\"}]},{\"id\":\"vk-spells\",\"archetype\":\"Spell-heavy\",\"bringIn\":[{\"cardId\":\"ven-132-166\",\"quantity\":2}],\"takeOut\":[{\"cardId\":\"ogn-220-298\",\"quantity\":2}],\"watchFor\":[{\"text\":\"Mind/Order has no counterspell at all. Every counter in the format needs Calm, Chaos or Body.\",\"voice\":\"forge\"}],\"playAround\":[{\"text\":\"Name their best spell with Fallen Feline, and put Feline on a battlefield you can keep it on. The lock only holds while it is at a battlefield.\",\"voice\":\"draft\"}]},{\"id\":\"vk-ornn\",\"legendCardId\":\"sfd-189-221\",\"archetype\":\"Gear\",\"bringIn\":[{\"cardId\":\"sfd-160-221\",\"quantity\":2}],\"takeOut\":[{\"cardId\":\"sfd-162-221\",\"quantity\":2}],\"watchFor\":[{\"text\":\"Lost 0-2 on 22 Sep: game 1 to my own misplay, game 2 unlucky. Felt chill and in control for most of both.\",\"voice\":\"ours\"},{\"text\":\"Rabadon's Deathcrown gives +3 bonus damage to all his spells and abilities. It is his best piece by a distance.\",\"voice\":\"guide\"}],\"playAround\":[{\"text\":\"Zaun Punk kills one of your own Gold tokens to destroy his gear. The deck already makes the tokens it needs.\",\"voice\":\"draft\"}]},{\"id\":\"vk-aggro\",\"archetype\":\"Aggro\",\"bringIn\":[{\"cardId\":\"unl-159-219\",\"quantity\":2}],\"takeOut\":[{\"cardId\":\"ogn-116-298\",\"quantity\":2}],\"watchFor\":[],\"playAround\":[{\"text\":\"Soul Harvest kills a unit with 3 Might or less for 2 energy, early, when it matters. A 7-drop is too slow here.\",\"voice\":\"draft\"}]}],\"weaknesses\":[{\"id\":\"vk-sweep\",\"threat\":\"A single \\\"deal 2 to all\\\" clears 7 of your 12 bodies.\",\"playAround\":\"Do not over-commit once you are ahead on points. Hold back enough that a sweep costs you the board, not the game.\",\"voice\":\"forge\"},{\"id\":\"vk-counter\",\"threat\":\"No counterspell. Mind/Order cannot run one.\",\"playAround\":\"Fallen Feline names their key spell. Otherwise accept it, and sequence so their best spell lands into a board that can absorb it.\",\"voice\":\"draft\"}]}",
+   "updated_at": "2026-09-23 12:24:42"
   }
  ]
 }
