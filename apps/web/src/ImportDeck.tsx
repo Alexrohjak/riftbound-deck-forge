@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import type { Deck, DeckSlot, Zone } from "@forge/engine";
 import { newDeckId } from "./deckStore.js";
 import type { CardPool } from "./cards.js";
+import { exportCode, exportText, importDeck } from "./deckCode.js";
 
 /**
  * Load a deck from a file — the last step of the `S5` loop.
@@ -27,8 +28,31 @@ interface Incoming {
 }
 
 export type DeckImport =
-  | { kind: "ok"; name: string; cards: number; unknown: number }
+  | { kind: "ok"; name: string; cards: number; unknown: number; skipped?: string[] }
   | { kind: "fail"; message: string };
+
+/**
+ * Write an imported deck as a new DRAFT. Shared by the file and the paste importer, so the two
+ * cannot disagree about what an import is.
+ */
+async function save(deck: Deck): Promise<void> {
+  const response = await fetch(`/decks/${encodeURIComponent(deck.id)}`, {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(deck),
+  });
+  const type = response.headers.get("content-type") ?? "";
+  if (!response.ok || !type.includes("json")) {
+    throw new Error(
+      type.includes("json")
+        ? `Import failed (HTTP ${response.status}).`
+        : "The server answered with a page — you may need to sign in again.",
+    );
+  }
+}
+
+const cardCount = (deck: Deck) =>
+  deck.slots.reduce((n, s) => n + s.quantity, 0) + (deck.chosenChampionCardId ? 1 : 0);
 
 export function ImportDeck({
   pool,
@@ -95,22 +119,8 @@ export function ImportDeck({
         slots,
       };
 
-      const response = await fetch(`/decks/${encodeURIComponent(id)}`, {
-        method: "PUT",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(deck),
-      });
-      const type = response.headers.get("content-type") ?? "";
-      if (!response.ok || !type.includes("json")) {
-        throw new Error(
-          type.includes("json")
-            ? `Import failed (HTTP ${response.status}).`
-            : "The server answered with a page — you may need to sign in again.",
-        );
-      }
-
-      const cards = slots.reduce((n, s) => n + s.quantity, 0) + (deck.chosenChampionCardId ? 1 : 0);
-      onImported(id, { kind: "ok", name, cards, unknown });
+      await save(deck);
+      onImported(id, { kind: "ok", name, cards: cardCount(deck), unknown });
     } catch (error) {
       onImported("", {
         kind: "fail",
@@ -142,6 +152,126 @@ export function ImportDeck({
           e.target.value = "";
         }}
       />
+    </>
+  );
+}
+
+/**
+ * Paste a deck code or a text list from any deckbuilder — Piltover Archive, the event locator,
+ * a guide. Like the file importer it only ever creates: the paste lands beside your decks.
+ */
+export function PasteDeck({
+  pool,
+  onImported,
+}: {
+  pool: CardPool;
+  onImported: (id: string, result: DeckImport) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const load = async () => {
+    setBusy(true);
+    try {
+      const read = importDeck(text, pool);
+      if (read.slots.length === 0 && !read.legendCardId) {
+        throw new Error(
+          read.skipped.length
+            ? `Nothing in that paste is a card Forge knows — first unread line: “${read.skipped[0]}”.`
+            : "That paste has no cards in it.",
+        );
+      }
+      const legend = pool.byPrinting.get(read.legendCardId);
+      const name = legend ? `${legend.tags[0] ?? legend.name} (imported)` : "Imported deck";
+      const deck: Deck = {
+        id: newDeckId(),
+        name,
+        state: "DRAFT",
+        legendCardId: read.legendCardId,
+        chosenChampionCardId: read.chosenChampionCardId,
+        slots: read.slots,
+      };
+      await save(deck);
+      setText("");
+      setOpen(false);
+      onImported(deck.id, {
+        kind: "ok",
+        name,
+        cards: cardCount(deck),
+        unknown: read.skipped.length,
+        skipped: read.skipped,
+      });
+    } catch (error) {
+      // A code that will not decode is reported in the library's words: it names the version
+      // or set it does not know, which is exactly what you need to tell a stale code from a typo.
+      onImported("", { kind: "fail", message: error instanceof Error ? error.message : String(error) });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (!open) {
+    return (
+      <button type="button" className="ghost" onClick={() => setOpen(true)}>
+        Paste deck
+      </button>
+    );
+  }
+  return (
+    <div className="pastedeck">
+      <textarea
+        rows={6}
+        value={text}
+        autoFocus
+        placeholder={"A deck code, or a list:\nLegend:\n1 Kai'Sa, Daughter of the Void\nMainDeck:\n3 Stupefy\n…"}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <span>
+        <button type="button" className="primary" disabled={busy || !text.trim()} onClick={() => void load()}>
+          {busy ? "Reading…" : "Import"}
+        </button>
+        <button type="button" className="ghost" onClick={() => setOpen(false)}>
+          cancel
+        </button>
+      </span>
+    </div>
+  );
+}
+
+/** Copy the open deck as a deck code or a text list, for any other deckbuilder or an event sign-up. */
+export function ExportDeck({ deck, pool }: { deck: Deck; pool: CardPool }) {
+  const [said, setSaid] = useState<string | null>(null);
+
+  const copy = async (what: "code" | "text") => {
+    try {
+      let body: string;
+      let note = "";
+      if (what === "code") {
+        const out = exportCode(deck, pool);
+        body = out.text;
+        // ⚠️ Name what a code cannot carry — a copied code that silently lost a card is a
+        // deck you register and then cannot play.
+        if (out.missing.length) note = ` — left out ${out.missing.join(", ")}, which no code can express`;
+      } else {
+        body = exportText(deck, pool);
+      }
+      await navigator.clipboard.writeText(body);
+      setSaid(`Copied the deck ${what}${note}.`);
+    } catch (error) {
+      setSaid(`Could not copy: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+
+  return (
+    <>
+      <button type="button" className="ghost" onClick={() => void copy("code")}>
+        Copy deck code
+      </button>
+      <button type="button" className="ghost" onClick={() => void copy("text")}>
+        Copy as text
+      </button>
+      {said && <p className="ok">{said}</p>}
     </>
   );
 }

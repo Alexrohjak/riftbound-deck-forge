@@ -1327,6 +1327,15 @@ body.resizing * { pointer-events: none; }
 }
 .deckactions > * { flex: 1 1 auto; white-space: nowrap; }
 .deckactions .primary { flex: 1; }
+/* The paste box and a copy report take a whole row; a nowrap message would push the panel wide. */
+.deckactions > p, .deckactions > .pastedeck { flex-basis: 100%; white-space: normal; margin: 0; }
+.pastedeck { display: flex; flex-direction: column; gap: var(--s1); }
+.pastedeck textarea {
+  width: 100%; box-sizing: border-box; resize: vertical; padding: var(--s1) var(--s2);
+  border-radius: var(--radius-sm); background: var(--sunk); color: var(--ink);
+  border: 1px solid var(--line); font: inherit; font-size: 0.8rem;
+}
+.pastedeck span { display: flex; gap: var(--s2); }
 .deckfoot { margin: 0; padding: 0 var(--s2) var(--s1); font-size: 0.68rem; color: var(--faint); }
 .rename { font-size: 0.72rem; }
 .renamefield {

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { Deck } from "@forge/engine";
 import { newDeckId, type DeckSummary } from "./deckStore.js";
 import type { CardPool } from "./cards.js";
-import { ImportDeck, type DeckImport } from "./ImportDeck.js";
+import { ExportDeck, ImportDeck, PasteDeck, type DeckImport } from "./ImportDeck.js";
 
 /**
  * `W3` — more than one deck.
@@ -169,6 +169,18 @@ export function DeckBar({
     await startNew();
   };
 
+  const handleImport = (id: string, result: DeckImport) => {
+    setImported(result);
+    if (result.kind !== "ok") return;
+    onRefresh();
+    onOpen(id);
+    // ⚠️ Stay open when something was skipped. The report renders inside this
+    // panel, so closing it throws the message away — which is exactly the bug
+    // the collection importer had, made twice in one day. A clean import has
+    // nothing to say, so that one closes.
+    if (result.unknown === 0) setOpen(false);
+  };
+
   return (
     <div className="deckbar">
       <button
@@ -230,25 +242,17 @@ export function DeckBar({
             <button type="button" className="ghost" disabled={busy} onClick={() => void duplicate()}>
               Duplicate this one
             </button>
-            <ImportDeck
-              pool={pool}
-              onImported={(id, result) => {
-                setImported(result);
-                if (result.kind !== "ok") return;
-                onRefresh();
-                onOpen(id);
-                // ⚠️ Stay open when something was skipped. The report renders inside this
-                // panel, so closing it throws the message away — which is exactly the bug
-                // the collection importer had, made twice in one day. A clean import has
-                // nothing to say, so that one closes.
-                if (result.unknown === 0) setOpen(false);
-              }}
-            />
+            <PasteDeck pool={pool} onImported={(id, result) => handleImport(id, result)} />
+            <ImportDeck pool={pool} onImported={(id, result) => handleImport(id, result)} />
+          </div>
+          <div className="deckactions">
+            <ExportDeck deck={deck} pool={pool} />
           </div>
           {imported?.kind === "ok" && (
             <p className="ok">
               Imported <b>{imported.name}</b> — {imported.cards} cards.
-              {imported.unknown > 0 && ` ${imported.unknown} unrecognised skipped.`}
+              {imported.unknown > 0 && ` ${imported.unknown} unrecognised skipped`}
+              {imported.skipped?.length ? `: ${imported.skipped.join(" · ")}.` : imported.unknown > 0 ? "." : ""}
             </p>
           )}
           {imported?.kind === "fail" && <p className="fail">{imported.message}</p>}
