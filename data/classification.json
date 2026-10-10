@@ -16582,7 +16582,7 @@
 "rune"
 ],
 "consumes": [
-"expensive"
+"costs_seven"
 ],
 "tags": [
 "Nasus"
@@ -18031,7 +18031,7 @@
 "ready"
 ],
 "consumes": [
-"expensive"
+"costs_seven"
 ],
 "tags": []
 },
@@ -18051,7 +18051,7 @@
 "draw"
 ],
 "consumes": [
-"gear_matters"
+"deploy_matters"
 ],
 "tags": []
 },
@@ -18648,7 +18648,7 @@
 "pump"
 ],
 "consumes": [
-"gear_matters"
+"deploy_matters"
 ],
 "tags": []
 },
@@ -18979,7 +18979,7 @@
 "rune"
 ],
 "consumes": [
-"gear_matters",
+"deploy_matters",
 "conquer"
 ],
 "tags": [
@@ -19446,7 +19446,7 @@
 "trashplay"
 ],
 "consumes": [
-"expensive",
+"costs_seven",
 "trash_matters"
 ],
 "tags": [
@@ -19540,7 +19540,7 @@
 ],
 "consumes": [
 "token_matters",
-"expensive"
+"costs_seven"
 ],
 "tags": []
 },
@@ -19721,12 +19721,9 @@
 "timing": "-",
 "role": "legend",
 "produces": [
-"empower",
 "ramp_energy"
 ],
-"consumes": [
-"empowered"
-],
+"consumes": [],
 "tags": [
 "Ekko"
 ]
@@ -19765,10 +19762,7 @@
 "token",
 "damage"
 ],
-"consumes": [
-"gear_matters",
-"token_matters"
-],
+"consumes": [],
 "tags": [
 "Yordle",
 "Ziggs"
@@ -20046,7 +20040,7 @@
 "move"
 ],
 "consumes": [
-"gear_matters"
+"deploy_matters"
 ],
 "tags": [
 "Jarvan IV"

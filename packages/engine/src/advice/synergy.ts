@@ -1,5 +1,6 @@
 import type { CardFacts } from "../types.js";
 import { hasKeyword } from "../text.js";
+import { makesDeployGear } from "../mechanics.js";
 
 /**
  * **The synergy graph — one definition, every consumer.**
@@ -59,6 +60,18 @@ export const SUPPORTS: Record<string, (facts: CardFacts) => boolean> = {
   empty_hand: (f) => (f.produces ?? []).includes("discard") || (f.energy ?? 99) <= 1,
   /** Payoffs that read a high Energy cost need cards that actually cost that much. */
   expensive: (f) => (f.energy ?? 0) >= 5,
+  /**
+   * ⚠️ **Not `expensive`, because the card prints a number.** *"A card with Energy cost [7]
+   * or more"* is fed by nothing at 5 or 6, and `expensive` would report a deck of five-drops
+   * as supply for a payoff it can never trigger.
+   */
+  costs_seven: (f) => (f.energy ?? 0) >= 7,
+  /**
+   * ⚠️ **Not `gear_matters`, because the card names the keyword.** *"A friendly gear with
+   * [Deploy]"* is fed by Deploy gear and by the cards that make a Deploy token — Bombs — and
+   * by no Equipment at all.
+   */
+  deploy_matters: (f) => hasKeyword(f.text, "Deploy") || makesDeployGear(f.text),
   mech: (f) => (f.tags ?? []).includes("Mech"),
   recycle: (f) => /recycle/i.test(f.text ?? ""),
 };

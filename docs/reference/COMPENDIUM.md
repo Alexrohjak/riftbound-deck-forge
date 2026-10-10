@@ -52,7 +52,7 @@ Two consequences shape everything:
    Energy (by exhausting, rune stays) or Power (by recycling, rune leaves the board).
    Paying Power literally costs you board presence. See [§III.3](#3-resources--the-central-tension).
 
-### The five sets
+### The six sets
 
 | Code | Set | Released |
 |---|---|---|
@@ -61,8 +61,9 @@ Two consequences shape everything:
 | `SFD` | Spiritforged | — |
 | `UNL` | Unleashed | — |
 | `VEN` | Vendetta | 31 July 2026 |
+| `RAD` | Radiance | in the gallery from 10 Oct 2026 — ⚠️ release date and Standard legality not yet read from the Tournament Rules |
 
-All five are Standard-legal (TR 601.3.c).
+The first five are Standard-legal (TR 601.3.c).
 
 ---
 
@@ -572,6 +573,17 @@ From a beginner walkthrough, matching the rules:
 | 23 | **Unique** | 825 | **Deck constraint** | **Only one copy of this name per deck.** No gameplay effect |
 | 24 | **Vision** | 817 | Triggered | *"When this is played, Predict."* Instances trigger separately |
 | 25 | **Weaponmaster** | 821 | Triggered | On play, may pay an Equipment's Equip cost **reduced by `[A]`** to attach it, ignoring normal Equip timing |
+
+### ⚠️ Radiance keywords — not yet in this table
+
+Three keywords arrived with Radiance and are **read from reminder text only**; the Core Rules
+have not been re-read, so they carry no CR number here.
+
+| Keyword | Printed reminder |
+|---|---|
+| **Deploy** | *"Play this only to a battlefield. When an opponent holds here, kill this."* |
+| **Disarm X** | *"When I attack, give an enemy unit here −X Might this turn."* X defaults to 1 |
+| **Show Off** | *"As you play this, you may reveal such a card from hand or pick a friendly one."* |
 
 ### Keyword usage frequency in the card pool
 

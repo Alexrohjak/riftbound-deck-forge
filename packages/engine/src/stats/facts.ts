@@ -23,6 +23,8 @@ export const COUNTED_KEYWORDS = [
   "Hidden",
   "Legion",
   "Hunt",
+  "Deploy",
+  "Disarm",
 ] as const;
 
 export interface Tally {

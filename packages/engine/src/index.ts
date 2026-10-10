@@ -101,8 +101,10 @@ export {
  */
 export {
   MECHANICS,
+  energyThresholds,
   hasMechanic,
   levelThresholds,
+  makesDeployGear,
   mechanicRule,
   mechanicsOf,
   xpGranted,
@@ -173,7 +175,7 @@ export {
   type PatternSpec,
   type StrategicPattern,
 } from "./advice/patterns.js";
-export { hasKeyword, leadingKeywords, withoutReminders } from "./text.js";
+export { hasKeyword, leadingKeywords, leadingKeywordValues, withoutReminders, type LeadingKeyword } from "./text.js";
 export {
   aroundCounsel,
   counterCounsel,

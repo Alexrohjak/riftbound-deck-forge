@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   MECHANICS,
+  energyThresholds,
   hasMechanic,
   levelThresholds,
   mechanicsOf,
@@ -59,6 +60,44 @@ const facts: Record<string, CardFacts> = {
   knell: { name: "Grave Chorus", types: ["unit"], energy: 3, might: 2, text: "[Deathknell] — draw 1." },
   fast: { name: "Rushing Blade", types: ["unit"], energy: 5, might: 4, text: "[Accelerate]" },
   seer: { name: "Path Reader", types: ["unit"], energy: 2, might: 2, text: "[Predict]" },
+
+  // Radiance. Texts are the printed ones, reminders included, because the reminders are where
+  // a careless pattern goes wrong.
+  banner: {
+    name: "Banner of Conquest",
+    types: ["gear"],
+    energy: 1,
+    text: "[Deploy] (Play this only to a battlefield. When an opponent holds here, kill this.) Friendly units here have [Assault]. (+1 Might while they're attackers.)",
+  },
+  traveler: {
+    name: "Overloaded Traveler",
+    types: ["unit"],
+    energy: 2,
+    might: 2,
+    text: "While there's a friendly gear with [Deploy] at my battlefield, I have +1 Might.",
+  },
+  bomber: {
+    name: "Amateur Demolitionist",
+    types: ["unit"],
+    energy: 2,
+    might: 1,
+    text: "When you play me, play a Bomb gear token to a battlefield. (It has [Deploy]. When it dies, deal 2 to an enemy there and kill your other Bombs there.)",
+  },
+  dirk: { name: "Serrated Dirk", types: ["gear"], energy: 1, text: "[Equip] :rb_rune_fury:" },
+  conservator: {
+    name: "Sanctum Conservator",
+    types: ["unit"],
+    energy: 5,
+    might: 5,
+    text: "When you play a card with Energy cost :rb_energy_7: or more, ready me.",
+  },
+  display: {
+    name: "Rousing Display",
+    types: ["spell"],
+    energy: 5,
+    text: "[Show Off] a card with Energy cost :rb_energy_7: or more. (As you play this, you may reveal such a card from hand or pick a friendly one.) Play two 1 Might Recruit unit tokens to your base. If you showed off, play four to your base instead.",
+  },
+  drake: { name: "Mountain Drake", types: ["unit"], energy: 9, might: 10 },
 
   plain: { name: "Plain Body", types: ["unit"], energy: 3, might: 4, role: "body" },
 };
@@ -289,6 +328,76 @@ describe("readMechanics — the findings", () => {
     );
     expect(findings[0]?.mechanic).toBe("additional-cost");
     expect(findings.at(-1)?.mechanic).toBe("predict");
+  });
+
+  it("⚠️ counts [Deploy] gear against the cards that ask for one, and ordinary gear does not count", () => {
+    // The gap `gear_matters` leaves: three Equipment would call the Traveler supplied.
+    const starved = readMechanics(
+      deckOf([
+        { cardId: "traveler", quantity: 3 },
+        { cardId: "dirk", quantity: 3 },
+      ]),
+      "conquer",
+      index,
+    );
+    const payoff = starved.find((f) => f.mechanic === "deploy-payoff")!;
+    expect(payoff.severity).toBe("high");
+    expect(payoff.note.claim).toBe("3 copies need a friendly gear with [Deploy], and the deck runs 0 [Deploy] gear.");
+    expect(payoff.cards[0]?.clause).toContain("gear with [Deploy]");
+    expect(starved.some((f) => f.mechanic === "deploy")).toBe(false);
+
+    const fed = readMechanics(
+      deckOf([
+        { cardId: "traveler", quantity: 3 },
+        { cardId: "banner", quantity: 2 },
+        { cardId: "bomber", quantity: 3 },
+      ]),
+      "conquer",
+      index,
+    );
+    const supplied = fed.find((f) => f.mechanic === "deploy-payoff")!;
+    expect(supplied.severity).toBe("low");
+    expect(supplied.note.claim).toContain("runs 2 [Deploy] gear plus 3 copies that make a [Deploy] token");
+  });
+
+  it("⚠️ names [Deploy] gear and what kills it, and not the cards that only mention the keyword", () => {
+    const findings = readMechanics(
+      deckOf([
+        { cardId: "banner", quantity: 2 },
+        { cardId: "traveler", quantity: 3 },
+        { cardId: "bomber", quantity: 3 },
+      ]),
+      "hold",
+      index,
+    );
+    const deploy = findings.find((f) => f.mechanic === "deploy")!;
+    expect(deploy.cards.map((c) => c.name)).toEqual(["Banner of Conquest"]);
+    expect(deploy.copies).toBe(2);
+    expect(deploy.note.claim).toContain("killed when an opponent holds there");
+  });
+
+  it("⚠️ measures an Energy threshold against the deck's printed costs, from the number on the card", () => {
+    expect(energyThresholds(facts.conservator!.text)).toEqual([7]);
+    const none = readMechanics(deckOf([{ cardId: "conservator", quantity: 3 }, { cardId: "fast", quantity: 3 }]), "conquer", index);
+    const starved = none.find((f) => f.mechanic === "energy-threshold")!;
+    expect(starved.severity).toBe("high");
+    // A 5-drop feeds the `expensive` tag and does not reach a printed 7.
+    expect(starved.note.claim).toBe("3 copies pay off on a card costing 7 or more Energy, and the deck runs 0 copies that cost that much.");
+
+    const some = readMechanics(
+      deckOf([
+        { cardId: "conservator", quantity: 3 },
+        { cardId: "display", quantity: 2 },
+        { cardId: "drake", quantity: 2 },
+      ]),
+      "conquer",
+      index,
+    );
+    const fed = some.find((f) => f.mechanic === "energy-threshold")!;
+    expect(fed.severity).toBe("low");
+    expect(fed.copies).toBe(5);
+    expect(fed.note.claim).toContain("runs 2 copies that cost that much");
+    expect(some.find((f) => f.mechanic === "show-off")?.cards.map((c) => c.name)).toEqual(["Rousing Display"]);
   });
 
   it("every finding is a fact with its source, and none of them is a score", () => {

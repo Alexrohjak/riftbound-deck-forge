@@ -29,6 +29,7 @@ import type { CardFacts, CardIndex } from "../types.js";
 import type { PoolCard } from "./feedback.js";
 import { mechanicsOf, type MechanicHit } from "../mechanics.js";
 import { mechanicRule } from "../mechanics.js";
+import { leadingKeywordValues } from "../text.js";
 import { patternsOf, PATTERNS, type StrategicPattern } from "./patterns.js";
 
 export interface CombatProfile {
@@ -39,10 +40,19 @@ export interface CombatProfile {
   /** Might while defending — printed plus `[Shield N]` (CR 814). */
   defending: number | null;
   /**
+   * Might `[Disarm N]` takes off **one** enemy unit when this attacks. `null` on a non-unit.
+   *
+   * ⚠️ **Kept out of `attacking`.** It is not this card's Might: it does nothing against an
+   * empty battlefield, and against two defenders it reaches one. Adding it in would print a
+   * number the card never has.
+   */
+  disarm: number | null;
+  /**
    * ⚠️ Which orientation this card is *built* for, when the two differ.
    *
    * Derived from the gap alone, and stated as an orientation rather than as a verdict: a
-   * proactive card in a holding deck is a mistake, but only the plan knows that.
+   * proactive card in a holding deck is a mistake, but only the plan knows that. `[Disarm]`
+   * counts toward the attacking side here, because it happens only when the card attacks.
    */
   orientation: "proactive" | "defensive" | "symmetric" | null;
 }
@@ -83,15 +93,17 @@ export interface CardCounsel {
   unmodelled: string[];
 }
 
-/** `[Assault 2]` → 2. A bare `[Assault]` with no number reads as 0 rather than as absent. */
+/**
+ * What one of the card's **own** keywords is worth — `[Assault 2]` → 2, `[Assault]` → 1.
+ *
+ * ⚠️ **A bare keyword is 1, and Riot prints it.** `[Assault] (+1 Might while I'm an
+ * attacker.)` is on eleven cards; reading the missing number as 0 called every one of them
+ * symmetric. Read from the leading run and nowhere else: `Clanging Sentry` says *"Your Mechs
+ * have [Disarm]"*, and a search of the whole text would hand that keyword to the Sentry.
+ */
 function keywordValue(text: string | undefined, keyword: string): number {
-  if (!text) return 0;
-  const match = new RegExp(`\\[${keyword}\\s*(\\d+)?\\]`, "i").exec(text);
-  if (!match) return 0;
-  const raw = match[1];
-  if (raw === undefined) return 0;
-  const n = Number.parseInt(raw, 10);
-  return Number.isFinite(n) ? n : 0;
+  const own = leadingKeywordValues(text).find((k) => k.name.toLowerCase() === keyword.toLowerCase());
+  return own ? (own.value ?? 1) : 0;
 }
 
 const isUnit = (facts: CardFacts): boolean => (facts.types ?? []).includes("unit");
@@ -129,9 +141,11 @@ export function cardCounsel(
 
   const attacking = might === null ? null : might + assault;
   const defending = might === null ? null : might + shield;
+  const disarm = might === null ? null : keywordValue(text, "Disarm");
   let orientation: CombatProfile["orientation"] = null;
   if (attacking !== null && defending !== null) {
-    orientation = attacking > defending ? "proactive" : defending > attacking ? "defensive" : "symmetric";
+    const reach = attacking + (disarm ?? 0);
+    orientation = reach > defending ? "proactive" : defending > reach ? "defensive" : "symmetric";
   }
 
   const hits: MechanicHit[] = mechanicsOf(text);
@@ -176,7 +190,7 @@ export function cardCounsel(
     ...(facts.timing !== undefined ? { timing: facts.timing } : {}),
     produces: facts.produces ?? [],
     consumes: facts.consumes ?? [],
-    combat: { might, attacking, defending, orientation },
+    combat: { might, attacking, defending, disarm, orientation },
     mechanics,
     patterns,
     formatMedianMight,

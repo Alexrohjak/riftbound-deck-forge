@@ -350,6 +350,11 @@ node apps/cli/dist/index.js mechanic --name <gear_matters|flow|token_matters|…
 Both halves come back: cards that pay the mechanic off, and cards that feed it. A mechanic
 deck that is all payoff and no fuel is the most common way this goes wrong.
 
+⚠️ **Two Radiance tags are narrower than the ones they look like.** `deploy_matters` is fed
+only by `[Deploy]` gear and Bomb makers, never by Equipment; `costs_seven` only by cards
+costing 7 or more. Asking `gear_matters` or `expensive` about a Radiance payoff returns a
+supply the card cannot use.
+
 ⚠️ **Read `feedsMeasured` before you read `feeds`.** When it is `false` the synergy graph has
 no rule for that tag, so an empty `feeds` means *"not modelled"* — say that, and never
 *"nothing in your collection supplies it"*. The two are opposites and only one is safe to say.
@@ -394,6 +399,14 @@ node apps/cli/dist/index.js card --card <cardId> --pool … --collection …
 not build from the tag, twice. There was no tool that returned a card's words, so the tag was
 all you had — and three copies of a unit that **kills a friendly unit to play** went into a deck
 whose plan was holding battlefields with bodies. Read `text`, then `mechanics`.
+
+⚠️ **`combat.disarm` is not Might.** It is what `[Disarm N]` takes off **one** defender when
+the card attacks, reported beside `attacking` and never added into it.
+
+⚠️ **Radiance is read from a gallery Riot has not finished.** 25 cards are unpublished, 55
+types and domains were repaired (`data/cards-repairs.json`), and plain cards mostly carry no
+tags. Do not say *"Radiance has no card that…"* — a negative claim about this set is not yet
+answerable. [`CARD-KNOWLEDGE` Part 9](reference/CARD-KNOWLEDGE.md) holds what is known.
 
 ⚠️ **`mechanics[]` is what the card charges you**, each entry quoting the printed clause that
 produced it. Quote the clause back when you cite one: it is a statement about what Riot printed,

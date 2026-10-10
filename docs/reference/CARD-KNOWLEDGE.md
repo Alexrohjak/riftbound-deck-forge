@@ -590,3 +590,88 @@ illustration of Part 2: **combat has a ceiling; `Kill` effects don't.**
    changes 40% of outcomes.
 4. **Selection bias must be stated.** Random pairings are not real combats; EE should say
    *"if you commit here"*, never *"you will win 43% of fights."*
+
+---
+
+# Part 9 — Radiance (`RAD`)
+
+> **Read 2026-10-10 from Riot's gallery**, which is 25 collector numbers short and had 55
+> type and domain errors on publication (`data/cards-repairs.json`). Rules citations are the
+> printed reminder text: the Core Rules PDF has not been re-read for this set, so no CR
+> numbers appear below and none should be quoted.
+
+## 9.1 `[Deploy]` — gear that belongs to a battlefield
+
+*"Play this only to a battlefield. When an opponent holds here, kill this."* — 13 gear, plus
+the **Bomb** token.
+
+- **It is gear in every count and a permanent only while you keep the ground.** A hold by
+  the opponent kills every Deploy gear there at once.
+- **Four cards ask for it by name** — `Overloaded Traveler`, `Jarvan IV, Martial Paragon`,
+  `Command: Attack`, `Exemplar of Demacia`. Ordinary gear does not count. Forge tags these
+  `deploy_matters`, and `review` reports payoffs against Deploy gear on every deck.
+- **Several want to die.** `Gravity Field` draws on death; `The Good Stuff` and
+  `Demacian Standard` return to hand when *you* hold, to be played again.
+- `Bushwhack Trap` lets its controller hide an extra card there — the only Deploy gear that
+  feeds `[Hidden]`.
+
+## 9.2 Bombs
+
+*"It has [Deploy]. When it dies, deal 2 to an enemy there and kill your other Bombs there."*
+Four makers, all Fury or Chaos, plus the Ziggs Legend.
+
+- ⭐ **Bombs at one battlefield go off together**, each dealing its own 2.
+  `Hexplosive Minefield` exists to move them into one place.
+- **An opponent holding the battlefield sets them off**, because Deploy kills them. A Bomb
+  under an enemy unit is a threat whichever player ends up there.
+- `Ziggs, Short-Fused` makes each Bomb 3. ⚠️ `Detonation Amplifier` doubles `[Deathknell]`
+  effects, and a Bomb's *"when it dies"* does not print that keyword — unverified either way.
+- ⚠️ No Bomb token card is printed, so Forge finds Bombs only through the text of the cards
+  that make them.
+
+## 9.3 `[Disarm N]` — reach that is not Might
+
+*"When I attack, give an enemy unit here −N Might this turn."* Seven cards; bare `[Disarm]`
+is 1.
+
+- It is **attack-only**, and it reaches **one** defender. `card` reports it as
+  `combat.disarm`, separate from `attacking`.
+- `Kai'Sa, Rebel` prints the wide form — *"when each of us attacks"* — and `Clanging Sentry`
+  grants it to Mechs, which is the reason to pair it with `Industrious Mechsmith`,
+  `Antagonistic Apparatus` and `Heimerdinger, Academy Instructor`.
+- `Ahri, Confident` gets +1 Might whenever you reduce an enemy's Might there, so every
+  Disarm and every shrink spell is also a pump for her.
+
+## 9.4 `[Show Off]` and the seven-cost payoffs
+
+*"As you play this, you may reveal such a card from hand or pick a friendly one."* Three
+cards, and five that pay off on **Energy cost 7 or more**.
+
+- Revealing is free and the revealed card stays in hand. The condition is holding it.
+- `Rousing Display` (two Recruits, four if you showed a 7+), `Sanctum Conservator` (readies)
+  and `Meticulous Restorationist` (returns from the trash for one Power) all read the same
+  number, as does the Vendetta Legend `Curator of the Sands`.
+- ⚠️ **Seven, not five.** Forge's old `expensive` tag counted supply from 5. These are now
+  `costs_seven`, and `review` counts the deck's 7+ copies against them.
+- Only 13 Radiance cards cost 7 or more, 77 in the whole pool.
+
+## 9.5 Exhausted units as a resource
+
+Seraphine's package: `Seraphine, Not Alone`, `High Note`, `Party Crasher`, `Riven, Deserter`
+and the Legend all count **exhausted friendly units**. `Ki Burst` and `Life from Stone`
+exhaust a friendly unit as an additional cost, which this package reads as a benefit.
+
+## 9.6 Smaller things worth knowing
+
+- **`Hush`** counters only spells with Power cost two or more. It is not a general counter.
+- **`Cataclysm`**: opponents cannot play spells this turn. Belongs on the lock list in §7.2.
+- **`Zero Point Inflection`** gives an **opponent** a point when it overfills your hand.
+- **`Firebrand Raider`**: units do not ready during the Awaken Phase, for either player.
+- **`Neeko, Blending In`** is colorless and adds three Legends of your choice to the deck.
+  ⚠️ Legality for those extra Legends is not modelled; Forge will treat her as an ordinary
+  colorless unit.
+- **`Runeblade Anvil`** is published with a Chaos rune in its kill cost. The card is Fury and
+  prints a Fury rune; the image is right and Riot's text is wrong. Kept as published.
+- **`Rousing Display`** is published with stray characters at the end of its text
+  (*"…instead.disa"*). Riot's error, kept as published.
+

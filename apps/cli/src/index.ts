@@ -145,7 +145,7 @@ const USAGE = `forge <legality|review|ask|log|skeletons|brief|validate|legend|ar
             legally register. Without it they span all six domains and are not a deck.
 
   mechanic  --name <tag>
-            gear_matters | flow | token_matters | trash_matters | hidden | … or a
+            gear_matters | deploy_matters | flow | token_matters | costs_seven | … or a
             pattern name. Returns both halves: cards that pay the mechanic off, and
             cards that feed it.
 
@@ -154,7 +154,7 @@ const USAGE = `forge <legality|review|ask|log|skeletons|brief|validate|legend|ar
             the point: the briefing has told the mouth to read the card since D-064
             and there was no tool that returned one. Plus what it CHARGES you — every
             mechanic with the clause that produced it — the combat profile in both
-            orientations (Assault attacking, Shield defending), and the format's
+            orientations (Assault attacking, Shield defending, Disarm apart), and the format's
             median Might at that cost.
             ⚠️ Never says what it beats in a fight. That needs S1a.
 

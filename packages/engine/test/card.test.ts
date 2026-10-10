@@ -45,6 +45,10 @@ const CARDS: Record<string, CardEntry> = {
   },
   even: { name: "Plain Body", types: ["unit"], domains: ["order"], energy: 3, might: 4 },
   bare: { name: "Bare Keyword", types: ["unit"], domains: ["fury"], energy: 2, might: 2, text: "[Assault]" },
+  granter: { name: "Clanging Sentry", types: ["unit"], domains: ["mind"], energy: 3, might: 2, text: "Your Mechs have [Disarm]. (When each of us attacks, give an enemy unit there -1 Might this turn.)" },
+  disarmer: { name: "Mysterious Chronomancer", types: ["unit"], domains: ["mind"], energy: 5, might: 4, text: "[Disarm 2] (When I attack, give an enemy unit here -2 Might this turn.)" },
+  siren: { name: "Siren of the Shallows", types: ["unit"], domains: ["chaos"], energy: 2, might: 1, text: "[Disarm] (When I attack, give an enemy unit here -1 Might this turn.) [Ganking] (I can move from battlefield to battlefield.)" },
+  both: { name: "Staunch Survivor", types: ["unit"], domains: ["body"], energy: 2, might: 2, text: "[Assault 2], [Shield 2] (+2 Might while I'm an attacker or defender.)" },
   spell: { name: "Quick Burn", types: ["spell"], domains: ["fury"], energy: 1, text: "Deal 2 damage to a unit." },
   peerA: { name: "Peer A", types: ["unit"], domains: ["order"], energy: 3, might: 2 },
   peerB: { name: "Peer B", types: ["unit"], domains: ["order"], energy: 3, might: 6 },
@@ -93,10 +97,30 @@ describe("cardCounsel", () => {
     });
   });
 
-  it("treats a numberless [Assault] as adding nothing", () => {
+  it("⚠️ reads a numberless [Assault] as 1, which is what its reminder prints", () => {
+    // "[Assault] (+1 Might while I'm an attacker.)" — on eleven cards. This used to read 0,
+    // and called every one of them symmetric.
     const read = cardCounsel("bare", index)!;
-    expect(read.combat.attacking).toBe(2);
-    expect(read.combat.orientation).toBe("symmetric");
+    expect(read.combat.attacking).toBe(3);
+    expect(read.combat.orientation).toBe("proactive");
+  });
+
+  it("⚠️ reads only the card's own keywords, never one it hands to something else", () => {
+    // Clanging Sentry: "Your Mechs have [Disarm]." The Sentry does not.
+    const read = cardCounsel("granter", index)!;
+    expect(read.combat).toMatchObject({ attacking: 2, disarm: 0, orientation: "symmetric" });
+  });
+
+  it("keeps [Disarm] out of attacking Might, and still calls the card proactive", () => {
+    const read = cardCounsel("disarmer", index)!;
+    expect(read.combat).toMatchObject({ might: 4, attacking: 4, defending: 4, disarm: 2, orientation: "proactive" });
+    expect(cardCounsel("siren", index)!.combat.disarm).toBe(1);
+    expect(cardCounsel("spell", index)!.combat.disarm).toBeNull();
+  });
+
+  it("reads both halves of a comma-separated keyword run", () => {
+    // "[Assault 2], [Shield 2]" — Staunch Survivor, and Garen, Rugged before it.
+    expect(cardCounsel("both", index)!.combat).toMatchObject({ attacking: 4, defending: 4, orientation: "symmetric" });
   });
 
   it("measures cost efficiency as the format median at that energy, excluding banned cards", () => {

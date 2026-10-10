@@ -129,6 +129,35 @@ export const MECHANICS: readonly MechanicRule[] = [
     why: "The only thing that actually ends a game",
   },
 
+  {
+    id: "deploy",
+    pattern: /\[Deploy\]/i,
+    kind: "cost",
+    modelled: "advice/mechanics findings — counted, with what kills it; and the keyword facts",
+    why: "A gear that can only be played to a battlefield and dies the moment an opponent holds there. It is a gear in every count and a permanent only while you keep the battlefield",
+  },
+  {
+    id: "deploy-payoff",
+    pattern: /gear with \[Deploy\]/i,
+    kind: "threshold",
+    modelled: "advice/mechanics findings — payoffs against the deck's Deploy gear",
+    why: "Reads 'a friendly gear with [Deploy]' and is a blank body without one. Ordinary gear does not count, so `gear_matters` supply overstates it",
+  },
+  {
+    id: "energy-threshold",
+    pattern: /Energy cost :rb_energy_\d+: or more/i,
+    kind: "threshold",
+    modelled: "advice/mechanics findings — the printed threshold against the deck's own costs",
+    why: "Pays off on cards costing 7 or more. The `expensive` tag counts supply from 5 up, so only the printed number says whether the deck can switch it on",
+  },
+  {
+    id: "show-off",
+    pattern: /\[Show Off\]/i,
+    kind: "threshold",
+    modelled: "advice/mechanics findings — counted, and its Energy threshold measured against the deck",
+    why: "Reveal a matching card from hand, or point at a friendly one, as you play it. The better half of the card is conditional on holding the thing it shows",
+  },
+
   // ── combat keywords, where a gap changes what a deck can answer ──
   {
     id: "deflect",
@@ -157,6 +186,13 @@ export const MECHANICS: readonly MechanicRule[] = [
     kind: "keyword",
     modelled: "hasKeyword",
     why: "Attacking Might, which is how a battlefield is taken",
+  },
+  {
+    id: "disarm",
+    pattern: /\[Disarm/i,
+    kind: "keyword",
+    modelled: "Q-CARD combat profile (`disarm`, and orientation), and the keyword facts",
+    why: "Takes Might off a defender when it attacks — reach that printed Might and [Assault] do not show",
   },
   {
     id: "tank",
@@ -204,7 +240,7 @@ export const MECHANICS: readonly MechanicRule[] = [
   },
   {
     id: "predict",
-    pattern: /\[Predict\]/i,
+    pattern: /\[Predict(?: \d+)?\]/i,
     kind: "capability",
     modelled: "advice/mechanics findings — flagged against the opening-hand simulation",
     why: "Deck manipulation, invisible to the opening-hand simulation",
@@ -358,3 +394,28 @@ export function xpSpent(text: string | undefined): number {
   }
   return total;
 }
+
+/**
+ * The Energy thresholds a card's text asks for — *"a card with Energy cost [7] or more"*.
+ *
+ * ⚠️ **The number is read, never assumed.** Every Radiance printing says 7, and the next set
+ * need not; a constant here would go on reporting 7 against a card that says 6.
+ */
+export function energyThresholds(text: string | undefined): number[] {
+  if (!text) return [];
+  const found: number[] = [];
+  for (const match of text.matchAll(/Energy cost :rb_energy_(\d+): or more/gi)) {
+    const n = Number.parseInt(match[1] as string, 10);
+    if (Number.isFinite(n)) found.push(n);
+  }
+  return found;
+}
+
+/**
+ * Whether a card puts a `[Deploy]` gear on the board without being one.
+ *
+ * Every Bomb maker prints the token's rules in its reminder — *"(It has [Deploy]. When it
+ * dies, deal 2…)"* — so the supply is readable from the text rather than from a list of
+ * token names that the next set would outgrow.
+ */
+export const makesDeployGear = (text: string | undefined): boolean => /\bIt has \[Deploy\]/i.test(text ?? "");

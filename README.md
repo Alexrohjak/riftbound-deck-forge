@@ -43,8 +43,28 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 
 ## 📍 Start here — how to pick this up
 
-*Last worked on 2026-09-23. This section is the recipe; the live status board is
+*Last worked on 2026-10-10. This section is the recipe; the live status board is
 [`docs/ROADMAP.md`](docs/ROADMAP.md).*
+
+> ## 🆕 Radiance is in (2026-10-10) — and Riot has not finished publishing it
+>
+> 192 printings, 145 new names, 8 Legends, 10 battlefields. `npm run cards` refreshes the
+> pool from Riot's gallery and says what changed.
+>
+> - **Re-run `npm run cards` before building with Radiance.** 25 of the set's 167 collector
+>   numbers were missing and 55 types and domains were wrong on publication. The repairs are
+>   in `data/cards-repairs.json` and should shrink; new cards need classifying by hand in
+>   `data/classification.json`.
+> - **`[Deploy]`, `[Disarm]` and `[Show Off]` are modelled.** `review` counts Deploy payoffs
+>   against Deploy gear and seven-cost payoffs against seven-cost cards; `card` reports
+>   `combat.disarm`. Tags `deploy_matters` and `costs_seven` replace `gear_matters` and
+>   `expensive` on the cards that print the narrower condition.
+> - **A card's keywords are now read wherever they open a sentence**, not only at the top of
+>   the text. 62 cards across every set gained keywords they always had, and a bare
+>   `[Assault]` or `[Shield]` reads as 1.
+> - **Not done:** the Core and Tournament Rules have not been re-read for Radiance, so its
+>   keywords carry no CR numbers and its Standard legality is assumed. The field snapshot is
+>   still Vendetta post-ban and knows none of the new Legends.
 
 > ## 🎯 Pick this up here — the field is in, and the Game plan tab shows it
 >
@@ -849,7 +869,7 @@ whenever you enter a card, and a stale copy in git would be worse than none.
 
 ⚠️ **The four tools return data, never prose.** A tool that could write the sentence could
 invent it. Judgement comes from the mouth reading them beside
-[`reference/`](docs/reference/) — 39,000 words covering all 49 Legends, all 814 main-deck
+[`reference/`](docs/reference/) — 39,000 words covering all 57 Legends, all 814 main-deck
 cards and both rulebooks.
 
 ---
@@ -918,8 +938,8 @@ system map and **where to put a new idea**.
 |---|---|
 | [**`docs/reference/COMPENDIUM.md`**](docs/reference/COMPENDIUM.md) | **The deep reference — complete rules, all 25 keywords, the card universe as data, strategy, ban list. Start here for anything Riftbound.** |
 | [**`docs/reference/CARD-KNOWLEDGE.md`**](docs/reference/CARD-KNOWLEDGE.md) | **Interactions, engines, locks and sequences — every card read in release order. EE's design input.** |
-| [**`docs/reference/LEGEND-GUIDE.md`**](docs/reference/LEGEND-GUIDE.md) | **All 49 Legends — what each rewards, what fits, what fights it, and the deck shape that results.** |
-| [**`docs/reference/BATTLEFIELD-GUIDE.md`**](docs/reference/BATTLEFIELD-GUIDE.md) | **All 66 battlefields — the only card your opponent also gets to use. Judged on asymmetry.** |
+| [**`docs/reference/LEGEND-GUIDE.md`**](docs/reference/LEGEND-GUIDE.md) | **All 57 Legends — what each rewards, what fits, what fights it, and the deck shape that results.** |
+| [**`docs/reference/BATTLEFIELD-GUIDE.md`**](docs/reference/BATTLEFIELD-GUIDE.md) | **All 76 battlefields — the only card your opponent also gets to use. Judged on asymmetry.** |
 | [**`docs/reference/CARD-INDEX.md`**](docs/reference/CARD-INDEX.md) | **All 814 main-deck cards classified — what each produces, consumes, its timing and curve position. The synergy graph.** ⚠️ **Plus all 49 Legends**, annotated separately: the original pass was scoped to the 40, and the Legend is not in it |
 | [**`docs/reference/DECKBUILDING.md`**](docs/reference/DECKBUILDING.md) | **What good players advise, and who advises it** — Riot's Primer, the one piece of maths, archetypes, and the places the schools genuinely disagree. EE's doctrine, never mistaken for rules |
 | [`docs/reference/DATA-SOURCES.md`](docs/reference/DATA-SOURCES.md) | Card data, the meta-data landscape, and what's off-limits |

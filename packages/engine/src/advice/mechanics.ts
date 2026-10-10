@@ -31,9 +31,12 @@
  */
 import type { CardIndex, Deck } from "../types.js";
 import { countedEntries, type Entry } from "../legality/entries.js";
+import { hasKeyword } from "../text.js";
 import {
+  energyThresholds,
   hasMechanic,
   levelThresholds,
+  makesDeployGear,
   mechanicsOf,
   xpGranted,
   xpSpent,
@@ -219,6 +222,112 @@ export function readMechanics(deck: Deck, objective: Objective, cards: CardIndex
         source: "computed",
         confidence: "fact",
         attribution: "'use only if not [Empowered]' matched in printed text and quoted verbatim",
+      },
+    });
+  }
+
+  // ── [Deploy] — the gear a payoff asks for by name ───────────────────────────
+  //
+  // ⚠️ **`gear_matters` cannot see this.** It counts any gear as supply, and these cards read
+  // *"a friendly gear with [Deploy]"* — so a deck of Equipment tells Overloaded Traveler it is
+  // supplied nine times over while the card sits at its printed Might all game. The keyword is
+  // read from the leading run, because every one of the payoffs *mentions* it too.
+  const deployGear = main.filter((e) => hasKeyword(e.facts?.text, "Deploy"));
+  const deployMakers = main.filter((e) => !hasKeyword(e.facts?.text, "Deploy") && makesDeployGear(e.facts?.text));
+  const gearCopies = deployGear.reduce((n, e) => n + e.quantity, 0);
+  const makerCopies = deployMakers.reduce((n, e) => n + e.quantity, 0);
+  const deployPayoffs = carrying(main, "deploy-payoff");
+  if (deployPayoffs.length > 0) {
+    const n = totalCopies(deployPayoffs);
+    findings.push({
+      mechanic: "deploy-payoff",
+      severity: gearCopies + makerCopies === 0 ? "high" : "low",
+      cards: deployPayoffs,
+      copies: n,
+      note: {
+        claim:
+          `${n} ${n === 1 ? "copy needs" : "copies need"} a friendly gear with [Deploy], and the deck runs ${gearCopies} [Deploy] gear` +
+          (makerCopies > 0 ? ` plus ${makerCopies} ${makerCopies === 1 ? "copy that makes" : "copies that make"} a [Deploy] token.` : "."),
+        because:
+          "Ordinary gear does not count: the clause names the keyword. " +
+          (gearCopies + makerCopies === 0
+            ? "With none in the deck these cards never read their own text."
+            : "⚠️ The two numbers are not a ratio to hit — no source publishes one — and a [Deploy] gear only counts while it is still on its battlefield.") ,
+        source: "computed",
+        confidence: "fact",
+        attribution:
+          "'gear with [Deploy]' matched in printed text and quoted; supply is cards that lead with [Deploy], and token makers whose reminder reads 'It has [Deploy]'",
+      },
+    });
+  }
+  if (deployGear.length > 0) {
+    const deployCards: MechanicCard[] = deployGear
+      .map((e) => ({ cardId: e.cardId, name: e.name, copies: e.quantity, clause: "[Deploy] (Play this only to a battlefield. When an opponent holds here, kill this.)" }))
+      .sort((a, b) => b.copies - a.copies || a.name.localeCompare(b.name));
+    findings.push({
+      mechanic: "deploy",
+      severity: "low",
+      cards: deployCards,
+      copies: gearCopies,
+      note: {
+        claim: `${gearCopies} ${gearCopies === 1 ? "copy is" : "copies are"} [Deploy] gear — played only to a battlefield, and killed when an opponent holds there.`,
+        because:
+          "These count as gear everywhere else in this review, and they are permanent only " +
+          "for as long as the battlefield under them is not held against you. Counted, not " +
+          "judged: whether that is a risk depends on which battlefields this deck expects to keep.",
+        source: "computed",
+        confidence: "fact",
+        attribution: "[Deploy] read from the card's leading keywords; the clause is the keyword's printed reminder",
+      },
+    });
+  }
+
+  // ── "Energy cost [7] or more" — a payoff with a number on it ────────────────
+  //
+  // The `expensive` tag is supplied by anything costing 5 or more, which was right for the
+  // three Legends that carried it and is wrong for every Radiance card that prints 7.
+  const costly = carrying(main, "energy-threshold");
+  if (costly.length > 0) {
+    const need = Math.min(...main.flatMap((e) => energyThresholds(e.facts?.text)));
+    const fed = main.filter((e) => (e.facts?.energy ?? 0) >= need).reduce((n, e) => n + e.quantity, 0);
+    const n = totalCopies(costly);
+    findings.push({
+      mechanic: "energy-threshold",
+      severity: fed === 0 ? "high" : "low",
+      cards: costly,
+      copies: n,
+      note: {
+        claim: `${n} ${n === 1 ? "copy pays" : "copies pay"} off on a card costing ${need} or more Energy, and the deck runs ${fed} ${fed === 1 ? "copy" : "copies"} that cost that much.`,
+        because:
+          fed === 0
+            ? "Nothing in the Main Deck reaches the printed threshold, so these never trigger."
+            : "Counted from printed Energy, not from the `expensive` tag, which starts at 5. " +
+              "⚠️ A payoff that fires on *playing* the expensive card also needs the game to " +
+              "last that long; the curve above is where to check that.",
+        source: "computed",
+        confidence: "fact",
+        attribution: "'Energy cost N or more' matched in printed text and quoted; supply is Main Deck copies whose printed Energy is at least N",
+      },
+    });
+  }
+
+  const showOff = carrying(main, "show-off");
+  if (showOff.length > 0) {
+    const n = totalCopies(showOff);
+    findings.push({
+      mechanic: "show-off",
+      severity: "low",
+      cards: showOff,
+      copies: n,
+      note: {
+        claim: `${n} ${n === 1 ? "copy has" : "copies have"} [Show Off] — reveal a matching card from hand, or pick a friendly one, as you play it.`,
+        because:
+          "The larger effect is printed as conditional on having shown something. Read the " +
+          "quoted clause for what each one asks to see; where it names an Energy cost, the " +
+          "finding above counts what the deck has to show.",
+        source: "computed",
+        confidence: "fact",
+        attribution: "[Show Off] matched in printed text and quoted",
       },
     });
   }

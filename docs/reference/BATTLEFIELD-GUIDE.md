@@ -1,4 +1,4 @@
-# Battlefield Guide — All 66
+# Battlefield Guide — All 76
 
 > Every battlefield, judged on the one axis that decides whether to run it: **does it help
 > you more than it helps your opponent?**
@@ -185,3 +185,27 @@ in a deck whose removal caps at 4 damage, `The Grand Plaza` opposite a swarm dec
 
 > ⭐ **The one-line rule:** *symmetric buffs barely change combat; conditional debuffs decide
 > it.* Bring the asymmetry.
+
+---
+
+## 8. Radiance — 10 battlefields
+
+> **Added 2026-10-10, from printed text.** Classes are the ones `review` assigns
+> (`advice/battlefields.ts`); the reading beside each is not computed.
+
+| Battlefield | Text | Class | Bring it when |
+|---|---|---|---|
+| `Bandle Scouts' Academy` | When you hide a card here, play a Gold token exhausted | 🟢 one-sided | ⭐ `[Hidden]` decks — Evelynn, Rengar. A Power back per hidden card |
+| `Cosmic Vista` | When you hold here, if your Rune Deck is empty, score 1 point | 🟢 one-sided · hold | Only decks that channel extra runes. ⚠️ Blank until the Rune Deck is empty |
+| `Durand Memorial` | When you defend here, give a unit you control here `[Tank]` this combat | 🟢 one-sided · defend | Hold plans protecting one real threat |
+| `Firelights' Hideout` | When you conquer here, the next unit you play this turn has `[Accelerate]` | 🟢 one-sided · conquer | Aggro with Energy to spare after combat |
+| `Ruined Monastery` | When you conquer here, you may discard 1 and channel 1 rune exhausted | 🟢 one-sided · conquer | Discard-matters and trash decks — Jinx, Mordekaiser. Ramp for a card |
+| `Black Market` | `[A][A]`: Draw 1. Each player may use this once on their turn, **even without controlling it** | 🟡 symmetric | Decks with spare Power. ⚠️ The opponent draws from it too, from anywhere |
+| `Black Rose Sanctum` | The first non-token unit each player loses here each turn makes them a Recruit at base | 🟡 symmetric | Sacrifice decks and token payoffs — Viktor |
+| `Hunters' Circle` | Each player's first unit or gear played here on their turn costs 1E less | 🟡 symmetric | ⭐ `[Deploy]` gear decks — the gear must be played to a battlefield anyway |
+| `Packed Amphitheater` | Champion units here have +1 Might | 🟡 symmetric | Decks running several Champion units; the opponent's count the same |
+| `Rakelstake` | Each player's first unit or gear played here each turn `[Predict]`s | 🟡 symmetric | Same as `Hunters' Circle`, for consistency instead of tempo |
+
+⚠️ **`Hunters' Circle` and `Rakelstake` say "play here"**, so they pay only on a unit or
+gear played to that battlefield, never on one played to base.
+

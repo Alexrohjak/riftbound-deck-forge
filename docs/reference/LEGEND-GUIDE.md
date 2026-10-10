@@ -1,6 +1,6 @@
 # Legend Guide — What Fits, What Doesn't, and Why
 
-> All **49 Legends**, each analysed against the cards its own Domain Identity can legally
+> All **57 Legends** — the 49 through Vendetta and the 8 Radiance added — each analysed against the cards its own Domain Identity can legally
 > field. For every Legend: what its ability *rewards*, which cards **produce** that, which
 > cards **actively fight it**, and the deck shape that results.
 >
@@ -973,3 +973,171 @@ is the champion tag — the Chosen Champion pool is 2 units, **not** the 13 Yord
 
 > **What is *not* on this list:** individual cards that don't trigger the Legend. A good card
 > is a good card. Forty cards that all fail the Legend is the problem — one is not.
+
+---
+
+# Radiance — 8 Legends
+
+> **Added 2026-10-10, from printed text alone.** No games, no field data, and the set is not
+> complete in Riot's gallery: 25 of its 167 collector numbers are still missing, so every
+> ✅ list below is a floor. Three keywords are new and recur throughout — `[Deploy]`,
+> `[Disarm]`, `[Show Off]` — see [`CARD-KNOWLEDGE.md` §9](CARD-KNOWLEDGE.md).
+
+## Boy Who Shattered Time — Ekko · Fury/Mind
+`[Empower] — 1E, [E]` · `Disempower me, [E]: the next unit you play this turn costs 2E + [A] less and gets "Kill me at end of turn"` · CC: **Ekko, Recurrent** (banned) / **Revolutionary** / **Ingenious** · Sig: `Chronobreak`
+
+**Rewards:** **units that have already done their job by end of turn.** The discount is real
+and the unit dies, so the only bodies worth it are ones whose value is the play trigger or
+the death.
+
+⚠️ **Two exhausts, two turns.** Empowering exhausts the Legend and so does spending it. The
+discount is available every *other* turn unless something readies the Legend
+(`Heartening Soul` does, in Calm).
+
+✅ **Fits.** Play triggers: **`Bilgewater Tracker`** (deal 1 to each of two units),
+**`Riptide Mage`** (−3 Might), **`Antagonistic Apparatus`** (leaves a 3-Might Mech behind),
+**`Drakehound Packmaster`** (9E2P — the discount is largest in proportion on cheap units and
+most welcome on this one). `[Deathknell]` units are paid twice: **`Clocktower Guardian`**.
+⭐ **`Chronobreak`** banishes and replays your units *ignoring cost*, which re-fires the play
+trigger. ⚠️ Whether the replayed unit keeps the "kill me" rider is a rules question not yet
+checked against the Core Rules.
+
+❌ **Doesn't fit.** Units played to hold. Equipment plans — the body leaves and the gear
+falls off. ⚠️ **`Ekko, Recurrent` is banned** in both constructed formats, so the Champion
+is one of the two Radiance printings.
+
+**Shape:** tempo deck of enter-the-battlefield units, with `Chronobreak` as the payoff.
+
+## Hexplosives Expert — Ziggs · Fury/Chaos
+`1E + [A], [E]: Play a Bomb gear token to a battlefield` (Bomb: `[Deploy]`. When it dies, deal 2 to an enemy there and kill your other Bombs there) · CC: **Ziggs, Short-Fused** / **Explosive** · Sig: `Hexplosive Minefield`
+
+**Rewards:** **controlling when your own gear dies.** A Bomb does nothing sitting there; it
+is 2 damage the moment it is killed — by you, or by an opponent holding the battlefield.
+
+⚠️ **One Bomb sets off the rest.** A Bomb dying kills your other Bombs at that
+battlefield, and each of those deals its own 2. Stacking Bombs on one battlefield is the
+plan, not a mistake — which is exactly what `Hexplosive Minefield` does.
+
+✅ **Fits.** Makers: **`Amateur Demolitionist`**, **`Satchel Charge`**, both Ziggs. Kill
+outlets that want a gear to kill: **`Shimmering Swimmer`**, **`Detonation Amplifier`**
+(kills a unit or gear to draw; ⚠️ its second line doubles `[Deathknell]` effects, and a Bomb's
+*"when it dies"* does not print that keyword — do not assume it doubles Bombs),
+**`Ziggs, Explosive`** (kill a gear when defending for +2). **`Ziggs, Short-Fused`** adds 1
+Bonus Damage to gear abilities, so each Bomb is 3. **`Lingering Animus`** enters ready when
+a friendly gear died this turn.
+
+❌ **Doesn't fit.** Equipment-matters cards: a Bomb is gear but is not Equipment and attaches
+to nothing. ⚠️ **Forge counts Bombs as nothing** — they are tokens, so `gear_matters` supply
+reads the makers as non-gear cards. See *gold gear tokens are invisible supply*.
+
+**Shape:** board-damage control. The Legend is a repeatable 2 damage on a one-turn delay.
+
+## Iron Revenant — Mordekaiser · Fury/Order
+`[Reaction]: Banish a unit or gear from your trash, [E]: [Add] [A]. Spend this Power only to play units or gear` · CC: **Mordekaiser, Twice Slain** / **Dominating** · Sig: `Realm of Death`
+
+**Rewards:** **a stocked trash, and Power costs on permanents.** One free Power a turn, for
+units and gear only, paid for with a card you were not using.
+
+✅ **Fits.** Anything that fills the trash early — discard outlets, cheap units that trade,
+gear that dies. Power-costed bodies get cheaper every turn:
+both Mordekaisers, **`Coalesced Energy`** (4E2P), **`Demacian Illuminators`**,
+**`Jarvan IV, Royal Heir`**. Sacrifice costs feed it directly: **`Dune Devourer`**,
+**`Shimmering Swimmer`**.
+
+❌ **Doesn't fit.** ⚠️ **Spells cannot be paid for with it**, so a removal-heavy list wastes
+the ability. ⚠️ **Tension with recursion:** `Meticulous Restorationist` plays itself from the
+trash, and `[Flow]` cards live there — the Legend banishes from the same pile. Decide which
+one the trash is for.
+
+**Shape:** midrange of Power-costed units that trades early to switch the Legend on.
+
+## Lady of Clockwork — Orianna · Calm/Mind
+`At the start of your Main Phase, you may pay 1E to choose a friendly gear. It becomes a unit gear with Might equal to its Energy cost until you choose another` · CC: **Orianna, Mechanical Marvel** · Sig: `The Ball`
+
+**Rewards:** ⚠️ **gear with a high printed Energy cost** — the Might is the cost, so this
+Legend inverts the usual preference for cheap gear.
+
+✅ **Fits.** **`Resplendent Rostrum`** (8E1P → an 8-Might body that also draws and channels),
+**`Zero Point Inflection`** (9E2P), **`Gravity Field`** and ⭐ **`The Ball`** (5E, `[Deploy]`
+`[Ganking]` — a 5-Might unit that moves between battlefields and triggers on each move).
+**`Orianna, Mechanical Marvel`** makes one gear a turn cost 1E + `[A]` less.
+**`Watchful Curator`** gives all your gear `[Deflect]`, which now protects a body.
+
+❌ **Doesn't fit.** One-cost gear and Equipment: a 1-Might unit for 1E a turn. ⚠️ **One gear
+at a time** — choosing a new one turns the old one back. ⚠️ **Nothing in the text exempts an
+animated `[Deploy]` gear** from being killed when an opponent holds its battlefield.
+
+**Shape:** ramp into a few expensive gear, one of which is the deck's best unit each turn.
+
+## Pride of Nazumah — K'Sante · Calm/Body
+`1E, [E]: Give a friendly unit "I have [Assault] equal to my [Shield]" this turn` · CC: **K'Sante, Dauntless** / **Courageous** · Sig: `Ntofo Strikes`
+
+**Rewards:** **`[Shield]`, as large as possible, on a unit that then attacks.** Defensive
+bodies become attackers for 1E.
+
+✅ **Fits.** Printed Shield: **`Wrath of the Freljord`** (`[Shield 3]`, enters ready),
+**`K'Sante, Courageous`** (`[Shield 2]`), **`Stalwart Goatherd`**, **`Staunch Survivor`**.
+Granted Shield stacks, since instances sum: **`Consult the Heavens`**, **`Nazuman Ntofo`**
+(`[Shield 2]` Equipment for 1E).
+⭐ **`K'Sante, Dauntless`** doubles a unit's Shield when he attacks or defends, and the Legend then
+converts the doubled number. **`Ntofo Strikes`** deals damage equal to Shield.
+
+❌ **Doesn't fit.** Units with no Shield get nothing. ⚠️ **Forge's attacking Might does not
+see this** — `card` reports Shield under *defending* only, so every K'Sante unit reads as
+defensive when this Legend makes it symmetric.
+
+**Shape:** hold-first midrange that can turn its wall around.
+
+## Starry-Eyed Songstress — Seraphine · Mind/Order
+`As an additional cost to play a spell, you may exhaust me and three friendly units to reduce its cost by 2E` · CC: **Seraphine, Not Alone** · Sig: `Encore`
+
+**Rewards:** **a wide board that is not attacking**, and things that trigger on becoming
+exhausted.
+
+✅ **Fits.** Token makers — the units exhausted can be Recruits: **`Rousing Display`**,
+**`Concert Poster`**, `Encore`. Exhaust payoffs: ⭐ **`Seraphine, Not Alone`** makes a Recruit
+each time she is exhausted and has +1 Might per other exhausted unit; **`High Note`** shrinks
+by the number of exhausted units you control; **`Party Crasher`** costs 1E less for each.
+
+❌ **Doesn't fit.** ⚠️ **Aggro.** Three exhausted units are three units not at a
+battlefield fight this turn. ⚠️ **The discount is Energy only** — it does nothing for a
+spell's Power cost.
+
+**Shape:** go-wide spell control. Tokens are the mana.
+
+## Agony's Embrace — Evelynn · Body/Chaos
+`Once each turn, when you play a card from face down, draw 1. Then, if it's not your turn, discard 1` · CC: **Evelynn, Entrancing** / **In Control** / **Consuming** · Sig: `Last Caress`
+
+**Rewards:** **playing `[Hidden]` cards on your own turn.** On your turn it is a card; on
+theirs it is a loot.
+
+✅ **Fits.** Every `[Hidden]` card in Body/Chaos. From Radiance: **`Elnuk Herd`**,
+**`Momentary Companion`**, **`The Waters' Wage`** (three ready Gold if played from face down
+on your turn), **`Demon Shade`**, **`Bedeviling Stranger`**. **`Bushwhack Trap`** lets you
+hide an additional card at its battlefield. ⭐ **`Evelynn, Consuming`** readies and gets +1
+Might on every face-down play; **`In Control`** scores a point on hold if a face-down card
+is there.
+
+❌ **Doesn't fit.** ⚠️ **Once each turn.** A second face-down play that turn draws nothing,
+so the Legend rewards one a turn across many turns, not a burst.
+
+**Shape:** ambush midrange — the Rengar shape, in different colours, paid in cards.
+
+## Exemplar of Demacia — Jarvan IV · Body/Order
+`When you play a gear with [Deploy], you may exhaust me and pay [A] to move a friendly unit to that battlefield` · CC: **Jarvan IV, Martial Paragon** / **Royal Heir** · Sig: `Demacian Standard`
+
+**Rewards:** **`[Deploy]` gear, played where you want a unit to be.** The gear is a move
+with a permanent attached.
+
+✅ **Fits.** Deploy gear in identity: **`Pillaged Armory`**, **`Portable Portal`**,
+**`Concert Poster`**, **`Dockside Lock-Up`**, `Demacian Standard`. Payoffs that read *"a
+friendly gear with [Deploy]"*: **`Overloaded Traveler`**, ⭐ **`Jarvan IV, Martial Paragon`**
+— gives your Deploy gear `[Action]`, so the Legend's move happens in a showdown.
+**`Steadfast Outrider`** counts gear at its battlefield.
+
+❌ **Doesn't fit.** ⚠️ **Ordinary gear and Equipment never trigger it.** `mechanic --name
+deploy_matters` lists the real supply; `gear_matters` overstates it roughly ninefold.
+
+**Shape:** positional midrange. Thin today — five Deploy gear in identity with the set a
+sixth unpublished.
+
