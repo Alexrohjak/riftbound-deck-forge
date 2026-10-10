@@ -299,7 +299,7 @@ function save(){
 }
 
 /* ── entry ──────────────────────────────────────────── */
-const SETS=[["OGN","Origins"],["OGS","Origins Starter"],["SFD","Spiritforged"],["UNL","Unleashed"],["VEN","Vendetta"]];
+const SETS=[["OGN","Origins"],["OGS","Origins Starter"],["SFD","Spiritforged"],["UNL","Unleashed"],["VEN","Vendetta"],["RAD","Radiance"]];
 function buildSets(){
   $("#setbar").innerHTML=SETS.map(([k,l])=>
     `<button class="set" data-s="${k}" aria-pressed="${k===curSet}">${k} <span style="opacity:.6">${l}</span></button>`).join("");

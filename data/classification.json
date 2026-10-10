@@ -13884,7 +13884,7 @@
 ]
 },
 {
-"name": "Yi, Meditative",
+"name": "Master Yi, Meditative",
 "cost": "5E1P",
 "tc": 6,
 "type": "unit",
@@ -14992,7 +14992,7 @@
 "tags": []
 },
 {
-"name": "Corina Veraza",
+"name": "Corinna Veraza",
 "cost": "7E1P",
 "tc": 8,
 "type": "unit",
@@ -15429,7 +15429,7 @@
 ]
 },
 {
-"name": "Yi, Honed",
+"name": "Master Yi, Honed",
 "cost": "7E1P",
 "tc": 8,
 "type": "unit",
@@ -17427,6 +17427,2687 @@
 ],
 "tags": [
 "Master Yi"
+]
+},
+{
+"name": "Ahri, Confident",
+"cost": "4E1P",
+"tc": 5,
+"type": "unit",
+"super": "champion",
+"dom": "calm",
+"might": 4,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"pump",
+"shrink"
+],
+"consumes": [
+"attack"
+],
+"tags": [
+"Ahri",
+"Ionia"
+]
+},
+{
+"name": "Amateur Demolitionist",
+"cost": "2E0P",
+"tc": 2,
+"type": "unit",
+"super": "",
+"dom": "fury",
+"might": 1,
+"eff": "below",
+"timing": "-",
+"role": "body+tokens",
+"produces": [
+"token",
+"damage"
+],
+"consumes": [
+"gear_matters",
+"token_matters"
+],
+"tags": []
+},
+{
+"name": "Akali, Brash",
+"cost": "5E1P",
+"tc": 6,
+"type": "unit",
+"super": "champion",
+"dom": "fury",
+"might": 5,
+"eff": "par",
+"timing": "-",
+"role": "body+ramp",
+"produces": [
+"ramp_energy",
+"ramp_power",
+"banish"
+],
+"consumes": [
+"move_trigger"
+],
+"tags": [
+"Ionia",
+"Akali"
+]
+},
+{
+"name": "Banner of Conquest",
+"cost": "1E1P",
+"tc": 2,
+"type": "gear",
+"super": "",
+"dom": "fury",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"pump"
+],
+"consumes": [],
+"tags": [
+"Device"
+]
+},
+{
+"name": "Bilgewater Tracker",
+"cost": "3E0P",
+"tc": 3,
+"type": "unit",
+"super": "",
+"dom": "fury",
+"might": 3,
+"eff": "par",
+"timing": "-",
+"role": "body+removal",
+"produces": [
+"damage"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Evelynn, In Control",
+"cost": "4E1P",
+"tc": 5,
+"type": "unit",
+"super": "champion",
+"dom": "chaos",
+"might": 4,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"shrink",
+"point"
+],
+"consumes": [
+"attack",
+"hold",
+"hidden"
+],
+"tags": [
+"Evelynn"
+]
+},
+{
+"name": "Brawl",
+"cost": "3E1P",
+"tc": 4,
+"type": "spell",
+"super": "",
+"dom": "fury",
+"might": "",
+"eff": "",
+"timing": "Action",
+"role": "combat-trick",
+"produces": [
+"pump"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Kai'Sa, Rebel",
+"cost": "5E1P",
+"tc": 6,
+"type": "unit",
+"super": "champion",
+"dom": "mind",
+"might": 4,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [
+"shrink"
+],
+"consumes": [
+"attack"
+],
+"tags": [
+"Kai'Sa",
+"The Void"
+]
+},
+{
+"name": "Lingering Animus",
+"cost": "2E0P",
+"tc": 2,
+"type": "unit",
+"super": "",
+"dom": "fury",
+"might": 2,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"ready"
+],
+"consumes": [
+"death"
+],
+"tags": []
+},
+{
+"name": "Seraphine, Not Alone",
+"cost": "5E1P",
+"tc": 6,
+"type": "unit",
+"super": "champion",
+"dom": "order",
+"might": 1,
+"eff": "below",
+"timing": "-",
+"role": "body+tokens",
+"produces": [
+"token",
+"pump"
+],
+"consumes": [
+"token_matters"
+],
+"tags": [
+"Piltover",
+"Seraphine"
+]
+},
+{
+"name": "Scorched Earth",
+"cost": "4E1P",
+"tc": 5,
+"type": "spell",
+"super": "",
+"dom": "fury",
+"might": "",
+"eff": "",
+"timing": "Action",
+"role": "removal-damage",
+"produces": [
+"damage"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Rally for War",
+"cost": "3E1P",
+"tc": 4,
+"type": "spell",
+"super": "",
+"dom": "fury",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "token-maker",
+"produces": [
+"token"
+],
+"consumes": [
+"token_matters"
+],
+"tags": []
+},
+{
+"name": "War Scout",
+"cost": "3E0P",
+"tc": 3,
+"type": "unit",
+"super": "",
+"dom": "fury",
+"might": 2,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [
+"ready",
+"pump"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Antagonistic Apparatus",
+"cost": "6E1P",
+"tc": 7,
+"type": "unit",
+"super": "",
+"dom": "fury",
+"might": 3,
+"eff": "below",
+"timing": "-",
+"role": "body+tokens",
+"produces": [
+"token",
+"ready"
+],
+"consumes": [
+"token_matters"
+],
+"tags": []
+},
+{
+"name": "Runeblade Anvil",
+"cost": "1E0P",
+"tc": 1,
+"type": "gear",
+"super": "",
+"dom": "fury",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"banish",
+"kill"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Lost to the Sands",
+"cost": "3E1P",
+"tc": 4,
+"type": "spell",
+"super": "",
+"dom": "fury",
+"might": "",
+"eff": "",
+"timing": "Action",
+"role": "removal-damage",
+"produces": [
+"damage",
+"kill"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Shimmering Swimmer",
+"cost": "3E0P",
+"tc": 3,
+"type": "unit",
+"super": "",
+"dom": "fury",
+"might": 3,
+"eff": "par",
+"timing": "-",
+"role": "body+removal",
+"produces": [
+"damage",
+"kill"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Coalesced Energy",
+"cost": "4E2P",
+"tc": 6,
+"type": "unit",
+"super": "",
+"dom": "fury",
+"might": 4,
+"eff": "below",
+"timing": "-",
+"role": "body+ramp",
+"produces": [
+"rune"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Detonation Amplifier",
+"cost": "4E1P",
+"tc": 5,
+"type": "gear",
+"super": "",
+"dom": "fury",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"draw",
+"kill"
+],
+"consumes": [
+"death"
+],
+"tags": [
+"Device"
+]
+},
+{
+"name": "Drakehound Packmaster",
+"cost": "9E2P",
+"tc": 11,
+"type": "unit",
+"super": "",
+"dom": "fury",
+"might": 9,
+"eff": "above",
+"timing": "-",
+"role": "body",
+"produces": [
+"banish"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Firebrand Raider",
+"cost": "6E1P",
+"tc": 7,
+"type": "unit",
+"super": "",
+"dom": "fury",
+"might": 6,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"ready"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Mordekaiser, Twice Slain",
+"cost": "7E1P",
+"tc": 8,
+"type": "unit",
+"super": "champion",
+"dom": "fury",
+"might": 5,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [
+"ready",
+"pump",
+"kill"
+],
+"consumes": [],
+"tags": [
+"Noxus",
+"Mordekaiser"
+]
+},
+{
+"name": "Ekko, Revolutionary",
+"cost": "5E1P",
+"tc": 6,
+"type": "unit",
+"super": "champion",
+"dom": "fury",
+"might": 4,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [
+"ready",
+"pump",
+"discard",
+"banish"
+],
+"consumes": [],
+"tags": [
+"Ekko",
+"Zaun"
+]
+},
+{
+"name": "Ziggs, Short-Fused",
+"cost": "5E1P",
+"tc": 6,
+"type": "unit",
+"super": "champion",
+"dom": "fury",
+"might": 5,
+"eff": "par",
+"timing": "-",
+"role": "body+tokens",
+"produces": [
+"token",
+"damage"
+],
+"consumes": [
+"gear_matters",
+"token_matters"
+],
+"tags": [
+"Bandle City",
+"Ziggs"
+]
+},
+{
+"name": "Blossoming Dreamroot",
+"cost": "2E0P",
+"tc": 2,
+"type": "gear",
+"super": "",
+"dom": "calm",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"draw"
+],
+"consumes": [
+"combat_win"
+],
+"tags": [
+"Device"
+]
+},
+{
+"name": "Consult the Heavens",
+"cost": "1E0P",
+"tc": 1,
+"type": "spell",
+"super": "",
+"dom": "calm",
+"might": "",
+"eff": "",
+"timing": "Reaction",
+"role": "combat-trick",
+"produces": [
+"pump"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Entrenched Boar",
+"cost": "2E0P",
+"tc": 2,
+"type": "unit",
+"super": "",
+"dom": "calm",
+"might": 2,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"ready"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Iridescent Avian",
+"cost": "3E0P",
+"tc": 3,
+"type": "unit",
+"super": "",
+"dom": "calm",
+"might": 3,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"buff",
+"pump"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Ki Burst",
+"cost": "1E0P",
+"tc": 1,
+"type": "spell",
+"super": "",
+"dom": "calm",
+"might": "",
+"eff": "",
+"timing": "Action",
+"role": "utility",
+"produces": [
+"stun"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Life from Stone",
+"cost": "1E0P",
+"tc": 1,
+"type": "spell",
+"super": "",
+"dom": "calm",
+"might": "",
+"eff": "",
+"timing": "Reaction",
+"role": "card-draw",
+"produces": [
+"draw",
+"rune"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Sanctum Conservator",
+"cost": "5E0P",
+"tc": 5,
+"type": "unit",
+"super": "",
+"dom": "calm",
+"might": 5,
+"eff": "above",
+"timing": "-",
+"role": "body",
+"produces": [
+"ready"
+],
+"consumes": [
+"expensive"
+],
+"tags": []
+},
+{
+"name": "Command: Attack",
+"cost": "1E1P",
+"tc": 2,
+"type": "spell",
+"super": "",
+"dom": "calm",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "utility",
+"produces": [
+"move",
+"draw"
+],
+"consumes": [
+"gear_matters"
+],
+"tags": []
+},
+{
+"name": "Hunker Down",
+"cost": "1E0P",
+"tc": 1,
+"type": "spell",
+"super": "",
+"dom": "calm",
+"might": "",
+"eff": "",
+"timing": "Reaction",
+"role": "combat-trick",
+"produces": [
+"ready",
+"draw"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Invigorating Bloom",
+"cost": "3E0P",
+"tc": 3,
+"type": "gear",
+"super": "",
+"dom": "calm",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"pump",
+"draw"
+],
+"consumes": [
+"mighty"
+],
+"tags": []
+},
+{
+"name": "Storm Raptor",
+"cost": "6E0P",
+"tc": 6,
+"type": "unit",
+"super": "",
+"dom": "calm",
+"might": 6,
+"eff": "above",
+"timing": "-",
+"role": "body+draw",
+"produces": [
+"draw"
+],
+"consumes": [
+"death",
+"stun"
+],
+"tags": []
+},
+{
+"name": "Watchful Curator",
+"cost": "3E1P",
+"tc": 4,
+"type": "unit",
+"super": "",
+"dom": "calm",
+"might": 4,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [],
+"consumes": [
+"gear_matters"
+],
+"tags": []
+},
+{
+"name": "Ephemeral Ward",
+"cost": "4E2P",
+"tc": 6,
+"type": "gear",
+"super": "",
+"dom": "calm",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"pump"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Heartening Soul",
+"cost": "7E1P",
+"tc": 8,
+"type": "unit",
+"super": "",
+"dom": "calm",
+"might": 7,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"ready",
+"pump"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Hush",
+"cost": "1E2P",
+"tc": 3,
+"type": "spell",
+"super": "",
+"dom": "calm",
+"might": "",
+"eff": "",
+"timing": "Reaction",
+"role": "counter",
+"produces": [
+"counter"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Riven, Broken Blade",
+"cost": "4E0P",
+"tc": 4,
+"type": "unit",
+"super": "champion",
+"dom": "calm",
+"might": 4,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"buff",
+"stun",
+"ready"
+],
+"consumes": [
+"buff_spend"
+],
+"tags": [
+"Riven"
+]
+},
+{
+"name": "K'Sante, Dauntless",
+"cost": "4E1P",
+"tc": 5,
+"type": "unit",
+"super": "champion",
+"dom": "calm",
+"might": 4,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"pump"
+],
+"consumes": [
+"attack",
+"defend"
+],
+"tags": [
+"Shurima",
+"K'Sante"
+]
+},
+{
+"name": "Resplendent Rostrum",
+"cost": "8E1P",
+"tc": 9,
+"type": "gear",
+"super": "",
+"dom": "calm",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear+ramp",
+"produces": [
+"draw",
+"rune",
+"pump"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Fanfare",
+"cost": "3E0P",
+"tc": 3,
+"type": "spell",
+"super": "",
+"dom": "mind",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "card-draw",
+"produces": [
+"draw"
+],
+"consumes": [
+"unit_played"
+],
+"tags": []
+},
+{
+"name": "High Note",
+"cost": "3E0P",
+"tc": 3,
+"type": "spell",
+"super": "",
+"dom": "mind",
+"might": "",
+"eff": "",
+"timing": "Reaction",
+"role": "combat-trick",
+"produces": [
+"shrink"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Industrious Mechsmith",
+"cost": "4E0P",
+"tc": 4,
+"type": "unit",
+"super": "",
+"dom": "mind",
+"might": 1,
+"eff": "below",
+"timing": "-",
+"role": "body+tokens",
+"produces": [
+"token"
+],
+"consumes": [
+"token_matters"
+],
+"tags": []
+},
+{
+"name": "Mysterious Chronomancer",
+"cost": "5E0P",
+"tc": 5,
+"type": "unit",
+"super": "",
+"dom": "mind",
+"might": 4,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"shrink"
+],
+"consumes": [
+"attack"
+],
+"tags": []
+},
+{
+"name": "Parallel Convergence",
+"cost": "2E1P",
+"tc": 3,
+"type": "spell",
+"super": "",
+"dom": "mind",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "removal-damage",
+"produces": [
+"damage",
+"bounce"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Resource Extractor",
+"cost": "1E0P",
+"tc": 1,
+"type": "gear",
+"super": "",
+"dom": "mind",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear+ramp",
+"produces": [
+"token",
+"gold"
+],
+"consumes": [
+"gear_matters",
+"token_matters"
+],
+"tags": [
+"Device"
+]
+},
+{
+"name": "Clanging Sentry",
+"cost": "3E0P",
+"tc": 3,
+"type": "unit",
+"super": "",
+"dom": "mind",
+"might": 2,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [
+"shrink"
+],
+"consumes": [
+"mech",
+"token_matters"
+],
+"tags": []
+},
+{
+"name": "Improvised Projectile",
+"cost": "3E1P",
+"tc": 4,
+"type": "spell",
+"super": "",
+"dom": "mind",
+"might": "",
+"eff": "",
+"timing": "Action",
+"role": "removal-damage",
+"produces": [
+"damage"
+],
+"consumes": [
+"gear_matters"
+],
+"tags": []
+},
+{
+"name": "Piltovan Guidebot",
+"cost": "4E0P",
+"tc": 4,
+"type": "unit",
+"super": "",
+"dom": "mind",
+"might": 3,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [
+"pump"
+],
+"consumes": [
+"expensive"
+],
+"tags": []
+},
+{
+"name": "Riptide Mage",
+"cost": "4E1P",
+"tc": 5,
+"type": "unit",
+"super": "",
+"dom": "mind",
+"might": 3,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [
+"ready",
+"shrink"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Supernova",
+"cost": "9E1P",
+"tc": 10,
+"type": "spell",
+"super": "",
+"dom": "mind",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "removal-damage",
+"produces": [
+"damage",
+"draw"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "The Empyrean",
+"cost": "8E0P",
+"tc": 8,
+"type": "unit",
+"super": "",
+"dom": "mind",
+"might": 8,
+"eff": "above",
+"timing": "-",
+"role": "body+draw",
+"produces": [
+"draw"
+],
+"consumes": [],
+"tags": [
+"Dragon"
+]
+},
+{
+"name": "Ekko, Ingenious",
+"cost": "3E0P",
+"tc": 3,
+"type": "unit",
+"super": "champion",
+"dom": "mind",
+"might": 4,
+"eff": "above",
+"timing": "-",
+"role": "body",
+"produces": [
+"bounce",
+"move"
+],
+"consumes": [],
+"tags": [
+"Ekko",
+"Zaun"
+]
+},
+{
+"name": "Gravity Field",
+"cost": "5E1P",
+"tc": 6,
+"type": "gear",
+"super": "",
+"dom": "mind",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"draw"
+],
+"consumes": [
+"death"
+],
+"tags": [
+"Device"
+]
+},
+{
+"name": "Scrutinizing Scope",
+"cost": "2E0P",
+"tc": 2,
+"type": "gear",
+"super": "",
+"dom": "mind",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"draw"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Clocktower Guardian",
+"cost": "8E2P",
+"tc": 10,
+"type": "unit",
+"super": "",
+"dom": "mind",
+"might": 8,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"banish"
+],
+"consumes": [
+"hold",
+"death"
+],
+"tags": [
+"Mech"
+]
+},
+{
+"name": "Orianna, Mechanical Marvel",
+"cost": "5E0P",
+"tc": 5,
+"type": "unit",
+"super": "champion",
+"dom": "mind",
+"might": 5,
+"eff": "above",
+"timing": "-",
+"role": "body",
+"produces": [],
+"consumes": [
+"gear_matters"
+],
+"tags": [
+"Piltover",
+"Orianna"
+]
+},
+{
+"name": "Zero Point Inflection",
+"cost": "9E2P",
+"tc": 11,
+"type": "gear",
+"super": "",
+"dom": "mind",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"draw",
+"discard",
+"point"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Hold 'Em",
+"cost": "3E0P",
+"tc": 3,
+"type": "spell",
+"super": "",
+"dom": "body",
+"might": "",
+"eff": "",
+"timing": "Action",
+"role": "combat-trick",
+"produces": [
+"pump"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Nazuman Ntofo",
+"cost": "1E0P",
+"tc": 1,
+"type": "gear",
+"super": "",
+"dom": "body",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "equipment",
+"produces": [
+"pump"
+],
+"consumes": [
+"gear_matters"
+],
+"tags": [
+"Equipment"
+]
+},
+{
+"name": "Overloaded Traveler",
+"cost": "2E0P",
+"tc": 2,
+"type": "unit",
+"super": "",
+"dom": "body",
+"might": 2,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"pump"
+],
+"consumes": [
+"gear_matters"
+],
+"tags": []
+},
+{
+"name": "Pillaged Armory",
+"cost": "1E0P",
+"tc": 1,
+"type": "gear",
+"super": "",
+"dom": "body",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"buff"
+],
+"consumes": [
+"conquer"
+],
+"tags": [
+"Device"
+]
+},
+{
+"name": "Raving Witness",
+"cost": "3E0P",
+"tc": 3,
+"type": "unit",
+"super": "",
+"dom": "body",
+"might": 3,
+"eff": "par",
+"timing": "-",
+"role": "body+draw",
+"produces": [
+"draw"
+],
+"consumes": [
+"move_trigger",
+"mighty"
+],
+"tags": []
+},
+{
+"name": "Skystrike Squadron",
+"cost": "5E0P",
+"tc": 5,
+"type": "unit",
+"super": "",
+"dom": "body",
+"might": 4,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"bounce"
+],
+"consumes": [
+"gear_matters"
+],
+"tags": []
+},
+{
+"name": "Sneaky Zeebles",
+"cost": "2E0P",
+"tc": 2,
+"type": "unit",
+"super": "",
+"dom": "body",
+"might": 1,
+"eff": "below",
+"timing": "-",
+"role": "body+ramp",
+"produces": [
+"ramp_power"
+],
+"consumes": [
+"conquer"
+],
+"tags": []
+},
+{
+"name": "Wrath of the Freljord",
+"cost": "9E0P",
+"tc": 9,
+"type": "unit",
+"super": "",
+"dom": "body",
+"might": 7,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [
+"ready",
+"pump"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Avalanche",
+"cost": "5E2P",
+"tc": 7,
+"type": "spell",
+"super": "",
+"dom": "body",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "removal-damage",
+"produces": [
+"damage"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Elnuk Herd",
+"cost": "6E0P",
+"tc": 6,
+"type": "unit",
+"super": "",
+"dom": "body",
+"might": 5,
+"eff": "par",
+"timing": "Hidden",
+"role": "body",
+"produces": [
+"pump"
+],
+"consumes": [
+"hidden"
+],
+"tags": []
+},
+{
+"name": "Primordial Roar",
+"cost": "4E2P",
+"tc": 6,
+"type": "spell",
+"super": "",
+"dom": "body",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "removal-damage",
+"produces": [
+"damage"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Stalwart Goatherd",
+"cost": "4E0P",
+"tc": 4,
+"type": "unit",
+"super": "",
+"dom": "body",
+"might": 2,
+"eff": "below",
+"timing": "-",
+"role": "body+removal",
+"produces": [
+"pump",
+"kill"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Cataclysm",
+"cost": "4E1P",
+"tc": 5,
+"type": "spell",
+"super": "",
+"dom": "body",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "tempo",
+"produces": [
+"move"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Graves, Blasting Through",
+"cost": "5E1P",
+"tc": 6,
+"type": "unit",
+"super": "champion",
+"dom": "body",
+"might": 4,
+"eff": "below",
+"timing": "-",
+"role": "body+removal",
+"produces": [
+"damage"
+],
+"consumes": [
+"attack",
+"defend"
+],
+"tags": [
+"Bilgewater",
+"Graves"
+]
+},
+{
+"name": "K'Sante, Courageous",
+"cost": "5E0P",
+"tc": 5,
+"type": "unit",
+"super": "champion",
+"dom": "body",
+"might": 4,
+"eff": "par",
+"timing": "-",
+"role": "body+ramp",
+"produces": [
+"ready",
+"pump",
+"rune"
+],
+"consumes": [
+"hold"
+],
+"tags": [
+"Shurima",
+"K'Sante"
+]
+},
+{
+"name": "Portable Portal",
+"cost": "2E0P",
+"tc": 2,
+"type": "gear",
+"super": "",
+"dom": "body",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"ready",
+"move"
+],
+"consumes": [],
+"tags": [
+"Device"
+]
+},
+{
+"name": "Staunch Survivor",
+"cost": "2E1P",
+"tc": 3,
+"type": "unit",
+"super": "",
+"dom": "body",
+"might": 2,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [
+"pump"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Titanic Shrine",
+"cost": "3E0P",
+"tc": 3,
+"type": "gear",
+"super": "",
+"dom": "body",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"draw"
+],
+"consumes": [
+"unit_played"
+],
+"tags": [
+"Device"
+]
+},
+{
+"name": "Evelynn, Consuming",
+"cost": "5E1P",
+"tc": 6,
+"type": "unit",
+"super": "champion",
+"dom": "body",
+"might": 5,
+"eff": "par",
+"timing": "Reaction",
+"role": "body",
+"produces": [
+"ready",
+"pump"
+],
+"consumes": [
+"hidden"
+],
+"tags": [
+"Evelynn"
+]
+},
+{
+"name": "Jarvan IV, Martial Paragon",
+"cost": "4E1P",
+"tc": 5,
+"type": "unit",
+"super": "champion",
+"dom": "body",
+"might": 4,
+"eff": "par",
+"timing": "-",
+"role": "body+ramp",
+"produces": [
+"rune"
+],
+"consumes": [
+"gear_matters",
+"conquer"
+],
+"tags": [
+"Demacia",
+"Jarvan IV"
+]
+},
+{
+"name": "Disposal Expert",
+"cost": "4E0P",
+"tc": 4,
+"type": "unit",
+"super": "",
+"dom": "chaos",
+"might": 3,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [
+"ready",
+"shrink"
+],
+"consumes": [
+"attack"
+],
+"tags": []
+},
+{
+"name": "Momentary Companion",
+"cost": "4E0P",
+"tc": 4,
+"type": "unit",
+"super": "",
+"dom": "chaos",
+"might": 4,
+"eff": "par",
+"timing": "Hidden",
+"role": "body",
+"produces": [
+"temporary"
+],
+"consumes": [
+"hidden"
+],
+"tags": []
+},
+{
+"name": "Satchel Charge",
+"cost": "3E1P",
+"tc": 4,
+"type": "spell",
+"super": "",
+"dom": "chaos",
+"might": "",
+"eff": "",
+"timing": "Action",
+"role": "tempo",
+"produces": [
+"move",
+"token",
+"damage"
+],
+"consumes": [
+"gear_matters",
+"token_matters"
+],
+"tags": []
+},
+{
+"name": "Siren of the Shallows",
+"cost": "2E0P",
+"tc": 2,
+"type": "unit",
+"super": "",
+"dom": "chaos",
+"might": 1,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [
+"shrink",
+"move"
+],
+"consumes": [
+"attack"
+],
+"tags": []
+},
+{
+"name": "Siren's Song",
+"cost": "2E0P",
+"tc": 2,
+"type": "spell",
+"super": "",
+"dom": "chaos",
+"might": "",
+"eff": "",
+"timing": "Reaction",
+"role": "tempo",
+"produces": [
+"move"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Suave Negotiator",
+"cost": "3E0P",
+"tc": 3,
+"type": "unit",
+"super": "",
+"dom": "chaos",
+"might": 3,
+"eff": "par",
+"timing": "-",
+"role": "body+draw",
+"produces": [
+"draw"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "The Waters' Wage",
+"cost": "1E0P",
+"tc": 1,
+"type": "spell",
+"super": "",
+"dom": "chaos",
+"might": "",
+"eff": "",
+"timing": "Hidden",
+"role": "token-maker",
+"produces": [
+"token",
+"gold"
+],
+"consumes": [
+"gear_matters",
+"hidden",
+"token_matters"
+],
+"tags": []
+},
+{
+"name": "An Offer You Can't Refuse",
+"cost": "2E0P",
+"tc": 2,
+"type": "spell",
+"super": "",
+"dom": "chaos",
+"might": "",
+"eff": "",
+"timing": "Action",
+"role": "removal-kill",
+"produces": [
+"kill",
+"token",
+"gold"
+],
+"consumes": [
+"gear_matters",
+"token_matters"
+],
+"tags": []
+},
+{
+"name": "Demon Shade",
+"cost": "3E0P",
+"tc": 3,
+"type": "spell",
+"super": "",
+"dom": "chaos",
+"might": "",
+"eff": "",
+"timing": "Hidden",
+"role": "tempo",
+"produces": [
+"move"
+],
+"consumes": [
+"hidden"
+],
+"tags": []
+},
+{
+"name": "Reckless Innovator",
+"cost": "3E0P",
+"tc": 3,
+"type": "unit",
+"super": "",
+"dom": "chaos",
+"might": 3,
+"eff": "par",
+"timing": "-",
+"role": "body+tokens",
+"produces": [
+"ready",
+"token",
+"gold",
+"draw"
+],
+"consumes": [
+"gear_matters",
+"token_matters"
+],
+"tags": []
+},
+{
+"name": "The Good Stuff",
+"cost": "3E1P",
+"tc": 4,
+"type": "gear",
+"super": "",
+"dom": "chaos",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"discard",
+"draw"
+],
+"consumes": [
+"hold"
+],
+"tags": [
+"Device"
+]
+},
+{
+"name": "Bedeviling Stranger",
+"cost": "2E0P",
+"tc": 2,
+"type": "unit",
+"super": "",
+"dom": "chaos",
+"might": 2,
+"eff": "par",
+"timing": "Hidden",
+"role": "body",
+"produces": [
+"bounce"
+],
+"consumes": [
+"hidden"
+],
+"tags": []
+},
+{
+"name": "Bushwhack Trap",
+"cost": "1E0P",
+"tc": 1,
+"type": "gear",
+"super": "",
+"dom": "chaos",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [],
+"consumes": [
+"hidden"
+],
+"tags": [
+"Device"
+]
+},
+{
+"name": "Lulu, Whimsical",
+"cost": "3E0P",
+"tc": 3,
+"type": "unit",
+"super": "champion",
+"dom": "chaos",
+"might": 3,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"pump",
+"shrink"
+],
+"consumes": [
+"move_trigger"
+],
+"tags": [
+"Yordle",
+"Bandle City",
+"Lulu"
+]
+},
+{
+"name": "Mechanical Bandit",
+"cost": "4E1P",
+"tc": 5,
+"type": "gear",
+"super": "",
+"dom": "chaos",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"draw"
+],
+"consumes": [],
+"tags": [
+"Device"
+]
+},
+{
+"name": "Ziggs, Explosive",
+"cost": "4E0P",
+"tc": 4,
+"type": "unit",
+"super": "champion",
+"dom": "chaos",
+"might": 4,
+"eff": "par",
+"timing": "-",
+"role": "body+tokens",
+"produces": [
+"token",
+"damage",
+"pump",
+"kill"
+],
+"consumes": [
+"gear_matters",
+"token_matters",
+"defend"
+],
+"tags": [
+"Bandle City",
+"Ziggs"
+]
+},
+{
+"name": "Riven, Deserter",
+"cost": "5E1P",
+"tc": 6,
+"type": "unit",
+"super": "champion",
+"dom": "chaos",
+"might": 5,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"pump",
+"ready"
+],
+"consumes": [],
+"tags": [
+"Riven"
+]
+},
+{
+"name": "Transpositionist",
+"cost": "6E0P",
+"tc": 6,
+"type": "unit",
+"super": "",
+"dom": "chaos",
+"might": 4,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [
+"bounce"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Concert Poster",
+"cost": "1E0P",
+"tc": 1,
+"type": "gear",
+"super": "",
+"dom": "order",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"token"
+],
+"consumes": [
+"token_matters",
+"conquer"
+],
+"tags": [
+"Device"
+]
+},
+{
+"name": "For Demacia!",
+"cost": "3E0P",
+"tc": 3,
+"type": "spell",
+"super": "",
+"dom": "order",
+"might": "",
+"eff": "",
+"timing": "Reaction",
+"role": "combat-trick",
+"produces": [
+"pump"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Herald of the Emperor",
+"cost": "5E0P",
+"tc": 5,
+"type": "unit",
+"super": "",
+"dom": "order",
+"might": 3,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [
+"pump"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Hunting Dog",
+"cost": "3E0P",
+"tc": 3,
+"type": "unit",
+"super": "",
+"dom": "order",
+"might": 3,
+"eff": "par",
+"timing": "-",
+"role": "body+tokens",
+"produces": [
+"token"
+],
+"consumes": [
+"token_matters",
+"death"
+],
+"tags": []
+},
+{
+"name": "Meticulous Restorationist",
+"cost": "2E0P",
+"tc": 2,
+"type": "unit",
+"super": "",
+"dom": "order",
+"might": 2,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"trashplay"
+],
+"consumes": [
+"expensive",
+"trash_matters"
+],
+"tags": [
+"Device"
+]
+},
+{
+"name": "One-Two Punch",
+"cost": "3E0P",
+"tc": 3,
+"type": "spell",
+"super": "",
+"dom": "order",
+"might": "",
+"eff": "",
+"timing": "Action",
+"role": "utility",
+"produces": [
+"buff",
+"stun"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Party Crasher",
+"cost": "9E1P",
+"tc": 10,
+"type": "unit",
+"super": "",
+"dom": "order",
+"might": 6,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Dune Devourer",
+"cost": "7E1P",
+"tc": 8,
+"type": "unit",
+"super": "",
+"dom": "order",
+"might": 7,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"kill"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Mournful Spirit",
+"cost": "4E0P",
+"tc": 4,
+"type": "unit",
+"super": "",
+"dom": "order",
+"might": 1,
+"eff": "below",
+"timing": "-",
+"role": "body+removal",
+"produces": [
+"kill"
+],
+"consumes": [
+"death"
+],
+"tags": [
+"Spirit"
+]
+},
+{
+"name": "Rousing Display",
+"cost": "5E0P",
+"tc": 5,
+"type": "spell",
+"super": "",
+"dom": "order",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "token-maker",
+"produces": [
+"token"
+],
+"consumes": [
+"token_matters",
+"expensive"
+],
+"tags": []
+},
+{
+"name": "Steadfast Outrider",
+"cost": "4E0P",
+"tc": 4,
+"type": "unit",
+"super": "",
+"dom": "order",
+"might": 3,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [
+"pump"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Trifarian Captain",
+"cost": "2E0P",
+"tc": 2,
+"type": "unit",
+"super": "",
+"dom": "order",
+"might": 1,
+"eff": "below",
+"timing": "-",
+"role": "body+draw",
+"produces": [
+"draw"
+],
+"consumes": [],
+"tags": []
+},
+{
+"name": "Battlefield Armorer",
+"cost": "3E0P",
+"tc": 3,
+"type": "unit",
+"super": "",
+"dom": "order",
+"might": 3,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"bounce"
+],
+"consumes": [
+"gear_matters",
+"death"
+],
+"tags": []
+},
+{
+"name": "Demacian Illuminators",
+"cost": "3E1P",
+"tc": 4,
+"type": "unit",
+"super": "",
+"dom": "order",
+"might": 3,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [
+"buff"
+],
+"consumes": [
+"death"
+],
+"tags": []
+},
+{
+"name": "Heimerdinger, Academy Instructor",
+"cost": "6E1P",
+"tc": 7,
+"type": "unit",
+"super": "champion",
+"dom": "order",
+"might": 5,
+"eff": "below",
+"timing": "-",
+"role": "body+tokens",
+"produces": [
+"token"
+],
+"consumes": [
+"token_matters",
+"mech"
+],
+"tags": [
+"Yordle",
+"Heimerdinger",
+"Piltover"
+]
+},
+{
+"name": "Jarvan IV, Royal Heir",
+"cost": "7E1P",
+"tc": 8,
+"type": "unit",
+"super": "champion",
+"dom": "order",
+"might": 7,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [
+"pump",
+"move"
+],
+"consumes": [
+"attack"
+],
+"tags": [
+"Demacia",
+"Jarvan IV"
+]
+},
+{
+"name": "Dockside Lock-Up",
+"cost": "6E2P",
+"tc": 8,
+"type": "gear",
+"super": "",
+"dom": "order",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"banish",
+"kill"
+],
+"consumes": [
+"hold"
+],
+"tags": [
+"Device"
+]
+},
+{
+"name": "Mordekaiser, Dominating",
+"cost": "9E2P",
+"tc": 11,
+"type": "unit",
+"super": "champion",
+"dom": "order",
+"might": 8,
+"eff": "par",
+"timing": "-",
+"role": "body+removal",
+"produces": [
+"kill",
+"discard"
+],
+"consumes": [
+"attack"
+],
+"tags": [
+"Noxus",
+"Mordekaiser"
+]
+},
+{
+"name": "Boy Who Shattered Time",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furymind",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"empower",
+"ramp_energy"
+],
+"consumes": [
+"empowered"
+],
+"tags": [
+"Ekko"
+]
+},
+{
+"name": "Chronobreak",
+"cost": "2E0P",
+"tc": 2,
+"type": "spell",
+"super": "signature",
+"dom": "fury/mind",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "utility",
+"produces": [
+"banish"
+],
+"consumes": [],
+"tags": [
+"Ekko"
+]
+},
+{
+"name": "Hexplosives Expert",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furychaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"token",
+"damage"
+],
+"consumes": [
+"gear_matters",
+"token_matters"
+],
+"tags": [
+"Yordle",
+"Ziggs"
+]
+},
+{
+"name": "Hexplosive Minefield",
+"cost": "2E1P",
+"tc": 3,
+"type": "spell",
+"super": "signature",
+"dom": "chaos/fury",
+"might": "",
+"eff": "",
+"timing": "Action",
+"role": "utility",
+"produces": [
+"token",
+"kill"
+],
+"consumes": [
+"gear_matters",
+"token_matters"
+],
+"tags": [
+"Ziggs"
+]
+},
+{
+"name": "Iron Revenant",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "furyorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"ramp_power",
+"banish"
+],
+"consumes": [
+"trash_matters"
+],
+"tags": [
+"Mordekaiser"
+]
+},
+{
+"name": "Realm of Death",
+"cost": "2E1P",
+"tc": 3,
+"type": "spell",
+"super": "signature",
+"dom": "fury/order",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "removal-damage",
+"produces": [
+"shrink",
+"pump",
+"damage"
+],
+"consumes": [],
+"tags": [
+"Mordekaiser"
+]
+},
+{
+"name": "Lady of Clockwork",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmmind",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [],
+"consumes": [
+"gear_matters"
+],
+"tags": [
+"Orianna"
+]
+},
+{
+"name": "The Ball",
+"cost": "5E1P",
+"tc": 6,
+"type": "gear",
+"super": "signature",
+"dom": "calm/mind",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"draw",
+"damage",
+"move"
+],
+"consumes": [
+"move_trigger"
+],
+"tags": [
+"Device",
+"Orianna"
+]
+},
+{
+"name": "Pride of Nazumah",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "calmbody",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"pump"
+],
+"consumes": [],
+"tags": [
+"K'Sante"
+]
+},
+{
+"name": "Ntofo Strikes",
+"cost": "2E1P",
+"tc": 3,
+"type": "spell",
+"super": "signature",
+"dom": "body/calm",
+"might": "",
+"eff": "",
+"timing": "Action",
+"role": "removal-damage",
+"produces": [
+"pump",
+"damage"
+],
+"consumes": [],
+"tags": [
+"K'Sante"
+]
+},
+{
+"name": "Blade of the Exile",
+"cost": "3E1P",
+"tc": 4,
+"type": "gear",
+"super": "signature",
+"dom": "calm/chaos",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "equipment",
+"produces": [
+"pump",
+"move"
+],
+"consumes": [
+"gear_matters"
+],
+"tags": [
+"Equipment",
+"Riven"
+]
+},
+{
+"name": "Starry-Eyed Songstress",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "mindorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"ramp_energy"
+],
+"consumes": [
+"spell_played"
+],
+"tags": [
+"Seraphine"
+]
+},
+{
+"name": "Encore",
+"cost": "3E1P",
+"tc": 4,
+"type": "spell",
+"super": "signature",
+"dom": "mind/order",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "utility",
+"produces": [
+"damage",
+"token",
+"pump",
+"draw"
+],
+"consumes": [
+"token_matters"
+],
+"tags": [
+"Seraphine"
+]
+},
+{
+"name": "Agony's Embrace",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "bodychaos",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"draw",
+"discard"
+],
+"consumes": [
+"hidden"
+],
+"tags": [
+"Evelynn"
+]
+},
+{
+"name": "Last Caress",
+"cost": "2E0P",
+"tc": 2,
+"type": "spell",
+"super": "signature",
+"dom": "body/chaos",
+"might": "",
+"eff": "",
+"timing": "Reaction",
+"role": "utility",
+"produces": [
+"buff"
+],
+"consumes": [],
+"tags": [
+"Evelynn"
+]
+},
+{
+"name": "Exemplar of Demacia",
+"cost": null,
+"tc": null,
+"type": "legend",
+"super": "",
+"dom": "bodyorder",
+"might": null,
+"eff": "par",
+"timing": "-",
+"role": "legend",
+"produces": [
+"move"
+],
+"consumes": [
+"gear_matters"
+],
+"tags": [
+"Jarvan IV"
+]
+},
+{
+"name": "Demacian Standard",
+"cost": "2E1P",
+"tc": 3,
+"type": "gear",
+"super": "signature",
+"dom": "body/order",
+"might": "",
+"eff": "",
+"timing": "-",
+"role": "gear",
+"produces": [
+"pump"
+],
+"consumes": [
+"attack",
+"hold"
+],
+"tags": [
+"Device",
+"Jarvan IV"
+]
+},
+{
+"name": "Neeko, Blending In",
+"cost": "6E1P",
+"tc": 7,
+"type": "unit",
+"super": "champion",
+"dom": "colorless",
+"might": 4,
+"eff": "below",
+"timing": "-",
+"role": "body",
+"produces": [],
+"consumes": [],
+"tags": [
+"Ixtal",
+"Neeko"
+]
+},
+{
+"name": "Recruit",
+"cost": "0E0P",
+"tc": 0,
+"type": "unit",
+"super": "token",
+"dom": "colorless",
+"might": 1,
+"eff": "par",
+"timing": "-",
+"role": "body",
+"produces": [],
+"consumes": [],
+"tags": [
+"Recruit"
 ]
 }
 ]

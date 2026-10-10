@@ -22,6 +22,7 @@
     "check": "npm run check:docs && npm run build",
     "state": "node scripts/pull-state.mjs",
     "free": "node scripts/free-pool.mjs",
+    "cards": "node scripts/build-cards.mjs",
     "audit:knowledge": "node scripts/audit-knowledge.mjs",
     "deck": "node scripts/push-deck.mjs",
     "gameplan": "node scripts/push-gameplan.mjs"

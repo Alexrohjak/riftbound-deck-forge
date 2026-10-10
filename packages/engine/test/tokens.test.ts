@@ -252,7 +252,7 @@ describe("an empty answer must say which kind of empty it is", () => {
  *
  * ⚠️ This is the test that matters. The unit cases above prove the parser does what it was
  * written to do; only the real pool proves it does not *also* do something else. The
- * assertion is an exact set rather than a floor, so a new set that prints a twelfth token
+ * assertion is an exact set rather than a floor, so a new set that prints a thirteenth token
  * fails here — which is the correct failure, because it is the moment the panel would
  * otherwise start quietly omitting one.
  */
@@ -264,6 +264,7 @@ const POOL: Array<{ name: string; superTypes: string[]; text: string | null }> =
 const TOKENS_IN_THE_GAME = [
   "Baron Pit",
   "Bird",
+  "Bomb",
   "Brush",
   "Gold",
   "Mech",
@@ -276,11 +277,11 @@ const TOKENS_IN_THE_GAME = [
 ];
 
 /**
- * The four with **no token card printed for them** — the reason this module reads text and
+ * The five with **no token card printed for them** — the reason this module reads text and
  * not a registry. If one of these ever gains a card, that is good news and this list should
  * shrink; if the list ever *grows*, a set shipped tokens nobody catalogued.
  */
-const UNCATALOGUED = ["Mech", "Sand Soldier", "Shadow Clone", "Tentacle"];
+const UNCATALOGUED = ["Bomb", "Mech", "Sand Soldier", "Shadow Clone", "Tentacle"];
 
 describe("the whole pool", () => {
   const creators = POOL.filter((c) => !c.superTypes.includes("token"));
@@ -298,10 +299,10 @@ describe("the whole pool", () => {
   });
 
   it("reads no creation off a card whose text only names a tribe", () => {
-    // Every card mentioning Bird, and the seven that actually make one.
+    // Every card mentioning Bird, and the eight that actually make one.
     const mentions = creators.filter((c) => /\bBird\b/.test(c.text ?? ""));
     const makers = mentions.filter((c) => creationsIn(c.text ?? undefined).some((t) => t.name === "Bird"));
-    expect(mentions.length).toBe(17);
-    expect(makers.length).toBe(7);
+    expect(mentions.length).toBe(18);
+    expect(makers.length).toBe(8);
   });
 });

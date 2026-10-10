@@ -5,7 +5,8 @@ regenerable — nothing is hand-authored except `banlist.json` and (later) errat
 
 | File | Contents | Source |
 |---|---|---|
-| `cards.json` | **All 1,180 printings / 935 distinct names**, full rules text and effect text | Riot's official card gallery |
+| `cards.json` | **All 1,380 printings / 1,080 distinct names** across six sets, full rules text and effect text | Riot's official card gallery, via `npm run cards` |
+| `cards-repairs.json` | **Where `cards.json` departs from the gallery as published**, and on what evidence. Generated, and recomputed every run | `scripts/build-cards.mjs` |
 | `classification.json` | Per-card derived tags — role, timing, produces, consumes, curve position | Computed from `cards.json` |
 | `banlist.json` | Banned cards, battlefields and legends, with the name-alias map | [Rules Hub](https://playriftbound.com/en-us/rules-hub/), hand-maintained |
 | `field.json` | **What the tournament field plays** — Legend matchup matrix and tiers, for one dated window | BoundRift + Hextech, captured into `field/*.txt` and built by `scripts/build-field.mjs` ([D-068](../docs/DECISIONS.md#d-068)). **Not Riot data** — attributed, and only from sources the register allows |
@@ -22,17 +23,25 @@ regenerable — nothing is hand-authored except `banlist.json` and (later) errat
 ## Refreshing after a set release or errata
 
 ```bash
-BUILD=$(curl -s https://playriftbound.com/en-us/card-gallery/ \
-        | grep -o '"buildId":"[^"]*"' | head -1 | cut -d'"' -f4)
-curl -s -o gallery.json \
-     "https://playriftbound.com/_next/data/$BUILD/en-us/card-gallery.json"
+npm run cards                              # fetch, map, repair, and print what changed
+node scripts/build-card-index.mjs          # the app's index
+python3 tools/collection/build-index.py    # the collection tool's index (+ --standalone)
 ```
 
-Then re-derive `cards.json` (strip the image dimension/colour/icon noise — it is ~3× the
-size and carries nothing) and regenerate `classification.json`.
+`npm run cards` prints every printing added, removed and renamed, and refuses a payload that
+would shrink the pool. A new set also needs its code in `SET_ORDER`
+(`scripts/build-card-index.mjs`) and `SETS` (`tools/collection/index.html`), and its
+main-deck cards and Legends classified in `classification.json`, which is authored by
+reading the cards, not computed.
+
+⚠️ **A new set arrives wrong.** Radiance went up on 2026-10-10 with 30 cards carrying the
+wrong type or none, 25 the wrong domain or none, most plain cards untagged, and 25 of its 167
+collector numbers absent. The first two are repaired from the same payload and listed in
+`cards-repairs.json`; the script header says how. Re-run it after a week: the repair list
+should shrink as Riot corrects the gallery, and the missing cards should appear.
 
 ⚠️ **`robots.txt` is `Allow: /` with no exclusions**, so this is a permitted fetch. It is one
-request of ~3.2 MB. Contrast the meta sites, which explicitly opt out — see
+request of ~3.8 MB. Contrast the meta sites, which explicitly opt out — see
 [DATA-SOURCES.md](../docs/reference/DATA-SOURCES.md).
 
 ## Field notes

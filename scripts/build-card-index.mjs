@@ -47,7 +47,7 @@ const classification = new Map(
  *
  * `OGS` is the Origins supplemental in Proving Grounds, so it sits directly behind `OGN`.
  */
-const SET_ORDER = ["OGN", "OGS", "SFD", "UNL", "VEN"];
+const SET_ORDER = ["OGN", "OGS", "SFD", "UNL", "VEN", "RAD"];
 const releaseRank = (card) => {
   const set = SET_ORDER.indexOf(card.set);
   if (set === -1) throw new Error(`Set "${card.set}" is not in SET_ORDER — add it, in release order.`);
