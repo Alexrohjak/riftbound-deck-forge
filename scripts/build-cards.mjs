@@ -183,11 +183,21 @@ for (const typo of Object.keys(NAME_CORRECTIONS)) {
 // ── what changed ─────────────────────────────────────────────────────────────
 const before = existsSync(OUT) ? JSON.parse(readFileSync(OUT, "utf8")) : [];
 const old = new Map(before.map((c) => [c.id, c]));
-const now = new Map(cards.map((c) => [c.id, c]));
 
-// A truncated payload parses fine and looks like a set rotation. It is neither.
-if (cards.length < before.length * 0.9) {
-  throw new Error(`The gallery returned ${cards.length} printings against ${before.length} cached — refusing to shrink the pool.`);
+/**
+ * ⚠️ **A printing that leaves the gallery is kept.** Riot edits the gallery live: two
+ * fetches fifteen minutes apart dropped `SFD-230*` and then, having restored it, dropped
+ * `UNL-022`. Neither card stopped existing, and ownership is stored under the printing's id
+ * — deleting the record would turn a card on the shelf into a row that resolves to nothing.
+ * So an absent printing keeps its cached record and is named in the report every run.
+ */
+const fetched = new Set(cards.map((c) => c.id));
+const held = before.filter((c) => !fetched.has(c.id));
+cards.push(...held);
+
+// A truncated payload parses fine, and holding a tenth of the pool over is not a refresh.
+if (held.length > before.length * 0.1) {
+  throw new Error(`The gallery is missing ${held.length} of ${before.length} cached printings — refusing to treat that as a refresh.`);
 }
 
 const tally = (list, key) => {
@@ -196,7 +206,6 @@ const tally = (list, key) => {
   return Object.entries(out).map(([k, n]) => `${k} ${n}`).join(" · ") || "none";
 };
 const added = cards.filter((c) => !old.has(c.id));
-const removed = before.filter((c) => !now.has(c.id));
 const changed = [];
 for (const card of cards) {
   const was = old.get(card.id);
@@ -210,7 +219,7 @@ const names = new Set(cards.map((c) => c.name));
 console.log(`${cards.length} printings · ${names.size} names (was ${before.length} · ${new Set(before.map((c) => c.name)).size})`);
 console.log(`  by set   ${tally(cards, (c) => c.set)}`);
 console.log(`  added    ${added.length} — ${tally(added, (c) => c.set)}`);
-console.log(`  removed  ${removed.length}${removed.length ? ` — ${removed.map((c) => `${c.id} (${c.name})`).join(", ")}` : ""}`);
+console.log(`  absent   ${held.length}${held.length ? ` — kept from the cache: ${held.map((c) => `${c.id} (${c.name})`).join(", ")}` : ""}`);
 console.log(`  changed  ${tally(changed, (c) => c.field)}`);
 for (const c of changed.filter((c) => c.field === "name")) console.log(`    renamed  ${c.id}  ${c.was} → ${c.now}`);
 console.log(`  repaired ${tally(repairs, (r) => r.field)} — see data/cards-repairs.json`);

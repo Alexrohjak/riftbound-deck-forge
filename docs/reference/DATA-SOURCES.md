@@ -16,7 +16,7 @@
 
 **~3.2 MB, one request, every card.** `robots.txt` is `Allow: /` with **no exclusions**.
 
-> **2026-10-10:** Radiance (`RAD`, 192 printings) is in, for 1,380 printings and 1,080 names.
+> **2026-10-10:** Radiance (`RAD`, 192 printings) is in, for 1,381 printings and 1,080 names.
 > The gallery published it with wrong types and domains; see [`data/README.md`](../../data/README.md).
 > The tables below are the 2026-08-02 measurement and are kept as measured.
 

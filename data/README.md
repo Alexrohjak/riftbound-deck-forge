@@ -5,7 +5,7 @@ regenerable — nothing is hand-authored except `banlist.json` and (later) errat
 
 | File | Contents | Source |
 |---|---|---|
-| `cards.json` | **All 1,380 printings / 1,080 distinct names** across six sets, full rules text and effect text | Riot's official card gallery, via `npm run cards` |
+| `cards.json` | **All 1,381 printings / 1,080 distinct names** across six sets, full rules text and effect text | Riot's official card gallery, via `npm run cards` |
 | `cards-repairs.json` | **Where `cards.json` departs from the gallery as published**, and on what evidence. Generated, and recomputed every run | `scripts/build-cards.mjs` |
 | `classification.json` | Per-card derived tags — role, timing, produces, consumes, curve position | Computed from `cards.json` |
 | `banlist.json` | Banned cards, battlefields and legends, with the name-alias map | [Rules Hub](https://playriftbound.com/en-us/rules-hub/), hand-maintained |
@@ -28,8 +28,9 @@ node scripts/build-card-index.mjs          # the app's index
 python3 tools/collection/build-index.py    # the collection tool's index (+ --standalone)
 ```
 
-`npm run cards` prints every printing added, removed and renamed, and refuses a payload that
-would shrink the pool. A new set also needs its code in `SET_ORDER`
+`npm run cards` prints every printing added, renamed and absent. A printing that leaves the
+gallery **keeps its cached record**: Riot edits the gallery live, and ownership is keyed on
+the printing. A new set also needs its code in `SET_ORDER`
 (`scripts/build-card-index.mjs`) and `SETS` (`tools/collection/index.html`), and its
 main-deck cards and Legends classified in `classification.json`, which is authored by
 reading the cards, not computed.

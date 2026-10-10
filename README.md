@@ -893,10 +893,10 @@ system map and **where to put a new idea**.
 | [`apps/web/`](apps/web/) | The workbench. Static React + Vite bundle |
 | [`apps/cli/`](apps/cli/) | **EE's tool surface** — what Claude Code calls. Structured data in, structured data out |
 | [`apps/api/`](apps/api/) | One Cloudflare Worker over D1. No idle state |
-| [**`tools/collection/`**](tools/collection/) | **The collection tool — keyboard entry over all 1,380 printings, live matches with images, JSON export. Working, and in use.** |
+| [**`tools/collection/`**](tools/collection/) | **The collection tool — keyboard entry over all 1,381 printings, live matches with images, JSON export. Working, and in use.** |
 | [`tools/check-docs.py`](tools/check-docs.py) | Fails when the docs contradict themselves — milestone arithmetic, the two status boards, decision counts, links. Run it after editing any planning doc |
 | [`scripts/pull-state.mjs`](scripts/pull-state.mjs) | `npm run state` — live D1 into `state/forge-state.json`, the free pool, and **`state/forge-log.json`: every game played, in the flat shape `ee log` reads** (`G7`). So no EE answer is built on a stale file, and none is built blind to the record. **Read-only**, and it refuses to write an empty collection: "you own none of that" is a plausible-looking answer and a catastrophic one — but it accepts an empty *record*, because "nothing played yet" is true |
-| [`scripts/build-cards.mjs`](scripts/build-cards.mjs) | `npm run cards` — **refresh `data/cards.json` from Riot's gallery.** Reproduces the cached pool field for field, prints what Riot added, removed and renamed, and repairs a wrong type or domain only from a second witness in the same payload, listing each in `data/cards-repairs.json`. Refuses a payload that would shrink the pool |
+| [`scripts/build-cards.mjs`](scripts/build-cards.mjs) | `npm run cards` — **refresh `data/cards.json` from Riot's gallery.** Reproduces the cached pool field for field, prints what Riot added and renamed, and repairs a wrong type or domain only from a second witness in the same payload, listing each in `data/cards-repairs.json`. Never drops a printing the gallery stops listing — ownership is keyed on it |
 | [`scripts/free-pool.mjs`](scripts/free-pool.mjs) | `npm run free` — the collection **minus what is in sleeves**, into `state/forge-free.json`. Written by `npm run state` too. Subtracts each BUILT deck's slots **plus its Chosen Champion and Legend**, which live outside `deck_slots` and are singletons by construction — deriving this by hand once put a Champion already in sleeves into a new deck |
 | [`scripts/audit-knowledge.mjs`](scripts/audit-knowledge.mjs) | `npm run audit:knowledge` — **what the cards say against what Forge models.** Reports the mechanics printed on cards that no check can act on, ranked by how many cards carry them. ⚠️ Reports; never edits — a gap is a question for a human, not a licence to author card data ([D-034](docs/DECISIONS.md#d-034)) |
 | [`scripts/check-engine-purity.mjs`](scripts/check-engine-purity.mjs) | Fails if the engine imports `fs`, `fetch` or the DOM — that would break one of its two consumers, and it would be the one nobody ran |
@@ -930,7 +930,7 @@ system map and **where to put a new idea**.
 
 | | |
 |---|---|
-| **Card data** | Riot's **official** card gallery — 1,380 printings · 1,080 distinct names · 6 sets · one ~3.8 MB request, refreshed by `npm run cards` |
+| **Card data** | Riot's **official** card gallery — 1,381 printings · 1,080 distinct names · 6 sets · one ~3.8 MB request, refreshed by `npm run cards` |
 | **Rules authority** | Official Core Rules + Tournament Rules PDFs **only** ([D-035](docs/DECISIONS.md#d-035)) |
 | **Rules scope** | Tournament rules, best-of-three — main deck exactly 40, sideboard ≤10 |
 | **Domain Identity** | Every Champion Legend carries **exactly 2 domains** — 118 printings, **49 distinct Legends**, all 15 possible pairs |
