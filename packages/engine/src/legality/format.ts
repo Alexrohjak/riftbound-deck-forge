@@ -28,8 +28,10 @@ export function checkFormat(deck: Deck, cards: CardIndex): Violation[] {
   const entries = deckEntries(deck, cards);
 
   // ── L22 — every card is from a format-legal set ─────────────────────────────
-  // All five sets are Standard-legal (TR 601.3.c), so this cannot fail for a card we can
-  // resolve. It fails for one we cannot: an unknown printing is a card whose legality we
+  // All six sets are Standard-legal (TR 601.3.c), so this cannot fail for a card we can
+  // resolve. ⚠️ Radiance is listed with a release date of 23 October 2026 (TR 601.3.c.6.a)
+  // and this check does not read the calendar: before that date a Radiance card passes here
+  // and is not yet playable in a sanctioned event. It fails for one we cannot: an unknown printing is a card whose legality we
   // are unable to confirm, and reporting that is more useful than assuming the best.
   const unknown = [...new Set(entries.filter((e) => !e.facts).map((e) => e.cardId))].sort();
   if (unknown.length > 0) {

@@ -35,14 +35,14 @@ export function copiesByName(deck: Deck, cards: CardIndex): Map<string, number> 
   return counts;
 }
 
-/** L13 · L14 · L16 — no name may appear more than three times (CR 103.2.b). */
+/** L13 · L14 · L16 — no name may appear more than three times (CR 103.3.b). */
 export function checkCopies(deck: Deck, cards: CardIndex): Violation[] {
   return [...copiesByName(deck, cards)]
     .filter(([, count]) => count > MAX_COPIES_PER_NAME)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([name, count]) => ({
       check: "L13",
-      citation: "CR 103.2.b",
+      citation: "CR 103.3.b",
       message: `"${name}" appears ${count} times across Main Deck and sideboard; the limit is ${MAX_COPIES_PER_NAME}.`,
     }));
 }

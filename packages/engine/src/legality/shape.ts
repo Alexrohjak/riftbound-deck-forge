@@ -41,7 +41,7 @@ export function checkShape(deck: Deck, cards: CardIndex): Violation[] {
   if (runes !== 12) {
     violations.push({
       check: "L4",
-      citation: "CR 103.3.a",
+      citation: "CR 103.4.a",
       message: `Rune Deck must be exactly 12; found ${runes}.`,
     });
   }
@@ -64,7 +64,7 @@ export function checkShape(deck: Deck, cards: CardIndex): Violation[] {
   if (duplicated.length > 0) {
     violations.push({
       check: "L6",
-      citation: "CR 103.4.c / TR 402.1",
+      citation: "CR 103.5.c / TR 402.1",
       message: `Battlefield names must be unique; repeated: ${duplicated.join(", ")}.`,
     });
   }

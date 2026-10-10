@@ -272,7 +272,7 @@ describe("the baseline is genuinely legal", () => {
 });
 
 describe("T1–T13 — the rulebook's worked examples", () => {
-  it("T1 — Chosen Champion plus two more copies is three, and legal (CR 103.2.b.1)", () => {
+  it("T1 — Chosen Champion plus two more copies is three, and legal (CR 103.3.b.1)", () => {
     // The Champion counts toward its own name's three (L14). Two in the Main Deck is the limit.
     const d = deck({
       legend: "legend-volibear",
@@ -282,7 +282,7 @@ describe("T1–T13 — the rulebook's worked examples", () => {
     expect(legal(d)).toBe(true);
   });
 
-  it("T2 — two different Yasuo names, three each, is legal (CR 103.2.b.2)", () => {
+  it("T2 — two different Yasuo names, three each, is legal (CR 103.3.b.2)", () => {
     // Different names have separate allowances (L15). Six Yasuo cards, no violation.
     const d = deck({
       legend: "legend-yasuo",
@@ -292,13 +292,13 @@ describe("T1–T13 — the rulebook's worked examples", () => {
     expect(legal(d)).toBe(true);
   });
 
-  it("T3 — Tibbers cannot be the Chosen Champion, being a Signature unit (CR 103.2.a.2)", () => {
+  it("T3 — Tibbers cannot be the Chosen Champion, being a Signature unit (CR 103.3.a.2)", () => {
     // The trap: Tibbers carries the right tag and looks eligible. L19 is why it is not.
     const found = codes(deck({ legend: "legend-annie", champion: "tibbers" }));
     expect(found).toContain("L19");
   });
 
-  it("T4 — Jinx, Rebel under a Jinx Legend is legal (CR 103.2.a.2)", () => {
+  it("T4 — Jinx, Rebel under a Jinx Legend is legal (CR 103.3.a.2)", () => {
     expect(legal(deck({ legend: "legend-jinx", champion: "jinx-rebel" }))).toBe(true);
   });
 
@@ -310,7 +310,7 @@ describe("T1–T13 — the rulebook's worked examples", () => {
     expect(codes(d)).toContain("L13");
   });
 
-  it("T6 — a fourth Signature card is illegal even across four names (CR 103.2.d.1)", () => {
+  it("T6 — a fourth Signature card is illegal even across four names (CR 103.3.d.1)", () => {
     // The cap is three TOTAL, not three of each — the rule found only in the PDF.
     const d = deck({
       legend: "legend-ornn",
@@ -326,7 +326,7 @@ describe("T1–T13 — the rulebook's worked examples", () => {
     expect(found).toContain("L20");
   });
 
-  it("T7 — a Fury+Mind card under a Fury/Calm Legend is illegal (CR 103.1.b.4)", () => {
+  it("T7 — a Fury+Mind card under a Fury/Calm Legend is illegal (CR 103.2.b.4)", () => {
     // BOTH domains must be inside the identity. Fury matches; Mind does not.
     const d = deck({
       legend: "legend-akali",
@@ -343,7 +343,7 @@ describe("T1–T13 — the rulebook's worked examples", () => {
     expect(codes(d)).toContain("L3");
   });
 
-  it("T9 — two Battlefields sharing a name is illegal (CR 103.4.c)", () => {
+  it("T9 — two Battlefields sharing a name is illegal (CR 103.5.c)", () => {
     const d: Deck = {
       ...deck(),
       slots: [
@@ -357,7 +357,7 @@ describe("T1–T13 — the rulebook's worked examples", () => {
     expect(found).not.toContain("L5"); // three battlefields registered; the names are the problem
   });
 
-  it("T10 — three printings of one name is legal; a fourth is not (CR 103.2.b)", () => {
+  it("T10 — three printings of one name is legal; a fourth is not (CR 103.3.b)", () => {
     // Ownership is per printing, legality is per name. Three different arts are three copies.
     const three = deck({
       champion: "jinx-rebel",

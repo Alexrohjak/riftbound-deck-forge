@@ -596,9 +596,9 @@ illustration of Part 2: **combat has a ceiling; `Kill` effects don't.**
 # Part 9 — Radiance (`RAD`)
 
 > **Read 2026-10-10 from Riot's gallery**, which is 25 collector numbers short and had 55
-> type and domain errors on publication (`data/cards-repairs.json`). Rules citations are the
-> printed reminder text: the Core Rules PDF has not been re-read for this set, so no CR
-> numbers appear below and none should be quoted.
+> type and domain errors on publication (`data/cards-repairs.json`). Rules are from the
+> Core Rules of 2026-10-09 and the Radiance patch notes of the same date. **The set
+> releases 23 October 2026** and is not sanctioned-legal before then.
 
 ## 9.1 `[Deploy]` — gear that belongs to a battlefield
 
@@ -607,6 +607,9 @@ the **Bomb** token.
 
 - **It is gear in every count and a permanent only while you keep the ground.** A hold by
   the opponent kills every Deploy gear there at once.
+- ⭐ **It can be played to any battlefield — enemy-occupied and open ones included**
+  (CR 830.1.b.1), and it is not recalled in cleanups. A Deploy gear is a way to put a
+  permanent effect on a battlefield you do not control.
 - **Four cards ask for it by name** — `Overloaded Traveler`, `Jarvan IV, Martial Paragon`,
   `Command: Attack`, `Exemplar of Demacia`. Ordinary gear does not count. Forge tags these
   `deploy_matters`, and `review` reports payoffs against Deploy gear on every deck.
@@ -624,10 +627,11 @@ Four makers, all Fury or Chaos, plus the Ziggs Legend.
   `Hexplosive Minefield` exists to move them into one place.
 - **An opponent holding the battlefield sets them off**, because Deploy kills them. A Bomb
   under an enemy unit is a threat whichever player ends up there.
-- `Ziggs, Short-Fused` makes each Bomb 3. ⚠️ `Detonation Amplifier` doubles `[Deathknell]`
-  effects, and a Bomb's *"when it dies"* does not print that keyword — unverified either way.
+- `Ziggs, Short-Fused` makes each Bomb 3. ⭐ **`Detonation Amplifier` doubles Bombs**: the
+  token's damage is a `[Deathknell]` by rule (CR 187.12), even though the makers' reminder
+  text says only *"when it dies"*.
 - ⚠️ No Bomb token card is printed, so Forge finds Bombs only through the text of the cards
-  that make them.
+  that make them. CR 187.12 defines it, and words the damage as *"an enemy **unit** here"*.
 
 ## 9.3 `[Disarm N]` — reach that is not Might
 
@@ -636,18 +640,25 @@ is 1.
 
 - It is **attack-only**, and it reaches **one** defender. `card` reports it as
   `combat.disarm`, separate from `attacking`.
+- **Instances sum into one trigger** (CR 831.2). Two `Clanging Sentry` give every Mech
+  `[Disarm 2]`, on one unit, not two triggers of 1.
 - `Kai'Sa, Rebel` prints the wide form — *"when each of us attacks"* — and `Clanging Sentry`
   grants it to Mechs, which is the reason to pair it with `Industrious Mechsmith`,
   `Antagonistic Apparatus` and `Heimerdinger, Academy Instructor`.
 - `Ahri, Confident` gets +1 Might whenever you reduce an enemy's Might there, so every
-  Disarm and every shrink spell is also a pump for her.
+  Disarm and every shrink spell is also a pump for her. Ruled: any spell or ability you
+  control that applies a non-zero −Might counts.
 
 ## 9.4 `[Show Off]` and the seven-cost payoffs
 
 *"As you play this, you may reveal such a card from hand or pick a friendly one."* Three
 cards, and five that pay off on **Energy cost 7 or more**.
 
-- Revealing is free and the revealed card stays in hand. The condition is holding it.
+- Revealing is free and the revealed card stays in hand. The condition is holding it, or
+  having a matching friendly object on the board, which is picked and not revealed.
+- **What it reads is locked in** (CR 832.1.d). `Primordial Roar` deals the shown unit's
+  Might as it was when shown, whatever happens to that unit afterwards.
+- A **facedown** card cannot be shown off: it has no front-side characteristics.
 - `Rousing Display` (two Recruits, four if you showed a 7+), `Sanctum Conservator` (readies)
   and `Meticulous Restorationist` (returns from the trash for one Power) all read the same
   number, as does the Vendetta Legend `Curator of the Sands`.
@@ -663,13 +674,27 @@ exhaust a friendly unit as an additional cost, which this package reads as a ben
 
 ## 9.6 Smaller things worth knowing
 
+- ⭐ **`Lady of Clockwork` on a `[Deploy]` gear at a battlefield you do not control makes it
+  a unit there** — which contests the battlefield and stages a combat or showdown. Ruled.
+  Chosen Equipment detaches as it becomes a unit, and Equipment already on a gear stays on.
+- **`Chronobreak` clears the Ekko Legend's rider.** A unit that changes zone loses every
+  temporary modification, the granted *"Kill me at end of turn"* included. Ruled.
+- **Errata, 2026-10-09** — not yet in the gallery text Forge reads: `Elnuk Herd` gives *a*
+  friendly unit +3 (itself included); `Neeko, Blending In` chooses *up to* 3 Legends;
+  `Last Caress` is a wording change only.
+- **Cards the patch notes name that the gallery does not yet have:** `Gutter Guardian`
+  (`[Show Off]`), `Forbidden Technique` (replays from the trash on a 7-cost play),
+  `Angler Wyrm`.
 - **`Hush`** counters only spells with Power cost two or more. It is not a general counter.
 - **`Cataclysm`**: opponents cannot play spells this turn. Belongs on the lock list in §7.2.
 - **`Zero Point Inflection`** gives an **opponent** a point when it overfills your hand.
 - **`Firebrand Raider`**: units do not ready during the Awaken Phase, for either player.
-- **`Neeko, Blending In`** is colorless and adds three Legends of your choice to the deck.
-  ⚠️ Legality for those extra Legends is not modelled; Forge will treat her as an ordinary
-  colorless unit.
+- **`Neeko, Blending In`** is colorless. With her in the Main Deck or sideboard you choose
+  up to three more Legends while building — different from each other and from your Champion
+  Legend, shared by every copy, registered on the decklist (CR 103.1, TR 401.2.a). Playing
+  her adds one to your Legend Zone, ready, for as long as she is on the board.
+  ⚠️ Forge's deck has one Legend slot: it cannot record or check those three, and treats her
+  as an ordinary colorless unit.
 - **`Runeblade Anvil`** is published with a Chaos rune in its kill cost. The card is Fury and
   prints a Fury rune; the image is right and Riot's text is wrong. Kept as published.
 - **`Rousing Display`** is published with stray characters at the end of its text

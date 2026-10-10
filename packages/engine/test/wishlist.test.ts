@@ -133,7 +133,7 @@ describe("wishlist", () => {
 
   it("⚠️ never says you could play more of a battlefield — L6 caps them at one per deck", () => {
     // Own five, register one, and the answer to "could I play more" is permanently no:
-    // battlefield names must be unique (CR 103.4.c / TR 402.1). Five of thirty-two rows made
+    // battlefield names must be unique (CR 103.5.c / TR 402.1). Five of thirty-two rows made
     // this claim, and `checkLegality` rejected a deck built to follow one of them.
     const decks = [deckOf("a", "Deck A", [{ cardId: "field", quantity: 1, zone: "BATTLEFIELD" }])];
     expect(

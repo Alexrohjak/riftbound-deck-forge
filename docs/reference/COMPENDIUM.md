@@ -4,6 +4,13 @@
 > Built by reading the official rulebooks line by line, analysing all 1,180 card
 > printings as data, and sweeping the public web.
 >
+> ⚠️ **Riot reissued both rules documents on 2026-10-09** (effective 16 Oct). Deck
+> construction — CR 103 — was renumbered and is corrected throughout this file. **The CR
+> numbers cited in Parts III and IV (rules 300–730) are from the 2026-07-16 edition and many
+> have moved**: 441 is now Burn, 473 is Scoring, 487.4 is the battlefield count. The rules
+> themselves were not changed by the update; re-derive a number from the current PDF before
+> quoting it.
+>
 > **Compiled:** 2026-08-02 · **Rules version:** Core Rules + Tournament Rules 2026-07-16 ·
 > **Card data:** official gallery, `buildId` `HqBIi6LT2t74XpTktxUAo`
 >
@@ -61,9 +68,10 @@ Two consequences shape everything:
 | `SFD` | Spiritforged | — |
 | `UNL` | Unleashed | — |
 | `VEN` | Vendetta | 31 July 2026 |
-| `RAD` | Radiance | in the gallery from 10 Oct 2026 — ⚠️ release date and Standard legality not yet read from the Tournament Rules |
+| `RAD` | Radiance | **23 Oct 2026** (TR 601.3.c.6.a) |
 
-The first five are Standard-legal (TR 601.3.c).
+All six are Standard (TR 601.3.c). ⚠️ Radiance is not playable in a sanctioned event before
+its release date, and Forge's legality check does not read the calendar.
 
 ---
 
@@ -77,11 +85,11 @@ A deck is **four separate things** (CR 103):
 
 | Component | Casual (CR) | **Competition (TR)** | Citation |
 |---|---|---|---|
-| Champion Legend | exactly 1 | exactly 1 | CR 103.1 |
-| Main Deck | **≥40** | **exactly 40** | CR 103.2 / TR 402.1, 601.1.b |
-| — Chosen Champion | 1, counted **inside** the 40 | same | CR 103.2.a |
-| Rune Deck | exactly 12 | exactly 12 | CR 103.3 |
-| Battlefields | per Mode of Play | **exactly 3, unique names** | CR 103.4 / TR 402.1 |
+| Champion Legend | exactly 1 | exactly 1 | CR 103.2 |
+| Main Deck | **≥40** | **exactly 40** | CR 103.3 / TR 402.1, 601.1.b |
+| — Chosen Champion | 1, counted **inside** the 40 | same | CR 103.3.a |
+| Rune Deck | exactly 12 | exactly 12 | CR 103.4 |
+| Battlefields | per Mode of Play | **exactly 3, unique names** | CR 103.5 / TR 402.1 |
 | Sideboard | n/a | **≤10** | TR 601.1.c.1 |
 
 > **TR 402.1 is the single most quotable line for Forge:**
@@ -93,15 +101,15 @@ A deck is **four separate things** (CR 103):
 only **one of each player's** is used per game — **2 on the board total** (CR 485.4, 486.4).
 Deckbuilding validates 3; the board shows 2.
 
-## 2. Domain Identity — CR 103.1.b
+## 2. Domain Identity — CR 103.2.b
 
 The Champion Legend's domains define the deck's **Domain Identity**. Then:
 
-- A **single-domain** card is legal if that domain is in the identity (103.1.b.3)
-- A **multi-domain** card is legal only if **all** its domains are in the identity (103.1.b.4)
-- **Rune Deck cards must also comply** (CR 103.3.a.1)
+- A **single-domain** card is legal if that domain is in the identity (103.2.b.3)
+- A **multi-domain** card is legal only if **all** its domains are in the identity (103.2.b.4)
+- **Rune Deck cards must also comply** (CR 103.4.a.1)
 - Effects that add cards irrespective of domain make those cards count **as** part of the
-  identity (103.1.b.5)
+  identity (103.2.b.5)
 
 ✅ **Every Champion Legend carries exactly 2 domains** — verified across all 118 legend
 printings. And **all 15 possible domain pairs exist** (C(6,2) = 15), so Domain Identity
@@ -110,12 +118,12 @@ space is completely covered.
 **Colorless cards are legal in every identity.** All 66 battlefields are colorless, so
 Domain Identity never constrains battlefield choice in practice — a useful simplification.
 
-## 3. Copy limits — CR 103.2.b
+## 3. Copy limits — CR 103.3.b
 
 - **Up to 3 copies of the same *named* card**
 - **Includes the Chosen Champion** — Volibear, Furious as Chosen Champion *plus 2 more
-  copies* in the Main Deck is legal (103.2.b.1)
-- ⚠️ **"Cards have different names even if they represent the same character"** (103.2.b.2).
+  copies* in the Main Deck is legal (103.3.b.1)
+- ⚠️ **"Cards have different names even if they represent the same character"** (103.3.b.2).
   `3× Yasuo, Remorseful` **and** `3× Yasuo, Windrider` is legal — 6 Yasuos.
 - Name = `"[Short Name], [Subtitle]"` (CR 132.4). Kai'Sa, Evolutionary ≠ Kai'Sa, Survivor.
 - **Language is irrelevant** — the same card in English and Chinese is the same name (CR 132.3)
@@ -150,15 +158,15 @@ fills the 3-Signature allowance. It may **not** run 2 copies of any of them.
 > It is the second rule found only by reading the PDF directly — the first was Signature
 > cards. Risk LR2 in `PLAN.md` is confirmed as real.
 
-## 5. Chosen Champion — CR 103.2.a
+## 5. Chosen Champion — CR 103.3.a
 
 - Must be a **champion unit** whose **champion tag matches the Legend's tag**
 - *Rulebook example:* Loose Cannon has tag `Jinx`, so Jinx, Rebel or Jinx, Demolitionist qualify
 - ⚠️ **Signature units are ineligible.** Tibbers has tag `Annie` but is a *signature* unit,
   not a champion unit — it cannot be the Chosen Champion even under an Annie Legend
-  (103.2.a.2). Confirmed in data: **0 of 51 signature cards carry the champion supertype.**
-- Signature cards **cannot occupy the Champion Zone** at all (103.2.d.3)
-- In play, **any Champion Unit sharing the name** also counts as Chosen Champion (103.2.a.3)
+  (103.3.a.2). Confirmed in data: **0 of 51 signature cards carry the champion supertype.**
+- Signature cards **cannot occupy the Champion Zone** at all (103.3.d.3)
+- In play, **any Champion Unit sharing the name** also counts as Chosen Champion (103.3.a.3)
 
 ✅ **Every legend champion tag has at least 2 distinct champion units available**, so a
 legal Chosen Champion always exists. Distribution: 47 tags have 2 options, 6 have 3, 2 have 4.
@@ -182,7 +190,7 @@ serves one flat list.
 > Fizz, Rumble, Heimerdinger — as its Chosen Champion. The correct pool is **2**:
 > Kennen, Keeper of Balance and Kennen, Storm of Shuriken.
 
-**Reliable derivation.** CR 103.2.d.2 requires every Signature card to carry the champion
+**Reliable derivation.** CR 103.3.d.2 requires every Signature card to carry the champion
 tag of its Champion Legend. So:
 
 > **A Legend's champion tag is the tag its Signature cards carry.**
@@ -192,11 +200,11 @@ Verified: this resolves **118 / 118** legend printings uniquely, with zero ambig
 anywhere carries `Yordle`.) Equivalently, the 76 tags that never appear on a Signature card
 — Yordle, Ionia, Poro, Equipment, Recruit … — are provably **not** champion tags.
 
-## 6. ⚠️ Signature cards — CR 103.2.d
+## 6. ⚠️ Signature cards — CR 103.3.d
 
-- **3 Signature cards total, regardless of name** (103.2.d.1)
-- All must carry the **Champion tag matching the Champion Legend** (103.2.d.2)
-- They are **not** Champion units and **cannot** enter the Champion Zone (103.2.d.3)
+- **3 Signature cards total, regardless of name** (103.3.d.1)
+- All must carry the **Champion tag matching the Champion Legend** (103.3.d.2)
+- They are **not** Champion units and **cannot** enter the Champion Zone (103.3.d.3)
 
 A **separate, additional** limit from the 3-copies-per-name rule. Three *different*
 Signature cards already exhausts the allowance.
@@ -574,16 +582,21 @@ From a beginner walkthrough, matching the rules:
 | 24 | **Vision** | 817 | Triggered | *"When this is played, Predict."* Instances trigger separately |
 | 25 | **Weaponmaster** | 821 | Triggered | On play, may pay an Equipment's Equip cost **reduced by `[A]`** to attach it, ignoring normal Equip timing |
 
-### ⚠️ Radiance keywords — not yet in this table
+### Radiance keywords — Core Rules 2026-10-09
 
-Three keywords arrived with Radiance and are **read from reminder text only**; the Core Rules
-have not been re-read, so they carry no CR number here.
+| # | Keyword | CR | Type | Meaning |
+|---|---|---|---|---|
+| 26 | **Deploy** | 830 | Passive + triggered | Gear only. May be played to **any** battlefield, including enemy-occupied and open ones, and only to a battlefield. Not recalled in cleanups. *"When an opponent holds here, kill this."* Instances are redundant |
+| 27 | **Disarm X** | 831 | Attack trigger | *"When I attack, give an enemy unit here −X Might this turn."* X defaults to 1. Instances **sum into one trigger** |
+| 28 | **Show Off [Object]** | 832 | Passive | As you play it, you may reveal a matching card from hand and/or pick a matching friendly object on the board. Information read from the shown object is **locked in** at that moment. A facedown card cannot be shown |
 
-| Keyword | Printed reminder |
-|---|---|
-| **Deploy** | *"Play this only to a battlefield. When an opponent holds here, kill this."* |
-| **Disarm X** | *"When I attack, give an enemy unit here −X Might this turn."* X defaults to 1 |
-| **Show Off** | *"As you play this, you may reveal such a card from hand or pick a friendly one."* |
+The **Bomb** token is defined in CR 187.12: a domainless gear token with `[Deploy]` and
+`[Deathknell][>] Deal 2 to an enemy unit here and kill all other Bombs you control here`.
+
+**Additional deckbuilding decisions** are CR 103.1, new with `Neeko, Blending In`: up to
+three further Legends, different from each other and from the Champion Legend, chosen while
+building the deck, shared by every copy of Neeko, and registered on the decklist (TR 401.2.a).
+⚠️ Forge's deck has one Legend slot and cannot record them.
 
 ### Keyword usage frequency in the card pool
 
@@ -845,7 +858,7 @@ natively Mighty.
 
 **66 battlefields, 66 distinct names, all colorless, all landscape orientation** — the only
 landscape cards in the game. Because they're all colorless, Domain Identity never restricts
-them (CR 103.4.b's "if applicable" never applies).
+them (CR 103.5.b's "if applicable" never applies).
 
 **18 rune printings, 6 distinct names** — one Basic Rune per domain, printed in OGN
 (base + `a` variant) and VEN (`R01`–`R06`). The VEN runes have literal `[NO TEXT]` in their
@@ -1094,8 +1107,8 @@ from 27 checks to 33. Recorded here as the derivation:
 | **L29** | **Unique + Signature interaction**: the 3-Signature allowance is unaffected by Unique, but each Unique name is still capped at 1 | CR 825.3.b |
 | **L30** | **Battlefield count is exactly 3 with 3 distinct names** — not "per Mode of Play" | TR 402.1 |
 | **L31** | **Banned battlefields** are a separate list from banned cards. 5 of each | Rules Hub |
-| **L32** | **Match the champion tag, not any tag.** The gallery's `tags` list mixes champion tags with species/region tags and does not distinguish them. Derive the champion tag as *the tag carried by the Legend's Signature cards* (118/118 unique). Matching any tag would wrongly allow 13 Yordle champions under Heart of the Tempest instead of 2 Kennen ones | CR 133.8.b, 103.2.d.2 |
-| **L33** | Runes must be **Basic Runes of the Domain Identity**; only 6 distinct rune names exist | CR 103.3.a.1, 164.1 |
+| **L32** | **Match the champion tag, not any tag.** The gallery's `tags` list mixes champion tags with species/region tags and does not distinguish them. Derive the champion tag as *the tag carried by the Legend's Signature cards* (118/118 unique). Matching any tag would wrongly allow 13 Yordle champions under Heart of the Tempest instead of 2 Kennen ones | CR 133.8.b, 103.3.d.2 |
+| **L33** | Runes must be **Basic Runes of the Domain Identity**; only 6 distinct rune names exist | CR 103.4.a.1, 164.1 |
 
 ## Design implications
 
@@ -1156,6 +1169,10 @@ Python stdlib — no dependencies.
 **Official (authoritative)**
 - [Core Rules PDF](https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/e9ac8e3d33e0f78cef296f5945aba7bc1313b086.pdf) — 2026-07-16, 120pp — read in full
 - [Tournament Rules PDF](https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/503da65669ced10598d62925a6f6bc15111af726.pdf) — 2026-07-16, 50pp — read in full
+- [Core Rules PDF, 2026-10-09](https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/5c7946f7c3b8c6e0faff85ab6dadc6d2e721ea94.pdf) — read for CR 103, 187.12 and 830–832 only
+- [Tournament Rules PDF, 2026-10-09](https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/861752822d217edf37d9febaeaf77a7d924c1bb6.pdf) — read for TR 401.2 and 601.3 only
+- [Core Rules: Radiance Patch Notes](https://playriftbound.com/en-us/news/announcements/core-rules-radiance-patch-notes-effective-october-16-2026/) — 2026-10-09, read in full
+- [Radiance Errata](https://playriftbound.com/en-us/news/announcements/radiance-errata-updates/) · [October 2026 Tournament Rules Changelog](https://playriftbound.com/en-us/news/announcements/october-2026-tournament-rules-changelog/)
 - [Rules Hub](https://playriftbound.com/en-us/rules-hub/) — ban lists, errata, patch notes
 - [Deckbuilding Primer](https://playriftbound.com/en-us/news/rules-and-releases/deckbuilding-primer/) — official ratios
 - [Vendetta Errata](https://playriftbound.com/en-us/news/announcements/vendetta-errata-updates/) — 2026-07-23

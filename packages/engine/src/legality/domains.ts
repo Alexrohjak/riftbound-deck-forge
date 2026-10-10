@@ -4,7 +4,7 @@ import type { CardIndex, Deck, Domain, Violation } from "../types.js";
  * L8 · L9 · L10 · L11 · L12 — Domain Identity.
  *
  * The identity is **the Legend's domains**, and every other card must fit inside it
- * (CR 103.1.b.2). Confirmed across all 118 Legend printings: **the identity is always a
+ * (CR 103.2.b.2). Confirmed across all 118 Legend printings: **the identity is always a
  * pair** — there is no mono-domain or tri-domain Legend, so a Legend that resolves to
  * anything other than two domains means the card data is wrong, not that the deck is
  * exotic. That is worth reporting rather than swallowing (L8).
@@ -37,12 +37,12 @@ export function domainIdentity(deck: Deck, cards: CardIndex): readonly Domain[] 
 
 /** The check a card in this zone fails when it falls outside the identity. */
 function checkIdFor(zone: string, domainCount: number): { check: string; citation: string } {
-  if (zone === "RUNE") return { check: "L11", citation: "CR 103.3.a.1" };
+  if (zone === "RUNE") return { check: "L11", citation: "CR 103.4.a.1" };
   // L10 is called out in the spec because it is the one people get backwards: a
   // two-domain card needs **both** domains inside the identity, not either one.
   return domainCount > 1
-    ? { check: "L10", citation: "CR 103.1.b.4" }
-    : { check: "L9", citation: "CR 103.1.b.3" };
+    ? { check: "L10", citation: "CR 103.2.b.4" }
+    : { check: "L9", citation: "CR 103.2.b.3" };
 }
 
 export function checkDomainIdentity(deck: Deck, cards: CardIndex): Violation[] {
@@ -54,7 +54,7 @@ export function checkDomainIdentity(deck: Deck, cards: CardIndex): Violation[] {
   if (identity.length !== IDENTITY_SIZE) {
     violations.push({
       check: "L8",
-      citation: "CR 103.1.b.2",
+      citation: "CR 103.2.b.2",
       message:
         `Domain Identity comes from the Legend, and every Legend has exactly ` +
         `${IDENTITY_SIZE} domains; this one has ${identity.length}` +

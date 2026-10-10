@@ -52,7 +52,7 @@ Not required — and it is missing the Vendetta set entirely.
 ### `CardName` — derived, not stored
 
 The unit the rules actually operate on. **All copy limits key on the name string**
-(CR 103.2.b), so printings collapse and distinct names of one character do not:
+(CR 103.3.b), so printings collapse and distinct names of one character do not:
 
 ```
 "Jinx, Rebel"     ← ogn-202-298 AND ogn-202a-298 collapse here
@@ -123,7 +123,7 @@ The single most error-prone relationship in the system:
 | Concern | Keyed on | Why |
 |---|---|---|
 | **Ownership** | `card_id` (printing) | It is a physical object in a box |
-| **Legality** | `name` (string) | CR 103.2.b counts names, not printings |
+| **Legality** | `name` (string) | CR 103.3.b counts names, not printings |
 | **Entry** | `collector_number` | It is printed on the card (D-013) |
 
 > Getting this wrong **breaks copy-limit maths silently** — the worst failure mode,
@@ -142,7 +142,7 @@ the one in your box. So:
 
 - **Ownership rows** stay keyed on printing — that is what a physical object is
 - **`L26` / `L27` sum owned copies across a name's printings** before comparing
-- **Copy limits** remain keyed on name, unchanged (CR 103.2.b)
+- **Copy limits** remain keyed on name, unchanged (CR 103.3.b)
 
 The practical consequence for [`W2`](../PLAN.md): it does not matter which printing of a card
 you register. Enter the one in front of you.

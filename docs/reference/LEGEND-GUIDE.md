@@ -978,7 +978,8 @@ is the champion tag — the Chosen Champion pool is 2 units, **not** the 13 Yord
 
 # Radiance — 8 Legends
 
-> **Added 2026-10-10, from printed text alone.** No games, no field data, and the set is not
+> **Added 2026-10-10, from printed text, the Core Rules of 2026-10-09 and the Radiance patch
+> notes.** The set releases 23 October 2026. No games, no field data, and the set is not
 > complete in Riot's gallery: 25 of its 167 collector numbers are still missing, so every
 > ✅ list below is a floor. Three keywords are new and recur throughout — `[Deploy]`,
 > `[Disarm]`, `[Show Off]` — see [`CARD-KNOWLEDGE.md` §9](CARD-KNOWLEDGE.md).
@@ -999,8 +1000,8 @@ discount is available every *other* turn unless something readies the Legend
 **`Drakehound Packmaster`** (9E2P — the discount is largest in proportion on cheap units and
 most welcome on this one). `[Deathknell]` units are paid twice: **`Clocktower Guardian`**.
 ⭐ **`Chronobreak`** banishes and replays your units *ignoring cost*, which re-fires the play
-trigger. ⚠️ Whether the replayed unit keeps the "kill me" rider is a rules question not yet
-checked against the Core Rules.
+trigger **and removes the "kill me" rider** — ruled in the Radiance patch notes: a unit that
+changes zone loses its temporary modifications. The discounted unit stays.
 
 ❌ **Doesn't fit.** Units played to hold. Equipment plans — the body leaves and the gear
 falls off. ⚠️ **`Ekko, Recurrent` is banned** in both constructed formats, so the Champion
@@ -1019,9 +1020,9 @@ battlefield, and each of those deals its own 2. Stacking Bombs on one battlefiel
 plan, not a mistake — which is exactly what `Hexplosive Minefield` does.
 
 ✅ **Fits.** Makers: **`Amateur Demolitionist`**, **`Satchel Charge`**, both Ziggs. Kill
-outlets that want a gear to kill: **`Shimmering Swimmer`**, **`Detonation Amplifier`**
-(kills a unit or gear to draw; ⚠️ its second line doubles `[Deathknell]` effects, and a Bomb's
-*"when it dies"* does not print that keyword — do not assume it doubles Bombs),
+outlets that want a gear to kill: **`Shimmering Swimmer`**, ⭐ **`Detonation Amplifier`**
+(kills a unit or gear to draw, and doubles `[Deathknell]` effects at its battlefield — which
+includes every Bomb there, since CR 187.12 words the token's damage as a Deathknell),
 **`Ziggs, Explosive`** (kill a gear when defending for +2). **`Ziggs, Short-Fused`** adds 1
 Bonus Damage to gear abilities, so each Bomb is 3. **`Lingering Animus`** enters ready when
 a friendly gear died this turn.
@@ -1064,8 +1065,9 @@ Legend inverts the usual preference for cheap gear.
 **`Watchful Curator`** gives all your gear `[Deflect]`, which now protects a body.
 
 ❌ **Doesn't fit.** One-cost gear and Equipment: a 1-Might unit for 1E a turn. ⚠️ **One gear
-at a time** — choosing a new one turns the old one back. ⚠️ **Nothing in the text exempts an
-animated `[Deploy]` gear** from being killed when an opponent holds its battlefield.
+at a time** — choosing a new one turns the old one back. ⭐ **Animating a `[Deploy]` gear on a
+battlefield you do not control contests it** and stages a combat there — ruled. Deploy gear
+can be played to enemy battlefields, so this Legend can start a fight with a gear.
 
 **Shape:** ramp into a few expensive gear, one of which is the deck's best unit each turn.
 

@@ -209,7 +209,7 @@ export function sideboardCounsel(
    *
    * ⚠️ **Domain is not the only way a card can be illegal, and the second one bit.** Boarding
    * for an Ambessa deck, this returned `Riposte` as the headline hard counter — a **Signature
-   * card** legal only under a Fiora Legend (L21, CR 103.2.d.2). `checkLegality` rejected the
+   * card** legal only under a Fiora Legend (L21, CR 103.3.d.2). `checkLegality` rejected the
    * deck the moment it went in. The briefing already tells this story about `counter`, where
    * an illegal suggestion is merely unhelpful; here it breaks the promise `headroom` exists to
    * keep, that **no suggestion is one the gate will refuse**. So Signatures are filtered by

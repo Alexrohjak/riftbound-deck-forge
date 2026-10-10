@@ -5,7 +5,7 @@ import { domainIdentity } from "./domains.js";
 /**
  * L31 — the Rune Deck holds **only Basic Runes of the Domain Identity**.
  *
- * Another of the six found by reading CR 103.3.a.1 and 164.1 directly. L11 already holds
+ * Another of the six found by reading CR 103.4.a.1 and 164.1 directly. L11 already holds
  * runes to the identity; this adds the part that is easy to miss — the rune deck may contain
  * *nothing but basic runes*. There are only six distinct rune names in the game, so anything
  * else in that zone is a registration error rather than a strategic choice.
@@ -31,7 +31,7 @@ export function checkRunes(deck: Deck, cards: CardIndex): Violation[] {
   return [
     {
       check: "L31",
-      citation: "CR 103.3.a.1, 164.1",
+      citation: "CR 103.4.a.1, 164.1",
       message: `The Rune Deck may contain only Basic Runes; found ${offending.join(", ")}.`,
     },
   ];

@@ -273,11 +273,13 @@ export function readMechanics(deck: Deck, objective: Objective, cards: CardIndex
         claim: `${gearCopies} ${gearCopies === 1 ? "copy is" : "copies are"} [Deploy] gear — played only to a battlefield, and killed when an opponent holds there.`,
         because:
           "These count as gear everywhere else in this review, and they are permanent only " +
-          "for as long as the battlefield under them is not held against you. Counted, not " +
-          "judged: whether that is a risk depends on which battlefields this deck expects to keep.",
+          "for as long as the battlefield under them is not held against you. They may be " +
+          "played to any battlefield, including one an enemy occupies, and are not recalled " +
+          "in cleanups. Counted, not judged: whether the kill clause is a risk depends on " +
+          "which battlefields this deck expects to keep.",
         source: "computed",
         confidence: "fact",
-        attribution: "[Deploy] read from the card's leading keywords; the clause is the keyword's printed reminder",
+        attribution: "[Deploy] read from the card's own keywords; the clause is its printed reminder, and the rest is CR 830.1.b",
       },
     });
   }
@@ -327,7 +329,7 @@ export function readMechanics(deck: Deck, objective: Objective, cards: CardIndex
           "finding above counts what the deck has to show.",
         source: "computed",
         confidence: "fact",
-        attribution: "[Show Off] matched in printed text and quoted",
+        attribution: "[Show Off] matched in printed text and quoted; CR 832",
       },
     });
   }

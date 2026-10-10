@@ -5,7 +5,7 @@ import { deckEntries } from "../legality/entries.js";
  * **Battlefields** — the only card you bring that your opponent also gets to use.
  *
  * `GENERATOR §7`, resolving `G4`. You register 3 and present 1, and **both players'
- * battlefields are on the board** (CR 485.4, TR 402.1). Riot's own primer says to pick partly
+ * battlefields are on the board** (CR 487.4.a, TR 402.1). Riot's own primer says to pick partly
  * by *"which would harm you in an opponent's hands"*.
  *
  * ⚠️ **A class, not a score.** Which is why this fits

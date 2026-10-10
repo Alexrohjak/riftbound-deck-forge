@@ -403,6 +403,9 @@ whose plan was holding battlefields with bodies. Read `text`, then `mechanics`.
 ⚠️ **`combat.disarm` is not Might.** It is what `[Disarm N]` takes off **one** defender when
 the card attacks, reported beside `attacking` and never added into it.
 
+⚠️ **Radiance releases on 23 October 2026** (TR 601.3.c.6.a). `legality` does not read the
+calendar, so say the date whenever a deck you propose for a sanctioned event contains one.
+
 ⚠️ **Radiance is read from a gallery Riot has not finished.** 25 cards are unpublished, 55
 types and domains were repaired (`data/cards-repairs.json`), and plain cards mostly carry no
 tags. Do not say *"Radiance has no card that…"* — a negative claim about this set is not yet

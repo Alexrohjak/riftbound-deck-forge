@@ -18,7 +18,7 @@ always tournament-valid.
 | Mode | Main Deck | Sideboard | Status |
 |---|---|---|---|
 | `COMPETITION` | **exactly 40** (TR 601.1.b) | 0–10 (TR 601.1.c.1) | ✅ **implemented** |
-| ~~`CASUAL`~~ | ≥40 (CR 103.2) | n/a | ❌ **not built** — documented only |
+| ~~`CASUAL`~~ | ≥40 (CR 103.3) | n/a | ❌ **not built** — documented only |
 
 **This removes a mode switch, a second code path, a second test matrix, and a
 mode-selection UI.** The casual rule stays recorded so it can be added cheaply if ever
@@ -40,22 +40,22 @@ when **all** pass.
 
 | # | Check | Citation |
 |---|---|---|
-| L1 | Exactly 1 Champion Legend | CR 103.1 |
-| L2 | Exactly 1 Chosen Champion | CR 103.2.a |
+| L1 | Exactly 1 Champion Legend | CR 103.2 |
+| L2 | Exactly 1 Chosen Champion | CR 103.3.a |
 | L3 | Main Deck **exactly 40**, **Chosen Champion counted within** | TR 601.1.b |
-| L4 | Rune Deck exactly 12 | CR 103.3.a |
+| L4 | Rune Deck exactly 12 | CR 103.4.a |
 | L5 | **Exactly 3 Battlefields registered** — not "count for Mode of Play". Only 1 per player is used in play | **TR 402.1** |
-| L6 | Battlefield names unique | CR 103.4.c / TR 402.1 |
+| L6 | Battlefield names unique | CR 103.5.c / TR 402.1 |
 | L7 | Sideboard ≤10, or absent. **In scope — bo3 is played** | TR 601.1.c.1 |
 
 ### Domain Identity
 
 | # | Check | Citation |
 |---|---|---|
-| L8 | Domain Identity = the Legend's domains | CR 103.1.b.2 |
-| L9 | Single-domain cards: domain ∈ identity | CR 103.1.b.3 |
-| L10 | ⚠️ Multi-domain cards: **all** domains ⊆ identity | CR 103.1.b.4 |
-| L11 | Rune Deck cards comply with identity | CR 103.3.a.1 |
+| L8 | Domain Identity = the Legend's domains | CR 103.2.b.2 |
+| L9 | Single-domain cards: domain ∈ identity | CR 103.2.b.3 |
+| L10 | ⚠️ Multi-domain cards: **all** domains ⊆ identity | CR 103.2.b.4 |
+| L11 | Rune Deck cards comply with identity | CR 103.4.a.1 |
 | L12 | `colorless` is permitted under any identity | — verify |
 
 > ✅ **Confirmed:** every Champion Legend carries **exactly 2 domains** (all 118, per
@@ -65,20 +65,20 @@ when **all** pass.
 
 | # | Check | Citation |
 |---|---|---|
-| L13 | ≤3 copies **per card *name***, not per printing | CR 103.2.b |
-| L14 | Chosen Champion counts toward its name's 3 | CR 103.2.b.1 |
-| L15 | ⚠️ Different names of one character have **separate** allowances | CR 103.2.b.2 |
+| L13 | ≤3 copies **per card *name***, not per printing | CR 103.3.b |
+| L14 | Chosen Champion counts toward its name's 3 | CR 103.3.b.1 |
+| L15 | ⚠️ Different names of one character have **separate** allowances | CR 103.3.b.2 |
 | L16 | Limits span **Main Deck + sideboard combined** | TR 601.1.c.3 |
 
 ### Champion & Signature
 
 | # | Check | Citation |
 |---|---|---|
-| L17 | Chosen Champion is a **champion unit** | CR 103.2.a.2 |
-| L18 | Its champion tag matches the Legend's **champion tag** — see L32 | CR 103.2.a.2 |
-| L19 | ⚠️ **Signature units are ineligible** as Chosen Champion | CR 103.2.a.2 |
-| L20 | ⚠️ **≤3 Signature cards total, regardless of name** | CR 103.2.d.1 |
-| L21 | All Signature cards match the Legend's Champion tag | CR 103.2.d.2 |
+| L17 | Chosen Champion is a **champion unit** | CR 103.3.a.2 |
+| L18 | Its champion tag matches the Legend's **champion tag** — see L32 | CR 103.3.a.2 |
+| L19 | ⚠️ **Signature units are ineligible** as Chosen Champion | CR 103.3.a.2 |
+| L20 | ⚠️ **≤3 Signature cards total, regardless of name** | CR 103.3.d.1 |
+| L21 | All Signature cards match the Legend's Champion tag | CR 103.3.d.2 |
 
 ### Format
 
@@ -99,8 +99,8 @@ These six were absent from the original 27. See
 | **L28** | ⚠️ **`Unique`**: at most **1 copy** of any card whose text contains `[Unique]`, across Main Deck + sideboard. **Overrides the 3-copy limit.** Currently 3 cards — Forgefire Cape, Rabadon's Deathcrown, Shurelya's Requiem | CR 825.3.a |
 | **L29** | `Unique` + Signature: the 3-Signature allowance is unaffected, but each Unique **name** is still capped at 1. An Ornn deck may run all three Ornn equipment, one copy each | CR 825.3.b |
 | **L30** | Banned **Battlefields** are a **separate list** from banned cards — 5 of each | Rules Hub |
-| **L31** | Rune Deck contains only **Basic Runes** of the Domain Identity. Only 6 distinct rune names exist | CR 103.3.a.1, 164.1 |
-| **L32** | ⚠️ **Match the champion tag, not any tag.** The gallery's `tags` list mixes champion tags with species/region tags and does not distinguish them. **Derive the champion tag as the tag carried by the Legend's Signature cards** (resolves 118/118 uniquely). Matching *any* tag would wrongly allow 13 Yordle champions under Heart of the Tempest instead of 2 Kennen ones | CR 133.8.b, 103.2.d.2 |
+| **L31** | Rune Deck contains only **Basic Runes** of the Domain Identity. Only 6 distinct rune names exist | CR 103.4.a.1, 164.1 |
+| **L32** | ⚠️ **Match the champion tag, not any tag.** The gallery's `tags` list mixes champion tags with species/region tags and does not distinguish them. **Derive the champion tag as the tag carried by the Legend's Signature cards** (resolves 118/118 uniquely). Matching *any* tag would wrongly allow 13 Yordle champions under Heart of the Tempest instead of 2 Kennen ones | CR 133.8.b, 103.3.d.2 |
 | **L33** | Format legality resolves **by card name, not by printing** (TR 601.2.a). This neutralises all 128 out-of-range collector numbers | TR 601.2.a, 601.2.c |
 
 ### Ownership *(Forge-specific, not a game rule)*
@@ -140,16 +140,16 @@ possible defence against misreading the rules.
 
 | Test | Scenario | Expected | Rule |
 |---|---|---|---|
-| T1 | Volibear, Furious as Chosen Champion **+ 2 more copies** in Main Deck | ✅ legal | 103.2.b.1 |
-| T2 | `3× Yasuo, Remorseful` **and** `3× Yasuo, Windrider` | ✅ legal — different names | 103.2.b.2 |
-| T3 | Tibbers (tag `Annie`, **signature** unit) as Chosen Champion under an Annie Legend | ❌ illegal | 103.2.a.2 |
-| T4 | Jinx, Rebel as Chosen Champion under a Legend with tag `Jinx` | ✅ legal | 103.2.a.2 |
+| T1 | Volibear, Furious as Chosen Champion **+ 2 more copies** in Main Deck | ✅ legal | 103.3.b.1 |
+| T2 | `3× Yasuo, Remorseful` **and** `3× Yasuo, Windrider` | ✅ legal — different names | 103.3.b.2 |
+| T3 | Tibbers (tag `Annie`, **signature** unit) as Chosen Champion under an Annie Legend | ❌ illegal | 103.3.a.2 |
+| T4 | Jinx, Rebel as Chosen Champion under a Legend with tag `Jinx` | ✅ legal | 103.3.a.2 |
 | T5 | 4 copies of one name across Main Deck + sideboard | ❌ illegal | TR 601.1.c.3 |
-| T6 | 3 **different** Signature cards + 1 more | ❌ illegal — cap is 3 total | 103.2.d.1 |
-| T7 | Multi-domain card needing Fury+Mind, under a Fury/Calm Legend | ❌ illegal | 103.1.b.4 |
+| T6 | 3 **different** Signature cards + 1 more | ❌ illegal — cap is 3 total | 103.3.d.1 |
+| T7 | Multi-domain card needing Fury+Mind, under a Fury/Calm Legend | ❌ illegal | 103.2.b.4 |
 | T8 | 43-card Main Deck | ❌ illegal — competition only | TR 601.1.b |
-| T9 | Two Battlefields sharing a name | ❌ illegal | 103.4.c |
-| T10 | `ogn-202-298` + `ogn-202a-298` + one more "Jinx, Rebel" printing | 3 copies — ✅ legal; a 4th ❌ | 103.2.b |
+| T9 | Two Battlefields sharing a name | ❌ illegal | 103.5.c |
+| T10 | `ogn-202-298` + `ogn-202a-298` + one more "Jinx, Rebel" printing | 3 copies — ✅ legal; a 4th ❌ | 103.3.b |
 | **T11** | 2× Forgefire Cape (`[Unique]`) in one deck | ❌ illegal — Unique caps at 1 | 825.3.a |
 | **T12** | Forgefire Cape + Rabadon's Deathcrown + Shurelya's Requiem, one copy each, under an Ornn Legend | ✅ legal — 3 Signatures, each Unique satisfied | 825.3.b |
 | **T13** | Teemo, Scout (tag `Yordle`) as Chosen Champion under Heart of the Tempest (tags `Yordle`, `Kennen`) | ❌ illegal — `Yordle` is not the champion tag | 133.8.b |

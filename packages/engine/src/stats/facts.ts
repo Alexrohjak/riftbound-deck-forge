@@ -76,7 +76,7 @@ export interface DeckFacts {
   keywordsRead: boolean;
   /** The Rune Deck by domain — 12 in a legal deck (L4). */
   runes: Tally;
-  /** Signature cards, capped at 3 across the deck (L20, CR 103.2.d.1). */
+  /** Signature cards, capped at 3 across the deck (L20, CR 103.3.d.1). */
   signatures: number;
 }
 

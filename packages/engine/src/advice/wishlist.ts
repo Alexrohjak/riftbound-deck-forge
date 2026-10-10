@@ -50,7 +50,7 @@ export interface WishlistUse {
 /**
  * The most copies of one name a single deck may register.
  *
- * ⚠️ **A battlefield is one per deck, not three.** L6 (CR 103.4.c / TR 402.1) requires
+ * ⚠️ **A battlefield is one per deck, not three.** L6 (CR 103.5.c / TR 402.1) requires
  * battlefield *names* to be unique, so "you own five and play one, add more" is advice the
  * gate will refuse every time. Five of thirty-two rows were that claim before this existed —
  * and the way it was found is worth recording: a deck built to take a second `Risen Altar`

@@ -19,7 +19,7 @@ import { CARDS_SEEN_BY_TURN_ONE, MAIN_DECK_SIZE } from "../advice/shape.js";
 /** How many turns the curves cover. Six is where a 12-rune deck is exhausted (DECK-STATS §2). */
 export const TURNS = 6;
 
-/** Runes channelled per turn (CR 315.3.b.1). Channelled runes stay on the board. */
+/** Runes channelled per turn (CR 315.3.b). Channelled runes stay on the board. */
 export const RUNES_PER_TURN = 2;
 
 /**

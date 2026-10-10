@@ -118,7 +118,7 @@ Deterministic. Computed directly from the decklist. Always exactly right.
 | **Might distribution** | Combat is Might-vs-Might in Showdowns |
 | **Keyword counts** | Tank, Assault, Accelerate, Deflect, Hidden, Legion, Hunt |
 | **Rune split** | Per domain, out of 12 |
-| **Signature card count** | Hard cap of 3 total (CR 103.2.d.1) — see [D-020](../DECISIONS.md#d-020) |
+| **Signature card count** | Hard cap of 3 total (CR 103.3.d.1) — see [D-020](../DECISIONS.md#d-020) |
 | **Collection reality** | How many slots are **committed to other decks** ([D-017](../DECISIONS.md#d-017)) |
 
 ---

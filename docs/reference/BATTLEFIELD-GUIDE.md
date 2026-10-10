@@ -207,5 +207,7 @@ in a deck whose removal caps at 4 damage, `The Grand Plaza` opposite a swarm dec
 | `Rakelstake` | Each player's first unit or gear played here each turn `[Predict]`s | 🟡 symmetric | Same as `Hunters' Circle`, for consistency instead of tempo |
 
 ⚠️ **`Hunters' Circle` and `Rakelstake` say "play here"**, so they pay only on a unit or
-gear played to that battlefield, never on one played to base.
+gear played to that battlefield, never on one played to base. `[Deploy]` gear may be played
+to any battlefield, enemy-occupied included (CR 830.1.b.1), so a Deploy deck collects these
+on the opponent's side of the board too.
 

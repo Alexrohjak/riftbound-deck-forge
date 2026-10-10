@@ -70,7 +70,7 @@ measured across all 950 cards it serves:
 | **Domains single-valued** | `faction` has 7 values, none compound — **cannot express a two-domain Legend**, and every Legend has two | L8 · L10 |
 | **No Signature supertype** | no such field | L19–L21 |
 
-**The decisive example:** CR 103.2.a.2 illustrates champion tags using **Loose Cannon**,
+**The decisive example:** CR 103.3.a.2 illustrates champion tags using **Loose Cannon**,
 a Legend tagged `Jinx`. RiftScribe returns it with `tags: []`.
 
 **Still genuinely useful for:** pre-parsed `keywords` arrays, convenient

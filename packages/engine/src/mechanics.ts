@@ -134,7 +134,7 @@ export const MECHANICS: readonly MechanicRule[] = [
     pattern: /\[Deploy\]/i,
     kind: "cost",
     modelled: "advice/mechanics findings — counted, with what kills it; and the keyword facts",
-    why: "A gear that can only be played to a battlefield and dies the moment an opponent holds there. It is a gear in every count and a permanent only while you keep the battlefield",
+    why: "CR 830. Played only to a battlefield — any battlefield, enemy-held included — and killed when an opponent holds there. It is a gear in every count and a permanent only while that battlefield is not held against you",
   },
   {
     id: "deploy-payoff",
@@ -155,7 +155,7 @@ export const MECHANICS: readonly MechanicRule[] = [
     pattern: /\[Show Off\]/i,
     kind: "threshold",
     modelled: "advice/mechanics findings — counted, and its Energy threshold measured against the deck",
-    why: "Reveal a matching card from hand, or point at a friendly one, as you play it. The better half of the card is conditional on holding the thing it shows",
+    why: "CR 832. As you play it, reveal a matching card from hand or pick a matching friendly object on the board. What it reads off the shown card is locked in at that moment, and a facedown card cannot be shown",
   },
 
   // ── combat keywords, where a gap changes what a deck can answer ──
@@ -192,7 +192,7 @@ export const MECHANICS: readonly MechanicRule[] = [
     pattern: /\[Disarm/i,
     kind: "keyword",
     modelled: "Q-CARD combat profile (`disarm`, and orientation), and the keyword facts",
-    why: "Takes Might off a defender when it attacks — reach that printed Might and [Assault] do not show",
+    why: "CR 831. When it attacks, one enemy unit there gets -X Might this turn; X is 1 when omitted, and instances sum into a single trigger. Reach that printed Might and [Assault] do not show",
   },
   {
     id: "tank",

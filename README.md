@@ -62,9 +62,14 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 > - **A card's keywords are now read wherever they open a sentence**, not only at the top of
 >   the text. 62 cards across every set gained keywords they always had, and a bare
 >   `[Assault]` or `[Shield]` reads as 1.
-> - **Not done:** the Core and Tournament Rules have not been re-read for Radiance, so its
->   keywords carry no CR numbers and its Standard legality is assumed. The field snapshot is
->   still Vendetta post-ban and knows none of the new Legends.
+> - **Radiance releases 23 October 2026** and is Standard from that date (TR 601.3.c.6.a).
+>   `legality` does not read the calendar.
+> - **Riot reissued both rules documents on 2026-10-09.** Deck construction was renumbered
+>   (CR 103.x moved up by one) and every legality citation was corrected. The Compendium's
+>   citations between CR 300 and 730 are still the July numbers.
+> - **Not done:** the field snapshot cannot know the new Legends until the set has been
+>   played. `Neeko, Blending In`'s three extra Legends have nowhere to live in a Forge deck.
+>   Radiance errata (`Elnuk Herd`, `Neeko`) are not in the gallery text yet.
 
 > ## 🎯 Pick this up here — the field is in, and the Game plan tab shows it
 >
