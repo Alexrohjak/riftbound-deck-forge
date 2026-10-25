@@ -52,9 +52,11 @@ explains them ([D-041](docs/DECISIONS.md#d-041)).
 > pool from Riot's gallery and says what changed.
 >
 > - **Re-run `npm run cards` before building with Radiance.** 25 of the set's 167 collector
->   numbers were missing and 55 types and domains were wrong on publication. The repairs are
->   in `data/cards-repairs.json` and should shrink; new cards need classifying by hand in
->   `data/classification.json`.
+>   numbers were missing and 55 types and domains were wrong on publication. The 2026-10-25
+>   refresh brought in all 167 (219 printings), but types and domains are still wrong on 66
+>   printings, so the repairs in `data/cards-repairs.json` grew instead of shrinking. **The 23
+>   cards added on 2026-10-25 are not classified yet** (`data/classification.json`), so
+>   `review` and `ask` cannot see them. You can still add them to the collection.
 > - **`[Deploy]`, `[Disarm]` and `[Show Off]` are modelled.** `review` counts Deploy payoffs
 >   against Deploy gear and seven-cost payoffs against seven-cost cards; `card` reports
 >   `combat.disarm`. Tags `deploy_matters` and `costs_seven` replace `gear_matters` and

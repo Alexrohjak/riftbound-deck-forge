@@ -150,6 +150,26 @@
    "evidence": "collector number 17 is in the fury block"
   },
   {
+   "id": "rad-022-167",
+   "name": "Whirling Twirligig",
+   "field": "domains",
+   "published": [],
+   "used": [
+    "fury"
+   ],
+   "evidence": "collector number 22 is in the fury block"
+  },
+  {
+   "id": "rad-022-167",
+   "name": "Whirling Twirligig",
+   "field": "types",
+   "published": [],
+   "used": [
+    "gear"
+   ],
+   "evidence": "image alt text, Might agrees"
+  },
+  {
    "id": "rad-024-167",
    "name": "Blossoming Dreamroot",
    "field": "domains",
@@ -256,6 +276,18 @@
    "published": [],
    "used": [
     "spell"
+   ],
+   "evidence": "image alt text, Might agrees"
+  },
+  {
+   "id": "rad-044-167",
+   "name": "Hunting Blind",
+   "field": "types",
+   "published": [
+    "unit"
+   ],
+   "used": [
+    "gear"
    ],
    "evidence": "image alt text, Might agrees"
   },
@@ -504,6 +536,26 @@
    "evidence": "collector number 102 is in the chaos block"
   },
   {
+   "id": "rad-104-167",
+   "name": "Pitiless Stalker",
+   "field": "domains",
+   "published": [],
+   "used": [
+    "chaos"
+   ],
+   "evidence": "collector number 104 is in the chaos block"
+  },
+  {
+   "id": "rad-104-167",
+   "name": "Pitiless Stalker",
+   "field": "types",
+   "published": [],
+   "used": [
+    "unit"
+   ],
+   "evidence": "image alt text, Might agrees"
+  },
+  {
    "id": "rad-106-167",
    "name": "The Good Stuff",
    "field": "domains",
@@ -584,6 +636,50 @@
    "evidence": "image alt text, Might agrees"
   },
   {
+   "id": "rad-123-167",
+   "name": "Protector's Shield",
+   "field": "domains",
+   "published": [],
+   "used": [
+    "order"
+   ],
+   "evidence": "collector number 123 is in the order block"
+  },
+  {
+   "id": "rad-123-167",
+   "name": "Protector's Shield",
+   "field": "types",
+   "published": [],
+   "used": [
+    "gear"
+   ],
+   "evidence": "image alt text, Might agrees"
+  },
+  {
+   "id": "rad-124-167",
+   "name": "Burn Away",
+   "field": "domains",
+   "published": [
+    "body"
+   ],
+   "used": [
+    "order"
+   ],
+   "evidence": "collector number 124 is in the order block"
+  },
+  {
+   "id": "rad-124-167",
+   "name": "Burn Away",
+   "field": "types",
+   "published": [
+    "gear"
+   ],
+   "used": [
+    "spell"
+   ],
+   "evidence": "image alt text, Might agrees"
+  },
+  {
    "id": "rad-127-167",
    "name": "Rousing Display",
    "field": "types",
@@ -614,6 +710,26 @@
    ],
    "used": [
     "unit"
+   ],
+   "evidence": "image alt text, Might agrees"
+  },
+  {
+   "id": "rad-134-167",
+   "name": "Raucous Anthem",
+   "field": "domains",
+   "published": [],
+   "used": [
+    "order"
+   ],
+   "evidence": "collector number 134 is in the order block"
+  },
+  {
+   "id": "rad-134-167",
+   "name": "Raucous Anthem",
+   "field": "types",
+   "published": [],
+   "used": [
+    "spell"
    ],
    "evidence": "image alt text, Might agrees"
   },
