@@ -1,11 +1,11 @@
 {
  "schema": "forge.backup/2",
- "takenAt": "2026-11-24T03:12:15.649Z",
+ "takenAt": "2026-11-26T03:12:16.494Z",
  "collection": {
   "schema": "forge.collection/1",
   "totals": {
    "printings": 976,
-   "copies": 4292
+   "copies": 4295
   },
   "counts": {
    "ogn-001-298": 8,
@@ -473,7 +473,7 @@
    "sfd-018-221": 1,
    "sfd-019-221": 2,
    "sfd-020-221": 1,
-   "sfd-021-221": 2,
+   "sfd-021-221": 3,
    "sfd-022-221": 1,
    "sfd-023-221": 1,
    "sfd-025-221": 1,
@@ -561,7 +561,7 @@
    "sfd-130-221": 4,
    "sfd-131-221": 1,
    "sfd-132-221": 1,
-   "sfd-133-221": 1,
+   "sfd-133-221": 2,
    "sfd-134-221": 2,
    "sfd-135-221": 1,
    "sfd-136-221": 3,
@@ -570,7 +570,7 @@
    "sfd-139-221": 2,
    "sfd-140-221": 3,
    "sfd-144-221": 1,
-   "sfd-145-221": 1,
+   "sfd-145-221": 2,
    "sfd-148-221": 1,
    "sfd-148a-221": 1,
    "sfd-149a-221": 1,
@@ -1494,6 +1494,121 @@
      "cardId": "ogn-172-298",
      "zone": "SIDEBOARD",
      "quantity": 2
+    }
+   ]
+  },
+  {
+   "id": "dmwwfwzdjk4fx",
+   "name": "Deck 6",
+   "state": "DRAFT",
+   "legendCardId": "sfd-185-221",
+   "chosenChampionCardId": "sfd-148a-221",
+   "plan": null,
+   "slots": [
+    {
+     "cardId": "ogn-004-298",
+     "zone": "MAIN",
+     "quantity": 2
+    },
+    {
+     "cardId": "ogn-012-298",
+     "zone": "MAIN",
+     "quantity": 3
+    },
+    {
+     "cardId": "ogn-039-298",
+     "zone": "MAIN",
+     "quantity": 1
+    },
+    {
+     "cardId": "rad-098-167",
+     "zone": "MAIN",
+     "quantity": 2
+    },
+    {
+     "cardId": "rad-107-167",
+     "zone": "MAIN",
+     "quantity": 2
+    },
+    {
+     "cardId": "sfd-003-221",
+     "zone": "MAIN",
+     "quantity": 1
+    },
+    {
+     "cardId": "sfd-021-221",
+     "zone": "MAIN",
+     "quantity": 2
+    },
+    {
+     "cardId": "sfd-128-221",
+     "zone": "MAIN",
+     "quantity": 3
+    },
+    {
+     "cardId": "sfd-133-221",
+     "zone": "MAIN",
+     "quantity": 1
+    },
+    {
+     "cardId": "sfd-139-221",
+     "zone": "MAIN",
+     "quantity": 1
+    },
+    {
+     "cardId": "sfd-145-221",
+     "zone": "MAIN",
+     "quantity": 1
+    },
+    {
+     "cardId": "sfd-186-221",
+     "zone": "MAIN",
+     "quantity": 2
+    },
+    {
+     "cardId": "unl-128-219",
+     "zone": "MAIN",
+     "quantity": 1
+    },
+    {
+     "cardId": "unl-139-219",
+     "zone": "MAIN",
+     "quantity": 1
+    },
+    {
+     "cardId": "unl-141-219",
+     "zone": "MAIN",
+     "quantity": 2
+    },
+    {
+     "cardId": "ven-100-166",
+     "zone": "MAIN",
+     "quantity": 2
+    },
+    {
+     "cardId": "ven-101-166",
+     "zone": "MAIN",
+     "quantity": 2
+    },
+    {
+     "cardId": "ogn-007-298",
+     "zone": "RUNE",
+     "quantity": 6
+    },
+    {
+     "cardId": "ogn-166-298",
+     "zone": "RUNE",
+     "quantity": 6
+    },
+    {
+     "cardId": "sfd-001-221",
+     "zone": "SIDEBOARD",
+     "quantity": 2
+    },
+    {
+     "cardId": "unl-128-219",
+     "zone": "SIDEBOARD",
+     "quantity": 1
     }
    ]
   }
@@ -2881,6 +2996,223 @@
    "hash": "143c0acce6bb46ec",
    "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"ogn-039-298\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"ogn-173-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-172-298\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"ogn-185-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"sfd-128-221\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-145-221\",\"zone\":\"MAIN\",\"quantity\":1}]}",
    "at": "2026-11-23 14:38:13"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 1,
+   "hash": "ef63b530759068d0",
+   "contents": "{\"legendCardId\":\"\",\"chosenChampionCardId\":\"\",\"slots\":[]}",
+   "at": "2026-11-25 19:11:35"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 2,
+   "hash": "1516d6c80d1d2be8",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6}]}",
+   "at": "2026-11-25 19:12:02"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 3,
+   "hash": "9cb9ad5f791d03ff",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6}]}",
+   "at": "2026-11-25 19:12:03"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 4,
+   "hash": "4bf6d072dbc58112",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6}]}",
+   "at": "2026-11-25 19:12:05"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 5,
+   "hash": "c07e0892c9a4e332",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2}]}",
+   "at": "2026-11-25 19:12:18"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 6,
+   "hash": "277a255e1cd070fe",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3}]}",
+   "at": "2026-11-25 19:12:20"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 7,
+   "hash": "a25194137b309d33",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2}]}",
+   "at": "2026-11-25 19:12:25"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 8,
+   "hash": "09d85625da7599c5",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-173-298\",\"zone\":\"MAIN\",\"quantity\":1}]}",
+   "at": "2026-11-25 19:12:40"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 9,
+   "hash": "a25194137b309d33",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2}]}",
+   "at": "2026-11-25 19:12:43"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 10,
+   "hash": "14243c75e4df5095",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"MAIN\",\"quantity\":2}]}",
+   "at": "2026-11-25 19:12:57"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 11,
+   "hash": "fbb3c168e0b7d888",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"MAIN\",\"quantity\":1}]}",
+   "at": "2026-11-25 19:12:58"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 12,
+   "hash": "14243c75e4df5095",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"MAIN\",\"quantity\":2}]}",
+   "at": "2026-11-25 19:12:59"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 13,
+   "hash": "c3261969710671c9",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":1},{\"cardId\":\"sfd-001-221\",\"zone\":\"MAIN\",\"quantity\":1}]}",
+   "at": "2026-11-25 19:13:01"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 14,
+   "hash": "cecc15070c5a4ee7",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2}]}",
+   "at": "2026-11-25 19:13:02"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 15,
+   "hash": "270cec7615acdbd6",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1}]}",
+   "at": "2026-11-25 19:13:03"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 16,
+   "hash": "7b5d4d64dda4c4c4",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2}]}",
+   "at": "2026-11-25 19:13:07"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 17,
+   "hash": "dfce0c43805fcc23",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1}]}",
+   "at": "2026-11-25 19:13:12"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 18,
+   "hash": "6aba8ab012b5cd10",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-139-221\",\"zone\":\"MAIN\",\"quantity\":1}]}",
+   "at": "2026-11-25 19:13:15"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 19,
+   "hash": "759d24a611412286",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-139-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-145-221\",\"zone\":\"MAIN\",\"quantity\":1}]}",
+   "at": "2026-11-25 19:13:20"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 20,
+   "hash": "90eccf086fe8f2e8",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-139-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-145-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-186-221\",\"zone\":\"MAIN\",\"quantity\":2}]}",
+   "at": "2026-11-25 19:13:23"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 21,
+   "hash": "64b6f68f1214f16f",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-139-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-145-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-186-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-128-219\",\"zone\":\"MAIN\",\"quantity\":2}]}",
+   "at": "2026-11-25 19:13:44"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 22,
+   "hash": "e11f8d2887406948",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-139-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-145-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-186-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-128-219\",\"zone\":\"SIDEBOARD\",\"quantity\":1},{\"cardId\":\"unl-128-219\",\"zone\":\"MAIN\",\"quantity\":1}]}",
+   "at": "2026-11-25 19:13:46"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 23,
+   "hash": "1adc5c101a343430",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-139-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-145-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-186-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-128-219\",\"zone\":\"SIDEBOARD\",\"quantity\":1},{\"cardId\":\"unl-128-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-139-219\",\"zone\":\"MAIN\",\"quantity\":1}]}",
+   "at": "2026-11-25 19:13:49"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 24,
+   "hash": "8cc11ac2a373f2e2",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-139-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-145-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-186-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-128-219\",\"zone\":\"SIDEBOARD\",\"quantity\":1},{\"cardId\":\"unl-128-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-139-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-141-219\",\"zone\":\"MAIN\",\"quantity\":2}]}",
+   "at": "2026-11-25 19:13:51"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 25,
+   "hash": "f4d01680fc39b9a0",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-139-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-145-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-186-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-128-219\",\"zone\":\"SIDEBOARD\",\"quantity\":1},{\"cardId\":\"unl-128-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-139-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-141-219\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-100-166\",\"zone\":\"MAIN\",\"quantity\":2}]}",
+   "at": "2026-11-25 19:14:08"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 26,
+   "hash": "fe82d41156d9b331",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-139-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-145-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-186-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-128-219\",\"zone\":\"SIDEBOARD\",\"quantity\":1},{\"cardId\":\"unl-128-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-139-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-141-219\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-100-166\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-101-166\",\"zone\":\"MAIN\",\"quantity\":2}]}",
+   "at": "2026-11-25 19:14:14"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 27,
+   "hash": "b5e0b56c032f290c",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-139-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-145-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-186-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-128-219\",\"zone\":\"SIDEBOARD\",\"quantity\":1},{\"cardId\":\"unl-128-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-139-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-141-219\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-100-166\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-101-166\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"rad-098-167\",\"zone\":\"MAIN\",\"quantity\":2}]}",
+   "at": "2026-11-25 19:14:25"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 28,
+   "hash": "f77f0b2e782d1fce",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-139-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-145-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-186-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-128-219\",\"zone\":\"SIDEBOARD\",\"quantity\":1},{\"cardId\":\"unl-128-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-139-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-141-219\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-100-166\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-101-166\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"rad-098-167\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"rad-107-167\",\"zone\":\"MAIN\",\"quantity\":2}]}",
+   "at": "2026-11-25 19:14:27"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 29,
+   "hash": "0f9e7a4f60af1c6f",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-139-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-145-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-186-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-128-219\",\"zone\":\"SIDEBOARD\",\"quantity\":1},{\"cardId\":\"unl-128-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-139-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-141-219\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-100-166\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-101-166\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"rad-098-167\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"rad-107-167\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-128-221\",\"zone\":\"MAIN\",\"quantity\":3}]}",
+   "at": "2026-11-25 19:14:43"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 30,
+   "hash": "35bf997c3758e41c",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-029-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-139-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-145-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-186-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-128-219\",\"zone\":\"SIDEBOARD\",\"quantity\":1},{\"cardId\":\"unl-128-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-139-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-141-219\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-100-166\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-101-166\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"rad-098-167\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"rad-107-167\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-128-221\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-039-298\",\"zone\":\"MAIN\",\"quantity\":1}]}",
+   "at": "2026-11-25 19:14:49"
+  },
+  {
+   "deck_id": "dmwwfwzdjk4fx",
+   "seq": 31,
+   "hash": "8fcc671bd183523b",
+   "contents": "{\"legendCardId\":\"sfd-185-221\",\"chosenChampionCardId\":\"sfd-148a-221\",\"slots\":[{\"cardId\":\"ogn-007-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-166-298\",\"zone\":\"RUNE\",\"quantity\":6},{\"cardId\":\"ogn-004-298\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ogn-012-298\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"sfd-001-221\",\"zone\":\"SIDEBOARD\",\"quantity\":2},{\"cardId\":\"sfd-003-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-021-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-133-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-139-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-145-221\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"sfd-186-221\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"unl-128-219\",\"zone\":\"SIDEBOARD\",\"quantity\":1},{\"cardId\":\"unl-128-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-139-219\",\"zone\":\"MAIN\",\"quantity\":1},{\"cardId\":\"unl-141-219\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-100-166\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"ven-101-166\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"rad-098-167\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"rad-107-167\",\"zone\":\"MAIN\",\"quantity\":2},{\"cardId\":\"sfd-128-221\",\"zone\":\"MAIN\",\"quantity\":3},{\"cardId\":\"ogn-039-298\",\"zone\":\"MAIN\",\"quantity\":1}]}",
+   "at": "2026-11-25 19:35:53"
   }
  ],
  "gameplans": []
